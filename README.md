@@ -20,9 +20,9 @@
 
 <div align="center">
 
-|                                                           **조승근**                                                            |                                                                               **임태훈**                                                                                |                                                                 **오세학**                                                                  |                                                                                         **정예영**                                                                                         |                                                                                                   **이화정**                                                                                                    |                                                          **백지원**                                                           |
-| :-----------------------------------------------------------------------------------------------------------------------------: | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------: | :-----------------------------------------------------------------------------------------------------------------------------------------: | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: | :---------------------------------------------------------------------------------------------------------------------------: |
-| <img src="https://logowik.com/content/uploads/images/goofy.jpg" height=150 width=150 object-fit:cover> <br/> 팀장 <br/> BE 총괄 | <img src="https://www.kindpng.com/picc/m/164-1643129_elsa-anna-frozen-desktop-wallpaper-frozen-elsa-hd.png" height=150 width=150 object-fit:cover> <br/> BE <br/> <br/> | <img src="https://sunwootnd2.img44.makeshop.info/images/product/review/161/FIGURE-016411_01.jpg" height=150 width=150> <br/> BE <br/> <br/> | <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSwVl-wZ_lkDxPEFQMF-tcApb9jkOBJbqfJdiQfErb2e8snBNQ0aoQTKXWEdDnl_SO5ltk&usqp=CAU" height=150 width=150> <br/> BE <br/> <br/> | <img src="https://purepng.com/public/uploads/large/purepng.com-jerry-tom-and-jerrytom-and-jerrytomjerryanimated-seriesin-1940characters-1701528659464e0au3.png" height=150 width=150> <br/> FE 총괄 <br/> <br/> | <img src="https://i.pinimg.com/736x/0b/fa/fd/0bfafd3fb5009441ba36fb649bb74fb7.jpg" height=150 width=150> <br/> FE <br/> <br/> |
+|                                                           **조승근**                                                            |                                                                               **임태훈**                                                                                |                                                                 **오세학**                                                                  |                                                                                         **정예영**                                                                                         |                                                             **이화정**                                                             |                                                          **백지원**                                                           |
+| :-----------------------------------------------------------------------------------------------------------------------------: | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------: | :-----------------------------------------------------------------------------------------------------------------------------------------: | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: | :--------------------------------------------------------------------------------------------------------------------------------: | :---------------------------------------------------------------------------------------------------------------------------: |
+| <img src="https://logowik.com/content/uploads/images/goofy.jpg" height=150 width=150 object-fit:cover> <br/> 팀장 <br/> BE 총괄 | <img src="https://www.kindpng.com/picc/m/164-1643129_elsa-anna-frozen-desktop-wallpaper-frozen-elsa-hd.png" height=150 width=150 object-fit:cover> <br/> BE <br/> <br/> | <img src="https://sunwootnd2.img44.makeshop.info/images/product/review/161/FIGURE-016411_01.jpg" height=150 width=150> <br/> BE <br/> <br/> | <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSwVl-wZ_lkDxPEFQMF-tcApb9jkOBJbqfJdiQfErb2e8snBNQ0aoQTKXWEdDnl_SO5ltk&usqp=CAU" height=150 width=150> <br/> BE <br/> <br/> | <img src="https://i.pinimg.com/550x/85/58/29/85582987f7125e4868fdcb28661e934f.jpg" height=150 width=150> <br/> FE 총괄 <br/> <br/> | <img src="https://i.pinimg.com/736x/0b/fa/fd/0bfafd3fb5009441ba36fb649bb74fb7.jpg" height=150 width=150> <br/> FE <br/> <br/> |
 
 </div>
 
@@ -205,10 +205,14 @@ public record JSONResponse<T>(
 
 ## 3. 프로젝트 구조
 
-```
+### Use Case
 
-```
+![alt text](<img/Use Case.png>)
+<br>
 
+### 정보구조도
+
+![alt text](img/정보구조도.png)
 <br>
 
 ## 4. 역할 분담
@@ -217,37 +221,35 @@ public record JSONResponse<T>(
 
 - **기능**
   - 채팅 기능
+    <br>
 
-<br>
-    
 ### 임태훈
 
 - **기능**
   - 복약 알림 기능
-
-<br>
+    <br>
 
 ### 오세학
 
 - **기능**
   - 복용 약물 등록, 관리
-
-<br>
+    <br>
 
 ### 정예영
 
 - **기능**
   - 회원가입 및 본인 인증
-
-<br>
+    <br>
 
 ### 이화정
 
-<br>
+- UI/UX 디자인
+  <br>
 
 ### 백지원
 
-<br>
+- UI/UX 디자인
+  <br>
 
 ## 5. 개발 기간 및 작업 관리
 
