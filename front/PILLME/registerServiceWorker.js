@@ -1,5 +1,7 @@
 import { registerSW } from 'virtual:pwa-register';
 
+
+
 const CACHE_NAME = 'pillme-cache-v8'; // 🔹 새로운 버전의 캐시
 const OFFLINE_PAGE = '/offline.html'; // ✅ 오프라인 안내 페이지
 const API_CACHE = 'pillme-api-cache'; // ✅ API 응답 캐싱
