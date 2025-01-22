@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PILLME - PWA</title>
+
+    <!-- ✅ PWA 지원을 위한 메타 태그 추가 -->
+    <meta name="theme-color" content="#42b883" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="icon" href="/pwa-icon-192.png" />
+    <link rel="apple-touch-icon" href="/pwa-icon-512.png" />
+
+    <!-- ✅ 오프라인 시 기본 메시지 스타일 -->
+    <style>
+      .offline-message {
+        display: none;
+        text-align: center;
+        padding: 20px;
+        background-color: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+        border-radius: 5px;
+        margin: 10px;
+      }
+    </style>
+
+    <!-- ✅ 네트워크 상태 감지 -->
+    <script>
+      window.addEventListener('offline', () => {
+        document.getElementById('offline-message').style.display = 'block';
+      });
+
+      window.addEventListener('online', () => {
+        document.getElementById('offline-message').style.display = 'none';
+      });
+    </script>
+  </head>
+  <body>
+    <div id="app"></div>
+
+    <!-- ✅ 오프라인 상태에서 표시될 안내 문구 -->
+    <div id="offline-message" class="offline-message">
+      현재 인터넷이 연결되지 않았습니다. <br />
+      일부 기능이 제한될 수 있습니다.
+    </div>
+
+    <!-- ✅ Vue 앱 로드 -->
+    <script type="module" src="/src/main.js"></script>
+
+    <!-- ✅ PWA 서비스 워커 등록 -->
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker
+            .register('/registerServiceWorker.js')
+            .then((registration) => {
+              console.log('[PWA] 서비스 워커 등록 완료:', registration);
+            })
+            .catch((error) => {
+              console.error('[PWA] 서비스 워커 등록 실패:', error);
+            });
+        });
+      }
+    </script>
+  </body>
+</html>
