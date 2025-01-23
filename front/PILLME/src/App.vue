@@ -55,6 +55,13 @@ const checkForUpdates = () => {
       if (registration && registration.waiting) {
         isUpdateAvailable.value = true; // ✅ 새 버전이 있음
       }
+
+      // ✅ 기존 코드 유지하면서 추가 가능: 업데이트가 발견될 때마다 감지
+      registration?.addEventListener('updatefound', () => {
+        if (registration.waiting) {
+          isUpdateAvailable.value = true;
+        }
+      });
     });
   }
 };
@@ -65,7 +72,11 @@ const refreshApp = () => {
     navigator.serviceWorker.getRegistration().then((registration) => {
       if (registration && registration.waiting) {
         registration.waiting.postMessage({ type: 'SKIP_WAITING' });
-        window.location.reload();
+
+        // ✅ 기존 코드 유지하면서 추가 가능: 업데이트 적용 후 자동 새로고침
+        navigator.serviceWorker.addEventListener('controllerchange', () => {
+          window.location.reload();
+        });
       }
     });
   }
@@ -77,6 +88,11 @@ onMounted(() => {
   window.addEventListener('online', updateNetworkStatus);
   window.addEventListener('offline', updateNetworkStatus);
   window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+
+  // ✅ 기존 코드 유지하면서 추가 가능: PWA 설치 가능 여부 체크
+  if (window.matchMedia('(display-mode: standalone)').matches) {
+    deferredPrompt.value = null; // 이미 설치됨
+  }
 
   // ✅ 서비스 워커 업데이트 감지
   checkForUpdates();
