@@ -4,8 +4,9 @@ import { createApp } from 'vue';
 import { createPinia } from 'pinia';
 
 import App from './App.vue';
+import './styles/global.css'; // 전역 스타일 적용
 import router from './router';
-import '@/registerServiceWorker'; // ✅ PWA 서비스 워커 등록
+// import '@/registerServiceWorker'; // ✅ PWA 서비스 워커 등록
 
 const app = createApp(App);
 
