@@ -7,6 +7,7 @@ import com.ssafy.pillme.global.code.ErrorCode;
 import com.ssafy.pillme.global.response.JSONResponse;
 import com.ssafy.pillme.global.response.MessageUtil;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -25,13 +26,11 @@ public class CommonExceptionHandler {
     public ResponseEntity<JSONResponse<Object>> handleMethodArgumentNotValidException(
             final MethodArgumentNotValidException e) {
         List<FieldError> fieldErrors = e.getBindingResult().getFieldErrors();
-        List<String> errorMessages = fieldErrors.stream()
-                .map(fieldError -> MessageUtil
-                        .getMessage(fieldError.getCode(),
-                                new Object[]{fieldError.getField()}
-                        )
-                )
-                .collect(Collectors.toList());
+        Map<String, String> errorMessages = fieldErrors.stream()
+                .collect(Collectors.toMap(
+                        FieldError::getField,
+                        fieldError -> MessageUtil.getMessage(fieldError.getCode(), new Object[]{fieldError.getField()})
+                ));
         log.error(e.getMessage(), e);
 
         return ResponseEntity

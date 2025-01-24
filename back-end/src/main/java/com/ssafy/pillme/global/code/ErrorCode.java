@@ -10,9 +10,9 @@ import org.springframework.http.HttpStatus;
 @Getter
 @RequiredArgsConstructor
 public enum ErrorCode {
-    SERVER_ERROR(50000, INTERNAL_SERVER_ERROR),
-    INVALID_REQUEST(40000, BAD_REQUEST),
-    INVALID_AUTHORIZATION_CODE(40000, BAD_REQUEST),
+    SERVER_ERROR(5000, INTERNAL_SERVER_ERROR),
+    INVALID_REQUEST(4000, BAD_REQUEST),
+    INVALID_AUTHORIZATION_CODE(4000, BAD_REQUEST),
     ;
 
     private final int code;
