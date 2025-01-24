@@ -48,12 +48,12 @@
     <!-- ✅ Vue 앱 로드 -->
     <script type="module" src="/src/main.js"></script>
 
-    <!-- ✅ PWA 서비스 워커 등록 -->
+    <!-- ✅ PWA 서비스 워커 등록
     <script>
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
           navigator.serviceWorker
-            .register('/registerServiceWorker.js')
+            // .register('/registerServiceWorker.js')
             .then((registration) => {
               console.log('[PWA] 서비스 워커 등록 완료:', registration);
             })
@@ -62,6 +62,6 @@
             });
         });
       }
-    </script>
+    </script> -->
   </body>
 </html>

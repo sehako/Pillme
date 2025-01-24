@@ -1,4 +1,8 @@
 import { createRouter, createWebHistory } from 'vue-router';
+import StartView from '../views/StartView.vue';
+import LoginView from '../views/LoginView.vue';
+import LoginSelectionView from '../views/LoginSelectionView.vue';
+import AccountSearchSelectionView from '../views/AccountSearchSelectionView.vue';
 
 // ✅ TODO: 나중에 실제 페이지 구현 후 추가
 // import HomeView from '../views/HomeView.vue';
@@ -9,9 +13,33 @@ import { createRouter, createWebHistory } from 'vue-router';
 
 const routes = [
   {
+    path: '/start', // /로 할지 /start로 할지 고민 필요
+    name: 'StartView',
+    component: StartView,
+    meta: { cache: true },
+  },
+  {
+    path: '/login',
+    name: 'LoginView',
+    component: LoginView,
+    meta: { cache: true },
+  },
+  {
+    path: '/loginselection',
+    name: 'LoginSelectionView',
+    component: LoginSelectionView,
+    meta: { cache: true },
+  },
+  {
+    path: '/accountsearchselection',
+    name: 'AccountSearchSelectionView',
+    component: AccountSearchSelectionView,
+    meta: { cache: true },
+  },
+  {
     path: '/',
-    name: 'home',
-    // component: HomeView,  // ✅ TODO: 실제 컴포넌트 연결 예정
+    name: 'Home',
+    //component: HomeView,  // ✅ TODO: 실제 컴포넌트 연결 예정
     meta: { cache: true }, // ✅ 캐싱할 페이지
   },
   {
@@ -37,6 +65,7 @@ const routes = [
     name: 'NotFound',
     // component: NotFoundView, // ✅ TODO: 404 페이지 구현 필요
   },
+  
 ];
 
 const router = createRouter({
