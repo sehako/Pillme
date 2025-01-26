@@ -1,7 +1,6 @@
 <template>
   <div id="app">
     <header>
-      <h1>PILLME</h1>
       <p v-if="isOffline" style="color: red">🚨 현재 오프라인 상태입니다.</p>
 
       <!-- ✅ PWA 설치 버튼 (설치 가능할 때만 표시) -->

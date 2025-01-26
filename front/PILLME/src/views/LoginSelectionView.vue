@@ -1,20 +1,20 @@
 <template>
   <div class="login-container">
     <div class="logo-section">
-      <img src="/public/icons/Splash_logo.png" alt="PILLME Logo" class="logo" />
+      <img src="../assets/Splash_logo.png" alt="PILLME Logo" class="logo" />
     </div>
 
     <div class="login-options">
       <button class="login-button google">
-        <img src="/public/icons/Google_Login.png" alt="Google Icon" class="icon" />
+        <img src="../assets/Google_Login.png" alt="Google Icon" class="icon" />
         구글 계정으로 계속하기
       </button>
       <button class="login-button naver">
-        <img src="/public/icons/Naver_Login.png" alt="Naver Icon" class="icon" />
+        <img src="../assets/Naver_Login.png" alt="Naver Icon" class="icon" />
         네이버 계정으로 계속하기
       </button>
       <button class="login-button email"  @click="goToLogin">
-        <img src="/public/icons/Email_Login.png" alt="Email Icon" class="icon" />
+        <img src="../assets/Email_Login.png" alt="Email Icon" class="icon" />
         이메일로 계속하기
       </button>
     </div>

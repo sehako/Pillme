@@ -1,7 +1,7 @@
 <template>
   <div class="start-container">
     <div class="logo-section">
-      <img src="/public/icons/Splash_logo.png" alt="PILLME Logo" class="logo" />
+      <img src="../assets/Splash_logo.png" alt="PILLME Logo" class="logo" />
     </div>
     <div class="action-section">
       <button class="start-button">시작하기</button>

@@ -1,7 +1,7 @@
 <template>
     <div class="search-container">
       <div class="logo-section">
-        <img src="/public/icons/Splash_logo.png" alt="PILLME Logo" class="logo" />
+        <img src="../assets/Splash_logo.png" alt="PILLME Logo" class="logo" />
       </div>
   
       <div class="accountsearchselection-options">

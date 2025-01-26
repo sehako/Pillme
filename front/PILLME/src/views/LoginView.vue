@@ -2,11 +2,11 @@
   <div class="login-container">
 
     <div class="logo-section">
-      <img src="/public/icons/Splash_logo.png" alt="PILLME Logo" class="logo" />
+      <img src="../assets/Splash_logo.png" alt="PILLME Logo" class="logo" />
     </div>
     <form class="login-form">
       <div class="input-group">
-        <img src="/public/icons/email.png" alt="Email Icon" class="input-icon" />
+        <img src="../assets/email.png" alt="Email Icon" class="input-icon" />
         <input
           type="email"
           placeholder="이메일 입력"
@@ -16,7 +16,7 @@
       </div>
 
       <div class="input-group">
-        <img src="/public/icons/key.png" alt="Password Icon" class="input-icon" />
+        <img src="../assets/key.png" alt="Password Icon" class="input-icon" />
         <input
           type="password"
           placeholder="비밀번호 입력"
