@@ -3,8 +3,7 @@ import StartView from '../views/StartView.vue';
 import LoginView from '../views/LoginView.vue';
 import LoginSelectionView from '../views/LoginSelectionView.vue';
 import AccountSearchSelectionView from '../views/AccountSearchSelectionView.vue';
-
-// ✅ TODO: 나중에 실제 페이지 구현 후 추가
+import AfterAccountView from '../views/AfterAccountView.vue';
 // import HomeView from '../views/HomeView.vue';
 // import CalendarView from '../views/CalendarView.vue';
 // import ProfileView from '../views/ProfileView.vue';
@@ -23,6 +22,11 @@ const routes = [
     name: 'LoginView',
     component: LoginView,
     meta: { cache: true },
+  },
+  {
+    path: '/afteraccount',  // URL 경로
+    name: 'AfterAccount',
+    component: AfterAccountView,  // 등록한 컴포넌트
   },
   {
     path: '/loginselection',

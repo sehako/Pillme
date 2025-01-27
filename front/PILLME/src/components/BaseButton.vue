@@ -1,6 +1,6 @@
 <template>
   <button
-    :class="buttonClass"
+    :class="[buttonClass, overrideClass]"
     :disabled="disabled"
     @click="onClick"
   >
@@ -18,6 +18,7 @@ const props = defineProps({
   size: { type: String, default: "md" }, // sm, md, lg
   disabled: { type: Boolean, default: false },
   onClick: Function,
+  overrideClass: { type: String, default: "" }, // ✅ 추가된 부분 (스타일 덮어쓰기)
 });
 
 const buttonClass = computed(() => [
@@ -26,13 +27,9 @@ const buttonClass = computed(() => [
   props.textColor, // 텍스트 색상
   props.hoverColor, // 호버 효과
   {
-    // ✅ 최소 10px 유지 & 반응형 설정 (text-[10px] ~ text-lg)
-    "py-2 px-4 text-[10px] sm:text-sm md:text-base":
-      props.size === "sm", // 모바일 최소 10px
-    "py-3 px-6 text-[12px] sm:text-base md:text-lg":
-      props.size === "md", // 기본값: 12px 이상
-    "py-4 px-8 text-[14px] sm:text-lg md:text-xl":
-      props.size === "lg", // 큰 버튼 14px 이상 유지
+    "py-2 px-4 text-[10px] sm:text-sm md:text-base": props.size === "sm",
+    "py-3 px-6 text-[12px] sm:text-base md:text-lg": props.size === "md",
+    "py-4 px-8 text-[14px] sm:text-lg md:text-xl": props.size === "lg",
     "opacity-50 cursor-not-allowed": props.disabled,
   },
 ]);
