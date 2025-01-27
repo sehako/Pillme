@@ -25,7 +25,7 @@
     </div>
 
     <p class="forgot-account mt-4 text-sm text-gray-600">
-      <a href="/accountsearchselection" class="text-green-700 hover:underline">계정이 기억나지 않아요</a>
+      <a href="/accountsearchselection" class="hover:underline">계정이 기억나지 않아요</a>
     </p>
   </div>
 </template>
@@ -61,6 +61,6 @@ const goToLogin = () => {
 }
 
 .forgot-account a {
-  @apply text-green-700 no-underline hover:underline;
+  @apply text-[#4E7351] no-underline hover:underline;
 }
 </style>

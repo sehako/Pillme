@@ -12,27 +12,25 @@
     <!-- ✅ 버튼 컨테이너 정리 -->
     <div class="accountsearchselection-options">
       <BaseButton 
-        bgColor="bg-green-700" 
-        textColor="text-white" 
-        hoverColor="hover:bg-green-800" 
-        size="md"
-      >
+         textColor="text-white" 
+         size="md"
+         overrideClass="bg-[#4E7351] hover:bg-[#3D5A3F]"
+       >
         이메일 찾기
       </BaseButton>
 
       <BaseButton 
-        bgColor="bg-green-700" 
-        textColor="text-white" 
-        hoverColor="hover:bg-green-800" 
-        size="md"
-      >
+         textColor="text-white" 
+         size="md"
+         overrideClass="bg-[#4E7351] hover:bg-[#3D5A3F]"
+       >
         비밀번호 찾기
       </BaseButton>
     </div>
 
     <!-- ✅ 로그인 링크 -->
     <p class="back-login">
-      <a href="/loginselection" class="text-green-700 hover:underline">로그인 페이지로 돌아가기</a>
+      <a href="/loginselection" class="text-[#4E7351] hover:underline">로그인 페이지로 돌아가기</a>
     </p>
   </div>
 </template>
@@ -55,6 +53,6 @@ import logoSrc from "../assets/logi_nofont.png";
 }
 
 .back-login {
-  @apply mt-4 text-sm text-gray-600;
+  @apply mt-4 text-sm;
 }
 </style>

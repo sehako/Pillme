@@ -13,10 +13,9 @@
 
      <div class="action-section">
        <BaseButton 
-         bgColor="bg-green-700" 
          textColor="text-white" 
-         hoverColor="hover:bg-green-800" 
          size="md"
+         overrideClass="bg-[#4E7351] hover:bg-[#3D5A3F]"
        >
          시작하기
        </BaseButton>

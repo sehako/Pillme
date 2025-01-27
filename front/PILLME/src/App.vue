@@ -1,38 +1,42 @@
 <template>
-  <!-- ✅ 모바일에서는 단일 컬럼, 웹에서는 2분할 -->
-  <div id="app" class="flex flex-col md:flex-row min-h-screen">
+  <div id="app" class="relative flex flex-col md:flex-row min-h-screen pb-16">
     
     <!-- ✅ 왼쪽 (웹에서는 보이지만 모바일에서는 숨김) -->
     <div class="hidden md:block w-1/2 bg-gray-100"></div>
 
     <!-- ✅ 오른쪽 (모바일에서는 전체 화면 차지) -->
-    <div class="flex flex-col justify-center items-center w-full md:w-1/2 px-4 bg-white">
+    <div class="flex flex-col justify-center items-center w-full md:w-1/2 bg-white">
       
+      <!-- ✅ 상단 바 -->
+      <BaseTopbar />
+
       <header class="p-4 text-center w-full">
         <p v-if="isOffline" class="text-red-500 font-semibold">🚨 현재 오프라인 상태입니다.</p>
-
-        <!-- ✅ PWA 설치 버튼 (설치 가능할 때만 표시) -->
         <button v-if="deferredPrompt" @click="installPWA" 
           class="block mx-auto mt-2 px-4 py-2 bg-blue-500 text-white rounded-lg text-lg hover:bg-blue-600 transition">
           📲 PWA 설치하기
         </button>
       </header>
 
-      <!-- ✅ 현재 페이지의 콘텐츠를 표시 -->
-      <router-view class="max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg"/>
+      <!-- ✅ 현재 페이지의 콘텐츠 -->
+      <router-view class="max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg w-full pb-20" />
 
-      <!-- ✅ PWA 업데이트 알림 (새 버전이 있을 때 표시됨) -->
       <div v-if="isUpdateAvailable" @click="refreshApp" 
-        class="fixed bottom-5 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-4 py-2 rounded-lg text-sm cursor-pointer shadow-md">
+        class="fixed bottom-20 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-4 py-2 rounded-lg text-sm cursor-pointer shadow-md">
         🔄 새로운 업데이트가 있습니다. 클릭하여 새로고침하세요.
       </div>
-
     </div>
+
+    <!-- ✅ 네비게이션 바 (모든 페이지 공통, 모바일 w-full / 웹에서는 w-1/2) -->
+    <BaseNavbar class="fixed bottom-0 right-0 w-full md:w-1/2 md:right-0" />
   </div>
 </template>
 
+
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue';
+import BaseNavbar from "./components/BaseNavbar.vue";
+import BaseTopbar from "./components/BaseTopbar.vue";
 
 const isOffline = ref(!navigator.onLine);
 const isUpdateAvailable = ref(false);
@@ -46,7 +50,7 @@ const updateNetworkStatus = () => {
 /** ✅ PWA 설치 이벤트 감지 */
 const handleBeforeInstallPrompt = (event) => {
   event.preventDefault();
-  deferredPrompt.value = event; // ✅ PWA 설치 가능 상태 저장
+  deferredPrompt.value = event;
 };
 
 /** ✅ PWA 설치 실행 */
@@ -55,9 +59,9 @@ const installPWA = async () => {
   deferredPrompt.value.prompt();
   const choiceResult = await deferredPrompt.value.userChoice;
   if (choiceResult.outcome === 'accepted') {
-    console.log('✅ PWA 설치 완료'); // 🚨 배포 시 주석 처리 필요
+    console.log('✅ PWA 설치 완료');
   }
-  deferredPrompt.value = null; // ✅ 설치 후 버튼 숨김
+  deferredPrompt.value = null;
 };
 
 /** ✅ PWA 업데이트 감지 */
@@ -65,10 +69,8 @@ const checkForUpdates = () => {
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.getRegistration().then((registration) => {
       if (registration && registration.waiting) {
-        isUpdateAvailable.value = true; // ✅ 새 버전이 있음
+        isUpdateAvailable.value = true;
       }
-
-      // ✅ 기존 코드 유지하면서 추가 가능: 업데이트가 발견될 때마다 감지
       registration?.addEventListener('updatefound', () => {
         if (registration.waiting) {
           isUpdateAvailable.value = true;
@@ -84,8 +86,6 @@ const refreshApp = () => {
     navigator.serviceWorker.getRegistration().then((registration) => {
       if (registration && registration.waiting) {
         registration.waiting.postMessage({ type: 'SKIP_WAITING' });
-
-        // ✅ 기존 코드 유지하면서 추가 가능: 업데이트 적용 후 자동 새로고침
         navigator.serviceWorker.addEventListener('controllerchange', () => {
           window.location.reload();
         });
@@ -95,18 +95,14 @@ const refreshApp = () => {
 };
 
 onMounted(() => {
-  console.log('PWA 앱이 시작되었습니다!'); // 🚨 배포 시 주석 처리 필요
-
   window.addEventListener('online', updateNetworkStatus);
   window.addEventListener('offline', updateNetworkStatus);
   window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
 
-  // ✅ 기존 코드 유지하면서 추가 가능: PWA 설치 가능 여부 체크
   if (window.matchMedia('(display-mode: standalone)').matches) {
-    deferredPrompt.value = null; // 이미 설치됨
+    deferredPrompt.value = null;
   }
 
-  // ✅ 서비스 워커 업데이트 감지
   checkForUpdates();
 });
 
@@ -124,36 +120,6 @@ body {
   padding: 0;
   background: #f4f4f4;
 }
-
-/* ✅ PWA 설치 버튼 스타일 */
-.install-button {
-  display: block;
-  margin: 10px auto;
-  padding: 10px 15px;
-  background: #007aff;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  font-size: 16px;
-  cursor: pointer;
-}
-
-.install-button:hover {
-  background: #005ecb;
-}
-
-/* ✅ PWA 업데이트 알림 스타일 */
-.update-notification {
-  position: fixed;
-  bottom: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: #42b883;
-  color: white;
-  padding: 10px 20px;
-  border-radius: 5px;
-  font-size: 14px;
-  cursor: pointer;
-}
 </style>
+
 <!-- 추후 pwa 설치 유도 알림 구현해서 넣어야함. -->
