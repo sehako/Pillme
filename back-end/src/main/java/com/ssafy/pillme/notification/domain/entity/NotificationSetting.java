@@ -1,6 +1,6 @@
-package com.ssafy.pillme.notification.domain;
+package com.ssafy.pillme.notification.domain.entity;
 
-import com.ssafy.pillme.user.presentation.UserEntity;
+import com.ssafy.pillme.user.domain.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -11,7 +11,7 @@ import java.time.LocalTime;
 @Builder
 @AllArgsConstructor
 @Entity
-public class NotificationEntity {
+public class NotificationSetting {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY) // 데이터베이스의 AUTO_INCREMENT 기능 사용
@@ -19,7 +19,7 @@ public class NotificationEntity {
 
     @OneToOne(fetch = FetchType.LAZY) // 지연 로딩을 통해 회원 데이터는 필요할 때만 가져옴
     @JoinColumn(name = "user_id", nullable = false)
-    private UserEntity user;
+    private User user;
 
     private LocalTime morning; // localTime은 HH:mm:ss 형식 DB에는 TIME으로 저장
     private LocalTime lunch; // ZonedDateTime은 글로벌 서비스 전략으로 시간대 정보를 포함하는 타임스탬프를 저장
