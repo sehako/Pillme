@@ -1,19 +1,32 @@
 <template>
-  <div id="app">
-    <header>
-      <p v-if="isOffline" style="color: red">🚨 현재 오프라인 상태입니다.</p>
+  <!-- ✅ 모바일에서는 단일 컬럼, 웹에서는 2분할 -->
+  <div id="app" class="flex flex-col md:flex-row min-h-screen">
+    
+    <!-- ✅ 왼쪽 (웹에서는 보이지만 모바일에서는 숨김) -->
+    <div class="hidden md:block w-1/2 bg-gray-100"></div>
 
-      <!-- ✅ PWA 설치 버튼 (설치 가능할 때만 표시) -->
-      <button v-if="deferredPrompt" @click="installPWA" class="install-button">
-        📲 PWA 설치하기
-      </button>
-    </header>
+    <!-- ✅ 오른쪽 (모바일에서는 전체 화면 차지) -->
+    <div class="flex flex-col justify-center items-center w-full md:w-1/2 px-4 bg-white">
+      
+      <header class="p-4 text-center w-full">
+        <p v-if="isOffline" class="text-red-500 font-semibold">🚨 현재 오프라인 상태입니다.</p>
 
-    <router-view />
+        <!-- ✅ PWA 설치 버튼 (설치 가능할 때만 표시) -->
+        <button v-if="deferredPrompt" @click="installPWA" 
+          class="block mx-auto mt-2 px-4 py-2 bg-blue-500 text-white rounded-lg text-lg hover:bg-blue-600 transition">
+          📲 PWA 설치하기
+        </button>
+      </header>
 
-    <!-- ✅ PWA 업데이트 알림 (새 버전이 있을 때 표시됨) -->
-    <div v-if="isUpdateAvailable" class="update-notification" @click="refreshApp">
-      🔄 새로운 업데이트가 있습니다. 클릭하여 새로고침하세요.
+      <!-- ✅ 현재 페이지의 콘텐츠를 표시 -->
+      <router-view class="max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg"/>
+
+      <!-- ✅ PWA 업데이트 알림 (새 버전이 있을 때 표시됨) -->
+      <div v-if="isUpdateAvailable" @click="refreshApp" 
+        class="fixed bottom-5 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-4 py-2 rounded-lg text-sm cursor-pointer shadow-md">
+        🔄 새로운 업데이트가 있습니다. 클릭하여 새로고침하세요.
+      </div>
+
     </div>
   </div>
 </template>

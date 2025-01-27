@@ -1,143 +1,71 @@
 <template>
-  <div class="login-container">
+  <div class="flex flex-col justify-center items-center min-h-screen px-4">
+    <!-- ✅ 로고 -->
+    <BaseLogo :src="logoSrc" size="md" />
 
-    <div class="logo-section">
-      <img src="../assets/Splash_logo.png" alt="PILLME Logo" class="logo" />
-    </div>
-    <form class="login-form">
-      <div class="input-group">
-        <img src="../assets/email.png" alt="Email Icon" class="input-icon" />
-        <input
-          type="email"
-          placeholder="이메일 입력"
-          class="input-field"
-          required
-        />
-      </div>
+    <!-- ✅ BaseText 적용 -->
+    <BaseText 
+      textBefore="복약 관리의 새로운 방법," 
+      highlightText="PILLME" 
+    />
 
-      <div class="input-group">
-        <img src="../assets/key.png" alt="Password Icon" class="input-icon" />
-        <input
-          type="password"
-          placeholder="비밀번호 입력"
-          class="input-field"
-          required
-        />
-      </div>
+    <!-- ✅ 로그인 폼 -->
+    <form class="w-full max-w-xs md:max-w-sm space-y-4" @submit.prevent="handleLogin">
+      <BaseInput 
+        v-model="email" 
+        type="email" 
+        placeholder="이메일 입력" 
+        :icon="emailIcon"
+      />
+      <BaseInput 
+        v-model="password" 
+        type="password" 
+        placeholder="비밀번호 입력" 
+        :icon="passwordIcon"
+      />
 
-      <button type="submit" class="login-button">로그인</button>
+      <!-- ✅ BaseButton 적용 -->
+      <BaseButton 
+        bgColor="bg-green-700" 
+        textColor="text-white" 
+        hoverColor="hover:bg-green-800"
+        size="md"
+        type="submit"
+      >
+        로그인
+      </BaseButton>
     </form>
+
+    <!-- ✅ 로그인 페이지로 돌아가기 버튼 (간격 조정) -->
+    <p class="back-login mt-6 md:mt-8">
+      <a href="/loginselection" class="text-green-700 hover:underline">로그인 페이지로 돌아가기</a>
+    </p>
   </div>
 </template>
 
-<!-- <script>
-export default {
-  name: "LoginView",
-  data() {
-    return {
-      email: "",
-      password: "",
-    };
-  },
-  methods: {
-    handleLogin() {
-      console.log("로그인 시도:", this.email, this.password);
-      // 로그인 처리 로직
-    },
-  },
+
+<script setup>
+import { ref } from "vue";
+import BaseButton from "../components/BaseButton.vue";
+import BaseInput from "../components/BaseInput.vue";
+import BaseLogo from "../components/BaseLogo.vue";
+import BaseText from "../components/BaseText.vue"; // ✅ 추가
+
+import logoSrc from "../assets/logi_nofont.png";
+import emailIcon from "../assets/email.png";
+import passwordIcon from "../assets/key.png";
+
+const email = ref("");
+const password = ref("");
+
+const handleLogin = () => {
+  console.log("로그인 시도:", email.value, password.value);
+  // TODO: 로그인 처리 로직 추가 필요
 };
-</script> -->
+</script>
 
 <style scoped>
-
-.login-container {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  background-color: #f8f8f8;
-  padding: 1rem;
-}
-
-
-.logo-section {
-  margin-bottom: 2rem;
-}
-
-.logo {
-  width: 300px;
-  height: 300px;
-  margin-bottom: 1rem;
-}
-
-.login-form {
-  width: 70%;
-  max-width: 400px;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem; 
-}
-
-.input-group {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem; 
-}
-
-.input-icon {
-  width: 24px;
-  height: 24px;
-}
-
-.input-field {
-  flex: 1;
-  padding: 0.5rem;
-  font-size: 1rem;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  outline: none;
-  color: #4f4f4f; 
-  background-color: #fff;
-}
-
-.input-field::placeholder {
-  color: #b3b3b3; 
-}
-
-.input-group:nth-last-of-type(1) {
-  margin-bottom: 0.6rem; 
-}
-
-.login-button {
-  width: 100%;
-  padding: 0.75rem;
-  font-size: 1rem;
-  background-color: #2f6d31;
-  color: #ffffff;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background-color 0.3s;
-}
-
-.login-button:hover {
-  background-color: #255226;
-}
-
-@media (max-width: 600px) {
-  .logo {
-    width: 96px;
-    height: 96px;
-  }
-
-  .input-field {
-    font-size: 0.9rem;
-  }
-
-  .login-button {
-    font-size: 0.9rem;
-    padding: 0.5rem;
-  }
+.pillme-text {
+  color: #4E7351;
 }
 </style>

@@ -1,148 +1,66 @@
 <template>
-  <div class="login-container">
-    <div class="logo-section">
-      <img src="../assets/Splash_logo.png" alt="PILLME Logo" class="logo" />
-    </div>
+  <div class="flex flex-col justify-center items-center min-h-screen px-4">
+    <!-- ✅ 로고 (BaseLogo 컴포넌트 사용) -->
+    <BaseLogo :src="logoSrc" size="md" />
 
-    <div class="login-options">
-      <button class="login-button google">
-        <img src="../assets/Google_Login.png" alt="Google Icon" class="icon" />
+    <!-- ✅ 텍스트 (BaseText 컴포넌트 사용) -->
+    <BaseText 
+      textBefore="복약 관리의 새로운 방법," 
+      highlightText="PILLME" 
+    />
+
+    <div class="login-options w-full max-w-xs mt-4 space-y-2 md:space-y-3">
+      <SocialLoginButton :iconSrc="googleIcon">
         구글 계정으로 계속하기
-      </button>
-      <button class="login-button naver">
-        <img src="../assets/Naver_Login.png" alt="Naver Icon" class="icon" />
+      </SocialLoginButton>
+
+      <SocialLoginButton :iconSrc="naverIcon">
         네이버 계정으로 계속하기
-      </button>
-      <button class="login-button email"  @click="goToLogin">
-        <img src="../assets/Email_Login.png" alt="Email Icon" class="icon" />
+      </SocialLoginButton>
+
+      <!-- ✅ 이메일 버튼 클릭 시 `/login`으로 이동 -->
+      <SocialLoginButton :iconSrc="emailIcon" @click="goToLogin">
         이메일로 계속하기
-      </button>
+      </SocialLoginButton>
     </div>
 
-    <p class="forgot-account">
-      <a href="/accountsearchselection">계정이 기억나지 않아요</a>
+    <p class="forgot-account mt-4 text-sm text-gray-600">
+      <a href="/accountsearchselection" class="text-green-700 hover:underline">계정이 기억나지 않아요</a>
     </p>
   </div>
 </template>
 
-<script>
-export default {
-  name: "LoginSelectionView",
-  methods: {
-    goToLogin() {
-      this.$router.push('/login'); 
-    },
-  },
+<script setup>
+import { useRouter } from "vue-router";
+import SocialLoginButton from "../components/SocialLoginButton.vue";
+import BaseLogo from "../components/BaseLogo.vue"; // ✅ 추가
+import BaseText from "../components/BaseText.vue"; // ✅ 추가
+
+// 이미지 경로를 import로 가져오기
+import logoSrc from "../assets/logi_nofont.png";
+import googleIcon from "../assets/Google_Login.png";
+import naverIcon from "../assets/Naver_Login.png";
+import emailIcon from "../assets/Email_Login.png";
+
+// ✅ Vue Router 인스턴스 가져오기
+const router = useRouter();
+
+// ✅ 로그인 페이지로 이동하는 함수
+const goToLogin = () => {
+  router.push("/login");
 };
 </script>
 
 <style scoped>
-.login-container {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  background-color: #f8f8f8;
-  padding: 1rem;
-  text-align: center;
+.pillme-text {
+  color: #4E7351;
 }
-
-.logo-section {
-  margin-bottom: 2rem;
-}
-
-.logo {
-  width: 300px;
-  height: 300px;
-  margin-bottom: 1rem;
-}
-
-.tagline {
-  font-size: 1.2rem;
-  color: #4f4f4f;
-  font-weight: 400;
-}
-
-.login-options {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem; 
-  width: 100%;
-  max-width: 400px;
-}
-
-.login-button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem; 
-  padding: 0.75rem;
-  font-size: 1rem;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  background-color: #fff;
-  cursor: pointer;
-  transition: background-color 0.3s, border-color 0.3s;
-}
-
-.google:hover {
-  background-color: #ffffff;
-}
-
-
-.naver:hover {
-  background-color: #ffffff;
-}
-
-.email:hover {
-  background-color: #ffffff;
-}
-
-.icon {
-  width: 24px;
-  height: 24px;
-}
-
 
 .forgot-account {
-  margin-top: 2rem;
-  font-size: 0.9rem;
-  color: #757575;
+  @apply mt-4 text-sm text-gray-600;
 }
 
 .forgot-account a {
-  color: #2f6d31;
-  text-decoration: none;
+  @apply text-green-700 no-underline hover:underline;
 }
-
-.forgot-account a:hover {
-  text-decoration: underline;
-}
-
-
-@media (max-width: 600px) {
-  .logo {
-    width: 96px;
-    height: 96px;
-  }
-
-  .tagline {
-    font-size: 1rem;
-  }
-
-  .login-button {
-    font-size: 0.9rem;
-    padding: 0.5rem;
-  }
-
-  .icon {
-    width: 20px;
-    height: 20px;
-  }
-
-  .forgot-account {
-    font-size: 0.8rem;
-  }
-}
-</style> 
+</style>
