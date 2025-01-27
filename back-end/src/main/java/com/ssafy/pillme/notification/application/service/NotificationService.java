@@ -9,4 +9,6 @@ public interface NotificationService {
     NotificationSettingResponse getNotificationSetting();
 
     void updateNotificationSetting(NotificationSettingRequest request);
+
+    void deleteNotificationSetting();
 }

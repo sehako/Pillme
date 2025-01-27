@@ -49,4 +49,12 @@ public class NotificationServiceImpl implements NotificationService {
 
         setting.update(request);
     }
+
+    @Override
+    public void deleteNotificationSetting() {
+        // TODO: 회원 데이터 추가 필요
+        NotificationSetting setting = notificationSettingRepository.findByUserId(1)
+                .orElseThrow(() -> new IllegalArgumentException("알림 설정이 존재하지 않습니다."));
+        notificationSettingRepository.delete(setting);
+    }
 }
