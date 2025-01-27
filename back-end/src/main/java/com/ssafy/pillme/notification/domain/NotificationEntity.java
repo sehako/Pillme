@@ -1,4 +1,4 @@
-package com.ssafy.pillme.notification.presentation;
+package com.ssafy.pillme.notification.domain;
 
 import com.ssafy.pillme.user.presentation.UserEntity;
 import jakarta.persistence.*;
