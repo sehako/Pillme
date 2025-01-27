@@ -40,4 +40,13 @@ public class NotificationServiceImpl implements NotificationService {
                 .sleep(setting.getSleep())
                 .build();
     }
+
+    @Override
+    public void updateNotificationSetting(NotificationSettingRequest request) {
+        //TODO: 회원 데이터 추가 필요
+        NotificationSetting setting = notificationSettingRepository.findByUserId(1)
+                .orElseThrow(() -> new IllegalArgumentException("알림 설정이 존재하지 않습니다."));
+
+        setting.update(request);
+    }
 }

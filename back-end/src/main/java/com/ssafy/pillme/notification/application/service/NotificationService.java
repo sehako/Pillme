@@ -7,4 +7,6 @@ public interface NotificationService {
     void createNotificationSetting(NotificationSettingRequest request);
 
     NotificationSettingResponse getNotificationSetting();
+
+    void updateNotificationSetting(NotificationSettingRequest request);
 }

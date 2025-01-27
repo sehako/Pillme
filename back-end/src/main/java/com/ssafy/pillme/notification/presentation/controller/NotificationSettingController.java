@@ -28,4 +28,11 @@ public class NotificationSettingController {
     public JSONResponse<NotificationSettingResponse> getNotificationSetting() {
         return JSONResponse.of(SuccessCode.REQUEST_SUCCESS, notificationService.getNotificationSetting());
     }
+
+    // 알림 설정 수정
+    @PutMapping
+    public JSONResponse<Void> updateNotificationSetting(@RequestBody NotificationSettingRequest request) {
+        notificationService.updateNotificationSetting(request);
+        return JSONResponse.of(SuccessCode.REQUEST_SUCCESS);
+    }
 }

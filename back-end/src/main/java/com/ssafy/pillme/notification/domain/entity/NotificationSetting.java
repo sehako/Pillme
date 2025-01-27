@@ -1,5 +1,6 @@
 package com.ssafy.pillme.notification.domain.entity;
 
+import com.ssafy.pillme.notification.presentation.request.NotificationSettingRequest;
 import com.ssafy.pillme.user.domain.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
@@ -26,4 +27,10 @@ public class NotificationSetting {
     private LocalTime dinner; // 확장성을 고려한다면 ZonedDateTime을 사용하는 것이 좋음
     private LocalTime sleep;
 
+    public void update(NotificationSettingRequest notificationSettingRequest) {
+        this.morning = notificationSettingRequest.morning() == null ? null : LocalTime.parse(notificationSettingRequest.morning());
+        this.lunch = notificationSettingRequest.lunch() == null ? null : LocalTime.parse(notificationSettingRequest.lunch());
+        this.dinner = notificationSettingRequest.dinner() == null ? null : LocalTime.parse(notificationSettingRequest.dinner());
+        this.sleep = notificationSettingRequest.sleep() == null ? null : LocalTime.parse(notificationSettingRequest.sleep());
+    }
 }
