@@ -28,7 +28,7 @@
       <BaseButton 
          textColor="text-white" 
          size="md"
-         overrideClass="bg-[#4E7351] hover:bg-[#3D5A3F]"
+  overrideClass="!bg-[#4E7351] hover:!bg-[#3D5A3F]"
        >
         로그인
       </BaseButton>
@@ -36,7 +36,7 @@
 
     <!-- ✅ 로그인 페이지로 돌아가기 버튼 (간격 조정) -->
     <p class="back-login mt-6 md:mt-8">
-      <a href="/loginselection" class="text-green-700 hover:underline">로그인 페이지로 돌아가기</a>
+      <a href="/loginselection" class="text-[#4E7351] hover:underline">로그인 페이지로 돌아가기</a>
     </p>
   </div>
 </template>

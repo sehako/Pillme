@@ -1,6 +1,14 @@
 /** @type {import('tailwindcss').Config} */
 export default {
+
+    safelist: [
+      'bg-[#4E7351]',
+      'hover:bg-[#3D5A3F]',
+      // 다른 동적 클래스들도 추가
+    ],
+    // 다른 설정들...
   content: [
+    
     "./index.html",
     "./src/**/*.{vue,js,ts,jsx,tsx}",
   ],

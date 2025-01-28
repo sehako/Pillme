@@ -4,7 +4,6 @@ import vueDevTools from 'vite-plugin-vue-devtools';
 import { VitePWA } from 'vite-plugin-pwa';
 export default defineConfig({
   plugins: [
-    
     vue(),
     vueDevTools(),
     VitePWA({

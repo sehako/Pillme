@@ -56,7 +56,7 @@
           <BaseButton 
             textColor="text-white" 
             size="sm"
-            overrideClass="w-auto px-4 py-2 text-sm bg-[#EF7C8E] group-hover:bg-[#E96C7E]"
+            overrideClass="!w-auto !px-4 !py-2 !text-sm !bg-[#EF7C8E] group-hover:!bg-[#E96C7E]"
           >
             인증
           </BaseButton>
@@ -77,33 +77,33 @@
           <BaseButton 
             textColor="text-white" 
             size="sm"
-            overrideClass="w-auto px-4 py-2 text-sm bg-[#EF7C8E] group-hover:bg-[#E96C7E]"
+            overrideClass="!w-auto !px-4 !py-2 !text-sm !bg-[#EF7C8E] group-hover:!bg-[#E96C7E]"
           >
             확인
           </BaseButton>
         </div>
       </div>
-<!-- 버튼들 가로 정렬 & 간격 추가 -->
-<div class="flex justify-between w-full mt-4 gap-4">
-  <BaseButton 
-  textColor="text-gray-700" 
-  size="md" 
-  @click="goBack"
-  overrideClass="bg-[#D1D5DB] hover:bg-[#6B7280]"
->
-  이전
-</BaseButton>
 
-  <BaseButton 
-    textColor="text-white" 
-    size="md" 
-    type="submit"
-    overrideClass="bg-[#EF7C8E] hover:bg-[#E96C7E]"
-  >
-    가입하기
-  </BaseButton>
-</div>
+      <!-- 버튼들 가로 정렬 & 간격 추가 -->
+      <div class="flex justify-between w-full mt-4 gap-4">
+        <BaseButton 
+          textColor="text-gray-700" 
+          size="md" 
+          @click="goBack"
+          overrideClass="!bg-[#D1D5DB] hover:!bg-[#6B7280]"
+        >
+          이전
+        </BaseButton>
 
+        <BaseButton 
+          textColor="text-white" 
+          size="md" 
+          type="submit"
+          overrideClass="!bg-[#EF7C8E] hover:!bg-[#E96C7E]"
+        >
+          가입하기
+        </BaseButton>
+      </div>
     </form>
   </div>
 </template>
@@ -133,7 +133,7 @@ const goBack = () => {
   console.log('이전 페이지로 돌아가기');
 };
 </script>
-<!-- 이전 페이지로 돌아가는 로직 미구현 -->
+
 <style scoped>
 /* ✅ 성별 선택 버튼 스타일 */
 .gender-btn {
