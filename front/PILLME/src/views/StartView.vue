@@ -15,7 +15,7 @@
        <BaseButton 
          textColor="text-white" 
          size="md"
-         overrideClass="bg-[#4E7351] hover:bg-[#3D5A3F]"
+         overrideClass="!bg-[#4E7351] !hover:bg-[#3D5A3F]"
        >
          시작하기
        </BaseButton>
@@ -48,7 +48,7 @@ import logoSrc from "../assets/logi_nofont.png";
 }
 
 .login-link a {
-  @apply text-green-700 no-underline hover:underline;
+  @apply text-[#4E7351] no-underline hover:underline;
 }
 
 .pillme-text {
