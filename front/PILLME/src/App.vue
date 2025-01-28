@@ -40,7 +40,7 @@
       <div
         v-if="isUpdateAvailable"
         @click="refreshApp"
-        class="fixed bottom-20 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-4 py-2 rounded-lg text-sm cursor-pointer shadow-md"
+        class="relative bottom-20 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-4 py-2 rounded-lg text-sm cursor-pointer shadow-md"
       >
         🔄 새로운 업데이트가 있습니다. 클릭하여 새로고침하세요.
       </div>

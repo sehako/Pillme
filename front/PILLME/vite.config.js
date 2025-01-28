@@ -1,11 +1,17 @@
 import { defineConfig } from 'vite';
+import mkcert from 'vite-plugin-mkcert'
 import vue from '@vitejs/plugin-vue';
 import vueDevTools from 'vite-plugin-vue-devtools';
 import { VitePWA } from 'vite-plugin-pwa';
 export default defineConfig({
+  server: {
+    allowedHosts: "all"
+  },
+  
   plugins: [
     vue(),
     vueDevTools(),
+    mkcert(), // ✅ HTTPS 지원을 위한 mkcert 플러그인 추가
     VitePWA({
       registerType: 'autoUpdate',
       devOptions: {
