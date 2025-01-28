@@ -67,7 +67,7 @@ const routes = [
   {
     path: '/:catchAll(.*)', // ✅ 존재하지 않는 페이지 요청 시
     name: 'NotFound',
-    // component: NotFoundView, // ✅ TODO: 404 페이지 구현 필요
+    component: () => import('../views/StartView.vue') //✅ TODO: 404 페이지 구현 필요
   },
   
 ];

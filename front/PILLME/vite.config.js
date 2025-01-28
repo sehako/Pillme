@@ -9,7 +9,7 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       devOptions: {
-        enabled: true, // ✅ 개발 환경에서도 PWA 테스트 가능 (🚨 배포 시 주석 처리)
+        enabled: false, // 이 부분을 false로 함으로써 개발단계에서 pwa를 사용하지 않음.
         type: 'module',
         selfDestroying: true,
       },

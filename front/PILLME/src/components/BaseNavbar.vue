@@ -1,6 +1,6 @@
 <template>
   <div ref="dropdownContainer">
-    <nav class="fixed bottom-0 bg-white shadow-md py-2 flex justify-around items-center w-full md:w-1/2 border-t border-gray-200">
+    <nav class="fixed bottom-0 bg-white py-2 flex justify-around items-center w-full md:w-1/2 border-t border-gray-200">
       <router-link
         v-for="(item, index) in navItems"
         :key="item.name"
@@ -35,7 +35,6 @@
 
 <script setup>
 import { ref, onMounted, onBeforeUnmount } from "vue";
-import { useRouter } from "vue-router";
 
 import navHomeIcon from "../assets/navhome.png";
 import navCalendarIcon from "../assets/navcalendar.png";
@@ -43,7 +42,6 @@ import navChatIcon from "../assets/navchat.png";
 import navMypageIcon from "../assets/navmypage.png";
 import navPlusIcon from "../assets/navplus.png";
 
-const router = useRouter();
 const isDropdownOpen = ref(false);
 const isCameraOpen = ref(false);
 const videoElement = ref(null);
