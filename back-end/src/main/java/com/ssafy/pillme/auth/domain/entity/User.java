@@ -8,8 +8,6 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
-
 @Entity
 @Table(name = "user")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -100,11 +98,6 @@ public class User extends BaseTimeEntity {
     // 비밀번호 재설정
     public void resetPassword(String newPassword, PasswordEncoder passwordEncoder) {
         this.password = passwordEncoder.encode(newPassword);
-    }
-
-    // 회원 탈퇴
-    public void delete() {
-        this.deleted = true;
     }
 
     // 탈퇴한 회원 판별
