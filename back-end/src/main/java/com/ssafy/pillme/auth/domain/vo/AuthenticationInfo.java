@@ -14,14 +14,14 @@ public record AuthenticationInfo(
     /**
      * 사용자 ID 조회
      */
-    public Long getUserId() {
+    public Long identifier() {
         return this.id;
     }
 
     /**
      * 사용자 권한 조회
      */
-    public Role getRole() {
+    public Role authority() {
         return this.role;
     }
 }
