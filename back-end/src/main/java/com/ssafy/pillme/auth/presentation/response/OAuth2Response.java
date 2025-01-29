@@ -20,7 +20,7 @@ public record OAuth2Response(
     public static OAuth2Response token(TokenResponse tokenResponse) {
         return new OAuth2Response(ResponseType.TOKEN, null, tokenResponse);
     }
-    
+
     /**
      * 응답 타입 정의
      */
