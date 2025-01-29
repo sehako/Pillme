@@ -1,6 +1,7 @@
 package com.ssafy.pillme.auth.domain.entity;
 
 import com.ssafy.pillme.auth.domain.vo.*;
+import com.ssafy.pillme.global.entity.BaseTimeEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -12,7 +13,7 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "user")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class User {
+public class User extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -40,10 +41,6 @@ public class User {
     @Column(length = 30)
     private String phone;
 
-    private LocalDateTime createdAt;
-
-    private LocalDateTime modifiedAt;
-
     private boolean deleted = false;
 
     private boolean oauth = false;
@@ -54,17 +51,6 @@ public class User {
     @Enumerated(EnumType.STRING)
     @Column(length = 50)
     private Provider provider;
-
-    @PrePersist
-    protected void onCreate() {
-        this.createdAt = LocalDateTime.now();
-        this.modifiedAt = this.createdAt;
-    }
-
-    @PreUpdate
-    protected void onUpdate() {
-        this.modifiedAt = LocalDateTime.now();
-    }
 
     @Builder
     private User(String email, String password, String name, String nickname,
@@ -106,16 +92,19 @@ public class User {
         );
     }
 
+    // 인증 정보
+    public AuthenticationInfo extractAuthenticationInfo() {
+        return new AuthenticationInfo(this.id, this.role);
+    }
+
     // 비밀번호 재설정
     public void resetPassword(String newPassword, PasswordEncoder passwordEncoder) {
         this.password = passwordEncoder.encode(newPassword);
-        this.modifiedAt = LocalDateTime.now();
     }
 
     // 회원 탈퇴
     public void delete() {
         this.deleted = true;
-        this.modifiedAt = LocalDateTime.now();
     }
 
     // 탈퇴한 회원 판별
@@ -126,11 +115,6 @@ public class User {
     // 오어스 유저 판별
     public boolean isOAuthUser() {
         return this.oauth;
-    }
-
-    // 인증 정보
-    public AuthenticationInfo extractAuthenticationInfo() {
-        return new AuthenticationInfo(this.id, this.role);
     }
 
     // 이메일 중복 확인
@@ -146,5 +130,13 @@ public class User {
     // 닉네임 중복 확인
     public boolean isSameNickname(String nicknameToCheck) {
         return this.nickname.equals(nicknameToCheck);
+    }
+
+    // 사용자 정보 업데이트
+    public void updatePersonalInformation(String nickname, Gender gender, String phone, String birthday) {
+        this.nickname = nickname;
+        this.gender = gender;
+        this.phone = phone;
+        this.birthday = birthday;
     }
 }
