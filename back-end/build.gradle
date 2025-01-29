@@ -56,7 +56,6 @@ dependencies {
 
     // CoolSMS
     implementation 'net.nurigo:javaSDK:2.2'
-
 }
 
 tasks.named('test') {
@@ -83,5 +82,5 @@ tasks.named('clean') {
 }
 
 void main(Closure<DefaultJavaPluginExtension> defaultJavaPluginExtensionClosure) {
-    
+
 }

@@ -1,7 +1,7 @@
 package com.ssafy.pillme.global.config;
 
 import com.ssafy.pillme.auth.infrastructure.service.CustomUserDetailsService;
-import com.ssafy.pillme.auth.infrastructure.service.TokenService;
+import java.util.Arrays;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,7 +15,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import java.util.Arrays;
 
 @Configuration
 @EnableWebSecurity
@@ -36,16 +35,16 @@ public class SecurityConfig {
                 .userDetailsService(userDetailsService)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
-                                "/api/auth/signup",
-                                "/api/auth/login",
-                                "/api/auth/email/verification",
-                                "/api/auth/email/verify",
-                                "/api/auth/sms/verification",
-                                "/api/auth/sms/verify",
-                                "/api/auth/find-email",
-                                "/api/auth/reset-password/**",
-                                "/api/auth/oauth2/**",
-                                "/api/auth/check/**"
+                                "/api/v1/auth/signup",
+                                "/api/v1/auth/login",
+                                "/api/v1/auth/email/verification",
+                                "/api/v1/auth/email/verify",
+                                "/api/v1/auth/sms/verification",
+                                "/api/v1/auth/sms/verify",
+                                "/api/v1/auth/find-email",
+                                "/api/v1/auth/reset-password/**",
+                                "/api/v1/auth/oauth2/**",
+                                "/api/v1/auth/check/**"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )

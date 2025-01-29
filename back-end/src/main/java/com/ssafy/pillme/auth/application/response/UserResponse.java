@@ -1,6 +1,6 @@
 package com.ssafy.pillme.auth.application.response;
 
-import com.ssafy.pillme.auth.domain.entity.User;
+import com.ssafy.pillme.auth.domain.entity.Member;
 import com.ssafy.pillme.auth.domain.vo.Gender;
 import com.ssafy.pillme.auth.domain.vo.Provider;
 import com.ssafy.pillme.auth.domain.vo.Role;
@@ -18,7 +18,7 @@ public record UserResponse(
         boolean oauth,
         Provider provider
 ) {
-    public static UserResponse from(User user) {
+    public static UserResponse from(Member user) {
         UserInfo userInfo = user.extractUserInfo();
         return new UserResponse(
                 userInfo.id(),

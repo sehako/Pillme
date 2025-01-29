@@ -4,17 +4,23 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ssafy.pillme.auth.application.response.TokenResponse;
 import com.ssafy.pillme.auth.application.service.AuthService;
-import com.ssafy.pillme.auth.domain.entity.User;
-import com.ssafy.pillme.global.code.ErrorCode;
-import com.ssafy.pillme.auth.domain.vo.*;
-
+import com.ssafy.pillme.auth.domain.entity.Member;
+import com.ssafy.pillme.auth.domain.vo.AuthenticationInfo;
+import com.ssafy.pillme.auth.domain.vo.GoogleUserInfo;
+import com.ssafy.pillme.auth.domain.vo.NaverUserInfo;
+import com.ssafy.pillme.auth.domain.vo.Provider;
 import com.ssafy.pillme.auth.infrastructure.repository.UserRepository;
 import com.ssafy.pillme.auth.presentation.response.OAuth2Response;
 import com.ssafy.pillme.auth.util.JwtUtil;
+import com.ssafy.pillme.global.code.ErrorCode;
 import com.ssafy.pillme.global.exception.CommonException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.*;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -59,7 +65,7 @@ public class OAuth2Service {
         GoogleUserInfo userInfo = extractGoogleUserInfo(accessToken);
 
         // 기존 회원 조회
-        User user = userRepository.findByEmailAndProvider(userInfo.email(), Provider.GOOGLE)
+        Member user = userRepository.findByEmailAndProvider(userInfo.email(), Provider.GOOGLE)
                 .orElse(null);
 
         // 신규 회원인 경우 회원정보 입력 페이지로 리다이렉트
@@ -81,7 +87,7 @@ public class OAuth2Service {
         NaverUserInfo userInfo = extractNaverUserInfo(accessToken);
 
         // 기존 회원 조회
-        User user = userRepository.findByEmailAndProvider(userInfo.email(), Provider.NAVER)
+        Member user = userRepository.findByEmailAndProvider(userInfo.email(), Provider.NAVER)
                 .orElse(null);
 
         // 신규 회원인 경우 회원정보 입력 페이지로 리다이렉트
@@ -107,7 +113,7 @@ public class OAuth2Service {
     /**
      * OAuth2 토큰 응답 생성
      */
-    private OAuth2Response createOAuth2TokenResponse(User user) {
+    private OAuth2Response createOAuth2TokenResponse(Member user) {
         AuthenticationInfo authInfo = user.extractAuthenticationInfo();
 
         String accessToken = jwtUtil.createAccessToken(authInfo.identifier(), authInfo.authority().name());

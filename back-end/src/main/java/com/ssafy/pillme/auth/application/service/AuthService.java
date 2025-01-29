@@ -2,7 +2,7 @@ package com.ssafy.pillme.auth.application.service;
 
 import com.ssafy.pillme.auth.application.response.TokenResponse;
 import com.ssafy.pillme.auth.application.response.UserResponse;
-import com.ssafy.pillme.auth.domain.entity.User;
+import com.ssafy.pillme.auth.domain.entity.Member;
 import com.ssafy.pillme.auth.domain.vo.AuthenticationInfo;
 import com.ssafy.pillme.auth.domain.vo.Provider;
 import com.ssafy.pillme.auth.domain.vo.UserInfo;
@@ -10,18 +10,21 @@ import com.ssafy.pillme.auth.infrastructure.repository.UserRepository;
 import com.ssafy.pillme.auth.infrastructure.service.EmailService;
 import com.ssafy.pillme.auth.infrastructure.service.SmsService;
 import com.ssafy.pillme.auth.infrastructure.service.TokenService;
-import com.ssafy.pillme.auth.presentation.request.*;
-import com.ssafy.pillme.auth.presentation.response.*;
+import com.ssafy.pillme.auth.presentation.request.LoginRequest;
+import com.ssafy.pillme.auth.presentation.request.OAuthAdditionalInfoRequest;
+import com.ssafy.pillme.auth.presentation.request.OAuthSignUpRequest;
+import com.ssafy.pillme.auth.presentation.request.PasswordResetRequest;
+import com.ssafy.pillme.auth.presentation.request.SignUpRequest;
+import com.ssafy.pillme.auth.presentation.response.FindEmailResponse;
 import com.ssafy.pillme.auth.util.JwtUtil;
 import com.ssafy.pillme.global.code.ErrorCode;
 import com.ssafy.pillme.global.exception.CommonException;
+import java.util.UUID;
+import java.util.regex.Pattern;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.UUID;
-import java.util.regex.Pattern;
 
 @Service
 @RequiredArgsConstructor
@@ -58,7 +61,7 @@ public class AuthService {
         }
 
         // 회원 생성
-        User user = User.builder()
+        Member user = Member.builder()
                 .email(request.email())
                 .password(passwordEncoder.encode(request.password()))
                 .name(request.name())
@@ -77,7 +80,7 @@ public class AuthService {
      * 로그인
      */
     public TokenResponse login(LoginRequest request) {
-        User user = userRepository.findByEmailAndDeletedFalse(request.email())
+        Member user = userRepository.findByEmailAndDeletedFalse(request.email())
                 .orElseThrow(() -> new CommonException(ErrorCode.USER_NOT_FOUND));
 
         if (!user.isPasswordMatch(request.password(), passwordEncoder)) {
@@ -111,7 +114,7 @@ public class AuthService {
         }
 
         // 회원 생성
-        User user = User.builder()
+        Member user = Member.builder()
                 .email(request.email())
                 .password(UUID.randomUUID().toString())
                 .name(request.name())
@@ -131,7 +134,7 @@ public class AuthService {
      */
     @Transactional
     public UserResponse submitAdditionalInfo(Long userId, OAuthAdditionalInfoRequest request) {
-        User user = userRepository.findById(userId)
+        Member user = userRepository.findById(userId)
                 .orElseThrow(() -> new CommonException(ErrorCode.USER_NOT_FOUND));
 
         // 닉네임 중복 확인
@@ -165,7 +168,7 @@ public class AuthService {
             throw new CommonException(ErrorCode.PHONE_NOT_VERIFIED);
         }
 
-        User user = userRepository.findByPhone(phone)
+        Member user = userRepository.findByPhone(phone)
                 .orElseThrow(() -> new CommonException(ErrorCode.USER_NOT_FOUND));
 
         UserInfo userInfo = user.extractUserInfo();
@@ -177,7 +180,7 @@ public class AuthService {
      */
     @Transactional
     public void requestPasswordReset(String email, String phone) {
-        User user = userRepository.findByEmailAndDeletedFalse(email)
+        Member user = userRepository.findByEmailAndDeletedFalse(email)
                 .orElseThrow(() -> new CommonException(ErrorCode.USER_NOT_FOUND));
 
         if (user.isOAuthUser()) {
@@ -208,7 +211,7 @@ public class AuthService {
             throw new CommonException(ErrorCode.INVALID_RESET_TOKEN);
         }
 
-        User user = userRepository.findByEmailAndDeletedFalse(email)
+        Member user = userRepository.findByEmailAndDeletedFalse(email)
                 .orElseThrow(() -> new CommonException(ErrorCode.USER_NOT_FOUND));
 
         user.resetPassword(request.newPassword(), passwordEncoder);
@@ -283,7 +286,7 @@ public class AuthService {
     /**
      * 사용자 정보로 토큰 응답 생성
      */
-    private TokenResponse createTokenResponseFromUser(User user) {
+    private TokenResponse createTokenResponseFromUser(Member user) {
         AuthenticationInfo authInfo = user.extractAuthenticationInfo();
         return createTokenResponseWithCredentials(authInfo.identifier(), authInfo.authority().name());
     }
@@ -322,6 +325,7 @@ public class AuthService {
 
     /**
      * 닉네임 중복 검사
+     *
      * @return true: 중복, false: 사용 가능
      */
     public boolean checkNicknameDuplicate(String nickname) {
