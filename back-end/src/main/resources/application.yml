@@ -37,6 +37,7 @@ spring:
   config:
     import:
       - classpath:application-h2.yml
+      - optional:file:.env[.properties]
 
 # JWT 설정
 jwt:
