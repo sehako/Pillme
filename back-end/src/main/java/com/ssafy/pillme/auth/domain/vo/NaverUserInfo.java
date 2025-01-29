@@ -12,19 +12,31 @@ public record NaverUserInfo(
             String email,
             String name,
             String nickname,
-            Gender gender,
+            String gender,
             String birthyear,
             String birthday,
             String mobile
     ) {
-        String formattedBirthday = birthyear + birthday.replace("-", "");
-        String formattedPhone = mobile.replaceAll("[^0-9]", "");
+        // 성별 변환 (제공되지 않으면 null)
+        Gender convertedGender = gender != null ?
+                gender.toUpperCase().equals("F") ? Gender.F : Gender.M
+                : null;
+
+        // 생년월일 포맷팅 (제공되지 않으면 null)
+        String formattedBirthday = (birthyear != null && birthday != null) ?
+                birthyear + birthday.replace("-", "")
+                : null;
+
+        // 전화번호 포맷팅 (제공되지 않으면 null)
+        String formattedPhone = mobile != null ?
+                mobile.replaceAll("[^0-9]", "")
+                : null;
 
         return new NaverUserInfo(
                 email,
                 name,
                 nickname,
-                gender,
+                convertedGender,
                 formattedPhone,
                 formattedBirthday
         );
