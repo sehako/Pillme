@@ -20,6 +20,9 @@ public class Management extends BaseTimeEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "medication_id")
     private Medication medication;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "information_id")
+    private Information information;
     @Column(name = "serving_size")
     private Integer servingSize;
     private Integer period;

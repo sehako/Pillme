@@ -17,7 +17,7 @@ public class History extends BaseTimeEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "menagement_id")
+    @JoinColumn(name = "management_id")
     private Management management;
     private boolean breakfast;
     private boolean lunch;
