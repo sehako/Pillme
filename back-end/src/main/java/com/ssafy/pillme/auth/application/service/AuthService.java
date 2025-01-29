@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
+import java.util.regex.Pattern;
 
 @Service
 @RequiredArgsConstructor
@@ -303,5 +304,31 @@ public class AuthService {
                 jwtUtil.extractAccessTokenValidityPeriod(),
                 jwtUtil.extractRefreshTokenValidityPeriod()
         );
+    }
+
+    /**
+     * 비밀번호 유효성 검증
+     */
+    public boolean validatePassword(String password) {
+        // 비밀번호 정규식 패턴
+        String pattern = "^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[~`!@#$%^&*()\\-_=+\\[{\\]}\\\\|;:'\",<.>/?])[A-Za-z\\d~`!@#$%^&*()\\-_=+\\[{\\]}\\\\|;:'\",<.>/?]{12}$";
+
+        try {
+            return Pattern.matches(pattern, password);
+        } catch (Exception e) {
+            throw new CommonException(ErrorCode.INVALID_PASSWORD_FORMAT);
+        }
+    }
+
+    /**
+     * 닉네임 중복 검사
+     * @return true: 중복, false: 사용 가능
+     */
+    public boolean checkNicknameDuplicate(String nickname) {
+        if (nickname == null || nickname.isBlank()) {
+            throw new CommonException(ErrorCode.DUPLICATE_NICKNAME);
+        }
+
+        return userRepository.existsByNickname(nickname);
     }
 }

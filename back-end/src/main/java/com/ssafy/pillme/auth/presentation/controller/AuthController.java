@@ -107,6 +107,27 @@ public class AuthController {
     }
 
     /**
+     * 비밀번호 유효성 검증
+     */
+
+    @PostMapping("/check/password")
+    public ResponseEntity<JSONResponse<Boolean>> checkPasswordValid(
+            @RequestParam String password) {
+        boolean isValid = authService.validatePassword(password);
+        return ResponseEntity.ok(JSONResponse.onSuccess(isValid));
+    }
+
+    /**
+     * 닉네임 중복 검사
+     */
+    @GetMapping("/check/nickname")
+    public ResponseEntity<JSONResponse<Boolean>> checkNicknameDuplicate(
+            @RequestParam String nickname) {
+        boolean isDuplicate = authService.checkNicknameDuplicate(nickname);
+        return ResponseEntity.ok(JSONResponse.onSuccess(isDuplicate));
+    }
+
+    /**
      * 이메일 찾기
      */
     @GetMapping("/find-email")

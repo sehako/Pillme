@@ -34,6 +34,7 @@ public enum ErrorCode {
     EMAIL_NOT_VERIFIED(4016, BAD_REQUEST, "이메일 인증이 필요합니다"),
     INVALID_REFRESH_TOKEN(4017, UNAUTHORIZED, "유효하지 않은 리프레시 토큰입니다"),
     INVALID_ACCESS_TOKEN(4018, UNAUTHORIZED, "유효하지 않은 액세스 토큰입니다"),
+    INVALID_PASSWORD_FORMAT(4019, BAD_REQUEST, "비밀번호는 12자 이상이며 영문 대/소문자, 숫자, 특수문자를 각각 1개 이상 포함해야 합니다"),
 
     // 외부 서비스 연동 에러
     EMAIL_SEND_FAILED(5001, INTERNAL_SERVER_ERROR, "이메일 발송에 실패했습니다"),

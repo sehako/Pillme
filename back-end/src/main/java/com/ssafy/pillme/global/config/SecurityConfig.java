@@ -41,7 +41,8 @@ public class SecurityConfig {
                                 "/api/auth/sms/verify",
                                 "/api/auth/find-email",
                                 "/api/auth/reset-password/**",
-                                "/api/auth/oauth2/**"
+                                "/api/auth/oauth2/**",
+                                "/api/auth/check/**"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
