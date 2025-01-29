@@ -1,5 +1,6 @@
 package com.ssafy.pillme.global.config;
 
+import com.ssafy.pillme.auth.infrastructure.service.CustomUserDetailsService;
 import com.ssafy.pillme.auth.infrastructure.service.TokenService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -22,6 +23,7 @@ import java.util.Arrays;
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final CustomUserDetailsService userDetailsService;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -31,6 +33,7 @@ public class SecurityConfig {
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
+                .userDetailsService(userDetailsService)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/api/auth/signup",
