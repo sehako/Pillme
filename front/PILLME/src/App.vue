@@ -1,16 +1,18 @@
 <template>
-  <div id="app" class="relative flex flex-col md:flex-row min-h-screen pb-16">
+  <div id="app" class="flex flex-row min-h-screen">
     
     <!-- ✅ 왼쪽 (웹에서는 보이지만 모바일에서는 숨김) -->
     <div class="hidden md:block w-1/2"></div>
 
     <!-- ✅ 오른쪽 (모바일에서는 전체 화면 차지) -->
-    <div class="flex flex-col justify-center items-center w-full md:w-1/2 relative">
-      
-      <!-- ✅ 상단 바 (div로 감싸서 id/class 부여) -->
-      <div id="topbar" class="fixed top-0 w-full md:w-1/2 z-10">
-        <BaseTopbar />
-      </div>
+    <div class="relative w-full md:w-1/2">
+
+
+        <!-- ✅ 상단 바 (div로 감싸서 id/class 부여) -->
+        <div id="topbar" class="absolute inset-x-0 top-0 w-full z-10">
+          <BaseTopbar />
+        </div>
+ 
 
       <!-- ✅ 헤더 영역 -->
        <!-- 이 부분이 문제가 되고 있음. pwa 캐싱 관련 이슈. vite에서 개발시 pwa 안쓰도록 설정해놓음 추후 연결해서 해결  -->
@@ -30,29 +32,29 @@
       <!-- ✅ 현재 페이지의 콘텐츠 (기본적으로 스크롤 없음, 허용된 페이지만 스크롤 가능) -->
       <div
         :class="{ 'overflow-y-auto': isScrollAllowed }"
-        class="flex-1 w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg"
-        :style="{ maxHeight: computedHeight }"
+        class=""
+
       >
         <router-view />
       </div>
 
-      <!-- ✅ 업데이트 알림 -->
+      <!-- ✅ 네비게이션 바 (div로 감싸서 id/class 부여) -->
       <div
+        id="navbar"
+        class="absolute inset-x-0 bottom-0 w-full z-10"
+      >
+        <BaseNavbar />
+      </div>
+      <!-- ✅ 업데이트 알림 -->
+      <!-- <div
         v-if="isUpdateAvailable"
         @click="refreshApp"
-        class="relative bottom-20 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-4 py-2 rounded-lg text-sm cursor-pointer shadow-md"
+        class="bottom-20 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-4 py-2 rounded-lg text-sm cursor-pointer shadow-md"
       >
         🔄 새로운 업데이트가 있습니다. 클릭하여 새로고침하세요.
-      </div>
+      </div> -->
     </div>
 
-    <!-- ✅ 네비게이션 바 (div로 감싸서 id/class 부여) -->
-    <div
-      id="navbar"
-      class="fixed bottom-0 right-0 w-full md:w-1/2 md:right-0 z-10"
-    >
-      <BaseNavbar />
-    </div>
   </div>
 </template>
 
@@ -200,6 +202,6 @@ onUnmounted(() => {
 });
 </script>
 
-<style>
+<style scoped>
 /* 필요하다면 전역 스타일 */
 </style>

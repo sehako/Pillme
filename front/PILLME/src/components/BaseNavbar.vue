@@ -1,7 +1,7 @@
 <template>
   <div ref="dropdownContainer">
     <!-- ✅ 네비게이션 바 유지 -->
-    <nav class="fixed bottom-0 bg-white shadow-md py-2 flex justify-around items-center w-full md:w-1/2 border-t border-gray-200">
+    <nav class="flex bg-white py-2 items-center w-full border-t border-gray-200">
       <router-link
         v-for="(item, index) in navItems"
         :key="item.name"
@@ -15,13 +15,13 @@
     </nav>
 
     <!-- 📌 드롭다운 메뉴 -->
-    <div v-if="isDropdownOpen" class="relative bottom-16 left-0 w-full flex justify-center" @click.self="isDropdownOpen = false">
+    <div v-if="isDropdownOpen" class="absolute bottom-16 left-0 w-full flex justify-center" @click.self="isDropdownOpen = false">
       <div class="bg-white shadow-lg rounded-xl p-2 flex flex-col w-64 border border-gray-200 transition-all duration-300">
         <button @click="openCamera" class="py-3 text-center text-gray-700 hover:bg-gray-100">📷 처방전 촬영</button>
         <button @click="openGallery" class="py-3 text-center text-gray-700 hover:bg-gray-100">🖼 사진 업로드</button>
       </div>
     </div>
-  </div>
+  </div>  
 
   <!-- 📌 카메라 모달 (전체 화면 확장) -->
   <div v-if="isCameraOpen" class="fixed inset-0 flex flex-col items-center justify-center bg-black transition-all duration-500" :class="isFullscreen ? 'scale-100 opacity-100' : 'scale-0 opacity-0'">
@@ -172,7 +172,7 @@ const openGallery = () => {
   };
 };
 </script>
-<style>
+<style scoped>
 /* ✅ 카메라 전체 화면 변환 효과 */
 .transition-all {
   transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;

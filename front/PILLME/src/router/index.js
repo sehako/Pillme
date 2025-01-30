@@ -4,7 +4,7 @@ import LoginView from '../views/LoginView.vue';
 import LoginSelectionView from '../views/LoginSelectionView.vue';
 import AccountSearchSelectionView from '../views/AccountSearchSelectionView.vue';
 import AfterAccountView from '../views/AfterAccountView.vue';
-// import HomeView from '../views/HomeView.vue';
+import HomeView from '../views/HomeView.vue';
 // import CalendarView from '../views/CalendarView.vue';
 // import ProfileView from '../views/ProfileView.vue';
 // import SettingsView from '../views/SettingsView.vue';
@@ -43,7 +43,7 @@ const routes = [
   {
     path: '/',
     name: 'Home',
-    //component: HomeView,  // ✅ TODO: 실제 컴포넌트 연결 예정
+    component: HomeView,
     meta: { cache: true }, // ✅ 캐싱할 페이지
   },
   {
