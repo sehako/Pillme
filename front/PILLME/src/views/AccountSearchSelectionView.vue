@@ -12,18 +12,20 @@
     <!-- ✅ 버튼 컨테이너 정리 -->
     <div class="accountsearchselection-options">
       <BaseButton 
-  textColor="text-white" 
-  size="md"
-  overrideClass="!bg-[#4E7351] hover:!bg-[#3D5A3F]"
->
-  이메일 찾기
-</BaseButton>
+        textColor="text-white" 
+        size="md"
+        overrideClass="!bg-[#4E7351] hover:!bg-[#3D5A3F]"
+        @click="goToIdSearch"
+        >
+        이메일 찾기
+      </BaseButton>
 
       <BaseButton 
          textColor="text-white" 
          size="md"
-  overrideClass="!bg-[#4E7351] hover:!bg-[#3D5A3F]"
-       >
+        overrideClass="!bg-[#4E7351] hover:!bg-[#3D5A3F]"
+        @click="goToPwSearch"
+        >
         비밀번호 찾기
       </BaseButton>
     </div>
@@ -40,7 +42,17 @@ import BaseButton from "../components/BaseButton.vue";
 import BaseLogo from "../components/BaseLogo.vue";
 import BaseText from "../components/BaseText.vue"; // ✅ 추가
 import logoSrc from "../assets/logi_nofont.png";
+import { useRouter } from "vue-router";
 
+const router = useRouter();
+
+const goToIdSearch = () => {
+  router.push('/idsearch');
+}
+
+const goToPwSearch = () => {
+  router.push('/pwsearch');
+}
 </script>
 
 <style scoped>

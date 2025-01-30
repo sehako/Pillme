@@ -16,7 +16,8 @@
          textColor="text-white" 
          size="md"
          overrideClass="!bg-[#4E7351] !hover:bg-[#3D5A3F]"
-       >
+         @click="goToSignInSelection"
+         >
          시작하기
        </BaseButton>
        
@@ -28,10 +29,18 @@
 </template>
 
 <script setup>
+import { useRouter } from "vue-router";
 import BaseButton from "../components/BaseButton.vue";
 import BaseLogo from "../components/BaseLogo.vue";
 import BaseText from "../components/BaseText.vue"; // ✅ 추가
 import logoSrc from "../assets/logi_nofont.png";
+
+const router = useRouter();
+
+const goToSignInSelection = () => {
+  router.push('/signinselection');
+}
+
 </script>
 
 <style scoped>
