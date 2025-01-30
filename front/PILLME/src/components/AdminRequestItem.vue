@@ -12,10 +12,10 @@
         </div>
   
         <div class="flex flex-col space-y-2 ml-6">
-          <BaseButton textColor="text-white" size="sm" overrideClass="!bg-[#EF7C8E] !px-3 !py-1.5 !text-xs !w-16">
+          <BaseButton textColor="text-white" size="sm" overrideClass="!bg-[#EF7C8E] !px-3 !py-1.5 !text-xs !w-14">
             동의
           </BaseButton>
-          <BaseButton textColor="text-gray-700" size="sm" overrideClass="!bg-gray-200 !px-3 !py-1.5 !text-xs !w-16">
+          <BaseButton textColor="text-gray-700" size="sm" overrideClass="!bg-gray-200 !px-3 !py-1.5 !text-xs !w-14">
             거절
           </BaseButton>
         </div>
