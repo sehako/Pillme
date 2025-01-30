@@ -12,6 +12,7 @@ import ManageMemberListView from '../views/ManageMemberListView.vue';
 import NonMemberRegisterView from '../views/NonMemberRegisterView.vue';
 import MemberRegisterView from '../views/MemberRegisterView.vue';
 import RegisterView from '../views/RegisterView.vue';
+import NotificationListView from '../views/NotificationListView.vue';
 // import HomeView from '../views/HomeView.vue';
 // import CalendarView from '../views/CalendarView.vue';
 // import ProfileView from '../views/ProfileView.vue';
@@ -88,6 +89,11 @@ const routes = [
     path: '/managememberlist',  
     name: 'ManageMemberList',
     component: ManageMemberListView, 
+  },
+  {
+    path: '/notificationlist',  
+    name: 'NotificationList',
+    component: NotificationListView, 
   },
   {
     path: '/',

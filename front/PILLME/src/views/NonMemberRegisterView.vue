@@ -1,12 +1,11 @@
 <template>
     <div class="min-h-screen w-full flex flex-col items-center">
-      <!-- ✅ 로고 -->
+
       <div class="mt-8 flex flex-col items-center">
         <BaseLogo :src="logoSrc" size="md" />
         <BaseText highlightText="PILLME" textColor="text-gray-700" />
       </div>
   
-      <!-- ✅ 입력 폼 (3/4 너비 적용) -->
       <div class="mt-6 w-3/4">
         <div class="flex justify-between items-center border-b py-3">
           <span class="text-gray-600">이름</span>
@@ -39,7 +38,6 @@
         </div>
       </div>
   
-      <!-- ✅ 완료 버튼 (3/4 너비 적용) -->
       <div class="mt-6 w-3/4">
         <BaseButton
           textColor="text-gray-800"
@@ -50,8 +48,7 @@
           완료
         </BaseButton>
       </div>
-  
-      <!-- ✅ 푸시 알림 안내 -->
+
       <p class="text-center text-[#4E7351] text-sm mt-6">
         비회원은 푸시 알림을 받을 수 없습니다.<br />
         푸시 알림을 받으시려면 회원으로 등록해주세요.
@@ -63,9 +60,8 @@
   import { ref } from "vue";
   import BaseLogo from "../components/BaseLogo.vue";
   import BaseButton from "../components/BaseButton.vue";
-  import BaseText from "../components/BaseText.vue"; // ✅ BaseText 추가
-  
-  const topbarHeight = ref(0);
+  import BaseText from "../components/BaseText.vue"; 
+
   import logoSrc from "../assets/logi_nofont.png";
   
   const form = ref({
