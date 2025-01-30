@@ -7,6 +7,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -18,5 +21,10 @@ public class FCMTokenServiceImpl implements FCMTokenService {
     public void createToken(FCMTokenRequest request) {
         //TODO: 회원 데이터 추가 필요
         fcmTokenRepository.save(FCMToken.create(1, request.token()));
+    }
+
+    @Override
+    public Optional<List<FCMToken>> findByUserId(Integer userId) {
+        return fcmTokenRepository.findByUserId(userId);
     }
 }

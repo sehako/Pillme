@@ -2,16 +2,14 @@ package com.ssafy.pillme.notification.domain.entity;
 
 import com.ssafy.pillme.global.entity.BaseTimeEntity;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
 @AllArgsConstructor
 @Table(name = "fcm_token")
+@Getter
 public class FCMToken extends BaseTimeEntity {
 
     @Id

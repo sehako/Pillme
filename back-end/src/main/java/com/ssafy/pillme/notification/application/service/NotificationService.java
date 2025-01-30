@@ -11,4 +11,6 @@ public interface NotificationService {
     void updateNotificationSetting(NotificationSettingRequest request);
 
     void deleteNotificationSetting();
+
+    void checkAndSendNotifications();
 }
