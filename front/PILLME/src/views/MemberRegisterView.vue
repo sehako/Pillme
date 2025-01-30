@@ -40,7 +40,7 @@
         <BaseButton
           textColor="text-gray-800"
           size="lg"
-          overrideClass="!w-full !px-4 !py-3.5 !text-md !bg-gray-200 hover:!bg-gray-300 mt-12"
+          overrideClass="!w-full !px-4 !py-3.5 !text-md !bg-gray-200 hover:!bg-gray-300"
           @click="completeVerification"
         >
           인증 완료
