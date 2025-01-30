@@ -1,6 +1,6 @@
-package com.ssafy.pillme.medication.presentation.request;
+package com.ssafy.pillme.management.presentation.request;
 
-import com.ssafy.pillme.medication.domain.Information;
+import com.ssafy.pillme.management.domain.Information;
 import java.time.LocalDate;
 import java.util.List;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -14,9 +14,9 @@ public record MedicationRegisterRequest(
         @DateTimeFormat(iso = DateTimeFormat.ISO.DATE, pattern = "yyyy-MM-dd")
         LocalDate endDate,
         boolean isSupplement,
-        List<MedicationInfo> medicationInfo
+        List<TakingInfoRequest> takingInfoRequest
 ) {
-    Information toInformation() {
+    public Information toInformation() {
         return Information.builder()
                 .hospital(hospital)
                 .diseaseName(diseaseName)

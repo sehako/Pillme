@@ -1,4 +1,4 @@
-package com.ssafy.pillme.medication.domain;
+package com.ssafy.pillme.management.domain;
 
 import com.ssafy.pillme.global.entity.BaseTimeEntity;
 import jakarta.persistence.Entity;
@@ -9,9 +9,11 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import lombok.Getter;
 
 @Entity
 @Table(name = "history")
+@Getter
 public class History extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

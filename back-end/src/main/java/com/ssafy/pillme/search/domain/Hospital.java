@@ -1,4 +1,4 @@
-package com.ssafy.pillme.medication.domain;
+package com.ssafy.pillme.search.domain;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;

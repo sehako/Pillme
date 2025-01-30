@@ -1,4 +1,4 @@
-package com.ssafy.pillme.medication.application;
+package com.ssafy.pillme.search.application;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
