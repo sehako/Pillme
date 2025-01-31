@@ -6,6 +6,7 @@ import com.google.firebase.FirebaseOptions;
 import com.google.firebase.messaging.FirebaseMessaging;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
@@ -15,7 +16,7 @@ import java.io.IOException;
 @Configuration
 public class FCMConfig {
 
-    @Value("${fcm.credentials.path}")
+    @Value("${spring.firebase.path}")
     private String credentialsPath;
 
     // FirebaseMessaging 인스턴스를 생성하는 메서드
