@@ -1,7 +1,7 @@
 package com.ssafy.pillme.management.domain;
 
 import com.ssafy.pillme.auth.domain.entity.Member;
-import com.ssafy.pillme.global.entity.BaseTimeEntity;
+import com.ssafy.pillme.global.entity.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -22,7 +22,7 @@ import org.hibernate.annotations.ColumnDefault;
 @Table(name = "information")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Information extends BaseTimeEntity {
+public class Information extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

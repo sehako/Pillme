@@ -1,7 +1,7 @@
 package com.ssafy.pillme.notification.domain.entity;
 
 import com.ssafy.pillme.auth.domain.entity.Member;
-import com.ssafy.pillme.global.entity.BaseTimeEntity;
+import com.ssafy.pillme.global.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -11,7 +11,7 @@ import lombok.*;
 @AllArgsConstructor
 @Table(name = "fcm_token")
 @Getter
-public class FCMToken extends BaseTimeEntity {
+public class FCMToken extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
