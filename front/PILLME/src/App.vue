@@ -6,7 +6,7 @@
     <!-- 오른쪽 (모바일 전체) -->
     <div class="flex flex-col w-full md:w-1/2">
       <!-- 상단 바 -->
-      <div ref="topbarRef" class="z-10">
+      <div ref="topbarRef" class="relative z-10">
         <BaseTopbar />
       </div>
 
@@ -18,11 +18,11 @@
           isScrollAllowed ? 'overflow-y-auto overflow-x-hidden' : 'flex items-center justify-center overflow-hidden'
         ]"
       >
-        <router-view v-if="isRouteReady" />
+        <router-view v-if="isRouteReady" :navbarHeight="navbarHeight" />
       </div>
 
       <!-- 하단 바 -->
-      <div ref="navbarRef" class="flex-none z-10 bg-white">
+      <div ref="navbarRef" class="relative z-10 bg-white">
         <BaseNavbar />
       </div>
     </div>
@@ -41,7 +41,7 @@ const isRouteReady = ref(true);
 
 // 특정 라우트에서 스크롤 허용
 const isScrollAllowed = ref(false);
-const scrollablePages = ['/afteraccount', '/'];
+const scrollablePages = ['/afteraccount', '/', '/mypage'];
 
 watch(() => route.path, async () => {
   isRouteReady.value = false;
@@ -63,21 +63,31 @@ watch(() => route.path, async () => {
   isRouteReady.value = true;
 });
 
-// 상단/하단 바 높이 측정
-const topbarRef = ref(null);
+// 네비바 높이 감지 및 업데이트
 const navbarRef = ref(null);
-const topbarHeight = ref(0);
 const navbarHeight = ref(0);
+
+const updateNavbarHeight = () => {
+  if (navbarRef.value) {
+    navbarHeight.value = navbarRef.value.offsetHeight;
+  }
+};
 
 onMounted(() => {
   isScrollAllowed.value = scrollablePages.includes(route.path) || route.path === '';
+
+  // ✅ 네비바 높이 감지 (실시간 감지)
+  const observer = new ResizeObserver(() => {
+    updateNavbarHeight();
+  });
+
+  if (navbarRef.value) {
+    observer.observe(navbarRef.value);
+    updateNavbarHeight(); // 초기 값 설정
+  }
+
+  onUnmounted(() => {
+    observer.disconnect();
+  });
 });
 </script>
-
-<style>
-/* ✅ body와 html의 기본 스크롤 차단 */
-html, body {
-  overflow: hidden;
-  height: 100%;
-}
-</style>

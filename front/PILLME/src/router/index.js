@@ -8,7 +8,7 @@ import SigninSelectionView from '../views/SigninSelectionView.vue';
 import IdSearchView from '../views/IdSearchView.vue';
 import IdFoundView from '../views/IdFoundView.vue';
 import PwSearchView from '../views/PwSearchView.vue';
-// import HomeView from '../views/HomeView.vue';
+import MyPageView from '../views/MyPageView.vue';
 import HomeView from '../views/HomeView.vue';
 import CalendarView from '../views/CalendarView.vue';
 // import ProfileView from '../views/ProfileView.vue';
@@ -82,6 +82,12 @@ const routes = [
     path: '/profile',
     name: 'profile',
     // component: ProfileView, // ✅ TODO: 실제 컴포넌트 연결 예정
+    meta: { cache: false }, // ❌ 오프라인 시 접근 불가
+  },
+  {
+    path: '/mypage',
+    name: 'mypage',
+    component: MyPageView, // ✅ TODO: 실제 컴포넌트 연결 예정
     meta: { cache: false }, // ❌ 오프라인 시 접근 불가
   },
   {
