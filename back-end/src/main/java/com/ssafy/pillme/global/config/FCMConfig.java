@@ -1,4 +1,4 @@
-package com.ssafy.pillme.notification.infrastructure.fcm.config;
+package com.ssafy.pillme.global.config;
 
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.firebase.FirebaseApp;
@@ -15,7 +15,7 @@ import java.io.IOException;
 @Configuration
 public class FCMConfig {
 
-    @Value("${fcm.credentials.path}")
+    @Value("${spring.firebase.path}")
     private String credentialsPath;
 
     // FirebaseMessaging 인스턴스를 생성하는 메서드
