@@ -32,15 +32,15 @@ public class NotificationSettingController {
 
     // 알림 설정 수정
     @PutMapping
-    public JSONResponse<Void> updateNotificationSetting(@RequestBody NotificationSettingRequest request) {
+    public ResponseEntity<JSONResponse<Void>> updateNotificationSetting(@RequestBody NotificationSettingRequest request) {
         notificationService.updateNotificationSetting(request);
-        return JSONResponse.of(SuccessCode.REQUEST_SUCCESS);
+        return ResponseEntity.ok(JSONResponse.onSuccess());
     }
 
     // 알림 설정 삭제
     @DeleteMapping
-    public JSONResponse<Void> deleteNotificationSetting() {
+    public ResponseEntity<JSONResponse<Void>> deleteNotificationSetting() {
         notificationService.deleteNotificationSetting();
-        return JSONResponse.of(SuccessCode.REQUEST_SUCCESS);
+        return ResponseEntity.ok(JSONResponse.onSuccess());
     }
 }
