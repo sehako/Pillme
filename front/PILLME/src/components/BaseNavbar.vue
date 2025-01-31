@@ -68,7 +68,8 @@ const streamRef = ref(null);
 const capturedImage = ref(null);
 
 const navItems = [
-  { name: "홈", icon: navHomeIcon, route: "/start" },
+  { name: "홈", icon: navHomeIcon, route: "/" },
+  // 로그인되어있으면 /로 아니면 /start로
   { name: "캘린더", icon: navCalendarIcon, route: "/calendar" },
   { name: "", icon: navPlusIcon, route: "" },
   { name: "채팅", icon: navChatIcon, route: "/chat" },

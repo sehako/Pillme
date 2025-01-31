@@ -14,14 +14,11 @@
       <div
         ref="contentRef"
         :class="[
-          'px-4 h-screen',
-          !isScrollAllowed ? 'flex items-center justify-center overflow-hidden' : 'overflow-y-auto overflow-x-hidden'
+          'h-screen',
+          isScrollAllowed ? 'overflow-y-auto overflow-x-hidden' : 'flex items-center justify-center overflow-hidden'
         ]"
-        :style="{ paddingTop: `${topbarHeight}px`, paddingBottom: `${navbarHeight}px` }"
       >
-        <transition name="fade" mode="out-in">
-          <router-view v-if="isRouteReady" />
-        </transition>
+        <router-view v-if="isRouteReady" />
       </div>
 
       <!-- 하단 바 -->
@@ -33,19 +30,18 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted, watch, computed, nextTick } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
+import { ref, onMounted, onUnmounted, watch, nextTick } from 'vue';
+import { useRoute } from 'vue-router';
 import BaseTopbar from './components/BaseTopbar.vue';
 import BaseNavbar from './components/BaseNavbar.vue';
 
 const route = useRoute();
-const router = useRouter();
 const contentRef = ref(null);
-const isRouteReady = ref(false);
+const isRouteReady = ref(true);
 
 // 특정 라우트에서 스크롤 허용
 const isScrollAllowed = ref(false);
-const scrollablePages = ['/afteraccount', '/scroll-page-2'];
+const scrollablePages = ['/afteraccount', '/'];
 
 watch(() => route.path, async () => {
   isRouteReady.value = false;
@@ -67,57 +63,15 @@ watch(() => route.path, async () => {
   isRouteReady.value = true;
 });
 
-// 특정 라우트에서 flex 적용
-const flexRoutes = [
-  "StartView", "SigninSelectionView", "LoginSelectionView",
-  "AccountSearchSelectionView", "IdSearch", "PwSearch", "LoginView"
-];
-const isNeedFlex = computed(() => flexRoutes.includes(route.name));
-
 // 상단/하단 바 높이 측정
 const topbarRef = ref(null);
 const navbarRef = ref(null);
 const topbarHeight = ref(0);
 const navbarHeight = ref(0);
 
-let topbarObserver, navbarObserver;
-
 onMounted(() => {
-  if ('ResizeObserver' in window) {
-    topbarObserver = createResizeObserver(topbarRef, (entry) => {
-      topbarHeight.value = entry.contentRect.height;
-    });
-    navbarObserver = createResizeObserver(navbarRef, (entry) => {
-      navbarHeight.value = entry.contentRect.height;
-    });
-  } else {
-    updateHeightsFallback();
-    window.addEventListener('resize', updateHeightsFallback);
-  }
+  isScrollAllowed.value = scrollablePages.includes(route.path) || route.path === '';
 });
-
-onUnmounted(() => {
-  topbarObserver?.unobserve(topbarRef.value);
-  navbarObserver?.unobserve(navbarRef.value);
-  window.removeEventListener('resize', updateHeightsFallback);
-});
-
-function createResizeObserver(refEl, callback) {
-  const observer = new ResizeObserver((entries) => {
-    entries.forEach((entry) => {
-      if (refEl.value === entry.target) {
-        callback(entry);
-      }
-    });
-  });
-  refEl.value && observer.observe(refEl.value);
-  return observer;
-}
-
-function updateHeightsFallback() {
-  topbarHeight.value = topbarRef.value?.offsetHeight || 0;
-  navbarHeight.value = navbarRef.value?.offsetHeight || 0;
-}
 </script>
 
 <style>
@@ -125,12 +79,5 @@ function updateHeightsFallback() {
 html, body {
   overflow: hidden;
   height: 100%;
-}
-
-.fade-enter-active, .fade-leave-active {
-  transition: opacity 0.3s ease;
-}
-.fade-enter, .fade-leave-to {
-  opacity: 0;
 }
 </style>

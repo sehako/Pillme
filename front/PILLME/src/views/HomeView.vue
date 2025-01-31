@@ -1,7 +1,7 @@
 <template>
-<div class="flex flex-col">
-<undertopbar class="flex flex-col bg-[#B5CCB7] rounded-bl-lg rounded-br-lg">
-  <div class="flex flex-row items-center justify-between p-4">
+<div class="flex flex-col w-full">
+<undertopbar class="bg-[#B5CCB7] rounded-bl-lg rounded-br-lg">
+  <div class="flex flex-row items-center justify-between p-4 ">
   <!-- ✅ 햄버거 아이콘 -->
   <div class="flex-1 flex justify-start">
     <img src="../assets/Group 33627.svg" alt="메뉴" class="w-6 h-6">
@@ -20,13 +20,17 @@
 
 </undertopbar>
 <div class="grid gap-4 grid-cols-3 p-4">
-  <BaseButton >
-  인원추가</BaseButton>
-  <BaseButton>
-    약정보검색</BaseButton>
-    <BaseButton>
-      알림설정</BaseButton>
+  <BaseButton class="whitespace-nowrap">
+    인원추가
+  </BaseButton>
+  <BaseButton class="whitespace-nowrap">
+    약정보검색
+  </BaseButton>
+  <BaseButton class="whitespace-nowrap">
+    알림설정
+  </BaseButton>
 </div>
+
 <mainview>
   <YellowCard class="m-4 flex flex-col">
   <div class="flex flex-row items-end">
@@ -41,7 +45,7 @@
 </YellowCard>
 
 <div class="m-4 flex flex-col">
-  <p class="text-xl font-bold">복용 내역</p>
+  <p class="text-lg font-bold">복용 내역</p>
   <WhiteCard overrideClass="bg-white">
   
   </WhiteCard>

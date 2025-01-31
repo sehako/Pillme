@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col justify-center items-center px-4">
+  <div class="flex flex-col justify-center items-center p-4">
     <!-- ✅ 로고 -->
     <BaseLogo :src="logoSrc" size="md" />
 
@@ -125,23 +125,23 @@
       </div>
 
       <!-- 버튼들 가로 정렬 & 간격 추가 -->
-      <div class="flex flex-row justify-center w-full mt-4 gap-4">
+      <div class="flex flex-row w-full justify-center mt-4 gap-4">
   <BaseButton
-    class="flex-1 w-full min-w-0"
+    class="flex-1 w-auto min-w-0"
     textColor="text-gray-700"
     size="md"
     @click="goBack"
-    overrideClass="!bg-[#D1D5DB] hover:!bg-[#6B7280]"
+    overrideClass="!min-w-0 !bg-[#D1D5DB] hover:!bg-[#6B7280]"
   >
     이전
   </BaseButton>
 
   <BaseButton
-    class="flex-1 w-full min-w-0"
+    class="flex-1 w-auto min-w-0"
     textColor="text-white"
     size="md"
     type="submit"
-    overrideClass="!bg-[#EF7C8E] hover:!bg-[#E96C7E]"
+    overrideClass="!min-w-0 !bg-[#EF7C8E] hover:!bg-[#E96C7E]"
   >
     가입하기
   </BaseButton>
