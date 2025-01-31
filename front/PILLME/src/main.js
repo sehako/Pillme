@@ -2,7 +2,7 @@
 
 import { createApp } from 'vue';
 import { createPinia } from 'pinia';
-
+import "./style.css";
 import App from './App.vue';
 // import './styles/global.css'; // 전역 스타일 적용
 import router from './router';

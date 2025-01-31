@@ -1,63 +1,150 @@
 <template>
-  <div id="app">
-    <header>
-      <h1>PILLME</h1>
-      <p v-if="isOffline" style="color: red">🚨 현재 오프라인 상태입니다.</p>
+  <div id="app" class="flex flex-row min-h-screen">
+    
+    <!-- ✅ 왼쪽 (웹에서는 보이지만 모바일에서는 숨김) -->
+    <div class="hidden md:block w-1/2"></div>
 
-      <!-- ✅ PWA 설치 버튼 (설치 가능할 때만 표시) -->
-      <button v-if="deferredPrompt" @click="installPWA" class="install-button">
-        📲 PWA 설치하기
-      </button>
-    </header>
+    <!-- ✅ 오른쪽 (모바일에서는 전체 화면 차지) -->
+    <div class="relative w-full md:w-1/2">
 
-    <router-view />
 
-    <!-- ✅ PWA 업데이트 알림 (새 버전이 있을 때 표시됨) -->
-    <div v-if="isUpdateAvailable" class="update-notification" @click="refreshApp">
-      🔄 새로운 업데이트가 있습니다. 클릭하여 새로고침하세요.
+        <!-- ✅ 상단 바 (div로 감싸서 id/class 부여) -->
+        <div id="topbar" class="absolute inset-x-0 top-0 w-full z-10">
+          <BaseTopbar />
+        </div>
+ 
+
+      <!-- ✅ 헤더 영역 -->
+       <!-- 이 부분이 문제가 되고 있음. pwa 캐싱 관련 이슈. vite에서 개발시 pwa 안쓰도록 설정해놓음 추후 연결해서 해결  -->
+      <!-- <header class="text-center w-full mt-2">
+        <p v-if="isOffline" class="text-red-500 font-semibold">
+          🚨 현재 오프라인 상태입니다.
+        </p>
+        <button
+          v-if="deferredPrompt"
+          @click="installPWA"
+          class="block mx-auto px-4 py-2 bg-blue-500 text-white rounded-lg text-lg hover:bg-blue-600 transition"
+        >
+          📲 PWA 설치하기
+        </button>
+      </header> -->
+
+      <!-- ✅ 현재 페이지의 콘텐츠 (기본적으로 스크롤 없음, 허용된 페이지만 스크롤 가능) -->
+      <div
+        :class="{ 'overflow-y-auto': isScrollAllowed }"
+        class=""
+
+      >
+        <router-view />
+      </div>
+
+      <!-- ✅ 네비게이션 바 (div로 감싸서 id/class 부여) -->
+      <div
+        id="navbar"
+        class="absolute inset-x-0 bottom-0 w-full z-10"
+      >
+        <BaseNavbar />
+      </div>
+      <!-- ✅ 업데이트 알림 -->
+      <!-- <div
+        v-if="isUpdateAvailable"
+        @click="refreshApp"
+        class="bottom-20 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-4 py-2 rounded-lg text-sm cursor-pointer shadow-md"
+      >
+        🔄 새로운 업데이트가 있습니다. 클릭하여 새로고침하세요.
+      </div> -->
     </div>
+
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue';
+/**
+ * Vue & Router
+ */
+import { ref, onMounted, onUnmounted, watch } from "vue";
+import { useRoute } from "vue-router";
 
-const isOffline = ref(!navigator.onLine);
-const isUpdateAvailable = ref(false);
-const deferredPrompt = ref(null); // ✅ PWA 설치 프롬프트 저장
+/**
+ * 컴포넌트 import
+ */
+import BaseNavbar from "./components/BaseNavbar.vue";
+import BaseTopbar from "./components/BaseTopbar.vue";
 
-/** ✅ 네트워크 상태 감지 */
+/**
+ * 라우트 관련
+ */
+const route = useRoute();
+
+/**
+ * 스크롤 허용 여부 & 레이아웃 계산 로직
+ */
+const isScrollAllowed = ref(false);
+const topbarHeight = ref(0);
+const navbarHeight = ref(0);
+const computedHeight = ref("100vh");
+
+const scrollablePages = ["/scroll-page-1", "/scroll-page-2"];
+const checkScrollPermission = () => {
+  isScrollAllowed.value = scrollablePages.includes(route.path);
+  document.body.style.overflow = isScrollAllowed.value ? "auto" : "hidden";
+};
+
+const updateLayout = () => {
+  const topbar = document.querySelector("#topbar");
+  const navbar = document.querySelector("#navbar");
+  // 혹시 DOM을 못 찾을 경우 대비 (null 확인)
+  topbarHeight.value = topbar ? topbar.offsetHeight : 0;
+  navbarHeight.value = navbar ? navbar.offsetHeight : 0;
+  // 100vh에서 상단/하단 바 높이를 뺀 값
+  computedHeight.value = `calc(100vh - ${topbarHeight.value}px - ${navbarHeight.value}px)`;
+};
+
+watch(
+  () => route.path,
+  () => {
+    checkScrollPermission();
+    updateLayout();
+  }
+);
+
+/**
+ * PWA 관련 상태 및 로직
+ */
+const isOffline = ref(!navigator.onLine); // 오프라인 여부
+const deferredPrompt = ref(null);         // PWA 설치 프롬프트
+const isUpdateAvailable = ref(false);     // 서비스 워커 업데이트 감지
+
+// 네트워크 상태 감지
 const updateNetworkStatus = () => {
   isOffline.value = !navigator.onLine;
 };
 
-/** ✅ PWA 설치 이벤트 감지 */
+// beforeinstallprompt 이벤트 핸들러
 const handleBeforeInstallPrompt = (event) => {
   event.preventDefault();
-  deferredPrompt.value = event; // ✅ PWA 설치 가능 상태 저장
+  deferredPrompt.value = event;
 };
 
-/** ✅ PWA 설치 실행 */
+// PWA 설치
 const installPWA = async () => {
   if (!deferredPrompt.value) return;
   deferredPrompt.value.prompt();
   const choiceResult = await deferredPrompt.value.userChoice;
-  if (choiceResult.outcome === 'accepted') {
-    console.log('✅ PWA 설치 완료'); // 🚨 배포 시 주석 처리 필요
+  if (choiceResult.outcome === "accepted") {
+    console.log("✅ PWA 설치 완료");
   }
-  deferredPrompt.value = null; // ✅ 설치 후 버튼 숨김
+  deferredPrompt.value = null;
 };
 
-/** ✅ PWA 업데이트 감지 */
+// 서비스 워커 업데이트 감지
 const checkForUpdates = () => {
-  if ('serviceWorker' in navigator) {
+  if ("serviceWorker" in navigator) {
     navigator.serviceWorker.getRegistration().then((registration) => {
       if (registration && registration.waiting) {
-        isUpdateAvailable.value = true; // ✅ 새 버전이 있음
+        isUpdateAvailable.value = true;
       }
-
-      // ✅ 기존 코드 유지하면서 추가 가능: 업데이트가 발견될 때마다 감지
-      registration?.addEventListener('updatefound', () => {
+      registration?.addEventListener("updatefound", () => {
         if (registration.waiting) {
           isUpdateAvailable.value = true;
         }
@@ -66,15 +153,13 @@ const checkForUpdates = () => {
   }
 };
 
-/** ✅ PWA 업데이트 적용 및 새로고침 */
+// 업데이트 적용 및 새로고침
 const refreshApp = () => {
-  if ('serviceWorker' in navigator) {
+  if ("serviceWorker" in navigator) {
     navigator.serviceWorker.getRegistration().then((registration) => {
       if (registration && registration.waiting) {
-        registration.waiting.postMessage({ type: 'SKIP_WAITING' });
-
-        // ✅ 기존 코드 유지하면서 추가 가능: 업데이트 적용 후 자동 새로고침
-        navigator.serviceWorker.addEventListener('controllerchange', () => {
+        registration.waiting.postMessage({ type: "SKIP_WAITING" });
+        navigator.serviceWorker.addEventListener("controllerchange", () => {
           window.location.reload();
         });
       }
@@ -82,66 +167,41 @@ const refreshApp = () => {
   }
 };
 
+/**
+ * 마운트 시점에 이벤트 등록
+ */
 onMounted(() => {
-  console.log('PWA 앱이 시작되었습니다!'); // 🚨 배포 시 주석 처리 필요
+  // 레이아웃 계산
+  updateLayout();
+  window.addEventListener("resize", updateLayout);
 
-  window.addEventListener('online', updateNetworkStatus);
-  window.addEventListener('offline', updateNetworkStatus);
-  window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+  // 네트워크 상태 감지
+  window.addEventListener("online", updateNetworkStatus);
+  window.addEventListener("offline", updateNetworkStatus);
 
-  // ✅ 기존 코드 유지하면서 추가 가능: PWA 설치 가능 여부 체크
-  if (window.matchMedia('(display-mode: standalone)').matches) {
-    deferredPrompt.value = null; // 이미 설치됨
-  }
+  // PWA 설치 이벤트
+  window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
 
-  // ✅ 서비스 워커 업데이트 감지
+  // PWA 업데이트 확인
   checkForUpdates();
+
+  // 만약 이미 standalone(설치된) 모드라면 설치 프롬프트 null 처리
+  if (window.matchMedia("(display-mode: standalone)").matches) {
+    deferredPrompt.value = null;
+  }
 });
 
+/**
+ * 언마운트 시점에 이벤트 해제
+ */
 onUnmounted(() => {
-  window.removeEventListener('online', updateNetworkStatus);
-  window.removeEventListener('offline', updateNetworkStatus);
-  window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+  window.removeEventListener("resize", updateLayout);
+  window.removeEventListener("online", updateNetworkStatus);
+  window.removeEventListener("offline", updateNetworkStatus);
+  window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
 });
 </script>
 
-<style>
-body {
-  font-family: Arial, sans-serif;
-  margin: 0;
-  padding: 0;
-  background: #f4f4f4;
-}
-
-/* ✅ PWA 설치 버튼 스타일 */
-.install-button {
-  display: block;
-  margin: 10px auto;
-  padding: 10px 15px;
-  background: #007aff;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  font-size: 16px;
-  cursor: pointer;
-}
-
-.install-button:hover {
-  background: #005ecb;
-}
-
-/* ✅ PWA 업데이트 알림 스타일 */
-.update-notification {
-  position: fixed;
-  bottom: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: #42b883;
-  color: white;
-  padding: 10px 20px;
-  border-radius: 5px;
-  font-size: 14px;
-  cursor: pointer;
-}
+<style scoped>
+/* 필요하다면 전역 스타일 */
 </style>
-<!-- 추후 pwa 설치 유도 알림 구현해서 넣어야함. -->
