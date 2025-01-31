@@ -1,5 +1,6 @@
 package com.ssafy.pillme.notification.domain.entity;
 
+import com.ssafy.pillme.auth.domain.entity.Member;
 import com.ssafy.pillme.global.entity.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
@@ -16,14 +17,15 @@ public class FCMToken extends BaseTimeEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(name = "user_id")
-    private Integer userId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "member_id", nullable = false)
+    private Member member;
 
     private String token;
 
-    public static FCMToken create(Integer userId, String token) {
+    public static FCMToken create(Member member, String token) {
         return FCMToken.builder()
-                .userId(userId)
+                .member(member)
                 .token(token)
                 .build();
     }

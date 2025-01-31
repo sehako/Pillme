@@ -16,11 +16,11 @@ public class FCMNotificationServiceImpl implements FCMNotificationService {
     private final FirebaseMessaging firebaseMessaging;
 
     @Override
-    public void sendNotificationSetting(Integer userId, String title, String body) {
+    public void sendNotificationSetting(Long memberId, String title, String body) {
 
         // 사용자 id로 토큰들 조회
         // 사용자가 알림을 허용한 모든 토큰들에 알림 전송
-        fcmTokenService.findByUserId(userId).ifPresent(tokens -> {
+        fcmTokenService.findByMemberId(memberId).ifPresent(tokens -> {
             tokens.forEach(token -> {
                 Message message = Message.builder()
                         .setToken(token.getToken())
