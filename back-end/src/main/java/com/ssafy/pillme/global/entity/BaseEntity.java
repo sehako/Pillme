@@ -15,7 +15,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 @MappedSuperclass
 @EnableJpaAuditing
 @EntityListeners(AuditingEntityListener.class)
-public class BaseTimeEntity {
+public class BaseEntity {
     @CreatedDate
     @Column(name = "created_at", updatable = false, nullable = false)
     private Timestamp createdAt;

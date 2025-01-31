@@ -6,6 +6,7 @@ import com.ssafy.pillme.notification.application.response.NotificationSettingRes
 import com.ssafy.pillme.notification.application.service.NotificationService;
 import com.ssafy.pillme.notification.presentation.request.NotificationSettingRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -18,15 +19,15 @@ public class NotificationSettingController {
     // 알림 설정 생성
     //TODO: 회원 데이터 추가 필요
     @PostMapping
-    public JSONResponse<Void> createNotificationSetting(@RequestBody NotificationSettingRequest request) {
+    public ResponseEntity<JSONResponse<Void>> createNotificationSetting(@RequestBody NotificationSettingRequest request) {
         notificationService.createNotificationSetting(request);
-        return JSONResponse.of(SuccessCode.REQUEST_SUCCESS);
+        return ResponseEntity.ok(JSONResponse.onSuccess());
     }
 
     // 알림 설정 조회
     @GetMapping
-    public JSONResponse<NotificationSettingResponse> getNotificationSetting() {
-        return JSONResponse.of(SuccessCode.REQUEST_SUCCESS, notificationService.getNotificationSetting());
+    public ResponseEntity<JSONResponse<NotificationSettingResponse>> getNotificationSetting() {
+        return ResponseEntity.ok(JSONResponse.onSuccess(notificationService.getNotificationSetting()));
     }
 
     // 알림 설정 수정

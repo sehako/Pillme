@@ -1,11 +1,11 @@
 package com.ssafy.pillme.notification.application.service;
 
+import com.ssafy.pillme.auth.infrastructure.repository.UserRepository;
 import com.ssafy.pillme.notification.application.response.NotificationSettingResponse;
 import com.ssafy.pillme.notification.domain.entity.NotificationSetting;
 import com.ssafy.pillme.notification.domain.vo.NotificationTimeType;
 import com.ssafy.pillme.notification.infrastructure.repository.NotificationSettingRepository;
 import com.ssafy.pillme.notification.presentation.request.NotificationSettingRequest;
-import com.ssafy.pillme.user.presentation.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -30,14 +30,14 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     public void createNotificationSetting(NotificationSettingRequest request) {
         // request.toEntity(new UserEntity());
-        notificationSettingRepository.save(request.toEntity(userRepository.findById(1).get()));
+        notificationSettingRepository.save(request.toEntity(userRepository.findById(1L).get()));
     }
 
     @Override
     public NotificationSettingResponse getNotificationSetting() {
         //TODO: 회원 데이터 추가 필요
         //TODO: 데이터 존재하지 않을 시, 예외 처리 필요
-        NotificationSetting setting = notificationSettingRepository.findByUserId(1)
+        NotificationSetting setting = notificationSettingRepository.findByMemberId(1L)
                 .orElseThrow(() -> new IllegalArgumentException("알림 설정이 존재하지 않습니다."));
 
         return NotificationSettingResponse.builder()
@@ -52,7 +52,7 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     public void updateNotificationSetting(NotificationSettingRequest request) {
         //TODO: 회원 데이터 추가 필요
-        NotificationSetting setting = notificationSettingRepository.findByUserId(1)
+        NotificationSetting setting = notificationSettingRepository.findByMemberId(1L)
                 .orElseThrow(() -> new IllegalArgumentException("알림 설정이 존재하지 않습니다."));
 
         setting.update(request);
@@ -61,7 +61,7 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     public void deleteNotificationSetting() {
         // TODO: 회원 데이터 추가 필요
-        NotificationSetting setting = notificationSettingRepository.findByUserId(1)
+        NotificationSetting setting = notificationSettingRepository.findByMemberId(1L)
                 .orElseThrow(() -> new IllegalArgumentException("알림 설정이 존재하지 않습니다."));
         notificationSettingRepository.delete(setting);
     }
@@ -91,7 +91,7 @@ public class NotificationServiceImpl implements NotificationService {
 
             //TODO: 회원의 약물 복용이 존재하는 경우, 해당 약물의 이름과 함께 알림 전송
             // 현재는 알림 설정만 존재하므로 해당 시간에 알림 제목만 전송
-            fcmNotificationService.sendNotificationSetting(1, timeType.getMessage(), "");
+            fcmNotificationService.sendNotificationSetting(1L, timeType.getMessage(), "");
         } catch (Exception e) {
             log.error("알림 전송 중 오류 발생: {}", e.getMessage());
         }

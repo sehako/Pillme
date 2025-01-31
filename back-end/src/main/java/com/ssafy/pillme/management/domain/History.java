@@ -1,6 +1,6 @@
 package com.ssafy.pillme.management.domain;
 
-import com.ssafy.pillme.global.entity.BaseTimeEntity;
+import com.ssafy.pillme.global.entity.BaseEntity;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -14,7 +14,7 @@ import lombok.Getter;
 @Entity
 @Table(name = "history")
 @Getter
-public class History extends BaseTimeEntity {
+public class History extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

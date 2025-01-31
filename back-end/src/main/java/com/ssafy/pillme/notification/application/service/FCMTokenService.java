@@ -10,5 +10,5 @@ public interface FCMTokenService {
     void createToken(FCMTokenRequest request);
 
     // 사용자 id로 토큰들 조회
-    Optional<List<FCMToken>> findByUserId(Integer userId);
+    Optional<List<FCMToken>> findByMemberId(Long memberId);
 }

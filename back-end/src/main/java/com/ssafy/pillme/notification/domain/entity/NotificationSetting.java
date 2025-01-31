@@ -1,7 +1,7 @@
 package com.ssafy.pillme.notification.domain.entity;
 
+import com.ssafy.pillme.auth.domain.entity.Member;
 import com.ssafy.pillme.notification.presentation.request.NotificationSettingRequest;
-import com.ssafy.pillme.user.domain.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -19,8 +19,8 @@ public class NotificationSetting {
     private Integer id;
 
     @OneToOne(fetch = FetchType.LAZY) // 지연 로딩을 통해 회원 데이터는 필요할 때만 가져옴
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    @JoinColumn(name = "member_id", nullable = false)
+    private Member member;
 
     private LocalTime morning; // localTime은 HH:mm:ss 형식 DB에는 TIME으로 저장
     private LocalTime lunch; // ZonedDateTime은 글로벌 서비스 전략으로 시간대 정보를 포함하는 타임스탬프를 저장

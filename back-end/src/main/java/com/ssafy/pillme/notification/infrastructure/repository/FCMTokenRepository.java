@@ -9,5 +9,5 @@ import java.util.Optional;
 
 @Repository
 public interface FCMTokenRepository extends JpaRepository<FCMToken, Integer> {
-    Optional<List<FCMToken>> findByUserId(Integer userId);
+    Optional<List<FCMToken>> findByMemberId(Long memberId);
 }
