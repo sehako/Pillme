@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("api/v1/medication")
+@RequestMapping("api/v1/search")
 @RequiredArgsConstructor
 public class SearchController {
     private final ManagementService medicationService;

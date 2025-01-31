@@ -31,7 +31,8 @@ public class CommonExceptionHandler {
     }
 
     // @PathVariable 잘못 입력 또는 요청 메시지 바디에 아무 값도 전달되지 않았을 때
-    @ExceptionHandler({MethodArgumentTypeMismatchException.class, HttpMessageNotReadableException.class})
+    @ExceptionHandler({MethodArgumentTypeMismatchException.class, HttpMessageNotReadableException.class,
+            HttpMessageNotReadableException.class})
     public ResponseEntity<JSONResponse<Object>> handlerMethodArgumentTypeMismatchException(final Exception e) {
         log.error(e.getMessage(), e);
         return ResponseEntity
@@ -42,10 +43,7 @@ public class CommonExceptionHandler {
     // 그 외 CommonException 상속받은 모든 예외를 이 메소드에서 처리
     @ExceptionHandler(CommonException.class)
     public ResponseEntity<JSONResponse<Object>> handlerCommonException(final CommonException e) {
-        log.error(e.getErrorCode().name());
-        if (e.getMessage() != null) {
-            log.error(e.getMessage(), e);
-        }
+        log.error("Exception = {}, code = {}", e.getClass(), e.getErrorCode());
         return ResponseEntity
                 .status(e.getErrorCode().getHttpStatus())
                 .body(JSONResponse.onFailure(e.getErrorCode()));

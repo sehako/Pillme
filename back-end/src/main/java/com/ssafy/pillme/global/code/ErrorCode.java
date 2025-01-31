@@ -1,10 +1,12 @@
 package com.ssafy.pillme.global.code;
 
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
+import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
+import static org.springframework.http.HttpStatus.UNAUTHORIZED;
+
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-
-import static org.springframework.http.HttpStatus.*;
 
 @Getter
 @RequiredArgsConstructor
@@ -13,7 +15,7 @@ public enum ErrorCode {
     SERVER_ERROR(5000, INTERNAL_SERVER_ERROR, "서버 내부 오류가 발생했습니다"),
 
     // 요청 관련 에러
-    INVALID_REQUEST(4000, BAD_REQUEST, "잘못된 요청입니다"),
+    INVALID_REQUEST(4000, BAD_REQUEST, "잘못된 요청 형식입니다"),
     INVALID_AUTHORIZATION_CODE(4001, BAD_REQUEST, "유효하지 않은 인증 코드입니다"),
 
     // 인증 관련 에러
