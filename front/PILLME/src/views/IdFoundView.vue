@@ -26,7 +26,7 @@
   import BaseLogo from "../components/BaseLogo.vue";
   import BaseText from "../components/BaseText.vue";
   
-  import logoSrc from "../assets/logi_nofont.png";
+  import logoSrc from "../assets/logi_nofont.svg";
   
   // 찾은 아이디 값 (예시로 설정, 실제 데이터는 API로 받아올 수도 있음)
   const foundId = ref("example_user"); // 이 값은 백엔드에서 가져온 값을 설정하는 로직이 필요할 수 있음

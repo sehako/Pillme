@@ -1,206 +1,136 @@
 <template>
-  <div id="app" class="flex flex-row min-h-screen">
-    
-    <!-- ✅ 왼쪽 (웹에서는 보이지만 모바일에서는 숨김) -->
-    <div class="hidden md:block w-1/2"></div>
+  <div id="app" class="flex flex-row h-screen">
+    <!-- 왼쪽 (PC 전용) -->
+    <div class="hidden md:block w-1/2 bg-gray-100"></div>
 
-    <!-- ✅ 오른쪽 (모바일에서는 전체 화면 차지) -->
-    <div class="relative w-full md:w-1/2">
-
-
-
-  <!-- ✅ 상단 바 (div로 감싸서 id/class 부여) -->
-
-    <BaseTopbar id="topbar" class="sticky inset-x-0 top-0 w-full z-10"/>
-
- 
-
-      <!-- ✅ 헤더 영역 -->
-       <!-- 이 부분이 문제가 되고 있음. pwa 캐싱 관련 이슈. vite에서 개발시 pwa 안쓰도록 설정해놓음 추후 연결해서 해결  -->
-      <!-- <header class="text-center w-full mt-2">
-        <p v-if="isOffline" class="text-red-500 font-semibold">
-          🚨 현재 오프라인 상태입니다.
-        </p>
-        <button
-          v-if="deferredPrompt"
-          @click="installPWA"
-          class="block mx-auto px-4 py-2 bg-blue-500 text-white rounded-lg text-lg hover:bg-blue-600 transition"
-        >
-          📲 PWA 설치하기
-        </button>
-      </header> -->
- 
-      <!-- ✅ 현재 페이지의 콘텐츠 (기본적으로 스크롤 없음, 허용된 페이지만 스크롤 가능) -->
-      <div
-        :class="{ 'overflow-y-auto': isScrollAllowed }"
-      class="min-h-full">
-        <router-view />
+    <!-- 오른쪽 (모바일 전체) -->
+    <div class="flex flex-col w-full md:w-1/2">
+      <!-- 상단 바 -->
+      <div ref="topbarRef" class="z-10 bg-white">
+        <BaseTopbar />
       </div>
-     <!-- ✅ 네비게이션 바 (div로 감싸서 id/class 부여) -->
+
+      <!-- 가운데(라우트) 영역 -->
       <div
-        id="navbar"
-        class="sticky inset-x-0 bottom-0 w-full z-10"
+        ref="contentRef"
+        :class="[
+          'px-4 h-screen',
+          !isScrollAllowed ? 'flex items-center justify-center overflow-hidden' : 'overflow-y-auto overflow-x-hidden'
+        ]"
+        :style="{ paddingTop: `${topbarHeight}px`, paddingBottom: `${navbarHeight}px` }"
       >
+        <transition name="fade" mode="out-in">
+          <router-view v-if="isRouteReady" />
+        </transition>
+      </div>
+
+      <!-- 하단 바 -->
+      <div ref="navbarRef" class="flex-none z-10 bg-white">
         <BaseNavbar />
       </div>
-
-      <!-- ✅ 업데이트 알림 -->
-      <!-- <div
-        v-if="isUpdateAvailable"
-        @click="refreshApp"
-        class="bottom-20 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-4 py-2 rounded-lg text-sm cursor-pointer shadow-md"
-      >
-        🔄 새로운 업데이트가 있습니다. 클릭하여 새로고침하세요.
-      </div> -->
     </div>
-
   </div>
 </template>
 
 <script setup>
-/**
- * Vue & Router
- */
-import { ref, onMounted, onUnmounted, watch } from "vue";
-import { useRoute } from "vue-router";
+import { ref, onMounted, onUnmounted, watch, computed, nextTick } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+import BaseTopbar from './components/BaseTopbar.vue';
+import BaseNavbar from './components/BaseNavbar.vue';
 
-/**
- * 컴포넌트 import
- */
-import BaseNavbar from "./components/BaseNavbar.vue";
-import BaseTopbar from "./components/BaseTopbar.vue";
-
-/**
- * 라우트 관련
- */
 const route = useRoute();
+const router = useRouter();
+const contentRef = ref(null);
+const isRouteReady = ref(false);
 
-/**
- * 스크롤 허용 여부 & 레이아웃 계산 로직
- */
+// 특정 라우트에서 스크롤 허용
 const isScrollAllowed = ref(false);
+const scrollablePages = ['/afteraccount', '/scroll-page-2'];
+
+watch(() => route.path, async () => {
+  isRouteReady.value = false;
+  await nextTick(); // 레이아웃 업데이트 후 반영
+  isScrollAllowed.value = scrollablePages.includes(route.path);
+
+  // ✅ 스크롤 허용 안된 페이지일 때 강제로 스크롤 최상단 이동 및 차단
+  if (!isScrollAllowed.value) {
+    document.documentElement.style.overflow = "hidden";
+    document.body.style.overflow = "hidden";
+    setTimeout(() => {
+      contentRef.value?.scrollTo({ top: 0, behavior: 'instant' });
+    }, 50);
+  } else {
+    document.documentElement.style.overflow = "";
+    document.body.style.overflow = "";
+  }
+
+  isRouteReady.value = true;
+});
+
+// 특정 라우트에서 flex 적용
+const flexRoutes = [
+  "StartView", "SigninSelectionView", "LoginSelectionView",
+  "AccountSearchSelectionView", "IdSearch", "PwSearch", "LoginView"
+];
+const isNeedFlex = computed(() => flexRoutes.includes(route.name));
+
+// 상단/하단 바 높이 측정
+const topbarRef = ref(null);
+const navbarRef = ref(null);
 const topbarHeight = ref(0);
 const navbarHeight = ref(0);
-const computedHeight = ref("100vh");
 
-const scrollablePages = ["/scroll-page-1", "/scroll-page-2"];
-const checkScrollPermission = () => {
-  isScrollAllowed.value = scrollablePages.includes(route.path);
-  document.body.style.overflow = isScrollAllowed.value ? "auto" : "hidden";
-};
+let topbarObserver, navbarObserver;
 
-const updateLayout = () => {
-  const topbar = document.querySelector("#topbar");
-  const navbar = document.querySelector("#navbar");
-  // 혹시 DOM을 못 찾을 경우 대비 (null 확인)
-  topbarHeight.value = topbar ? topbar.offsetHeight : 0;
-  navbarHeight.value = navbar ? navbar.offsetHeight : 0;
-  // 100vh에서 상단/하단 바 높이를 뺀 값
-  computedHeight.value = `calc(100vh - ${topbarHeight.value}px - ${navbarHeight.value}px)`;
-};
-
-watch(
-  () => route.path,
-  () => {
-    checkScrollPermission();
-    updateLayout();
-  }
-);
-
-/**
- * PWA 관련 상태 및 로직
- */
-const isOffline = ref(!navigator.onLine); // 오프라인 여부
-const deferredPrompt = ref(null);         // PWA 설치 프롬프트
-const isUpdateAvailable = ref(false);     // 서비스 워커 업데이트 감지
-
-// 네트워크 상태 감지
-const updateNetworkStatus = () => {
-  isOffline.value = !navigator.onLine;
-};
-
-// beforeinstallprompt 이벤트 핸들러
-const handleBeforeInstallPrompt = (event) => {
-  event.preventDefault();
-  deferredPrompt.value = event;
-};
-
-// PWA 설치
-const installPWA = async () => {
-  if (!deferredPrompt.value) return;
-  deferredPrompt.value.prompt();
-  const choiceResult = await deferredPrompt.value.userChoice;
-  if (choiceResult.outcome === "accepted") {
-    console.log("✅ PWA 설치 완료");
-  }
-  deferredPrompt.value = null;
-};
-
-// 서비스 워커 업데이트 감지
-const checkForUpdates = () => {
-  if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.getRegistration().then((registration) => {
-      if (registration && registration.waiting) {
-        isUpdateAvailable.value = true;
-      }
-      registration?.addEventListener("updatefound", () => {
-        if (registration.waiting) {
-          isUpdateAvailable.value = true;
-        }
-      });
-    });
-  }
-};
-
-// 업데이트 적용 및 새로고침
-const refreshApp = () => {
-  if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.getRegistration().then((registration) => {
-      if (registration && registration.waiting) {
-        registration.waiting.postMessage({ type: "SKIP_WAITING" });
-        navigator.serviceWorker.addEventListener("controllerchange", () => {
-          window.location.reload();
-        });
-      }
-    });
-  }
-};
-
-/**
- * 마운트 시점에 이벤트 등록
- */
 onMounted(() => {
-  // 레이아웃 계산
-  updateLayout();
-  window.addEventListener("resize", updateLayout);
-
-  // 네트워크 상태 감지
-  window.addEventListener("online", updateNetworkStatus);
-  window.addEventListener("offline", updateNetworkStatus);
-
-  // PWA 설치 이벤트
-  window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
-
-  // PWA 업데이트 확인
-  checkForUpdates();
-
-  // 만약 이미 standalone(설치된) 모드라면 설치 프롬프트 null 처리
-  if (window.matchMedia("(display-mode: standalone)").matches) {
-    deferredPrompt.value = null;
+  if ('ResizeObserver' in window) {
+    topbarObserver = createResizeObserver(topbarRef, (entry) => {
+      topbarHeight.value = entry.contentRect.height;
+    });
+    navbarObserver = createResizeObserver(navbarRef, (entry) => {
+      navbarHeight.value = entry.contentRect.height;
+    });
+  } else {
+    updateHeightsFallback();
+    window.addEventListener('resize', updateHeightsFallback);
   }
 });
 
-/**
- * 언마운트 시점에 이벤트 해제
- */
 onUnmounted(() => {
-  window.removeEventListener("resize", updateLayout);
-  window.removeEventListener("online", updateNetworkStatus);
-  window.removeEventListener("offline", updateNetworkStatus);
-  window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
+  topbarObserver?.unobserve(topbarRef.value);
+  navbarObserver?.unobserve(navbarRef.value);
+  window.removeEventListener('resize', updateHeightsFallback);
 });
+
+function createResizeObserver(refEl, callback) {
+  const observer = new ResizeObserver((entries) => {
+    entries.forEach((entry) => {
+      if (refEl.value === entry.target) {
+        callback(entry);
+      }
+    });
+  });
+  refEl.value && observer.observe(refEl.value);
+  return observer;
+}
+
+function updateHeightsFallback() {
+  topbarHeight.value = topbarRef.value?.offsetHeight || 0;
+  navbarHeight.value = navbarRef.value?.offsetHeight || 0;
+}
 </script>
 
-<style scoped>
-/* 필요하다면 전역 스타일 */
+<style>
+/* ✅ body와 html의 기본 스크롤 차단 */
+html, body {
+  overflow: hidden;
+  height: 100%;
+}
+
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+.fade-enter, .fade-leave-to {
+  opacity: 0;
+}
 </style>

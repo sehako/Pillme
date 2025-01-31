@@ -18,7 +18,7 @@
             <BaseButton
               textColor="text-white"
               size="sm"
-              overrideClass="!w-auto !px-4 !py-2 !text-sm !bg-[#EF7C8E] group-hover:!bg-[#E96C7E]"
+              overrideClass="!min-w-0 !w-auto !px-4 !py-2 !text-sm !bg-[#EF7C8E] group-hover:!bg-[#E96C7E]"
             >
               인증
             </BaseButton>
@@ -38,7 +38,7 @@
             <BaseButton
               textColor="text-white"
               size="sm"
-              overrideClass="!w-auto !px-4 !py-2 !text-sm !bg-[#EF7C8E] group-hover:!bg-[#E96C7E]"
+              overrideClass="!min-w-0 !w-auto !px-4 !py-2 !text-sm !bg-[#EF7C8E] group-hover:!bg-[#E96C7E]"
             >
               확인
             </BaseButton>
@@ -58,7 +58,7 @@
   import BaseLogo from "../components/BaseLogo.vue";
   import BaseText from "../components/BaseText.vue";
 
-  import logoSrc from "../assets/logi_nofont.png";
+  import logoSrc from "../assets/logi_nofont.svg";
 
   const phoneNumber = ref("");
   const authCode = ref("");

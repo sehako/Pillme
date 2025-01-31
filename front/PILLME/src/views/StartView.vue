@@ -8,6 +8,7 @@
        <BaseText 
          textBefore="복약 관리의 새로운 방법," 
          highlightText="PILLME" 
+         class="pb-4"
        />
      </div>
 
@@ -32,7 +33,7 @@ import { useRouter } from "vue-router";
 import BaseButton from "../components/BaseButton.vue";
 import BaseLogo from "../components/BaseLogo.vue";
 import BaseText from "../components/BaseText.vue"; // ✅ 추가
-import logoSrc from "../assets/logi_nofont.png";
+import logoSrc from "../assets/logi_nofont.svg";
 
 const router = useRouter();
 

@@ -1,5 +1,5 @@
 <template>
-  <p :class="`text-sm sm:text-base md:text-lg font-medium ${textColor} mt-2`">
+  <p :class="`text-sm sm:text-base md:text-lg font-medium ${textColor} md-2`">
     {{ textBefore }}
     <span :class="`text-lg sm:text-xl md:text-2xl font-bold ${highlightColor}`">
       {{ highlightText }}
