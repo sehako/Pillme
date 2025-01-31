@@ -5,7 +5,11 @@
 </template>
 
 <script setup>
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
+
 const showNotifications = () => {
-  console.log("알림 창 열기");
+  router.push('/notificationlist');
 };
 </script>
