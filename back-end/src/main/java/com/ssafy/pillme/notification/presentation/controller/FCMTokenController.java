@@ -5,6 +5,7 @@ import com.ssafy.pillme.global.response.JSONResponse;
 import com.ssafy.pillme.notification.application.service.FCMTokenService;
 import com.ssafy.pillme.notification.presentation.request.FCMTokenRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,9 +19,9 @@ public class FCMTokenController {
     private final FCMTokenService fcmTokenService;
 
     @PostMapping
-    public JSONResponse<Void> createToken(@RequestBody FCMTokenRequest request) {
+    public ResponseEntity<JSONResponse<Void>> createToken(@RequestBody FCMTokenRequest request) {
         fcmTokenService.createToken(request);
 
-        return JSONResponse.of(SuccessCode.REQUEST_SUCCESS);
+        return ResponseEntity.ok(JSONResponse.onSuccess());
     }
 }
