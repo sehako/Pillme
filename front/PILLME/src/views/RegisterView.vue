@@ -1,5 +1,5 @@
 <template>
-    <div class="min-h-screen w-full flex flex-col items-center" :style="{ marginTop: `${topbarHeight}px` }">
+    <div class="min-h-screen w-full flex flex-col items-center">
       
       <!-- ✅ 상단 탭 메뉴 -->
       <div class="w-full flex border-b">
@@ -25,7 +25,7 @@
   </template>
   
   <script setup>
-  import { ref, computed, onMounted } from "vue";
+  import { ref, computed } from "vue";
   import NonMemberRegisterView from "../views/NonMemberRegisterView.vue";
   import MemberRegisterView from "../views/MemberRegisterView.vue";
   
@@ -35,10 +35,5 @@
   // ✅ 현재 선택된 컴포넌트 반환 (회원 or 비회원)
   const currentComponent = computed(() => (isNonMember.value ? NonMemberRegisterView : MemberRegisterView));
   
-  // ✅ 상단바 높이 동적으로 가져오기
-  onMounted(() => {
-    const topbar = document.querySelector("#topbar");
-    topbarHeight.value = topbar ? topbar.offsetHeight : 0;
-  });
   </script>
   

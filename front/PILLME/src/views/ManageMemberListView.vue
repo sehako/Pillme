@@ -1,5 +1,5 @@
 <template>
-    <div class="min-h-screen w-full flex flex-col" :style="{ marginTop: `${topbarHeight}px` }">
+    <div class="min-h-screen w-full flex flex-col">
       <div class="w-full text-center">
         <BaseText 
           textBefore="" 
@@ -49,7 +49,7 @@
 </template>
 
 <script setup>
-import { ref, nextTick, onMounted } from "vue";
+import { ref, nextTick } from "vue";
 import MemberItem from "../components/MemberItem.vue";
 import BaseButton from "../components/BaseButton.vue";
 import BaseText from "../components/BaseText.vue"; 
@@ -70,9 +70,4 @@ const addMember = async () => {
     router.push("/register");
 };
 
-// ✅ 상단바 높이 계산 후 적용
-onMounted(() => {
-    const topbar = document.querySelector("#topbar");
-    topbarHeight.value = topbar ? topbar.offsetHeight : 0;
-});
 </script>

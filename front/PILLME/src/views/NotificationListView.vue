@@ -1,5 +1,5 @@
 <template>
-    <div class="min-h-screen w-full flex flex-col items-center relative" :style="{ marginTop: `${topbarHeight}px` }">
+    <div class="min-h-screen w-full flex flex-col items-center relative" >
       
       <!-- 전체 알림 삭제 -->
       <div class="w-full px-4">
@@ -82,13 +82,6 @@ const dialogPosition = ref({ top: 0, left: 0 });
 const dialogSize = ref({ width: "320px" }); // 기본 다이얼로그 크기
 let activeNotificationRect = null; // 현재 선택된 알림의 위치 저장
 
-// ✅ 상단바 높이 동적 계산
-onMounted(() => {
-  const topbar = document.querySelector("#topbar");
-  if (topbar) {
-    topbarHeight.value = topbar.offsetHeight;
-  }
-});
 
 // ✅ 다이얼로그 위치 및 크기 업데이트 함수
 const updateDialogPosition = () => {

@@ -24,14 +24,14 @@
         <BaseButton
               textColor="text-white"
               size="sm"
-              overrideClass="!inline-flex !items-center !justify-center !w-auto !min-w-[80px] !px-4 !py-2 !text-sm !bg-[#4E7531]"
+              overrideClass="!inline-flex !items-center !justify-center !w-auto !min-w-[80px] !px-4 !py-2 !text-sm !bg-[#EF7C8E]"
             >
               확인
             </BaseButton>
       </div>
   
       <!-- ✅ 인증 결과 메시지 -->
-      <p v-if="verificationMessage" class="text-[#4E7531] text-sm mt-2">
+      <p v-if="verificationMessage" class="text-[#EF7C8E] text-sm mt-2">
         {{ verificationMessage }}
       </p>
   
