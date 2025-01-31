@@ -8,10 +8,11 @@
     <div class="relative w-full md:w-1/2">
 
 
-        <!-- ✅ 상단 바 (div로 감싸서 id/class 부여) -->
-        <div id="topbar" class="absolute inset-x-0 top-0 w-full z-10">
-          <BaseTopbar />
-        </div>
+
+  <!-- ✅ 상단 바 (div로 감싸서 id/class 부여) -->
+
+    <BaseTopbar id="topbar" class="sticky inset-x-0 top-0 w-full z-10"/>
+
  
 
       <!-- ✅ 헤더 영역 -->
@@ -28,23 +29,21 @@
           📲 PWA 설치하기
         </button>
       </header> -->
-
+ 
       <!-- ✅ 현재 페이지의 콘텐츠 (기본적으로 스크롤 없음, 허용된 페이지만 스크롤 가능) -->
       <div
         :class="{ 'overflow-y-auto': isScrollAllowed }"
-        class=""
-
-      >
+      class="min-h-full">
         <router-view />
       </div>
-
-      <!-- ✅ 네비게이션 바 (div로 감싸서 id/class 부여) -->
+     <!-- ✅ 네비게이션 바 (div로 감싸서 id/class 부여) -->
       <div
         id="navbar"
-        class="absolute inset-x-0 bottom-0 w-full z-10"
+        class="sticky inset-x-0 bottom-0 w-full z-10"
       >
         <BaseNavbar />
       </div>
+
       <!-- ✅ 업데이트 알림 -->
       <!-- <div
         v-if="isUpdateAvailable"

@@ -11,11 +11,10 @@
        />
      </div>
 
-     <div class="action-section">
+     <div class="action-section flex flex-col">
        <BaseButton 
          textColor="text-white" 
          size="md"
-         overrideClass="!bg-[#4E7351] !hover:bg-[#3D5A3F]"
          @click="goToSignInSelection"
          >
          시작하기
@@ -45,7 +44,7 @@ const goToSignInSelection = () => {
 
 <style scoped>
 .start-container {
-  @apply flex flex-col justify-center items-center h-screen text-center bg-white p-4;
+  @apply flex flex-col justify-center items-center min-h-screen text-center bg-white p-4;
 }
 
 .action-section {

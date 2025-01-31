@@ -28,7 +28,6 @@
       <BaseButton 
          textColor="text-white" 
          size="md"
-  overrideClass="!bg-[#4E7351] hover:!bg-[#3D5A3F]"
        >
         로그인
       </BaseButton>
