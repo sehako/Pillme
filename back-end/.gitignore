@@ -39,4 +39,4 @@ out/
 .env
 
 ### firebase ###
-/resources/firebase-credentials.json
+src/main/resources/firebase-credentials.json
