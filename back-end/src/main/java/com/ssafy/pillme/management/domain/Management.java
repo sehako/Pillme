@@ -1,6 +1,6 @@
 package com.ssafy.pillme.management.domain;
 
-import com.ssafy.pillme.global.entity.BaseTimeEntity;
+import com.ssafy.pillme.global.entity.BaseEntity;
 import com.ssafy.pillme.search.domain.Medication;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -21,7 +21,7 @@ import org.hibernate.annotations.ColumnDefault;
 @Table(name = "management")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Management extends BaseTimeEntity {
+public class Management extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

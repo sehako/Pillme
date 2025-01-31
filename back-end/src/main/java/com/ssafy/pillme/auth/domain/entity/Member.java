@@ -5,7 +5,7 @@ import com.ssafy.pillme.auth.domain.vo.Gender;
 import com.ssafy.pillme.auth.domain.vo.Provider;
 import com.ssafy.pillme.auth.domain.vo.Role;
 import com.ssafy.pillme.auth.domain.vo.UserInfo;
-import com.ssafy.pillme.global.entity.BaseTimeEntity;
+import com.ssafy.pillme.global.entity.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -16,13 +16,15 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Builder;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Entity
 @Table(name = "member")
+@Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Member extends BaseTimeEntity {
+public class Member extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -46,11 +48,9 @@ public class Member extends BaseTimeEntity {
     @Enumerated(EnumType.STRING)
     @Column(length = 1)
     private Gender gender;
-
+    
     @Column(length = 30)
     private String phone;
-
-    private boolean deleted = false;
 
     private boolean oauth = false;
 
@@ -109,11 +109,6 @@ public class Member extends BaseTimeEntity {
     // 비밀번호 재설정
     public void resetPassword(String newPassword, PasswordEncoder passwordEncoder) {
         this.password = passwordEncoder.encode(newPassword);
-    }
-
-    // 탈퇴한 회원 판별
-    public boolean isDeleted() {
-        return this.deleted;
     }
 
     // 오어스 유저 판별

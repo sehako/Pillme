@@ -1,7 +1,7 @@
 package com.ssafy.pillme.management.domain;
 
 import com.ssafy.pillme.auth.domain.entity.Member;
-import com.ssafy.pillme.global.entity.BaseTimeEntity;
+import com.ssafy.pillme.global.entity.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -10,8 +10,10 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.time.LocalDate;
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -22,7 +24,7 @@ import org.hibernate.annotations.ColumnDefault;
 @Table(name = "information")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Information extends BaseTimeEntity {
+public class Information extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -42,10 +44,15 @@ public class Information extends BaseTimeEntity {
     @ColumnDefault(value = "false")
     private boolean supplement = false;
 
+    @OneToMany(mappedBy = "information")
+    List<Management> managements;
+
     @Builder
-    private Information(Long id, String hospital, LocalDate startDate, LocalDate endDate, String diseaseName,
-                        boolean supplement) {
+    private Information(Long id, Member reader, Member writer, String hospital, LocalDate startDate, LocalDate endDate,
+                        String diseaseName, boolean supplement) {
         this.id = id;
+        this.reader = reader;
+        this.writer = writer;
         this.hospital = hospital;
         this.startDate = startDate;
         this.endDate = endDate;

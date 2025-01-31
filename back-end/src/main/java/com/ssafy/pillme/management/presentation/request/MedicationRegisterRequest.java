@@ -1,5 +1,6 @@
 package com.ssafy.pillme.management.presentation.request;
 
+import com.ssafy.pillme.auth.domain.entity.Member;
 import com.ssafy.pillme.management.domain.Information;
 import java.time.LocalDate;
 import java.util.List;
@@ -16,9 +17,11 @@ public record MedicationRegisterRequest(
         boolean isSupplement,
         List<TakingInfoRequest> takingInfoRequest
 ) {
-    public Information toInformation() {
+    public Information toInformation(Member writer, Member reader) {
         return Information.builder()
                 .hospital(hospital)
+                .writer(writer)
+                .reader(reader)
                 .diseaseName(diseaseName)
                 .startDate(startDate)
                 .endDate(endDate)

@@ -1,8 +1,10 @@
 package com.ssafy.pillme.management.presentation;
 
+import com.ssafy.pillme.global.response.JSONResponse;
 import com.ssafy.pillme.management.application.ManagementService;
 import com.ssafy.pillme.management.presentation.request.MedicationRegisterRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,13 +19,14 @@ public class ManagementController {
     private final ManagementService medicationService;
 
     @PostMapping
-    public void register(@RequestBody MedicationRegisterRequest request) {
-
+    public ResponseEntity<JSONResponse<Void>> register(@RequestBody MedicationRegisterRequest request) {
+        medicationService.saveTakingInformation(request);
+        return ResponseEntity.ok().body(JSONResponse.onSuccess());
     }
 
     @GetMapping
     public void currentTakingAll() {
-
+        
     }
 
     @GetMapping("/{info-id}")
