@@ -8,4 +8,5 @@ spring:
       - classpath:application-mail.yml
       - classpath:application-redis.yml
       - classpath:application-mysql.yml
+      - classpath:application-firebase.yml
       - optional:file:.env[.properties]
