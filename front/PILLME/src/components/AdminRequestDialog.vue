@@ -1,6 +1,6 @@
 <template>
     <div class="bg-white shadow-lg rounded-lg p-6 border border-gray-300 w-full max-w-sm mx-auto">
-      
+
     <button 
         @click="$emit('close')"
         class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition"
@@ -22,15 +22,14 @@
       <p class="text-center text-gray-700 mt-4">{{ username }}님이 관리자로 추가하고 싶어 합니다.<br>동의하시겠습니까?</p>
       <p class="text-sm text-gray-500 mt-4 text-center">관리자로 추가되면, 모든 복약 상태가 공개됩니다.</p>
   
-      <!-- ✅ 버튼 -->
-      <div class="flex justify-center mt-6 gap-4">
-        <button @click="$emit('reject')" class="px-12 py-2 border border-gray-400 rounded-lg text-gray-600">
+      <div class="flex justify-center mt-4 sm:mt-6 gap-2 sm:gap-4">
+      <button @click="$emit('reject')" class="px-6 sm:px-12 py-2 border border-gray-400 rounded-lg text-gray-600">
         거절
-        </button>
-        <button @click="$emit('accept')" class="px-12 py-2 bg-[#EF7C8E] text-white rounded-lg">
-         동의
-        </button>
-      </div>
+      </button>
+      <button @click="$emit('accept')" class="px-6 sm:px-12 py-2 bg-[#EF7C8E] text-white rounded-lg">
+        동의
+      </button>
+    </div>
     </div>
   </template>
   

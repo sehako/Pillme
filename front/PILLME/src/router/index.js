@@ -14,6 +14,7 @@ import MemberRegisterView from '../views/MemberRegisterView.vue';
 import RegisterView from '../views/RegisterView.vue';
 import NotificationListView from '../views/NotificationListView.vue';
 // import HomeView from '../views/HomeView.vue';
+import HomeView from '../views/HomeView.vue';
 // import CalendarView from '../views/CalendarView.vue';
 // import ProfileView from '../views/ProfileView.vue';
 // import SettingsView from '../views/SettingsView.vue';
@@ -98,7 +99,7 @@ const routes = [
   {
     path: '/',
     name: 'Home',
-    //component: HomeView,  // ✅ TODO: 실제 컴포넌트 연결 예정
+    component: HomeView,
     meta: { cache: true }, // ✅ 캐싱할 페이지
   },
   {
