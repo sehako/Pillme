@@ -70,6 +70,13 @@ dependencies {
 
     // CoolSMS
     implementation 'net.nurigo:javaSDK:2.2'
+
+    // MySQL
+    implementation 'com.mysql:mysql-connector-j:9.2.0'
+
+    // ElasticSearch
+//    implementation 'org.springframework.data:spring-data-elasticsearch:5.4.2'
+//    implementation 'org.springframework.boot:spring-boot-starter-data-elasticsearch:3.4.2'
 }
 
 tasks.named('test') {
