@@ -5,10 +5,7 @@ import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 
 import com.ssafy.pillme.global.code.ErrorCode;
 import com.ssafy.pillme.global.response.JSONResponse;
-import com.ssafy.pillme.global.response.MessageUtil;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -26,16 +23,11 @@ public class CommonExceptionHandler {
     public ResponseEntity<JSONResponse<Object>> handleMethodArgumentNotValidException(
             final MethodArgumentNotValidException e) {
         List<FieldError> fieldErrors = e.getBindingResult().getFieldErrors();
-        Map<String, String> errorMessages = fieldErrors.stream()
-                .collect(Collectors.toMap(
-                        FieldError::getField,
-                        fieldError -> MessageUtil.getMessage(fieldError.getCode(), new Object[]{fieldError.getField()})
-                ));
         log.error(e.getMessage(), e);
 
         return ResponseEntity
                 .status(BAD_REQUEST)
-                .body(JSONResponse.onFailure(ErrorCode.INVALID_REQUEST, errorMessages));
+                .body(JSONResponse.onFailure(ErrorCode.INVALID_REQUEST, fieldErrors.get(0).getDefaultMessage()));
     }
 
     // @PathVariable 잘못 입력 또는 요청 메시지 바디에 아무 값도 전달되지 않았을 때
