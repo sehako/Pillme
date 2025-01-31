@@ -12,9 +12,9 @@
 import { computed } from "vue";
 
 const props = defineProps({
-  bgColor: { type: String, default: "bg-green-700" }, // 배경색
+  bgColor: { type: String, default: "bg-[#4E7351]" }, // 배경색
   textColor: { type: String, default: "text-white" }, // 텍스트 색상
-  hoverColor: { type: String, default: "hover:bg-green-800" }, // 호버 효과 색상
+  hoverColor: { type: String, default: "hover:bg-[#3D5A3F]" }, // 호버 효과 색상
   size: { type: String, default: "md" }, // sm, md, lg
   disabled: { type: Boolean, default: false },
   onClick: Function,
@@ -22,7 +22,7 @@ const props = defineProps({
 });
 
 const buttonClass = computed(() => [
-  "w-full rounded-full transition-all duration-300 flex justify-center items-center font-semibold",
+  "min-w-full rounded-full transition-all duration-300 flex justify-center items-center font-semibold",
   props.bgColor, // 배경색
   props.textColor, // 텍스트 색상
   props.hoverColor, // 호버 효과
