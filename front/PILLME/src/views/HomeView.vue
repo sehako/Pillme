@@ -47,18 +47,33 @@
 <div class="m-4 flex flex-col">
   <p class="text-lg font-bold">복용 내역</p>
   <WhiteCard overrideClass="bg-white">
-  
+  <div class="flex flex-row items-center">
+    <img src="../assets/logi_nofont.png" alt="알약이미지" class="w-16 h-16">
+    <div class="flex flex-col">
+      <p>병명</p>
+      <p>기간</p>
+      <p>약이름</p>
+    </div>
+
+  </div>
   </WhiteCard>
 </div>
 
+<div class="m-4 flex flex-col">
+  <VCalendar class="w-full"/>
+</div>
 </mainview>
 </div>
 </template>
 
 <script setup>
+import { ref } from 'vue';
 import BaseButton from '../components/BaseButton.vue';
 import YellowCard from '../layout/YellowCard.vue';
 import WhiteCard from '../layout/WhiteCard.vue';
+
+
+const selectedDate = ref(null);
 
 </script>
 

@@ -10,7 +10,7 @@ import IdFoundView from '../views/IdFoundView.vue';
 import PwSearchView from '../views/PwSearchView.vue';
 // import HomeView from '../views/HomeView.vue';
 import HomeView from '../views/HomeView.vue';
-// import CalendarView from '../views/CalendarView.vue';
+import CalendarView from '../views/CalendarView.vue';
 // import ProfileView from '../views/ProfileView.vue';
 // import SettingsView from '../views/SettingsView.vue';
 // import NotFoundView from '../views/NotFoundView.vue'; // ✅ 404 페이지
@@ -75,7 +75,7 @@ const routes = [
   {
     path: '/calendar',
     name: 'calendar',
-    // component: CalendarView, // ✅ TODO: 실제 컴포넌트 연결 예정
+    component: CalendarView, // ✅ TODO: 실제 컴포넌트 연결 예정
     meta: { cache: true }, // ✅ 캐싱할 페이지
   },
   {

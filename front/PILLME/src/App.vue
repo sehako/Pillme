@@ -6,7 +6,7 @@
     <!-- 오른쪽 (모바일 전체) -->
     <div class="flex flex-col w-full md:w-1/2">
       <!-- 상단 바 -->
-      <div ref="topbarRef" class="z-10 bg-white">
+      <div ref="topbarRef" class="z-10">
         <BaseTopbar />
       </div>
 
