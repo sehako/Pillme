@@ -24,13 +24,13 @@ public class ManagementController {
         return ResponseEntity.ok().body(JSONResponse.onSuccess());
     }
 
-    @GetMapping
-    public void currentTakingAll() {
-        
-    }
-
     @GetMapping("/{info-id}")
     public void currentTakingDetail(@PathVariable("info-id") Long infoId) {
+
+    }
+
+    @GetMapping
+    public void currentTakingAll() {
 
     }
 }

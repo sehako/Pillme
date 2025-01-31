@@ -2,6 +2,7 @@ package com.ssafy.pillme.management.application;
 
 import com.ssafy.pillme.auth.domain.entity.Member;
 import com.ssafy.pillme.global.code.ErrorCode;
+import com.ssafy.pillme.management.application.exception.NoInformationException;
 import com.ssafy.pillme.management.application.exception.NoMedicationException;
 import com.ssafy.pillme.management.domain.Information;
 import com.ssafy.pillme.management.domain.Management;
@@ -32,6 +33,11 @@ public class ManagementService {
         Member reader = Member.builder().build();
         Information savedInformation = informationRepository.save(request.toInformation(writer, reader));
         saveManagement(request.takingInfoRequest(), savedInformation);
+    }
+
+    public void findByInformationId(Long id) {
+        Information information = informationRepository.findById(id)
+                .orElseThrow(() -> new NoInformationException(ErrorCode.INFORMATION_NOT_FOUND));
     }
 
     private void saveManagement(List<TakingInfoRequest> takingList, Information information) {
