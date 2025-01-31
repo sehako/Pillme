@@ -15,7 +15,7 @@ public record MedicationRegisterRequest(
         @DateTimeFormat(iso = DateTimeFormat.ISO.DATE, pattern = "yyyy-MM-dd")
         LocalDate endDate,
         boolean isSupplement,
-        List<TakingInfoRequest> takingInfoRequest
+        List<TakingInformationRequest> takingInfoDto
 ) {
     public Information toInformation(Member writer, Member reader) {
         return Information.builder()

@@ -4,7 +4,7 @@ import com.ssafy.pillme.management.domain.Information;
 import com.ssafy.pillme.management.domain.Management;
 import com.ssafy.pillme.search.domain.Medication;
 
-public record TakingInfoRequest(
+public record TakingInformationRequest(
         Long medicationId,
         Integer period,
         Integer servingSize,

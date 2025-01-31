@@ -2,14 +2,18 @@ package com.ssafy.pillme.management.presentation;
 
 import com.ssafy.pillme.global.response.JSONResponse;
 import com.ssafy.pillme.management.application.ManagementService;
+import com.ssafy.pillme.management.application.response.TakingDetailResponse;
 import com.ssafy.pillme.management.presentation.request.MedicationRegisterRequest;
+import java.time.LocalDate;
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -25,12 +29,18 @@ public class ManagementController {
     }
 
     @GetMapping("/{info-id}")
-    public void currentTakingDetail(@PathVariable("info-id") Long infoId) {
-
+    public ResponseEntity<JSONResponse<TakingDetailResponse>> takingDetail(@PathVariable("info-id") Long infoId) {
+        return ResponseEntity.ok(
+                JSONResponse.onSuccess(medicationService.findByInformationId(infoId))
+        );
     }
 
     @GetMapping
-    public void currentTakingAll() {
-
+    public void currentTakingAll(
+            @RequestParam("date")
+            @DateTimeFormat(pattern = "yyyy-MM-dd")
+            LocalDate localDate
+    ) {
+        medicationService.findManagementByDate(localDate);
     }
 }
