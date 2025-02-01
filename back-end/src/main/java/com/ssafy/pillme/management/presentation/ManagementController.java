@@ -62,11 +62,6 @@ public class ManagementController {
     }
 
     @DeleteMapping("/{info-id}")
-    public void deleteInformation(@PathVariable(value = "info-id") final Long infoId) {
-        managementService.deleteInformation(infoId);
-    }
-
-    @DeleteMapping("/{info-id}")
     public void deleteManagement(
             @PathVariable(value = "info-id") final Long infoId,
             @RequestBody final DeleteManagementRequest request
