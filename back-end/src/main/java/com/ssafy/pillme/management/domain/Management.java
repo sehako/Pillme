@@ -1,7 +1,7 @@
 package com.ssafy.pillme.management.domain;
 
 import com.ssafy.pillme.global.entity.BaseEntity;
-import com.ssafy.pillme.management.application.response.TakingInformationResponse;
+import com.ssafy.pillme.management.domain.item.TakingInformationItem;
 import com.ssafy.pillme.search.domain.Medication;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -75,16 +75,11 @@ public class Management extends BaseEntity {
         this.sleepTaking = sleepTaking;
     }
 
-    public TakingInformationResponse toResponse() {
-        return new TakingInformationResponse(
-                this.medication.getId(),
-                this.medication.getName(),
-                this.period,
-                this.servingSize,
-                this.morning,
-                this.lunch,
-                this.dinner,
-                this.sleep
-        );
+    public void changeTakingInformation(TakingInformationItem item) {
+        this.servingSize = item.servingSize();
+        this.period = item.period();
+        this.morning = item.morning();
+        this.dinner = item.dinner();
+        this.sleep = item.sleep();
     }
 }

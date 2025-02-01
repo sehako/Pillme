@@ -2,6 +2,7 @@ package com.ssafy.pillme.management.application.response;
 
 
 import com.ssafy.pillme.management.domain.Information;
+import com.ssafy.pillme.management.domain.item.TakingInformationItem;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -12,10 +13,10 @@ public record TakingDetailResponse(
         boolean isSupplements,
         LocalDate startDate,
         LocalDate endDate,
-        List<TakingInformationResponse> medicationTakingInfo
+        List<TakingInformationItem> medicationTakingInfo
 ) {
     public static TakingDetailResponse of(Information information,
-                                          List<TakingInformationResponse> medicationTakingInfo) {
+                                          List<TakingInformationItem> medicationTakingInfo) {
         return new TakingDetailResponse(
                 information.getHospital(),
                 information.getDiseaseName(),

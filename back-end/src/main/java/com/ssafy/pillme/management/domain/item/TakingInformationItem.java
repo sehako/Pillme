@@ -1,11 +1,12 @@
-package com.ssafy.pillme.management.presentation.request;
+package com.ssafy.pillme.management.domain.item;
 
 import com.ssafy.pillme.management.domain.Information;
 import com.ssafy.pillme.management.domain.Management;
 import com.ssafy.pillme.search.domain.Medication;
 
-public record TakingInformationRequest(
+public record TakingInformationItem(
         Long medicationId,
+        String medicationName,
         Integer period,
         Integer servingSize,
         boolean morning,
@@ -24,5 +25,18 @@ public record TakingInformationRequest(
                 .dinner(dinner)
                 .sleep(sleep)
                 .build();
+    }
+    
+    public static TakingInformationItem from(Management management) {
+        return new TakingInformationItem(
+                management.getId(),
+                management.getMedication().getName(),
+                management.getPeriod(),
+                management.getServingSize(),
+                management.isMorning(),
+                management.isLunch(),
+                management.isDinner(),
+                management.isSleep()
+        );
     }
 }

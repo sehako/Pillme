@@ -59,4 +59,6 @@ public class Information extends BaseEntity {
         this.diseaseName = diseaseName;
         this.supplement = supplement;
     }
+
+
 }
