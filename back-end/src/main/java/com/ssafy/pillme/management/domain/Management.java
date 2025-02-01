@@ -75,7 +75,7 @@ public class Management extends BaseEntity {
         this.sleepTaking = sleepTaking;
     }
 
-    public void changeTakingInformation(TakingInformationItem item) {
+    public void changeTakingInformation(final TakingInformationItem item) {
         this.servingSize = item.servingSize();
         this.period = item.period();
         this.morning = item.morning();

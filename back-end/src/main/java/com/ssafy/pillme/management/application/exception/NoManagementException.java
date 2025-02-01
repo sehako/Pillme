@@ -4,7 +4,7 @@ import com.ssafy.pillme.global.code.ErrorCode;
 import com.ssafy.pillme.global.exception.CommonException;
 
 public class NoManagementException extends CommonException {
-    public NoManagementException(ErrorCode errorCode) {
+    public NoManagementException(final ErrorCode errorCode) {
         super(errorCode);
     }
 }

@@ -31,13 +31,13 @@ public class ManagementController {
     private final ManagementService managementService;
 
     @PostMapping
-    public ResponseEntity<JSONResponse<Void>> register(@RequestBody MedicationRegisterRequest request) {
+    public ResponseEntity<JSONResponse<Void>> register(@RequestBody final MedicationRegisterRequest request) {
         managementService.saveTakingInformation(request);
         return ResponseEntity.ok().body(JSONResponse.onSuccess());
     }
 
     @GetMapping("/{info-id}")
-    public ResponseEntity<JSONResponse<TakingDetailResponse>> takingDetail(@PathVariable("info-id") Long infoId) {
+    public ResponseEntity<JSONResponse<TakingDetailResponse>> takingDetail(@PathVariable("info-id") final Long infoId) {
         return ResponseEntity.ok(
                 JSONResponse.onSuccess(managementService.findByInformationId(infoId))
         );
@@ -46,8 +46,7 @@ public class ManagementController {
     @GetMapping
     public ResponseEntity<JSONResponse<List<PrescriptionResponse>>> currentTakingAll(
             @RequestParam("date")
-            @DateTimeFormat(pattern = "yyyy-MM-dd")
-            LocalDate localDate
+            @DateTimeFormat(pattern = "yyyy-MM-dd") final LocalDate localDate
     ) {
         return ResponseEntity.ok(
                 JSONResponse.onSuccess(managementService.findManagementByDate(localDate))
@@ -56,21 +55,21 @@ public class ManagementController {
 
     @PutMapping("/{info-id}")
     public ResponseEntity<JSONResponse<Void>> changePillTakingInfoById(
-            @PathVariable(value = "info-id") Long infoId,
-            @RequestBody ChangeTakingInformationRequest request) {
+            @PathVariable(value = "info-id") final Long infoId,
+            @RequestBody final ChangeTakingInformationRequest request) {
         managementService.changeTakingInformation(infoId, request);
         return ResponseEntity.ok().body(JSONResponse.onSuccess());
     }
 
     @DeleteMapping("/{info-id}")
-    public void deleteInformation(@PathVariable(value = "info-id") Long infoId) {
+    public void deleteInformation(@PathVariable(value = "info-id") final Long infoId) {
         managementService.deleteInformation(infoId);
     }
 
     @DeleteMapping("/{info-id}")
     public void deleteManagement(
-            @PathVariable(value = "info-id") Long infoId,
-            @RequestBody DeleteManagementRequest request
+            @PathVariable(value = "info-id") final Long infoId,
+            @RequestBody final DeleteManagementRequest request
     ) {
         managementService.deleteManagement(infoId, request);
     }

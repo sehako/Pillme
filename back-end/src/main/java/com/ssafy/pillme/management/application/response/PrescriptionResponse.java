@@ -12,7 +12,7 @@ public record PrescriptionResponse(
         LocalDate endDate,
         boolean isSupplement
 ) {
-    public static PrescriptionResponse of(Information information) {
+    public static PrescriptionResponse of(final Information information) {
         return new PrescriptionResponse(
                 information.getId(),
                 1,

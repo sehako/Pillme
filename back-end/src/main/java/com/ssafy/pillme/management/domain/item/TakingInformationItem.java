@@ -14,7 +14,7 @@ public record TakingInformationItem(
         boolean dinner,
         boolean sleep
 ) {
-    public Management toManagement(Medication medication, Information information) {
+    public Management toManagement(final Medication medication, final Information information) {
         return Management.builder()
                 .medication(medication)
                 .information(information)
@@ -26,8 +26,8 @@ public record TakingInformationItem(
                 .sleep(sleep)
                 .build();
     }
-    
-    public static TakingInformationItem from(Management management) {
+
+    public static TakingInformationItem from(final Management management) {
         return new TakingInformationItem(
                 management.getId(),
                 management.getMedication().getName(),

@@ -34,12 +34,12 @@ public class ManagementService {
     private final MedicationRepository medicationRepository;
 
     public void saveTakingInformation(final MedicationRegisterRequest request) {
+        // TODO: 인증을 통한 맴버 객체 생성 완료 후에는 정식 엔티티로 바꿔야 한다.
         Member writer = Member.builder().build();
         Member reader = Member.builder().build();
         Information savedInformation = informationRepository.save(request.toInformation(writer, reader));
         saveManagement(request.takingInformationItems(), savedInformation);
     }
-
 
     private void saveManagement(final List<TakingInformationItem> takingList, final Information information) {
         for (TakingInformationItem info : takingList) {
