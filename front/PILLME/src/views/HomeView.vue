@@ -2,17 +2,13 @@
   <div class="flex flex-col w-full">
     <undertopbar class="bg-[#B5CCB7] rounded-bl-lg rounded-br-lg">
       <div class="flex flex-row items-center justify-between px-4 py-1">
-        <!-- ✅ 햄버거 메뉴 컴포넌트 사용 -->
+        <!-- ✅ 햄버거 메뉴 컴포넌트 -->
         <div class="flex-1 flex">
           <HamBugerMenu />
         </div>
 
-        <!-- ✅ 사용자 이름 (가운데) -->
-        <div class="relative">
-          <p class="text-center">사용자이름</p>
-          <img src="../assets/namedropdown.svg" alt="이름드롭다운" 
-               class="absolute right-[-20px] top-1/2 transform -translate-y-1/2 w-4 h-4">
-        </div>
+        <!-- ✅ 사용자 이름 드롭다운 (컴포넌트 사용) -->
+        <NameDropdown />
 
         <!-- ✅ 공백 (햄버거 아이콘과 크기 맞춤) -->
         <div class="flex-1"></div>
@@ -64,6 +60,7 @@ import BaseButton from '../components/BaseButton.vue';
 import YellowCard from '../layout/YellowCard.vue';
 import WhiteCard from '../layout/WhiteCard.vue';
 import HamBugerMenu from '../components/HamBugerMenu.vue';
+import NameDropdown from '../components/NameDropdown.vue';
 
 const selectedDate = ref(null);
 </script>

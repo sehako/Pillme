@@ -19,6 +19,7 @@ import CalendarView from '../views/CalendarView.vue';
 import PersonalInfo from '../views/PersonalInfo.vue';
 import LoginSecurity from '../views/LoginSecurity.vue';
 import MyPage_PwChange from '../views/MyPage_PwChange.vue';
+// import NameDropdown from '../components/NameDropdown.vue';
 // import ProfileView from '../views/ProfileView.vue';
 // import SettingsView from '../views/SettingsView.vue';
 // import NotFoundView from '../views/NotFoundView.vue'; // ✅ 404 페이지
