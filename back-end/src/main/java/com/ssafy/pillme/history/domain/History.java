@@ -1,6 +1,7 @@
-package com.ssafy.pillme.management.domain;
+package com.ssafy.pillme.history.domain;
 
 import com.ssafy.pillme.global.entity.BaseEntity;
+import com.ssafy.pillme.management.domain.Management;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;

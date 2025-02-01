@@ -1,6 +1,6 @@
-package com.ssafy.pillme.management.infrastructure;
+package com.ssafy.pillme.history.infrastructure;
 
-import com.ssafy.pillme.management.domain.History;
+import com.ssafy.pillme.history.domain.History;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
