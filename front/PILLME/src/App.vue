@@ -41,12 +41,14 @@ const isRouteReady = ref(true);
 
 // 특정 라우트에서 스크롤 허용
 const isScrollAllowed = ref(false);
-const scrollablePages = ['/afteraccount', '/', '/mypage'];
+const alwaysScrollablePages = ['/afteraccount', '/']; // 특정 경로 허용
 
 watch(() => route.path, async () => {
   isRouteReady.value = false;
   await nextTick(); // 레이아웃 업데이트 후 반영
-  isScrollAllowed.value = scrollablePages.includes(route.path);
+  
+  // ✅ "/mypage"로 시작하는 모든 경로를 포함하여 스크롤 허용
+  isScrollAllowed.value = alwaysScrollablePages.includes(route.path) || route.path.startsWith('/mypage');
 
   // ✅ 스크롤 허용 안된 페이지일 때 강제로 스크롤 최상단 이동 및 차단
   if (!isScrollAllowed.value) {
@@ -74,7 +76,7 @@ const updateNavbarHeight = () => {
 };
 
 onMounted(() => {
-  isScrollAllowed.value = scrollablePages.includes(route.path) || route.path === '';
+  isScrollAllowed.value = alwaysScrollablePages.includes(route.path) || route.path.startsWith('/mypage');
 
   // ✅ 네비바 높이 감지 (실시간 감지)
   const observer = new ResizeObserver(() => {

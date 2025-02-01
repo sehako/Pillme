@@ -16,6 +16,9 @@ import RegisterView from '../views/RegisterView.vue';
 import NotificationListView from '../views/NotificationListView.vue';
 import HomeView from '../views/HomeView.vue';
 import CalendarView from '../views/CalendarView.vue';
+import PersonalInfo from '../views/PersonalInfo.vue';
+import LoginSecurity from '../views/LoginSecurity.vue';
+import MyPage_PwChange from '../views/MyPage_PwChange.vue';
 // import ProfileView from '../views/ProfileView.vue';
 // import SettingsView from '../views/SettingsView.vue';
 // import NotFoundView from '../views/NotFoundView.vue'; // ✅ 404 페이지
@@ -117,8 +120,26 @@ const routes = [
   {
     path: '/mypage',
     name: 'mypage',
-    component: MyPageView, // ✅ TODO: 실제 컴포넌트 연결 예정
+    component: MyPageView,
     meta: { cache: false }, // ❌ 오프라인 시 접근 불가
+  },
+  {
+    path: '/mypage/personal-info',
+    name: 'personal-info',
+    component: PersonalInfo,
+    meta: { cache: false }, // ❌ 오프라인 시 접근 불가
+  },
+  {
+    path: '/mypage/login-security',
+    name: 'login-security',
+    component: LoginSecurity,
+    meta: { cache: false },
+  },
+  {
+    path: '/mypage/pw-change',
+    name: 'pw-change',
+    component: MyPage_PwChange,
+    meta: { cache: false },
   },
   {
     path: '/settings',
