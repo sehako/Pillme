@@ -9,6 +9,11 @@ import IdSearchView from '../views/IdSearchView.vue';
 import IdFoundView from '../views/IdFoundView.vue';
 import PwSearchView from '../views/PwSearchView.vue';
 import MyPageView from '../views/MyPageView.vue';
+import ManageMemberListView from '../views/ManageMemberListView.vue';
+import NonMemberRegisterView from '../views/NonMemberRegisterView.vue';
+import MemberRegisterView from '../views/MemberRegisterView.vue';
+import RegisterView from '../views/RegisterView.vue';
+import NotificationListView from '../views/NotificationListView.vue';
 import HomeView from '../views/HomeView.vue';
 import CalendarView from '../views/CalendarView.vue';
 // import ProfileView from '../views/ProfileView.vue';
@@ -49,6 +54,21 @@ const routes = [
     component: PwSearchView, 
   },
   {
+    path: '/nonmemberregister',  
+    name: 'nonmemberregister',
+    component: NonMemberRegisterView, 
+  },
+  {
+    path: '/memberregister',  
+    name: 'memberregister',
+    component: MemberRegisterView, 
+  },
+  {
+    path: '/register',  
+    name: 'register',
+    component: RegisterView, 
+  },
+  {
     path: '/signinselection',
     name: 'SigninSelectionView',
     component: SigninSelectionView,
@@ -65,6 +85,16 @@ const routes = [
     name: 'AccountSearchSelectionView',
     component: AccountSearchSelectionView,
     meta: { cache: true },
+  },
+  {
+    path: '/managememberlist',  
+    name: 'ManageMemberList',
+    component: ManageMemberListView, 
+  },
+  {
+    path: '/notificationlist',  
+    name: 'NotificationList',
+    component: NotificationListView, 
   },
   {
     path: '/',
