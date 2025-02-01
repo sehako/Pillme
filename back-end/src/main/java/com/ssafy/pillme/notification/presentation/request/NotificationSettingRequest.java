@@ -3,7 +3,6 @@ package com.ssafy.pillme.notification.presentation.request;
 
 import com.ssafy.pillme.auth.domain.entity.Member;
 import com.ssafy.pillme.notification.domain.entity.NotificationSetting;
-
 import java.time.LocalTime;
 
 public record NotificationSettingRequest(String morning, String lunch, String dinner, String sleep) {

@@ -25,4 +25,8 @@ public class BaseEntity {
     @Column(nullable = false)
     @ColumnDefault(value = "false")
     private boolean deleted = false;
+
+    public void delete() {
+        this.deleted = true;
+    }
 }

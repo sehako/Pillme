@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 @RequiredArgsConstructor
 public enum SuccessCode {
     REQUEST_SUCCESS(2000, OK, "요청이 성공적으로 완료되었습니다"),
+    
     ;
 
     private final int code;

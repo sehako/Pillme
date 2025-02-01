@@ -1,10 +1,9 @@
 package com.ssafy.pillme.notification.domain.vo;
 
 import com.ssafy.pillme.notification.domain.entity.NotificationSetting;
+import java.time.LocalTime;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-
-import java.time.LocalTime;
 
 @Getter
 @RequiredArgsConstructor

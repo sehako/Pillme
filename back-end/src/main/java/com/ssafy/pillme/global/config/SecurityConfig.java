@@ -45,9 +45,11 @@ public class SecurityConfig {
                                 "/api/v1/auth/reset-password/**",
                                 "/api/v1/auth/oauth2/**",
                                 "/api/v1/auth/check/**"
-                        ).permitAll()
+                        )
+                        .permitAll()
                         .anyRequest().authenticated()
                 )
+//                .authorizeHttpRequests(authorizeRequests -> authorizeRequests.anyRequest().permitAll())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

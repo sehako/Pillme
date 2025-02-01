@@ -9,4 +9,5 @@ spring:
       - classpath:application-redis.yml
       - classpath:application-mysql.yml
       - classpath:application-firebase.yml
+      - classpath:application-mongo.yml
       - optional:file:.env[.properties]

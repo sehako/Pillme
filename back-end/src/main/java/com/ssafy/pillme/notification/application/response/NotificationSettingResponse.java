@@ -1,9 +1,8 @@
 package com.ssafy.pillme.notification.application.response;
 
+import java.time.LocalTime;
 import lombok.Builder;
 import lombok.Getter;
-
-import java.time.LocalTime;
 
 @Getter
 @Builder
@@ -14,3 +13,4 @@ public class NotificationSettingResponse {
     private LocalTime dinner;
     private LocalTime sleep;
 }
+

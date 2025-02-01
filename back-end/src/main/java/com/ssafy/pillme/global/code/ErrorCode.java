@@ -2,6 +2,7 @@ package com.ssafy.pillme.global.code;
 
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
 import lombok.Getter;
@@ -40,7 +41,12 @@ public enum ErrorCode {
 
     // 외부 서비스 연동 에러
     EMAIL_SEND_FAILED(5001, INTERNAL_SERVER_ERROR, "이메일 발송에 실패했습니다"),
-    SMS_SEND_FAILED(5002, INTERNAL_SERVER_ERROR, "SMS 발송에 실패했습니다");
+    SMS_SEND_FAILED(5002, INTERNAL_SERVER_ERROR, "SMS 발송에 실패했습니다"),
+
+    // 약물 관리
+    MEDICATION_NOT_FOUND(4050, NOT_FOUND, "약물을 찾을 수 없습니다"),
+    INFORMATION_NOT_FOUND(4051, NOT_FOUND, "현재 요청한 관리 번호는 존재하지 않습니다"),
+    MANAGEMENT_NOT_FOUND(4052, NOT_FOUND, "요청한 약물 관리 정보는 존재하지 않습니다");
 
     private final int code;
     private final HttpStatus httpStatus;

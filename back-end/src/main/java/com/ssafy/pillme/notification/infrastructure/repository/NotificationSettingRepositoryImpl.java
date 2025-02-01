@@ -6,13 +6,12 @@ import com.querydsl.core.types.dsl.TimePath;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.ssafy.pillme.notification.domain.entity.NotificationSetting;
 import com.ssafy.pillme.notification.domain.entity.QNotificationSetting;
-import lombok.RequiredArgsConstructor;
-
 import java.time.LocalTime;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-public class NotificationSettingRepositoryImpl implements NotificationSettingRepositoryCustom{
+public class NotificationSettingRepositoryImpl implements NotificationSettingRepositoryCustom {
     private final JPAQueryFactory queryFactory;
 
     @Override
@@ -24,9 +23,9 @@ public class NotificationSettingRepositoryImpl implements NotificationSettingRep
                 .selectFrom(setting)
                 .where(
                         timeMatches(setting.morning, currentTime)
-                        .or(timeMatches(setting.lunch, currentTime))
-                        .or(timeMatches(setting.dinner, currentTime))
-                        .or(timeMatches(setting.sleep, currentTime))
+                                .or(timeMatches(setting.lunch, currentTime))
+                                .or(timeMatches(setting.dinner, currentTime))
+                                .or(timeMatches(setting.sleep, currentTime))
                 )
                 .fetch();
     }
