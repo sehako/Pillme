@@ -41,7 +41,7 @@
 import BaseButton from "../components/BaseButton.vue";
 import BaseLogo from "../components/BaseLogo.vue";
 import BaseText from "../components/BaseText.vue"; // ✅ 추가
-import logoSrc from "../assets/logi_nofont.png";
+import logoSrc from "../assets/logi_nofont.svg";
 import { useRouter } from "vue-router";
 
 const router = useRouter();

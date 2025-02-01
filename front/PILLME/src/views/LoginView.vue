@@ -48,7 +48,7 @@ import BaseInput from "../components/BaseInput.vue";
 import BaseLogo from "../components/BaseLogo.vue";
 import BaseText from "../components/BaseText.vue"; // ✅ 추가
 
-import logoSrc from "../assets/logi_nofont.png";
+import logoSrc from "../assets/logi_nofont.svg";
 import emailIcon from "../assets/email.png";
 import passwordIcon from "../assets/key.png";
 

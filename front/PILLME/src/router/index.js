@@ -8,14 +8,14 @@ import SigninSelectionView from '../views/SigninSelectionView.vue';
 import IdSearchView from '../views/IdSearchView.vue';
 import IdFoundView from '../views/IdFoundView.vue';
 import PwSearchView from '../views/PwSearchView.vue';
+import MyPageView from '../views/MyPageView.vue';
 import ManageMemberListView from '../views/ManageMemberListView.vue';
 import NonMemberRegisterView from '../views/NonMemberRegisterView.vue';
 import MemberRegisterView from '../views/MemberRegisterView.vue';
 import RegisterView from '../views/RegisterView.vue';
 import NotificationListView from '../views/NotificationListView.vue';
-// import HomeView from '../views/HomeView.vue';
 import HomeView from '../views/HomeView.vue';
-// import CalendarView from '../views/CalendarView.vue';
+import CalendarView from '../views/CalendarView.vue';
 // import ProfileView from '../views/ProfileView.vue';
 // import SettingsView from '../views/SettingsView.vue';
 // import NotFoundView from '../views/NotFoundView.vue'; // ✅ 404 페이지
@@ -105,13 +105,19 @@ const routes = [
   {
     path: '/calendar',
     name: 'calendar',
-    // component: CalendarView, // ✅ TODO: 실제 컴포넌트 연결 예정
+    component: CalendarView, // ✅ TODO: 실제 컴포넌트 연결 예정
     meta: { cache: true }, // ✅ 캐싱할 페이지
   },
   {
     path: '/profile',
     name: 'profile',
     // component: ProfileView, // ✅ TODO: 실제 컴포넌트 연결 예정
+    meta: { cache: false }, // ❌ 오프라인 시 접근 불가
+  },
+  {
+    path: '/mypage',
+    name: 'mypage',
+    component: MyPageView, // ✅ TODO: 실제 컴포넌트 연결 예정
     meta: { cache: false }, // ❌ 오프라인 시 접근 불가
   },
   {

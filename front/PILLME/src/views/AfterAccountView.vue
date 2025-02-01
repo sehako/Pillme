@@ -1,12 +1,12 @@
 <template>
-  <div class="flex flex-col justify-center items-center min-h-screen px-4">
+  <div class="flex flex-col justify-center items-center p-4">
     <!-- ✅ 로고 -->
     <BaseLogo :src="logoSrc" size="md" />
 
     <!-- ✅ BaseText 컴포넌트 사용 -->
     <BaseText highlightText="PILLME" />
     <!-- ✅ 가입 폼 -->
-    <form class="w-full max-w-xs md:max-w-sm space-y-4" @submit.prevent="handleSubmit">
+    <form class="max-w-xs md:max-w-sm space-y-4" @submit.prevent="handleSubmit">
       <!-- 이름 입력 -->
       <div class="flex flex-col w-full">
         <label for="name" class="text-sm font-medium">이름</label>
@@ -54,7 +54,7 @@
           <BaseButton
             textColor="text-white"
             size="sm"
-            overrideClass="!w-auto !px-4 !py-2 !text-sm !bg-[#EF7C8E] group-hover:!bg-[#E96C7E]"
+            overrideClass="!min-w-0 !w-auto !px-4 !py-2 !text-sm !bg-[#EF7C8E] group-hover:!bg-[#E96C7E]"
           >
             인증
           </BaseButton>
@@ -75,7 +75,7 @@
           <BaseButton
             textColor="text-white"
             size="sm"
-            overrideClass="!w-auto !px-4 !py-2 !text-sm !bg-[#EF7C8E] group-hover:!bg-[#E96C7E]"
+            overrideClass="!min-w-0 !w-auto !px-4 !py-2 !text-sm !bg-[#EF7C8E] group-hover:!bg-[#E96C7E]"
           >
             확인
           </BaseButton>
@@ -96,7 +96,7 @@
           <BaseButton
             textColor="text-white"
             size="sm"
-            overrideClass="!w-auto !px-4 !py-2 !text-sm !bg-[#EF7C8E] group-hover:!bg-[#E96C7E]"
+            overrideClass="!min-w-0 !w-auto !px-4 !py-2 !text-sm !bg-[#EF7C8E] group-hover:!bg-[#E96C7E]"
           >
             인증
           </BaseButton>
@@ -117,7 +117,7 @@
           <BaseButton
             textColor="text-white"
             size="sm"
-            overrideClass="!w-auto !px-4 !py-2 !text-sm !bg-[#EF7C8E] group-hover:!bg-[#E96C7E]"
+            overrideClass="!min-w-0 !w-auto !px-4 !py-2 !text-sm !bg-[#EF7C8E] group-hover:!bg-[#E96C7E]"
           >
             확인
           </BaseButton>
@@ -125,25 +125,28 @@
       </div>
 
       <!-- 버튼들 가로 정렬 & 간격 추가 -->
-      <div class="flex justify-between w-full mt-4 gap-4">
-        <BaseButton
-          textColor="text-gray-700"
-          size="md"
-          @click="goBack"
-          overrideClass="!bg-[#D1D5DB] hover:!bg-[#6B7280]"
-        >
-          이전
-        </BaseButton>
+      <div class="flex flex-row w-full justify-center mt-4 gap-4">
+  <BaseButton
+    class="flex-1 w-auto min-w-0"
+    textColor="text-gray-700"
+    size="md"
+    @click="goBack"
+    overrideClass="!min-w-0 !bg-[#D1D5DB] hover:!bg-[#6B7280]"
+  >
+    이전
+  </BaseButton>
 
-        <BaseButton
-          textColor="text-white"
-          size="md"
-          type="submit"
-          overrideClass="!bg-[#EF7C8E] hover:!bg-[#E96C7E]"
-        >
-          가입하기
-        </BaseButton>
-      </div>
+  <BaseButton
+    class="flex-1 w-auto min-w-0"
+    textColor="text-white"
+    size="md"
+    type="submit"
+    overrideClass="!min-w-0 !bg-[#EF7C8E] hover:!bg-[#E96C7E]"
+  >
+    가입하기
+  </BaseButton>
+</div>
+
     </form>
   </div>
 </template>
@@ -156,7 +159,7 @@ import BaseLogo from "../components/BaseLogo.vue";
 import BaseText from "../components/BaseText.vue";
 import { useRouter } from "vue-router";
 
-import logoSrc from "../assets/logi_nofont.png";
+import logoSrc from "../assets/logi_nofont.svg";
 const router = useRouter();
 
 const name = ref("");

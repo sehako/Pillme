@@ -51,7 +51,7 @@
   import BaseLogo from "../components/BaseLogo.vue";
   import BaseText from "../components/BaseText.vue";
   
-  import logoSrc from "../assets/logi_nofont.png";
+  import logoSrc from "../assets/logi_nofont.svg";
   
   // 사용자 입력값
   const phoneNumber = ref("");

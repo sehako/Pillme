@@ -37,7 +37,7 @@ import BaseLogo from "../components/BaseLogo.vue"; // ✅ 추가
 import BaseText from "../components/BaseText.vue"; // ✅ 추가
 
 // 이미지 경로를 import로 가져오기
-import logoSrc from "../assets/logi_nofont.png";
+import logoSrc from "../assets/logi_nofont.svg";
 import googleIcon from "../assets/Google_Login.png";
 import naverIcon from "../assets/Naver_Login.png";
 import emailIcon from "../assets/Email_Login.png";
