@@ -83,7 +83,21 @@ public class ManagementService {
         });
     }
 
-    public void deleteInformation(final Long infoId) {
+    public void deleteManagement(final Long infoId, final DeleteManagementRequest request) {
+        if (request.medications().isEmpty()) {
+            deleteInformation(infoId);
+            return;
+        }
+        
+        for (Long medicationId : request.medications()) {
+            Management management = managementRepository.findByInformationIdAndMedicationId(medicationId, infoId)
+                    .orElseThrow(() -> new NoManagementException(ErrorCode.INFORMATION_NOT_FOUND));
+
+            management.delete();
+        }
+    }
+
+    private void deleteInformation(final Long infoId) {
         Information information = informationRepository.findByIdAndDeletedIsFalse(infoId)
                 .orElseThrow(() -> new NoInformationException(ErrorCode.INFORMATION_NOT_FOUND));
 
@@ -94,12 +108,4 @@ public class ManagementService {
         }
     }
 
-    public void deleteManagement(final Long infoId, final DeleteManagementRequest request) {
-        for (Long medicationId : request.medications()) {
-            Management management = managementRepository.findByInformationIdAndMedicationId(medicationId, infoId)
-                    .orElseThrow(() -> new NoManagementException(ErrorCode.INFORMATION_NOT_FOUND));
-
-            management.delete();
-        }
-    }
 }

@@ -45,8 +45,7 @@ public class ManagementController {
 
     @GetMapping
     public ResponseEntity<JSONResponse<List<PrescriptionResponse>>> currentTakingAll(
-            @RequestParam("date")
-            @DateTimeFormat(pattern = "yyyy-MM-dd") final LocalDate localDate
+            @RequestParam("date") @DateTimeFormat(pattern = "yyyy-MM-dd") final LocalDate localDate
     ) {
         return ResponseEntity.ok(
                 JSONResponse.onSuccess(managementService.findManagementByDate(localDate))
