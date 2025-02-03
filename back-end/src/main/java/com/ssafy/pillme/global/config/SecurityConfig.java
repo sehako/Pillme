@@ -1,6 +1,6 @@
 package com.ssafy.pillme.global.config;
 
-import com.ssafy.pillme.auth.infrastructure.service.CustomUserDetailsService;
+import com.ssafy.pillme.auth.application.service.CustomMemberDetailsService;
 import java.util.Arrays;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -22,7 +22,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
-    private final CustomUserDetailsService userDetailsService;
+    private final CustomMemberDetailsService userDetailsService;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {

@@ -1,17 +1,17 @@
 package com.ssafy.pillme.auth.presentation.controller;
 
 import com.ssafy.pillme.auth.application.response.TokenResponse;
-import com.ssafy.pillme.auth.application.response.UserResponse;
+import com.ssafy.pillme.auth.application.response.MemberResponse;
 import com.ssafy.pillme.auth.application.service.AuthService;
-import com.ssafy.pillme.auth.infrastructure.repository.UserRepository;
-import com.ssafy.pillme.auth.infrastructure.service.OAuth2Service;
+import com.ssafy.pillme.auth.infrastructure.repository.MemberRepository;
+import com.ssafy.pillme.auth.application.service.OAuth2Service;
 import com.ssafy.pillme.auth.presentation.request.LoginRequest;
 import com.ssafy.pillme.auth.presentation.request.OAuthAdditionalInfoRequest;
 import com.ssafy.pillme.auth.presentation.request.OAuthSignUpRequest;
 import com.ssafy.pillme.auth.presentation.request.PasswordResetRequest;
 import com.ssafy.pillme.auth.presentation.request.SignUpRequest;
-import com.ssafy.pillme.auth.presentation.response.FindEmailResponse;
-import com.ssafy.pillme.auth.presentation.response.OAuth2Response;
+import com.ssafy.pillme.auth.application.response.FindEmailResponse;
+import com.ssafy.pillme.auth.application.response.OAuth2Response;
 import com.ssafy.pillme.global.response.JSONResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -32,15 +32,15 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
     private final AuthService authService;
     private final OAuth2Service oauth2Service;
-    private final UserRepository userRepository;
+    private final MemberRepository memberRepository;
 
     /**
      * 회원가입
      */
     @PostMapping("/signup")
-    public ResponseEntity<JSONResponse<UserResponse>> signUp(
+    public ResponseEntity<JSONResponse<MemberResponse>> signUp(
             @Valid @RequestBody SignUpRequest request) {
-        UserResponse response = authService.signUp(request);
+        MemberResponse response = authService.signUp(request);
         return ResponseEntity.ok(JSONResponse.onSuccess(response));
     }
 
@@ -193,10 +193,10 @@ public class AuthController {
      * OAuth2 추가 회원정보 입력
      */
     @PutMapping("/oauth2/additional-info")
-    public ResponseEntity<JSONResponse<UserResponse>> submitAdditionalInfo(
-            @AuthenticationPrincipal Long userId,
+    public ResponseEntity<JSONResponse<MemberResponse>> submitAdditionalInfo(
+            @AuthenticationPrincipal Long memberId,
             @Valid @RequestBody OAuthAdditionalInfoRequest request) {
-        UserResponse response = authService.submitAdditionalInfo(userId, request);
+        MemberResponse response = authService.submitAdditionalInfo(memberId, request);
         return ResponseEntity.ok(JSONResponse.onSuccess(response));
     }
 
@@ -213,13 +213,13 @@ public class AuthController {
 
     @GetMapping("/check/email")
     public ResponseEntity<JSONResponse<Boolean>> checkEmailDuplicate(@RequestParam String email) {
-        boolean isDuplicate = userRepository.existsByEmail(email);
+        boolean isDuplicate = memberRepository.existsByEmail(email);
         return ResponseEntity.ok(JSONResponse.onSuccess(isDuplicate));
     }
 
     @GetMapping("/check/phone")
     public ResponseEntity<JSONResponse<Boolean>> checkPhoneDuplicate(@RequestParam String phone) {
-        boolean isDuplicate = userRepository.existsByPhone(phone);
+        boolean isDuplicate = memberRepository.existsByPhone(phone);
         return ResponseEntity.ok(JSONResponse.onSuccess(isDuplicate));
     }
 }

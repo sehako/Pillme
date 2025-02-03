@@ -1,4 +1,4 @@
-package com.ssafy.pillme.auth.presentation.response;
+package com.ssafy.pillme.auth.application.response;
 
 import com.ssafy.pillme.auth.domain.vo.Provider;
 
