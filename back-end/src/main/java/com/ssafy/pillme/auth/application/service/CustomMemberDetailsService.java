@@ -1,9 +1,8 @@
-package com.ssafy.pillme.auth.infrastructure.service;
+package com.ssafy.pillme.auth.application.service;
 
+import com.ssafy.pillme.auth.application.exception.security.InvalidMemberInfoException;
 import com.ssafy.pillme.auth.domain.entity.Member;
-import com.ssafy.pillme.auth.infrastructure.repository.UserRepository;
-import com.ssafy.pillme.global.code.ErrorCode;
-import com.ssafy.pillme.global.exception.CommonException;
+import com.ssafy.pillme.auth.infrastructure.repository.MemberRepository;
 import java.util.Collections;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -15,21 +14,21 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-public class CustomUserDetailsService implements UserDetailsService {
+public class CustomMemberDetailsService implements UserDetailsService {
 
-    private final UserRepository userRepository;
+    private final MemberRepository memberRepository;
 
     @Override
+    // 사용자 정보를 조회하는 용도로만 사용
     @Transactional(readOnly = true)
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        Member user = userRepository.findByEmailAndDeletedFalse(email)
-                .orElseThrow(() -> new CommonException(ErrorCode.USER_NOT_FOUND));
+        Member user = memberRepository.findByEmailAndDeletedFalse(email)
+                .orElseThrow(InvalidMemberInfoException::new);
 
         return new org.springframework.security.core.userdetails.User(
-                user.extractAuthenticationInfo().identifier().toString(),
-                user.extractUserInfo().email(),
-                Collections.singleton(
-                        new SimpleGrantedAuthority("ROLE_" + user.extractAuthenticationInfo().authority()))
+                String.valueOf(user.getId()),
+                user.getEmail(),
+                Collections.singleton(new SimpleGrantedAuthority("ROLE_" + user.getRole()))
         );
     }
 }

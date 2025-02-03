@@ -1,6 +1,6 @@
 package com.ssafy.pillme.global.config;
 
-import com.ssafy.pillme.auth.infrastructure.service.TokenService;
+import com.ssafy.pillme.auth.application.service.TokenService;
 import com.ssafy.pillme.auth.util.JwtUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

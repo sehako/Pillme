@@ -1,6 +1,6 @@
 package com.ssafy.pillme.auth.domain.vo;
 
-public record NaverUserInfo(
+public record NaverOAuthInfo(
         String email,
         String name,
         String nickname,
@@ -8,7 +8,7 @@ public record NaverUserInfo(
         String phone,
         String birthday
 ) {
-    public static NaverUserInfo of(
+    public static NaverOAuthInfo of(
             String email,
             String name,
             String nickname,
@@ -32,7 +32,7 @@ public record NaverUserInfo(
                 mobile.replaceAll("[^0-9]", "")
                 : null;
 
-        return new NaverUserInfo(
+        return new NaverOAuthInfo(
                 email,
                 name,
                 nickname,

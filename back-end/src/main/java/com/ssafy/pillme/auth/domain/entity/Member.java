@@ -1,10 +1,8 @@
 package com.ssafy.pillme.auth.domain.entity;
 
-import com.ssafy.pillme.auth.domain.vo.AuthenticationInfo;
 import com.ssafy.pillme.auth.domain.vo.Gender;
 import com.ssafy.pillme.auth.domain.vo.Provider;
 import com.ssafy.pillme.auth.domain.vo.Role;
-import com.ssafy.pillme.auth.domain.vo.UserInfo;
 import com.ssafy.pillme.global.entity.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -52,6 +50,8 @@ public class Member extends BaseEntity {
     @Column(length = 30)
     private String phone;
 
+    private boolean deleted = false;
+
     private boolean oauth = false;
 
     @Column(length = 10)
@@ -80,55 +80,9 @@ public class Member extends BaseEntity {
         return passwordEncoder.matches(rawPassword, this.password);
     }
 
-    // 사용자 롤 확인
-    public boolean hasRole(Role roleToCheck) {
-        return this.role == roleToCheck;
-    }
-
-    // 사용자 정보 UserInfo 객체로 추출
-    public UserInfo extractUserInfo() {
-        return new UserInfo(
-                this.id,
-                this.email,
-                this.name,
-                this.nickname,
-                this.role,
-                this.gender,
-                this.phone,
-                this.birthday,
-                this.oauth,
-                this.provider
-        );
-    }
-
-    // 인증 정보
-    public AuthenticationInfo extractAuthenticationInfo() {
-        return new AuthenticationInfo(this.id, this.role);
-    }
-
     // 비밀번호 재설정
     public void resetPassword(String newPassword, PasswordEncoder passwordEncoder) {
         this.password = passwordEncoder.encode(newPassword);
-    }
-
-    // 오어스 유저 판별
-    public boolean isOAuthUser() {
-        return this.oauth;
-    }
-
-    // 이메일 중복 확인
-    public boolean isSameEmail(String emailToCheck) {
-        return this.email.equals(emailToCheck);
-    }
-
-    // 휴대전화 중복 확인
-    public boolean isSamePhone(String phoneToCheck) {
-        return this.phone != null && this.phone.equals(phoneToCheck);
-    }
-
-    // 닉네임 중복 확인
-    public boolean isSameNickname(String nicknameToCheck) {
-        return this.nickname.equals(nicknameToCheck);
     }
 
     // 사용자 정보 업데이트

@@ -1,7 +1,7 @@
-package com.ssafy.pillme.auth.infrastructure.service;
+package com.ssafy.pillme.auth.application.service;
 
-import com.ssafy.pillme.global.code.ErrorCode;
-import com.ssafy.pillme.global.exception.CommonException;
+import com.ssafy.pillme.auth.application.exception.external.FailedSmsDeliveryException;
+import com.ssafy.pillme.auth.application.exception.verification.InvalidSmsCodeException;
 import lombok.RequiredArgsConstructor;
 import net.nurigo.java_sdk.api.Message;
 import net.nurigo.java_sdk.exceptions.CoolsmsException;
@@ -50,7 +50,7 @@ public class SmsService {
         try {
             coolsms.send(params);
         } catch (CoolsmsException e) {
-            throw new CommonException(ErrorCode.SMS_SEND_FAILED);
+            throw new FailedSmsDeliveryException();
         }
     }
 
@@ -58,12 +58,12 @@ public class SmsService {
      * 인증번호 확인
      */
     public void verifySmsCode(String phoneNumber, String code) {
-        String savedCode = getVerificationCode(phoneNumber);
+        String savedCode = findVerificationCode(phoneNumber);
         if (savedCode == null) {
-            throw new CommonException(ErrorCode.SMS_CODE_EXPIRED);
+            throw new FailedSmsDeliveryException();
         }
         if (!savedCode.equals(code)) {
-            throw new CommonException(ErrorCode.INVALID_SMS_CODE);
+            throw new InvalidSmsCodeException();
         }
 
         // 인증번호 삭제 및 인증 완료 상태 저장
@@ -89,7 +89,7 @@ public class SmsService {
         redisTemplate.opsForValue().set(key, code, CODE_EXPIRATION_TIME, TimeUnit.MILLISECONDS);
     }
 
-    private String getVerificationCode(String phoneNumber) {
+    private String findVerificationCode(String phoneNumber) {
         String key = SMS_CODE_PREFIX + phoneNumber;
         return redisTemplate.opsForValue().get(key);
     }

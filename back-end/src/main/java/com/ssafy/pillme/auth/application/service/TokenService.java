@@ -1,4 +1,4 @@
-package com.ssafy.pillme.auth.infrastructure.service;
+package com.ssafy.pillme.auth.application.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;

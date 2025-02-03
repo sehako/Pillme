@@ -1,7 +1,8 @@
-package com.ssafy.pillme.auth.infrastructure.service;
+package com.ssafy.pillme.auth.application.service;
 
-import com.ssafy.pillme.global.code.ErrorCode;
-import com.ssafy.pillme.global.exception.CommonException;
+import com.ssafy.pillme.auth.application.exception.external.FailedEmailDeliveryException;
+import com.ssafy.pillme.auth.application.exception.verification.*;
+
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
@@ -46,7 +47,7 @@ public class EmailService {
 
             mailSender.send(message);
         } catch (MessagingException e) {
-            throw new CommonException(ErrorCode.EMAIL_SEND_FAILED);
+            throw new FailedEmailDeliveryException();
         }
     }
 
@@ -65,7 +66,7 @@ public class EmailService {
 
             mailSender.send(message);
         } catch (MessagingException e) {
-            throw new CommonException(ErrorCode.EMAIL_SEND_FAILED);
+            throw new FailedEmailDeliveryException();
         }
     }
 
@@ -75,10 +76,10 @@ public class EmailService {
     public void verifyEmail(String email, String code) {
         String savedCode = getVerificationCode(email);
         if (savedCode == null) {
-            throw new CommonException(ErrorCode.EMAIL_CODE_EXPIRED);
+            throw new ExpiredEmailCodeException();
         }
         if (!savedCode.equals(code)) {
-            throw new CommonException(ErrorCode.INVALID_EMAIL_CODE);
+            throw new InvalidEmailCodeException();
         }
 
         // 인증번호 삭제 및 인증 완료 상태 저장

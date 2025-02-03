@@ -1,24 +1,21 @@
 package com.ssafy.pillme.auth.application.service;
 
+import com.ssafy.pillme.auth.application.exception.oauth.*;
+import com.ssafy.pillme.auth.application.exception.security.*;
+import com.ssafy.pillme.auth.application.exception.validation.*;
+import com.ssafy.pillme.auth.application.exception.token.*;
 import com.ssafy.pillme.auth.application.response.TokenResponse;
-import com.ssafy.pillme.auth.application.response.UserResponse;
+import com.ssafy.pillme.auth.application.response.MemberResponse;
 import com.ssafy.pillme.auth.domain.entity.Member;
-import com.ssafy.pillme.auth.domain.vo.AuthenticationInfo;
 import com.ssafy.pillme.auth.domain.vo.Provider;
-import com.ssafy.pillme.auth.domain.vo.UserInfo;
-import com.ssafy.pillme.auth.infrastructure.repository.UserRepository;
-import com.ssafy.pillme.auth.infrastructure.service.EmailService;
-import com.ssafy.pillme.auth.infrastructure.service.SmsService;
-import com.ssafy.pillme.auth.infrastructure.service.TokenService;
+import com.ssafy.pillme.auth.infrastructure.repository.MemberRepository;
 import com.ssafy.pillme.auth.presentation.request.LoginRequest;
 import com.ssafy.pillme.auth.presentation.request.OAuthAdditionalInfoRequest;
 import com.ssafy.pillme.auth.presentation.request.OAuthSignUpRequest;
 import com.ssafy.pillme.auth.presentation.request.PasswordResetRequest;
 import com.ssafy.pillme.auth.presentation.request.SignUpRequest;
-import com.ssafy.pillme.auth.presentation.response.FindEmailResponse;
+import com.ssafy.pillme.auth.application.response.FindEmailResponse;
 import com.ssafy.pillme.auth.util.JwtUtil;
-import com.ssafy.pillme.global.code.ErrorCode;
-import com.ssafy.pillme.global.exception.CommonException;
 import java.util.UUID;
 import java.util.regex.Pattern;
 import lombok.RequiredArgsConstructor;
@@ -30,7 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class AuthService {
-    private final UserRepository userRepository;
+    private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
     private final TokenService tokenService;
@@ -41,27 +38,27 @@ public class AuthService {
      * 회원가입
      */
     @Transactional
-    public UserResponse signUp(SignUpRequest request) {
+    public MemberResponse signUp(SignUpRequest request) {
         // 이메일 인증 확인
         if (!emailService.isVerified(request.email())) {
-            throw new CommonException(ErrorCode.EMAIL_NOT_VERIFIED);
+            throw new MismatchedPhoneNumberException();
         }
 
         // 휴대전화 인증 확인
         if (!smsService.isVerified(request.phone())) {
-            throw new CommonException(ErrorCode.PHONE_NOT_VERIFIED);
+            throw new UnverifiedPhoneNumberException();
         }
 
         // 중복 확인
-        if (userRepository.existsByEmail(request.email())) {
-            throw new CommonException(ErrorCode.DUPLICATE_EMAIL);
+        if (memberRepository.existsByEmail(request.email())) {
+            throw new DuplicateEmailAddressException();
         }
-        if (userRepository.existsByNickname(request.nickname())) {
-            throw new CommonException(ErrorCode.DUPLICATE_NICKNAME);
+        if (memberRepository.existsByNickname(request.nickname())) {
+            throw new DuplicateMemberNicknameException();
         }
 
         // 회원 생성
-        Member user = Member.builder()
+        Member member = Member.builder()
                 .email(request.email())
                 .password(passwordEncoder.encode(request.password()))
                 .name(request.name())
@@ -73,21 +70,21 @@ public class AuthService {
                 .provider(Provider.FORM)
                 .build();
 
-        return UserResponse.from(userRepository.save(user));
+        return MemberResponse.from(memberRepository.save(member));
     }
 
     /**
      * 로그인
      */
     public TokenResponse login(LoginRequest request) {
-        Member user = userRepository.findByEmailAndDeletedFalse(request.email())
-                .orElseThrow(() -> new CommonException(ErrorCode.USER_NOT_FOUND));
+        Member member = memberRepository.findByEmailAndDeletedFalse(request.email())
+                .orElseThrow(InvalidMemberInfoException::new);
 
-        if (!user.isPasswordMatch(request.password(), passwordEncoder)) {
-            throw new CommonException(ErrorCode.INVALID_PASSWORD);
+        if (!member.isPasswordMatch(request.password(), passwordEncoder)) {
+            throw new InvalidMemberPasswordException();
         }
 
-        return createTokenResponseFromUser(user);
+        return createTokenResponseFromMember(member);
     }
 
     /**
@@ -100,21 +97,21 @@ public class AuthService {
         // 이전 인증 정보 확인
         String savedProvider = tokenService.extractTempAuthInfo(request.email());
         if (savedProvider == null || !savedProvider.equals(provider.name())) {
-            throw new CommonException(ErrorCode.INVALID_OAUTH_STATE);
+            throw new InvalidOAuthStateException();
         }
 
         // 휴대전화 인증 확인
         if (!smsService.isVerified(request.phone())) {
-            throw new CommonException(ErrorCode.PHONE_NOT_VERIFIED);
+            throw new UnverifiedPhoneNumberException();
         }
 
         // 닉네임 중복 확인
-        if (userRepository.existsByNickname(request.nickname())) {
-            throw new CommonException(ErrorCode.DUPLICATE_NICKNAME);
+        if (memberRepository.existsByNickname(request.nickname())) {
+            throw new DuplicateMemberNicknameException();
         }
 
         // 회원 생성
-        Member user = Member.builder()
+        Member member = Member.builder()
                 .email(request.email())
                 .password(UUID.randomUUID().toString())
                 .name(request.name())
@@ -126,37 +123,37 @@ public class AuthService {
                 .provider(provider)
                 .build();
 
-        return createTokenResponseFromUser(userRepository.save(user));
+        return createTokenResponseFromMember(memberRepository.save(member));
     }
 
     /**
      * OAuth2 추가 회원정보 입력 처리
      */
     @Transactional
-    public UserResponse submitAdditionalInfo(Long userId, OAuthAdditionalInfoRequest request) {
-        Member user = userRepository.findById(userId)
-                .orElseThrow(() -> new CommonException(ErrorCode.USER_NOT_FOUND));
+    public MemberResponse submitAdditionalInfo(Long memberId, OAuthAdditionalInfoRequest request) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(InvalidMemberInfoException::new);
 
         // 닉네임 중복 확인
-        if (!user.isSameNickname(request.nickname()) &&
-                userRepository.existsByNickname(request.nickname())) {
-            throw new CommonException(ErrorCode.DUPLICATE_NICKNAME);
+        if (!request.nickname().equals(member.getNickname()) &&
+                memberRepository.existsByNickname(request.nickname())) {
+            throw new DuplicateMemberNicknameException();
         }
 
         // 휴대전화 인증 확인
         if (!smsService.isVerified(request.phone())) {
-            throw new CommonException(ErrorCode.PHONE_NOT_VERIFIED);
+            throw new UnverifiedPhoneNumberException();
         }
 
         // 회원 정보 업데이트
-        user.updatePersonalInformation(
+        member.updatePersonalInformation(
                 request.nickname(),
                 request.gender(),
                 request.phone(),
                 request.birthday()
         );
 
-        return UserResponse.from(user);
+        return MemberResponse.from(member);
     }
 
     /**
@@ -165,14 +162,12 @@ public class AuthService {
     public FindEmailResponse findEmail(String phone) {
         // 휴대전화 인증 확인
         if (!smsService.isVerified(phone)) {
-            throw new CommonException(ErrorCode.PHONE_NOT_VERIFIED);
+            throw new UnverifiedPhoneNumberException();
         }
 
-        Member user = userRepository.findByPhone(phone)
-                .orElseThrow(() -> new CommonException(ErrorCode.USER_NOT_FOUND));
-
-        UserInfo userInfo = user.extractUserInfo();
-        return new FindEmailResponse(userInfo.email(), userInfo.provider());
+        Member member = memberRepository.findByPhoneAndDeletedFalse(phone)
+                .orElseThrow(InvalidMemberInfoException::new);
+        return new FindEmailResponse(member.getEmail(), member.getProvider());
     }
 
     /**
@@ -180,19 +175,19 @@ public class AuthService {
      */
     @Transactional
     public void requestPasswordReset(String email, String phone) {
-        Member user = userRepository.findByEmailAndDeletedFalse(email)
-                .orElseThrow(() -> new CommonException(ErrorCode.USER_NOT_FOUND));
+        Member member = memberRepository.findByEmailAndDeletedFalse(email)
+                .orElseThrow(InvalidMemberInfoException::new);
 
-        if (user.isOAuthUser()) {
-            throw new CommonException(ErrorCode.OAUTH_USER_PASSWORD_RESET);
+        if (member.isOauth()) {
+            throw new RestrictedOAuthPasswordException();
         }
 
-        if (!user.isSamePhone(phone)) {
-            throw new CommonException(ErrorCode.PHONE_MISMATCH);
+        if (!phone.equals(member.getPhone())) {
+            throw new MismatchedPhoneNumberException();
         }
 
         if (!smsService.isVerified(phone)) {
-            throw new CommonException(ErrorCode.PHONE_NOT_VERIFIED);
+            throw new UnverifiedPhoneNumberException();
         }
 
         String resetToken = UUID.randomUUID().toString();
@@ -208,13 +203,13 @@ public class AuthService {
     public void resetPassword(PasswordResetRequest request) {
         String email = tokenService.findEmailByResetToken(request.token());
         if (email == null) {
-            throw new CommonException(ErrorCode.INVALID_RESET_TOKEN);
+            throw new InvalidResetTokenException();
         }
 
-        Member user = userRepository.findByEmailAndDeletedFalse(email)
-                .orElseThrow(() -> new CommonException(ErrorCode.USER_NOT_FOUND));
+        Member member = memberRepository.findByEmailAndDeletedFalse(email)
+                .orElseThrow(InvalidMemberInfoException::new);
 
-        user.resetPassword(request.newPassword(), passwordEncoder);
+        member.resetPassword(request.newPassword(), passwordEncoder);
         tokenService.deletePasswordResetToken(request.token());
     }
 
@@ -251,19 +246,19 @@ public class AuthService {
      */
     public TokenResponse refreshToken(String refreshToken) {
         if (!jwtUtil.validateToken(refreshToken)) {
-            throw new CommonException(ErrorCode.INVALID_REFRESH_TOKEN);
+            throw new InvalidRefreshTokenException();
         }
 
         var claims = jwtUtil.extractClaims(refreshToken);
-        Long userId = claims.get("userId", Long.class);
+        Long memberId = claims.get("memberId", Long.class);
         String role = claims.get("role", String.class);
 
-        String savedToken = tokenService.findRefreshToken(userId);
+        String savedToken = tokenService.findRefreshToken(memberId);
         if (!refreshToken.equals(savedToken)) {
-            throw new CommonException(ErrorCode.INVALID_REFRESH_TOKEN);
+            throw new InvalidRefreshTokenException();
         }
 
-        return createTokenResponseWithCredentials(userId, role);
+        return createTokenResponseWithCredentials(memberId, role);
     }
 
     /**
@@ -271,14 +266,16 @@ public class AuthService {
      */
     public void logout(String accessToken) {
         if (!jwtUtil.validateToken(accessToken)) {
-            throw new CommonException(ErrorCode.INVALID_ACCESS_TOKEN);
+            throw new InvalidAccessTokenException();
         }
 
         var claims = jwtUtil.extractClaims(accessToken);
-        Long userId = claims.get("userId", Long.class);
+        Long memberId = claims.get("memberId", Long.class);
 
-        tokenService.deleteRefreshToken(userId);
+        tokenService.deleteRefreshToken(memberId);
 
+        // Access Token을 블랙리스트에 추가
+        // 남은 만료 시간만큼만 블랙리스트에 보관
         long expiration = claims.getExpiration().getTime() - System.currentTimeMillis();
         tokenService.blacklistToken(accessToken, expiration);
     }
@@ -286,19 +283,18 @@ public class AuthService {
     /**
      * 사용자 정보로 토큰 응답 생성
      */
-    private TokenResponse createTokenResponseFromUser(Member user) {
-        AuthenticationInfo authInfo = user.extractAuthenticationInfo();
-        return createTokenResponseWithCredentials(authInfo.identifier(), authInfo.authority().name());
+    private TokenResponse createTokenResponseFromMember(Member member) {
+        return createTokenResponseWithCredentials(member.getId(), member.getRole().name());
     }
 
     /**
      * 인증 정보로 토큰 응답 생성
      */
-    private TokenResponse createTokenResponseWithCredentials(Long userId, String role) {
-        String accessToken = jwtUtil.createAccessToken(userId, role);
-        String refreshToken = jwtUtil.createRefreshToken(userId, role);
+    private TokenResponse createTokenResponseWithCredentials(Long memberId, String role) {
+        String accessToken = jwtUtil.createAccessToken(memberId, role);
+        String refreshToken = jwtUtil.createRefreshToken(memberId, role);
 
-        tokenService.saveRefreshToken(userId, refreshToken,
+        tokenService.saveRefreshToken(memberId, refreshToken,
                 jwtUtil.extractRefreshTokenValidityPeriod());
 
         return TokenResponse.of(
@@ -319,7 +315,7 @@ public class AuthService {
         try {
             return Pattern.matches(pattern, password);
         } catch (Exception e) {
-            throw new CommonException(ErrorCode.INVALID_PASSWORD_FORMAT);
+            throw new InvalidPasswordFormatException();
         }
     }
 
@@ -330,9 +326,9 @@ public class AuthService {
      */
     public boolean checkNicknameDuplicate(String nickname) {
         if (nickname == null || nickname.isBlank()) {
-            throw new CommonException(ErrorCode.DUPLICATE_NICKNAME);
+            throw new DuplicateMemberNicknameException();
         }
 
-        return userRepository.existsByNickname(nickname);
+        return memberRepository.existsByNickname(nickname);
     }
 }

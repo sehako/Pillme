@@ -1,6 +1,4 @@
-package com.ssafy.pillme.auth.presentation.response;
-
-import com.ssafy.pillme.auth.application.response.TokenResponse;
+package com.ssafy.pillme.auth.application.response;
 
 public record OAuth2Response(
         ResponseType type,
