@@ -37,7 +37,7 @@ public class HistoryController {
     ) {
         return ResponseEntity.ok(
                 JSONResponse.onSuccess(
-                        historyService.selectHistoryByFilter(
+                        historyService.selectHistoryWithFilter(
                                 HistorySearchFilter.of(startDate, endDate, hospital, diseaseName))
                 )
         );

@@ -1,5 +1,6 @@
 package com.ssafy.pillme.history.application;
 
+import com.ssafy.pillme.auth.domain.entity.Member;
 import com.ssafy.pillme.history.application.response.HistorySearchResponse;
 import com.ssafy.pillme.history.domain.History;
 import com.ssafy.pillme.history.domain.dto.HistorySearchFilter;
@@ -32,22 +33,29 @@ public class HistoryService {
 
         for (Information information : validInformation) {
             List<Management> validManagements = information.getManagements();
+            Member member = information.getReader();
             validManagements.stream()
                     .filter(management -> !management.isDeleted())
                     .forEach(management ->
                             historyRepository.save(History.builder()
+                                    .information(information)
                                     .management(management)
-                                    .morning(management.isMorningTaking())
-                                    .lunch(management.isLunchTaking())
-                                    .dinner(management.isDinnerTaking())
-                                    .sleep(management.isSleepTaking())
+                                    .member(member)
+                                    .morning(management.isMorning())
+                                    .lunch(management.isLunch())
+                                    .dinner(management.isDinner())
+                                    .sleep(management.isSleep())
+                                    .morningTaking(management.isMorningTaking())
+                                    .lunchTaking(management.isLunchTaking())
+                                    .dinnerTaking(management.isDinnerTaking())
+                                    .sleepTaking(management.isSleepTaking())
                                     .takingDate(validInformationDate)
                                     .build())
                     );
         }
     }
 
-    public List<HistorySearchResponse> selectHistoryByFilter(final HistorySearchFilter filter) {
+    public List<HistorySearchResponse> selectHistoryWithFilter(final HistorySearchFilter filter) {
         List<History> historyByCondition = historyRepository.findHistoryByCondition(filter);
 
         return historyByCondition.stream().map(HistorySearchResponse::of).collect(Collectors.toList());

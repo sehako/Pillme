@@ -20,7 +20,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -55,7 +54,7 @@ public class ManagementController {
         );
     }
 
-    @PutMapping("/{info-id}")
+    @PatchMapping("/{info-id}")
     public ResponseEntity<JSONResponse<Void>> changePillTakingInfoById(
             @PathVariable(value = "info-id") final Long infoId,
             @RequestBody final ChangeTakingInformationRequest request) {
