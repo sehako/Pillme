@@ -60,4 +60,17 @@ public class HistoryService {
 
         return historyByCondition.stream().map(HistorySearchResponse::of).collect(Collectors.toList());
     }
+
+    public void selectDetailHistory(final Long informationId) {
+        List<History> historyByInformationId = historyRepository.findHistoryByInformationId(informationId);
+    }
+
+    public void selectHistoryByDate(final LocalDate date) {
+        List<History> historyByDate = historyRepository.findHistoryByDate(Member.builder().build(), date);
+    }
+
+    public void deleteHistory(final Long id) {
+        History history = historyRepository.findById(id).orElseThrow();
+        history.delete();
+    }
 }

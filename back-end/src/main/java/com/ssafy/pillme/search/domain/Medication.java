@@ -16,7 +16,5 @@ public class Medication {
     private Long id;
     private String name;
     private String company;
-    private String classification;
-    private String note;
     private String image;
 }

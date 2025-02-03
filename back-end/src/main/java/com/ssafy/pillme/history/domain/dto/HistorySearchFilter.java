@@ -6,9 +6,11 @@ public record HistorySearchFilter(
         LocalDate startDate,
         LocalDate endDate,
         String hospital,
-        String diseaseName
+        String diseaseName,
+        Long memberId
 ) {
-    public static HistorySearchFilter of(LocalDate startDate, LocalDate endDate, String hospital, String diseaseName) {
-        return new HistorySearchFilter(startDate, endDate, hospital, diseaseName);
+    public static HistorySearchFilter of(LocalDate startDate, LocalDate endDate, String hospital, String diseaseName,
+                                         Long memberId) {
+        return new HistorySearchFilter(startDate, endDate, hospital, diseaseName, memberId);
     }
 }

@@ -9,12 +9,10 @@ DROP TABLE IF EXISTS `medication`;
 
 CREATE TABLE `medication`
 (
-    `id`             BIGINT       NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    `name`           VARCHAR(255) NOT NULL,
-    `company`        VARCHAR(100) NOT NULL,
-    `classification` VARCHAR(200) NOT NULL,
-    `expert`         VARCHAR(30)  NOT NULL,
-    `image`          VARCHAR(200) NULL
+    `id`      BIGINT       NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    `name`    VARCHAR(255) NOT NULL,
+    `company` VARCHAR(100) NULL,
+    `image`   VARCHAR(200) NULL
 );
 
 DROP TABLE IF EXISTS `hospital`;
