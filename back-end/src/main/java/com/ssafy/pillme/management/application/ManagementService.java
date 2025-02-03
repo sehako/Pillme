@@ -1,12 +1,12 @@
 package com.ssafy.pillme.management.application;
 
 import static com.ssafy.pillme.global.code.ErrorCode.INFORMATION_NOT_FOUND;
+import static com.ssafy.pillme.global.code.ErrorCode.INVALID_MEMBER_INFO;
 import static com.ssafy.pillme.global.code.ErrorCode.MANAGEMENT_NOT_FOUND;
 import static com.ssafy.pillme.global.code.ErrorCode.MEDICATION_NOT_FOUND;
 
 import com.ssafy.pillme.auth.domain.entity.Member;
-import com.ssafy.pillme.auth.infrastructure.repository.UserRepository;
-import com.ssafy.pillme.global.code.ErrorCode;
+import com.ssafy.pillme.auth.infrastructure.repository.MemberRepository;
 import com.ssafy.pillme.global.exception.CommonException;
 import com.ssafy.pillme.management.application.exception.NoInformationException;
 import com.ssafy.pillme.management.application.exception.NoManagementException;
@@ -41,15 +41,15 @@ public class ManagementService {
     private final ManagementRepository managementRepository;
     private final InformationRepository informationRepository;
     private final MedicationRepository medicationRepository;
-    private final UserRepository memberRepository;
+    private final MemberRepository memberRepository;
 
-    public void saveTakingInformation(final MedicationRegisterRequest request) {
-        // TODO: 인증을 통한 맴버 객체 생성 완료 후에는 정식 엔티티로 바꿔야 한다.
-        Member writer = Member.builder().build();
+    public Information saveTakingInformation(final MedicationRegisterRequest request, final Member writer) {
         Member reader = memberRepository.findById(request.reader())
-                .orElseThrow(() -> new CommonException(ErrorCode.USER_NOT_FOUND));
+                .orElseThrow(() -> new CommonException(INVALID_MEMBER_INFO));
         Information savedInformation = informationRepository.save(request.toInformation(writer, reader));
         saveManagement(request.takingInformationItems(), savedInformation);
+
+        return savedInformation;
     }
 
     private void saveManagement(final List<TakingInformationItem> takingList, final Information information) {
@@ -63,8 +63,11 @@ public class ManagementService {
     }
 
     @Transactional(readOnly = true)
-    public TakingDetailResponse findByInformationId(final Long id) {
-        Information information = informationRepository.findById(id)
+    public TakingDetailResponse selectInformation(
+            final Long id,
+            final Long readerId
+    ) {
+        Information information = informationRepository.findByIdAndReaderIdAndDeletedIsFalse(id, readerId)
                 .orElseThrow(() -> new NoInformationException(INFORMATION_NOT_FOUND));
 
         return TakingDetailResponse.of(
@@ -77,11 +80,13 @@ public class ManagementService {
     }
 
     @Transactional(readOnly = true)
-    public List<PrescriptionResponse> findManagementByDate(final LocalDate localDate) {
+    public List<PrescriptionResponse> findManagementByDate(final LocalDate localDate, final Member member) {
         return informationRepository.findByDate(localDate)
                 .stream()
-                .map(PrescriptionResponse::of)
-                .toList();
+                .map(information -> PrescriptionResponse.of(
+                        information, member
+                ))
+                .collect(Collectors.toList());
     }
 
     public void changeTakingInformation(final Long infoId, final ChangeTakingInformationRequest request) {
@@ -138,5 +143,4 @@ public class ManagementService {
             management.delete();
         }
     }
-
 }

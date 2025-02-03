@@ -12,7 +12,11 @@ public record TakingInformationItem(
         boolean morning,
         boolean lunch,
         boolean dinner,
-        boolean sleep
+        boolean sleep,
+        boolean morningTaking,
+        boolean lunchTaking,
+        boolean dinnerTaking,
+        boolean sleepTaking
 ) {
     public Management toManagement(final Medication medication, final Information information) {
         return Management.builder()
@@ -36,7 +40,11 @@ public record TakingInformationItem(
                 management.isMorning(),
                 management.isLunch(),
                 management.isDinner(),
-                management.isSleep()
+                management.isSleep(),
+                management.isMorningTaking(),
+                management.isLunchTaking(),
+                management.isDinnerTaking(),
+                management.isSleepTaking()
         );
     }
 }

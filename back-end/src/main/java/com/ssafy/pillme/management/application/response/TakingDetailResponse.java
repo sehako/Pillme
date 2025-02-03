@@ -15,8 +15,9 @@ public record TakingDetailResponse(
         LocalDate endDate,
         List<TakingInformationItem> medicationTakingInfo
 ) {
-    public static TakingDetailResponse of(final Information information,
-                                          final List<TakingInformationItem> medicationTakingInfo) {
+    public static TakingDetailResponse of(
+            final Information information,
+            final List<TakingInformationItem> medicationTakingInfo) {
         return new TakingDetailResponse(
                 information.getHospital(),
                 information.getDiseaseName(),
