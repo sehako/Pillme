@@ -17,6 +17,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.ColumnDefault;
 
 @Entity
 @Table(name = "history")
@@ -34,10 +35,18 @@ public class History extends BaseEntity {
     private Member member;
     @Column(name = "taking_date")
     private LocalDate takingDate;
-    private boolean morning;
-    private boolean lunch;
-    private boolean dinner;
-    private boolean sleep;
+    @Column(name = "morning_taking")
+    @ColumnDefault(value = "false")
+    private boolean morning = false;
+    @Column(name = "lunch_taking")
+    @ColumnDefault(value = "false")
+    private boolean lunch = false;
+    @Column(name = "dinner_taking")
+    @ColumnDefault(value = "false")
+    private boolean dinner = false;
+    @Column(name = "sleep_taking")
+    @ColumnDefault(value = "false")
+    private boolean sleep = false;
 
     @Builder
     private History(Long id, Management management, LocalDate takingDate, boolean morning,

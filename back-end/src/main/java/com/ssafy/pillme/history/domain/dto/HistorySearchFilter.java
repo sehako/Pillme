@@ -5,9 +5,10 @@ import java.time.LocalDate;
 public record HistorySearchFilter(
         LocalDate startDate,
         LocalDate endDate,
-        String hospital
+        String hospital,
+        String diseaseName
 ) {
-    public static HistorySearchFilter of(LocalDate startDate, LocalDate endDate, String hospital) {
-        return new HistorySearchFilter(startDate, endDate, hospital);
+    public static HistorySearchFilter of(LocalDate startDate, LocalDate endDate, String hospital, String diseaseName) {
+        return new HistorySearchFilter(startDate, endDate, hospital, diseaseName);
     }
 }

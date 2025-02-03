@@ -215,16 +215,16 @@ DROP TABLE IF EXISTS `history`;
 
 CREATE TABLE `history`
 (
-    `id`            BIGINT    NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    `management_id` BIGINT    NOT NULL,
-    `member_id`     BIGINT    NOT NULL,
-    `morning`       TINYINT   NULL,
-    `lunch`         TINYINT   NULL,
-    `dinner`        TINYINT   NULL,
-    `sleep`         TINYINT   NULL,
-    `taking_date`   DATE      NULL,
-    `created_at`    TIMESTAMP NULL,
-    `modified_at`   TIMESTAMP NULL,
-    `deleted`       TINYINT   NULL
+    `id`             BIGINT    NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    `management_id`  BIGINT    NOT NULL,
+    `member_id`      BIGINT    NOT NULL,
+    `morning_taking` TINYINT   NULL,
+    `lunch_taking`   TINYINT   NULL,
+    `dinner_taking`  TINYINT   NULL,
+    `sleep_taking`   TINYINT   NULL,
+    `taking_date`    DATE      NULL,
+    `created_at`     TIMESTAMP NULL,
+    `modified_at`    TIMESTAMP NULL,
+    `deleted`        TINYINT   NULL
 );
 

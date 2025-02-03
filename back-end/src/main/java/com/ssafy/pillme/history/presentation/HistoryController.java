@@ -31,11 +31,14 @@ public class HistoryController {
             @DateTimeFormat(pattern = "yyyy-MM-dd")
             LocalDate endDate,
             @RequestParam(value = "hospital", required = false)
-            String hospital
+            String hospital,
+            @RequestParam(value = "diseaseName", required = false)
+            String diseaseName
     ) {
         return ResponseEntity.ok(
                 JSONResponse.onSuccess(
-                        historyService.selectHistoryByFilter(HistorySearchFilter.of(startDate, endDate, hospital))
+                        historyService.selectHistoryByFilter(
+                                HistorySearchFilter.of(startDate, endDate, hospital, diseaseName))
                 )
         );
     }

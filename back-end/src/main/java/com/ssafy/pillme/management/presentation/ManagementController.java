@@ -4,9 +4,11 @@ import com.ssafy.pillme.global.response.JSONResponse;
 import com.ssafy.pillme.management.application.ManagementService;
 import com.ssafy.pillme.management.application.response.PrescriptionResponse;
 import com.ssafy.pillme.management.application.response.TakingDetailResponse;
+import com.ssafy.pillme.management.presentation.request.AllTakingCheckRequest;
 import com.ssafy.pillme.management.presentation.request.ChangeTakingInformationRequest;
 import com.ssafy.pillme.management.presentation.request.DeleteManagementRequest;
 import com.ssafy.pillme.management.presentation.request.MedicationRegisterRequest;
+import com.ssafy.pillme.management.presentation.request.SingleTakingCheckRequest;
 import java.time.LocalDate;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +17,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -60,11 +63,31 @@ public class ManagementController {
         return ResponseEntity.ok().body(JSONResponse.onSuccess());
     }
 
+    @PatchMapping("/check-taking/{info-id}")
+    public ResponseEntity<JSONResponse<Void>> checkSingleMedication(
+            @PathVariable(value = "info-id") final Long infoId,
+            @RequestBody final SingleTakingCheckRequest request
+    ) {
+        managementService.checkSingleMedicationTaking(infoId, request);
+        return ResponseEntity.ok(JSONResponse.onSuccess());
+    }
+
+    @PatchMapping("/check-taking-all/{info-id}")
+    public ResponseEntity<JSONResponse<Void>> checkAllMedication(
+            @PathVariable(value = "info-id") final Long infoId,
+            @RequestBody final AllTakingCheckRequest request
+    ) {
+        managementService.checkAllMedicationTaking(infoId, request);
+        return ResponseEntity.ok(JSONResponse.onSuccess());
+    }
+
     @DeleteMapping("/{info-id}")
-    public void deleteManagement(
+    public ResponseEntity<Void> deleteManagement(
             @PathVariable(value = "info-id") final Long infoId,
             @RequestBody final DeleteManagementRequest request
     ) {
         managementService.deleteManagement(infoId, request);
+
+        return ResponseEntity.noContent().build();
     }
 }
