@@ -46,7 +46,9 @@ public enum ErrorCode {
     // 약물 관리
     MEDICATION_NOT_FOUND(4050, NOT_FOUND, "약물을 찾을 수 없습니다"),
     INFORMATION_NOT_FOUND(4051, NOT_FOUND, "현재 요청한 관리 번호는 존재하지 않습니다"),
-    MANAGEMENT_NOT_FOUND(4052, NOT_FOUND, "요청한 약물 관리 정보는 존재하지 않습니다");
+    MANAGEMENT_NOT_FOUND(4052, NOT_FOUND, "요청한 약물 관리 정보는 존재하지 않습니다"),
+    INVALID_TIME_REQUEST(4053, BAD_REQUEST, "유효하지 않은 시간 요청입니다"),
+    ;
 
     private final int code;
     private final HttpStatus httpStatus;

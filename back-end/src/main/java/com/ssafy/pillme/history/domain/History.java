@@ -1,11 +1,9 @@
-package com.ssafy.pillme.management.domain;
+package com.ssafy.pillme.history.domain;
 
-import static com.ssafy.pillme.global.code.ErrorCode.INVALID_TIME_REQUEST;
-
+import com.ssafy.pillme.auth.domain.entity.Member;
 import com.ssafy.pillme.global.entity.BaseEntity;
-import com.ssafy.pillme.management.application.exception.InvalidTimeSelectException;
-import com.ssafy.pillme.management.domain.item.TakingInformationItem;
-import com.ssafy.pillme.search.domain.Medication;
+import com.ssafy.pillme.management.domain.Information;
+import com.ssafy.pillme.management.domain.Management;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -15,6 +13,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import java.time.LocalDate;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -22,22 +21,24 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
 
 @Entity
-@Table(name = "management")
+@Table(name = "history")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Management extends BaseEntity {
+public class History extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "medication_id")
-    private Medication medication;
+    @JoinColumn(name = "management_id")
+    private Management management;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "member_id")
+    private Member member;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "information_id")
     private Information information;
-    @Column(name = "serving_size")
-    private Integer servingSize;
-    private Integer period;
+    @Column(name = "taking_date")
+    private LocalDate takingDate;
     @ColumnDefault(value = "false")
     private boolean morning = false;
     @ColumnDefault(value = "false")
@@ -60,14 +61,14 @@ public class Management extends BaseEntity {
     private boolean sleepTaking = false;
 
     @Builder
-    private Management(Long id, Medication medication, Information information, Integer servingSize, Integer period,
-                       boolean morning, boolean lunch, boolean dinner, boolean sleep, boolean morningTaking,
-                       boolean lunchTaking, boolean dinnerTaking, boolean sleepTaking) {
+    private History(Long id, Management management, Member member, Information information, LocalDate takingDate,
+                    boolean morning, boolean lunch, boolean dinner, boolean sleep, boolean morningTaking,
+                    boolean lunchTaking, boolean dinnerTaking, boolean sleepTaking) {
         this.id = id;
-        this.medication = medication;
+        this.management = management;
+        this.member = member;
         this.information = information;
-        this.servingSize = servingSize;
-        this.period = period;
+        this.takingDate = takingDate;
         this.morning = morning;
         this.lunch = lunch;
         this.dinner = dinner;
@@ -76,23 +77,5 @@ public class Management extends BaseEntity {
         this.lunchTaking = lunchTaking;
         this.dinnerTaking = dinnerTaking;
         this.sleepTaking = sleepTaking;
-    }
-
-    public void changeTakingInformation(final TakingInformationItem item) {
-        this.servingSize = item.servingSize();
-        this.period = item.period();
-        this.morning = item.morning();
-        this.dinner = item.dinner();
-        this.sleep = item.sleep();
-    }
-
-    public void checkMedicationTaking(final String time) {
-        switch (time) {
-            case "MORNING" -> this.morning = true;
-            case "LUNCH" -> this.lunch = true;
-            case "DINNER" -> this.dinner = true;
-            case "SLEEP" -> this.sleep = true;
-            default -> throw new InvalidTimeSelectException(INVALID_TIME_REQUEST);
-        }
     }
 }
