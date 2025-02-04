@@ -1,19 +1,19 @@
 package com.ssafy.pillme.history.application;
 
+import static com.ssafy.pillme.global.code.ErrorCode.HISTORY_NOT_FOUND;
+import static com.ssafy.pillme.global.code.ErrorCode.MEMBER_NOT_MATCHED;
+
 import com.ssafy.pillme.auth.domain.entity.Member;
+import com.ssafy.pillme.history.application.exception.HistoryNotFoundException;
+import com.ssafy.pillme.history.application.exception.MemberNotMatchedException;
 import com.ssafy.pillme.history.application.response.HistorySearchResponse;
 import com.ssafy.pillme.history.domain.History;
 import com.ssafy.pillme.history.domain.dto.HistorySearchFilter;
 import com.ssafy.pillme.history.infrastructure.HistoryRepository;
-import com.ssafy.pillme.management.domain.Information;
-import com.ssafy.pillme.management.domain.Management;
-import com.ssafy.pillme.management.infrastructure.InformationRepository;
-import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,55 +22,37 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 @RequiredArgsConstructor
 public class HistoryService {
-    private final InformationRepository informationRepository;
     private final HistoryRepository historyRepository;
-
-    @Scheduled(cron = "0 0 4 * * *")
-    public void creatHistory() {
-        LocalDate validInformationDate = LocalDate.now().minusDays(1);
-
-        List<Information> validInformation = informationRepository.findByDate(validInformationDate);
-
-        for (Information information : validInformation) {
-            List<Management> validManagements = information.getManagements();
-            Member member = information.getReader();
-            validManagements.stream()
-                    .filter(management -> !management.isDeleted())
-                    .forEach(management ->
-                            historyRepository.save(History.builder()
-                                    .information(information)
-                                    .management(management)
-                                    .member(member)
-                                    .morning(management.isMorning())
-                                    .lunch(management.isLunch())
-                                    .dinner(management.isDinner())
-                                    .sleep(management.isSleep())
-                                    .morningTaking(management.isMorningTaking())
-                                    .lunchTaking(management.isLunchTaking())
-                                    .dinnerTaking(management.isDinnerTaking())
-                                    .sleepTaking(management.isSleepTaking())
-                                    .takingDate(validInformationDate)
-                                    .build())
-                    );
-        }
-    }
 
     public List<HistorySearchResponse> selectHistoryWithFilter(final HistorySearchFilter filter) {
         List<History> historyByCondition = historyRepository.findHistoryByCondition(filter);
 
-        return historyByCondition.stream().map(HistorySearchResponse::of).collect(Collectors.toList());
+        return historyByCondition.stream()
+                .map(HistorySearchResponse::of)
+                .collect(Collectors.toList());
     }
 
-    public void selectDetailHistory(final Long informationId) {
-        List<History> historyByInformationId = historyRepository.findHistoryByInformationId(informationId);
+    public void selectHistoryByInformationId(
+            final Long informationId
+    ) {
+        List<History> historyList = historyRepository.findHistoryByInformationId(informationId);
+
+
     }
 
-    public void selectHistoryByDate(final LocalDate date) {
-        List<History> historyByDate = historyRepository.findHistoryByDate(Member.builder().build(), date);
-    }
-
-    public void deleteHistory(final Long id) {
-        History history = historyRepository.findById(id).orElseThrow();
+    public void deleteHistory(final Long id, final Member member) {
+        History history = historyRepository.findByIdAndDeletedIsFalse(id)
+                .orElseThrow(() -> new HistoryNotFoundException(HISTORY_NOT_FOUND));
+        checkMemberValidation(history, member);
         history.delete();
+    }
+
+    private void checkMemberValidation(
+            final History history,
+            final Member member
+    ) {
+        if (!history.getMember().getId().equals(member.getId())) {
+            throw new MemberNotMatchedException(MEMBER_NOT_MATCHED);
+        }
     }
 }
