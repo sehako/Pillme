@@ -3,6 +3,7 @@ package com.ssafy.pillme.auth.presentation.controller;
 import com.ssafy.pillme.auth.application.response.TokenResponse;
 import com.ssafy.pillme.auth.application.response.MemberResponse;
 import com.ssafy.pillme.auth.application.service.AuthService;
+import com.ssafy.pillme.auth.domain.vo.Role;
 import com.ssafy.pillme.auth.infrastructure.repository.MemberRepository;
 import com.ssafy.pillme.auth.application.service.OAuth2Service;
 import com.ssafy.pillme.auth.presentation.request.LoginRequest;
@@ -213,7 +214,7 @@ public class AuthController {
 
     @GetMapping("/check/email")
     public ResponseEntity<JSONResponse<Boolean>> checkEmailDuplicate(@RequestParam String email) {
-        boolean isDuplicate = memberRepository.existsByEmail(email);
+        boolean isDuplicate = memberRepository.existsByEmailAndRoleNot(email, Role.LOCAL);
         return ResponseEntity.ok(JSONResponse.onSuccess(isDuplicate));
     }
 
