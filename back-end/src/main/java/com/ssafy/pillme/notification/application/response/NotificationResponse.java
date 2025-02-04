@@ -27,7 +27,7 @@ public class NotificationResponse {
     public static NotificationResponse of(Notification notification) {
         return NotificationResponse.builder()
                 .notificationId(notification.getId())
-                .senderId(notification.getSender().extractUserInfo().id())
+                .senderId(notification.getSender().getId())
                 .code(notification.getCode())
                 .content(notification.getContent())
                 .createdAt(notification.getCreatedAt())
