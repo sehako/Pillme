@@ -4,6 +4,7 @@ import com.ssafy.pillme.dependency.application.service.DependencyService;
 import com.ssafy.pillme.dependency.presentation.request.DependencyAcceptRequest;
 import com.ssafy.pillme.dependency.presentation.request.DependencyRejectRequest;
 import com.ssafy.pillme.dependency.presentation.request.DependentPhoneRequest;
+import com.ssafy.pillme.dependency.presentation.request.LocalMemberRequest;
 import com.ssafy.pillme.global.response.JSONResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -36,6 +37,14 @@ public class DependencyController {
     @PostMapping("/reject")
     public ResponseEntity<JSONResponse<Void>> rejectDependency(@RequestBody DependencyRejectRequest request) {
         dependencyService.rejectDependency(request);
+        return ResponseEntity.ok(JSONResponse.onSuccess());
+    }
+
+    //TODO: memberService 추가 후, 테스트 필요
+    // 로컬 회원(피보호자) 등록
+    @PostMapping("/local-member")
+    public ResponseEntity<JSONResponse<Void>> createLocalMember(@RequestBody LocalMemberRequest request) {
+        dependencyService.createLocalMemberWithDependency(request);
         return ResponseEntity.ok(JSONResponse.onSuccess());
     }
 }

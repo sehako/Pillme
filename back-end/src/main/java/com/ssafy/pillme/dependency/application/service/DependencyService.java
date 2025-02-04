@@ -7,6 +7,8 @@ import com.ssafy.pillme.dependency.infrastructure.repository.DependencyRepositor
 import com.ssafy.pillme.dependency.presentation.request.DependencyAcceptRequest;
 import com.ssafy.pillme.dependency.presentation.request.DependencyRejectRequest;
 import com.ssafy.pillme.dependency.presentation.request.DependentPhoneRequest;
+import com.ssafy.pillme.dependency.presentation.request.LocalMemberRequest;
+import com.ssafy.pillme.member.application.service.MemberService;
 import com.ssafy.pillme.notification.application.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -65,5 +67,28 @@ public class DependencyService {
 
         // 피보호자가 보호자에게 관계 거절 알림 전송
         notificationService.sendDependencyRejectNotification(dependent, protector);
+    }
+
+    /*
+    * 기존 erd 유지를 위해 회원 테이블에 이름, 성별, 생년월일을 가지는 회원 추가
+    * 로그인되어 있는 회원은 보호자로, 생성된 로컬 회원은 피보호자로 관계 생성
+    * */
+    public void createLocalMemberWithDependency(LocalMemberRequest request) {
+        //TODO: 현재 로그인한 회원(보호자)
+        Member protector = memberRepository.findById(2L).get();
+
+        //TODO: 이미 관계가 존재하는 경우 예외 처리 필요
+
+        //TODO: memberService에서 회원 생성 메서드 추가
+        // 로컬 회원 생성
+        Member dependent = Member.builder()
+                .name(request.name())
+                .gender(request.gender())
+                .birthday(request.birthday())
+                .build();
+
+        // 관계 정보 저장
+        Dependency dependency = Dependency.createDependency(protector, dependent);
+        dependencyRepository.save(dependency);
     }
 }
