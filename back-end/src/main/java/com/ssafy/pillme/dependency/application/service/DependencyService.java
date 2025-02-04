@@ -2,6 +2,7 @@ package com.ssafy.pillme.dependency.application.service;
 
 import com.ssafy.pillme.auth.domain.entity.Member;
 import com.ssafy.pillme.auth.infrastructure.repository.MemberRepository;
+import com.ssafy.pillme.dependency.application.response.DependentListResponse;
 import com.ssafy.pillme.dependency.domain.entity.Dependency;
 import com.ssafy.pillme.dependency.infrastructure.repository.DependencyRepository;
 import com.ssafy.pillme.dependency.presentation.request.DependencyAcceptRequest;
@@ -13,6 +14,8 @@ import com.ssafy.pillme.notification.application.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -70,9 +73,9 @@ public class DependencyService {
     }
 
     /*
-    * 기존 erd 유지를 위해 회원 테이블에 이름, 성별, 생년월일을 가지는 회원 추가
-    * 로그인되어 있는 회원은 보호자로, 생성된 로컬 회원은 피보호자로 관계 생성
-    * */
+     * 기존 erd 유지를 위해 회원 테이블에 이름, 성별, 생년월일을 가지는 회원 추가
+     * 로그인되어 있는 회원은 보호자로, 생성된 로컬 회원은 피보호자로 관계 생성
+     * */
     public void createLocalMemberWithDependency(LocalMemberRequest request) {
         //TODO: 현재 로그인한 회원(보호자)
         Member protector = memberRepository.findById(2L).get();
@@ -90,5 +93,15 @@ public class DependencyService {
         // 관계 정보 저장
         Dependency dependency = Dependency.createDependency(protector, dependent);
         dependencyRepository.save(dependency);
+    }
+
+    public List<DependentListResponse> getDependents() {
+        // TODO: 현재 로그인한 회원(보호자)
+        Member protector = memberRepository.findById(3L).get();
+
+        // 보호자의 피보호자 목록 조회
+        List<Dependency> dependencies = dependencyRepository.findAllByProtectorIdAndDeletedIsFalse(protector.getId());
+
+        return DependentListResponse.listOf(dependencies);
     }
 }

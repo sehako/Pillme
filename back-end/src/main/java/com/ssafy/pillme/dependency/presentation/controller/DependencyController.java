@@ -1,5 +1,6 @@
 package com.ssafy.pillme.dependency.presentation.controller;
 
+import com.ssafy.pillme.dependency.application.response.DependentListResponse;
 import com.ssafy.pillme.dependency.application.service.DependencyService;
 import com.ssafy.pillme.dependency.presentation.request.DependencyAcceptRequest;
 import com.ssafy.pillme.dependency.presentation.request.DependencyRejectRequest;
@@ -8,10 +9,9 @@ import com.ssafy.pillme.dependency.presentation.request.LocalMemberRequest;
 import com.ssafy.pillme.global.response.JSONResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/dependency")
@@ -46,5 +46,11 @@ public class DependencyController {
     public ResponseEntity<JSONResponse<Void>> createLocalMember(@RequestBody LocalMemberRequest request) {
         dependencyService.createLocalMemberWithDependency(request);
         return ResponseEntity.ok(JSONResponse.onSuccess());
+    }
+
+    // 피보호자 관리 목록
+    @GetMapping("/dependents")
+    public ResponseEntity<JSONResponse<List<DependentListResponse>>> getDependents() {
+        return ResponseEntity.ok(JSONResponse.onSuccess(dependencyService.getDependents()));
     }
 }
