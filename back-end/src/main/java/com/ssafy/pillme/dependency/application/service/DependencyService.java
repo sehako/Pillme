@@ -5,6 +5,7 @@ import com.ssafy.pillme.auth.infrastructure.repository.MemberRepository;
 import com.ssafy.pillme.dependency.domain.entity.Dependency;
 import com.ssafy.pillme.dependency.infrastructure.repository.DependencyRepository;
 import com.ssafy.pillme.dependency.presentation.request.DependencyAcceptRequest;
+import com.ssafy.pillme.dependency.presentation.request.DependencyRejectRequest;
 import com.ssafy.pillme.dependency.presentation.request.DependentPhoneRequest;
 import com.ssafy.pillme.notification.application.service.NotificationService;
 import lombok.RequiredArgsConstructor;
@@ -43,6 +44,7 @@ public class DependencyService {
 
         // 보호자 정보 조회 메서드로 변경
         Member protector = memberRepository.findById(request.protectorId()).get();
+        //TODO: 관계 등록 요청이 존재하는지 검증 필요
 
         // 관계 정보 저장
         Dependency dependency = Dependency.createDependency(protector, dependent);
@@ -50,5 +52,18 @@ public class DependencyService {
 
         // 피보호자가 보호자에게 관계 수락 알림 전송
         notificationService.sendDependencyAcceptNotification(dependent, protector);
+    }
+
+    public void rejectDependency(DependencyRejectRequest request) {
+        //TODO: 현재 로그인한 회원(피보호자)
+        Member dependent = memberRepository.findById(1L).get();
+
+        //TODO: 보호자 정보 조회 메서드로 변경
+        Member protector = memberRepository.findById(request.protectorId()).get();
+
+        //TODO: 관계 등록 요청이 존재하는지 검증 필요
+
+        // 피보호자가 보호자에게 관계 거절 알림 전송
+        notificationService.sendDependencyRejectNotification(dependent, protector);
     }
 }
