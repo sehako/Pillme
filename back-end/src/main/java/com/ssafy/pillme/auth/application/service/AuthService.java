@@ -135,6 +135,11 @@ public class AuthService {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(InvalidMemberInfoException::new);
 
+        // OAuth2 회원인지 확인
+        if (!member.isOauth()) {
+            throw new InvalidOAuthStateException();
+        }
+
         // 닉네임 중복 확인
         if (!request.nickname().equals(member.getNickname()) &&
                 memberRepository.existsByNickname(request.nickname())) {
@@ -147,7 +152,9 @@ public class AuthService {
         }
 
         // 회원 정보 업데이트
-        member.updatePersonalInformation(
+        member.updateAdditionalInformation(
+                request.name(),
+                request.email(),
                 request.nickname(),
                 request.gender(),
                 request.phone(),
