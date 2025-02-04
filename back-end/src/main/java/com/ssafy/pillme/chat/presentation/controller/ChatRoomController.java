@@ -6,6 +6,7 @@ import com.ssafy.pillme.chat.domain.entity.ChatRoom;
 import com.ssafy.pillme.chat.presentation.request.ChatRoomRequest;
 import com.ssafy.pillme.global.response.JSONResponse;
 import lombok.AllArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,12 +21,17 @@ public class ChatRoomController {
     private final ChatRoomService chatRoomService;
 
     @GetMapping("/{userId}")
-    public JSONResponse<List<ChatRoomResponse>> getUserChatRooms(@PathVariable Long userId){
-        return JSONResponse.onSuccess(chatRoomService.getUserChatRoom(userId));
+    public ResponseEntity<JSONResponse<List<ChatRoomResponse>>> getUserChatRooms(@PathVariable Long userId){
+        return ResponseEntity.ok(JSONResponse.onSuccess(chatRoomService.getUserChatRoom(userId)));
     }
 
     @PostMapping
-    public JSONResponse<ChatRoomResponse> getOrCreateChatRoom(@RequestBody ChatRoomRequest chatRoomRequest){
-        return JSONResponse.onSuccess(chatRoomService.getOrCreateChatRoom(chatRoomRequest));
+    public ResponseEntity<JSONResponse<ChatRoomResponse>> getOrCreateChatRoom(@RequestBody ChatRoomRequest chatRoomRequest){
+        return ResponseEntity.ok(JSONResponse.onSuccess(chatRoomService.getOrCreateChatRoom(chatRoomRequest)));
+    }
+
+    @PostMapping
+    public ResponseEntity<Void> deleteChatRoom(@RequestBody ChatRoomRequest chatRoomRequest){
+        return (ResponseEntity<Void>) ResponseEntity.ok();
     }
 }

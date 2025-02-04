@@ -6,6 +6,7 @@ import com.ssafy.pillme.chat.application.response.ChatRoomResponse;
 import com.ssafy.pillme.chat.domain.entity.ChatRoom;
 import com.ssafy.pillme.chat.infrastructure.repository.ChatRoomRepository;
 import com.ssafy.pillme.chat.presentation.request.ChatRoomRequest;
+import com.ssafy.pillme.global.code.ErrorCode;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -20,7 +21,7 @@ public class ChatRoomService {
     public List<ChatRoomResponse> getUserChatRoom(Long userId){
         List<ChatRoom> chatRooms =  chatRoomRepository.findByCareUserIdOrUserId(userId, userId);
         if(chatRooms.isEmpty()){
-            new ChatRoomNotFoundException("참가한 채팅방이 없습니다.");
+            new ChatRoomNotFoundException(ErrorCode.EMPTY_CHATROOM_ID);
         }
         List<ChatRoomResponse> chatRoomResponses = chatRooms.stream().
                 map(ChatRoomResponse::from)
