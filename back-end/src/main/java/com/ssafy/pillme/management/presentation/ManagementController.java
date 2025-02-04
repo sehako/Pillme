@@ -11,7 +11,6 @@ import com.ssafy.pillme.management.application.ManagementService;
 import com.ssafy.pillme.management.application.response.PrescriptionResponse;
 import com.ssafy.pillme.management.application.response.TakingDetailResponse;
 import com.ssafy.pillme.management.domain.Information;
-import com.ssafy.pillme.management.domain.type.RegistrationType;
 import com.ssafy.pillme.management.presentation.request.AddTakingInformationRequest;
 import com.ssafy.pillme.management.presentation.request.AllTakingCheckRequest;
 import com.ssafy.pillme.management.presentation.request.ChangeTakingInformationRequest;
@@ -140,12 +139,5 @@ public class ManagementController {
         managementService.deleteManagement(infoId, request);
 
         return ResponseEntity.noContent().build();
-    }
-
-    @GetMapping("/test")
-    public ResponseEntity<JSONResponse<RegistrationType>> test() {
-        return ResponseEntity.ok(
-                JSONResponse.onSuccess(RegistrationType.ADDED)
-        );
     }
 }
