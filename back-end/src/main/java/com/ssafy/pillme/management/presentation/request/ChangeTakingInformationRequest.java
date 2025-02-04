@@ -1,9 +1,9 @@
 package com.ssafy.pillme.management.presentation.request;
 
-import com.ssafy.pillme.management.domain.item.TakingInformationItem;
+import com.ssafy.pillme.management.domain.item.TakingSettingItem;
 import java.util.List;
 
 public record ChangeTakingInformationRequest(
-        List<TakingInformationItem> medications
+        List<TakingSettingItem> medications
 ) {
 }

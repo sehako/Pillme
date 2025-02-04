@@ -1,10 +1,7 @@
 package com.ssafy.pillme.management.domain;
 
-import static com.ssafy.pillme.global.code.ErrorCode.INVALID_TIME_REQUEST;
-
 import com.ssafy.pillme.global.entity.BaseEntity;
-import com.ssafy.pillme.management.application.exception.InvalidTimeSelectException;
-import com.ssafy.pillme.management.domain.item.TakingInformationItem;
+import com.ssafy.pillme.management.domain.item.TakingSettingItem;
 import com.ssafy.pillme.search.domain.Medication;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -78,7 +75,7 @@ public class Management extends BaseEntity {
         this.sleepTaking = sleepTaking;
     }
 
-    public void changeTakingInformation(final TakingInformationItem item) {
+    public void changeTakingInformation(final TakingSettingItem item) {
         this.servingSize = item.servingSize();
         this.period = item.period();
         this.morning = item.morning();
@@ -86,13 +83,19 @@ public class Management extends BaseEntity {
         this.sleep = item.sleep();
     }
 
-    public void checkMedicationTaking(final String time) {
-        switch (time) {
-            case "MORNING" -> this.morning = true;
-            case "LUNCH" -> this.lunch = true;
-            case "DINNER" -> this.dinner = true;
-            case "SLEEP" -> this.sleep = true;
-            default -> throw new InvalidTimeSelectException(INVALID_TIME_REQUEST);
-        }
+    public void checkMorningTaking() {
+        this.morningTaking = true;
+    }
+
+    public void checkLunchTaking() {
+        this.lunchTaking = true;
+    }
+
+    public void checkDinnerTaking() {
+        this.dinnerTaking = true;
+    }
+
+    public void checkSleepTaking() {
+        this.sleepTaking = true;
     }
 }
