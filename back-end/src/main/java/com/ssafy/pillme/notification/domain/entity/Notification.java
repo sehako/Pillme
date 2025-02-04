@@ -44,7 +44,7 @@ public class Notification extends BaseEntity {
                 .sender(sender)
                 .receiver(receiver)
                 .code(NotificationCode.DEPENDENCY_REQUEST)
-                .content(sender.extractUserInfo().name() + "님이 " + NotificationCode.DEPENDENCY_REQUEST.getMessage())
+                .content(sender.getName() + "님이 " + NotificationCode.DEPENDENCY_REQUEST.getMessage())
                 .build();
     }
 
@@ -53,7 +53,7 @@ public class Notification extends BaseEntity {
                 .sender(sender)
                 .receiver(receiver)
                 .code(NotificationCode.DEPENDENCY_ACCEPT)
-                .content(sender.extractUserInfo().name() + "님과 " + NotificationCode.DEPENDENCY_ACCEPT.getMessage())
+                .content(sender.getName() + "님과 " + NotificationCode.DEPENDENCY_ACCEPT.getMessage())
                 .build();
     }
 
@@ -62,7 +62,7 @@ public class Notification extends BaseEntity {
                 .sender(sender)
                 .receiver(receiver)
                 .code(NotificationCode.DEPENDENCY_REJECT)
-                .content(sender.extractUserInfo().name() + "님과 " + NotificationCode.DEPENDENCY_REJECT.getMessage())
+                .content(sender.getName() + "님과 " + NotificationCode.DEPENDENCY_REJECT.getMessage())
                 .build();
     }
 
@@ -71,7 +71,7 @@ public class Notification extends BaseEntity {
                 .sender(sender)
                 .receiver(receiver)
                 .code(NotificationCode.MEDICINE_REQUEST)
-                .content(sender.extractUserInfo().name() + "님이 " + NotificationCode.MEDICINE_REQUEST.getMessage())
+                .content(sender.getName() + "님이 " + NotificationCode.MEDICINE_REQUEST.getMessage())
                 .build();
     }
 
@@ -80,7 +80,7 @@ public class Notification extends BaseEntity {
                 .sender(sender)
                 .receiver(receiver)
                 .code(NotificationCode.MEDICINE_ACCEPT)
-                .content(sender.extractUserInfo().name() + "님의 " + NotificationCode.MEDICINE_ACCEPT.getMessage())
+                .content(sender.getName() + "님의 " + NotificationCode.MEDICINE_ACCEPT.getMessage())
                 .build();
     }
 
@@ -89,7 +89,7 @@ public class Notification extends BaseEntity {
                 .sender(sender)
                 .receiver(receiver)
                 .code(NotificationCode.MEDICINE_REJECT)
-                .content(sender.extractUserInfo().name() + "님의 " + NotificationCode.MEDICINE_REJECT.getMessage())
+                .content(sender.getName() + "님의 " + NotificationCode.MEDICINE_REJECT.getMessage())
                 .build();
     }
 

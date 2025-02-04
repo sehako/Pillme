@@ -8,6 +8,7 @@ import com.ssafy.pillme.auth.application.response.TokenResponse;
 import com.ssafy.pillme.auth.application.response.MemberResponse;
 import com.ssafy.pillme.auth.domain.entity.Member;
 import com.ssafy.pillme.auth.domain.vo.Provider;
+import com.ssafy.pillme.auth.domain.vo.Role;
 import com.ssafy.pillme.auth.infrastructure.repository.MemberRepository;
 import com.ssafy.pillme.auth.presentation.request.LoginRequest;
 import com.ssafy.pillme.auth.presentation.request.OAuthAdditionalInfoRequest;
@@ -50,7 +51,7 @@ public class AuthService {
         }
 
         // 중복 확인
-        if (memberRepository.existsByEmail(request.email())) {
+        if (memberRepository.existsByEmailAndRoleNot(request.email(), Role.LOCAL)) {
             throw new DuplicateEmailAddressException();
         }
         if (memberRepository.existsByNickname(request.nickname())) {
@@ -77,7 +78,7 @@ public class AuthService {
      * 로그인
      */
     public TokenResponse login(LoginRequest request) {
-        Member member = memberRepository.findByEmailAndDeletedFalse(request.email())
+        Member member = memberRepository.findByEmailAndDeletedFalseAndRoleNot(request.email(), Role.LOCAL)
                 .orElseThrow(InvalidMemberInfoException::new);
 
         if (!member.isPasswordMatch(request.password(), passwordEncoder)) {
@@ -165,7 +166,7 @@ public class AuthService {
             throw new UnverifiedPhoneNumberException();
         }
 
-        Member member = memberRepository.findByPhoneAndDeletedFalse(phone)
+        Member member = memberRepository.findByPhoneAndDeletedFalseAndRoleNot(phone, Role.LOCAL)
                 .orElseThrow(InvalidMemberInfoException::new);
         return new FindEmailResponse(member.getEmail(), member.getProvider());
     }
@@ -175,7 +176,7 @@ public class AuthService {
      */
     @Transactional
     public void requestPasswordReset(String email, String phone) {
-        Member member = memberRepository.findByEmailAndDeletedFalse(email)
+        Member member = memberRepository.findByEmailAndDeletedFalseAndRoleNot(email, Role.LOCAL)
                 .orElseThrow(InvalidMemberInfoException::new);
 
         if (member.isOauth()) {
@@ -206,7 +207,7 @@ public class AuthService {
             throw new InvalidResetTokenException();
         }
 
-        Member member = memberRepository.findByEmailAndDeletedFalse(email)
+        Member member = memberRepository.findByEmailAndDeletedFalseAndRoleNot(email, Role.LOCAL)
                 .orElseThrow(InvalidMemberInfoException::new);
 
         member.resetPassword(request.newPassword(), passwordEncoder);

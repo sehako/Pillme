@@ -1,7 +1,7 @@
 package com.ssafy.pillme.notification.application.service;
 
 import com.ssafy.pillme.auth.domain.entity.Member;
-import com.ssafy.pillme.auth.infrastructure.repository.UserRepository;
+import com.ssafy.pillme.auth.infrastructure.repository.MemberRepository;
 import com.ssafy.pillme.notification.application.response.NotificationResponse;
 import com.ssafy.pillme.notification.application.response.NotificationSettingResponse;
 import com.ssafy.pillme.notification.domain.entity.Notification;
@@ -30,7 +30,7 @@ import java.util.List;
 public class NotificationServiceImpl implements NotificationService {
 
     private final NotificationSettingRepository notificationSettingRepository;
-    private final UserRepository userRepository;
+    private final MemberRepository memberRepository;
     private final FCMNotificationService fcmNotificationService;
     private final NotificationRepository notificationRepository;
 
@@ -38,7 +38,7 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     public void createNotificationSetting(NotificationSettingRequest request) {
         // request.toEntity(new UserEntity());
-        notificationSettingRepository.save(request.toEntity(userRepository.findById(1L).get()));
+        notificationSettingRepository.save(request.toEntity(memberRepository.findById(1L).get()));
     }
 
     @Override
@@ -191,9 +191,9 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     public List<NotificationResponse> getNotificationList() {
         // TODO: 회원 데이터 추가 필요
-        Member member = userRepository.findById(1L).get();
+        Member member = memberRepository.findById(1L).get();
 
-        List<Notification> notifications = notificationRepository.findAllByReceiverIdAndDeletedFalse(member.extractUserInfo().id());
+        List<Notification> notifications = notificationRepository.findAllByReceiverIdAndDeletedFalse(member.getId());
 
         return NotificationResponse.listOf(notifications);
     }
@@ -204,11 +204,11 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     public void readNotifications(NotificationConfirmRequest request) {
         // TODO: 회원 데이터 추가 필요
-        Member member = userRepository.findById(1L).get();
+        Member member = memberRepository.findById(1L).get();
 
         // 현재 사용자 id와 요청으로 받은 알림 id를 통해 알림 조회
         List<Notification> notifications = notificationRepository
-                .findAllByIdInAndReceiverId(request.notificationConfirmList(), member.extractUserInfo().id());
+                .findAllByIdInAndReceiverId(request.notificationConfirmList(), member.getId());
 
         // 요청한 알림과 실제 조회된 알림의 개수가 다를 경우 예외 처리
         // TODO: 예외 정의 필요
@@ -225,11 +225,11 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     public void deleteNotifications(NotificationDeleteRequest request) {
         // TODO: 회원 데이터 추가 필요
-        Member member = userRepository.findById(1L).get();
+        Member member = memberRepository.findById(1L).get();
 
         // 현재 사용자 id와 요청으로 받은 알림 id를 통해 알림 조회
         List<Notification> notifications = notificationRepository
-                .findAllByIdInAndReceiverId(request.notificationDeleteList(), member.extractUserInfo().id());
+                .findAllByIdInAndReceiverId(request.notificationDeleteList(), member.getId());
 
         // 요청한 알림과 실제 조회된 알림의 개수가 다를 경우 예외 처리
         // TODO: 예외 정의 필요

@@ -1,6 +1,6 @@
 package com.ssafy.pillme.notification.application.service;
 
-import com.ssafy.pillme.auth.infrastructure.repository.UserRepository;
+import com.ssafy.pillme.auth.infrastructure.repository.MemberRepository;
 import com.ssafy.pillme.notification.domain.entity.FCMToken;
 import com.ssafy.pillme.notification.infrastructure.repository.FCMTokenRepository;
 import com.ssafy.pillme.notification.presentation.request.FCMTokenRequest;
@@ -16,12 +16,12 @@ import java.util.List;
 public class FCMTokenServiceImpl implements FCMTokenService {
 
     private final FCMTokenRepository fcmTokenRepository;
-    private final UserRepository userRepository;
+    private final MemberRepository memberRepository;
 
     @Override
     public void createToken(FCMTokenRequest request) {
         //TODO: 회원 데이터 추가 필요
-        fcmTokenRepository.save(FCMToken.create(userRepository.findById(1L).get(), request.token()));
+        fcmTokenRepository.save(FCMToken.create(memberRepository.findById(1L).get(), request.token()));
     }
 
     @Override
