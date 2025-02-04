@@ -62,7 +62,7 @@ public class FCMNotificationServiceImpl implements FCMNotificationService {
     @Override
     public void sendNotification(NotificationRequest notificationRequest) {
         // 수신자의 id로 토큰들 조회
-        List<FCMToken> receiverFCMTokens = findValidTokens(notificationRequest.receiver().extractUserInfo().id());
+        List<FCMToken> receiverFCMTokens = findValidTokens(notificationRequest.receiver().getId());
 
         /*
          * 알림에 필요한 데이터 설정
@@ -80,11 +80,11 @@ public class FCMNotificationServiceImpl implements FCMNotificationService {
                     // 웹 푸시 특화 설정 시작
                     .setWebpushConfig(WebpushConfig.builder()
                             .setNotification(WebpushNotification.builder()
-                                    .putCustomData(dataKey.CODE, data.get(dataKey.CODE))
-                                    .setTitle(data.get(dataKey.TITLE))
-                                    .setBody(data.get(dataKey.BODY))
+                                    .putCustomData(DataKey.CODE, data.get(DataKey.CODE))
+                                    .setTitle(data.get(DataKey.TITLE))
+                                    .setBody(data.get(DataKey.BODY))
                                     // 발신자 정보 추가 (알림 처리 시 필요)
-                                    .putCustomData(dataKey.SENDER_ID, data.get(dataKey.SENDER_ID))
+                                    .putCustomData(DataKey.SENDER_ID, data.get(DataKey.SENDER_ID))
                                     .build())
                             .build())
                     .build();
@@ -101,13 +101,13 @@ public class FCMNotificationServiceImpl implements FCMNotificationService {
     private Map<String, String> setNotificationData(NotificationRequest notificationRequest) {
         Map<String, String> data = new HashMap<>();
         // 어떤 알림인지 구분하기 위한 코드
-        data.put(dataKey.CODE, notificationRequest.code().getCode());
+        data.put(DataKey.CODE, notificationRequest.code().getCode());
         // 알림 제목
-        data.put(dataKey.TITLE, notificationRequest.code().getTitle());
+        data.put(DataKey.TITLE, notificationRequest.code().getTitle());
         // 알림 내용
-        data.put(dataKey.BODY, notificationRequest.content());
+        data.put(DataKey.BODY, notificationRequest.content());
         // 알림 발신자 id
-        data.put(dataKey.SENDER_ID, notificationRequest.sender().extractUserInfo().id().toString());
+        data.put(DataKey.SENDER_ID, notificationRequest.sender().getId().toString());
 
         return data;
     }
