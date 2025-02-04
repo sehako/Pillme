@@ -85,8 +85,10 @@ public class Member extends BaseEntity {
         this.password = passwordEncoder.encode(newPassword);
     }
 
-    // 사용자 정보 업데이트
-    public void updatePersonalInformation(String nickname, Gender gender, String phone, String birthday) {
+    // OAuth2 사용자 추가 정보 업데이트
+    public void updateAdditionalInformation(String email, String name, String nickname, Gender gender, String phone, String birthday) {
+        this.email = email;
+        this.name = name;
         this.nickname = nickname;
         this.gender = gender;
         this.phone = phone;

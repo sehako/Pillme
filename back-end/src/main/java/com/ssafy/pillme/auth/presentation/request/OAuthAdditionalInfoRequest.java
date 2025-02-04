@@ -4,6 +4,14 @@ import com.ssafy.pillme.auth.domain.vo.Gender;
 import jakarta.validation.constraints.*;
 
 public record OAuthAdditionalInfoRequest(
+        @NotBlank(message = "이름은 필수입니다")
+        @Size(min = 2, max = 30, message = "이름은 2자 이상 30자 이하여야 합니다")
+        String name,
+
+        @NotBlank(message = "이메일은 필수입니다")
+        @Size(min = 2, max = 50, message = "이름은 2자 이상 30자 이하여야 합니다")
+        String email,
+
         @NotBlank(message = "닉네임은 필수입니다")
         @Size(min = 2, max = 30, message = "닉네임은 2자 이상 30자 이하여야 합니다")
         String nickname,
@@ -20,12 +28,16 @@ public record OAuthAdditionalInfoRequest(
         String birthday
 ) {
     public static OAuthAdditionalInfoRequest of(
+            String name,
+            String email,
             String nickname,
             Gender gender,
             String phone,
             String birthday
     ) {
         return new OAuthAdditionalInfoRequest(
+                name,
+                email,
                 nickname,
                 gender,
                 phone,
