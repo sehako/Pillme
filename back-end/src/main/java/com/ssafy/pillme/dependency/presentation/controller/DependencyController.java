@@ -1,6 +1,7 @@
 package com.ssafy.pillme.dependency.presentation.controller;
 
 import com.ssafy.pillme.dependency.application.service.DependencyService;
+import com.ssafy.pillme.dependency.presentation.request.DependencyAcceptRequest;
 import com.ssafy.pillme.dependency.presentation.request.DependentPhoneRequest;
 import com.ssafy.pillme.global.response.JSONResponse;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +21,13 @@ public class DependencyController {
     @PostMapping
     public ResponseEntity<JSONResponse<Void>> requestDependency(@RequestBody DependentPhoneRequest request) {
         dependencyService.requestDependency(request);
+        return ResponseEntity.ok(JSONResponse.onSuccess());
+    }
+
+    // 피보호자가 보호자 등록 요청 수락
+    @PostMapping("/accept")
+    public ResponseEntity<JSONResponse<Void>> acceptDependency(@RequestBody DependencyAcceptRequest request) {
+        dependencyService.acceptDependency(request);
         return ResponseEntity.ok(JSONResponse.onSuccess());
     }
 }

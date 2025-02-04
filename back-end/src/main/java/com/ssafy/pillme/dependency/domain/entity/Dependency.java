@@ -25,4 +25,11 @@ public class Dependency extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "dependent_id", nullable = false)
     private Member dependent;
+
+    public static Dependency createDependency(Member protector, Member dependent) {
+        return Dependency.builder()
+                .protector(protector)
+                .dependent(dependent)
+                .build();
+    }
 }
