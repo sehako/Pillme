@@ -2,6 +2,7 @@ package com.ssafy.pillme.auth.application.service;
 
 import com.ssafy.pillme.auth.application.exception.security.InvalidMemberInfoException;
 import com.ssafy.pillme.auth.domain.entity.Member;
+import com.ssafy.pillme.auth.domain.vo.Role;
 import com.ssafy.pillme.auth.infrastructure.repository.MemberRepository;
 import java.util.Collections;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +23,7 @@ public class CustomMemberDetailsService implements UserDetailsService {
     // 사용자 정보를 조회하는 용도로만 사용
     @Transactional(readOnly = true)
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        Member user = memberRepository.findByEmailAndDeletedFalse(email)
+        Member user = memberRepository.findByEmailAndDeletedFalseAndRoleNot(email, Role.LOCAL)
                 .orElseThrow(InvalidMemberInfoException::new);
 
         return new org.springframework.security.core.userdetails.User(
