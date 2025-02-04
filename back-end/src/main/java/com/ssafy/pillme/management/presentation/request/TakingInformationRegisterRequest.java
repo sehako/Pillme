@@ -2,12 +2,13 @@ package com.ssafy.pillme.management.presentation.request;
 
 import com.ssafy.pillme.auth.domain.entity.Member;
 import com.ssafy.pillme.management.domain.Information;
-import com.ssafy.pillme.management.domain.item.TakingInformationItem;
+import com.ssafy.pillme.management.domain.item.TakingSettingItem;
 import java.time.LocalDate;
 import java.util.List;
 import org.springframework.format.annotation.DateTimeFormat;
 
-public record MedicationRegisterRequest(
+public record TakingInformationRegisterRequest(
+//        @NotBlank(message = "병원 이름은 빈 값이 올 수 없습니다")
         String hospital,
         String diseaseName,
         Long reader,
@@ -16,7 +17,7 @@ public record MedicationRegisterRequest(
         @DateTimeFormat(iso = DateTimeFormat.ISO.DATE, pattern = "yyyy-MM-dd")
         LocalDate endDate,
         boolean isSupplement,
-        List<TakingInformationItem> takingInformationItems
+        List<TakingSettingItem> medications
 ) {
     public Information toInformation(Member writer, Member reader) {
         return Information.builder()

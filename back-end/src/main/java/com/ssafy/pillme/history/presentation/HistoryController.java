@@ -47,13 +47,13 @@ public class HistoryController {
         );
     }
 
-    @GetMapping
+/*    @GetMapping
     public void searchDetailHistory(
             @RequestParam(value = "date")
             @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date
     ) {
 
-    }
+    }*/
 
     @DeleteMapping("{id}")
     public ResponseEntity<JSONResponse<Void>> deleteHistory(

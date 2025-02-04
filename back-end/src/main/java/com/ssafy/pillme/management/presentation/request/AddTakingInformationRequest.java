@@ -1,9 +1,8 @@
 package com.ssafy.pillme.management.presentation.request;
 
-import com.ssafy.pillme.management.domain.item.TakingInformationItem;
+import com.ssafy.pillme.management.domain.item.TakingSettingItem;
 
 public record AddTakingInformationRequest(
-        Long infoId,
-        TakingInformationItem medications
+        TakingSettingItem medication
 ) {
 }
