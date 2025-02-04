@@ -71,7 +71,7 @@ public class ManagementController {
     ) {
         return ResponseEntity.ok(
                 JSONResponse.onSuccess(
-                        managementService.findManagementByDate(localDate, member)
+                        managementService.selectManagementByDate(localDate, member)
                 )
         );
     }
@@ -106,7 +106,6 @@ public class ManagementController {
             @RequestBody final SingleTakingCheckRequest request,
             @Auth Member member
     ) {
-        log.info(request.time().name());
         managementService.checkSingleMedicationTaking(infoId, request, member);
         return ResponseEntity.ok(
                 JSONResponse.onSuccess()

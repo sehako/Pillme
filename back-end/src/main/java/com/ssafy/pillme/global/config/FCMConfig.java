@@ -20,7 +20,6 @@ public class FCMConfig {
     @Bean
     public FirebaseMessaging firebaseMessaging() throws IOException {
         try {
-            System.out.println("credentialsPath = " + credentialsPath);
             GoogleCredentials credentials = GoogleCredentials // firebase-credentials.json 파일에서 인증 정보를 가져옴
                     .fromStream(new ClassPathResource(credentialsPath).getInputStream()); // 파일 위치는 resources 폴더 아래
 

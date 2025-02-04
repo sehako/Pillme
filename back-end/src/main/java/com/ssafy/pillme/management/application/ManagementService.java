@@ -106,7 +106,7 @@ public class ManagementService {
     }
 
     @Transactional(readOnly = true)
-    public List<PrescriptionResponse> findManagementByDate(final LocalDate localDate, final Member member) {
+    public List<PrescriptionResponse> selectManagementByDate(final LocalDate localDate, final Member member) {
         return informationRepository.findByDate(localDate)
                 .stream()
                 .map(information -> PrescriptionResponse.of(
