@@ -16,6 +16,7 @@ public class InformationRepositoryImpl implements InformationRepositoryCustom {
     public List<Information> findByDate(LocalDate date) {
         QInformation information = QInformation.information;
         QManagement management = QManagement.management;
+
         return queryFactory.selectFrom(information)
                 .leftJoin(information.managements, management).fetchJoin()
                 .where(information.startDate.loe(date)

@@ -4,7 +4,7 @@ public record HistoryDetailResponse(
         Long historyId,
         Long informationId,
         String hospital,
-        String diseaseName,
+        String diseaseName
 
 ) {
 }

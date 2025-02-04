@@ -13,11 +13,11 @@ public record TakingDetailResponse(
         boolean isSupplements,
         LocalDate startDate,
         LocalDate endDate,
-        List<TakingInformationItem> medicationTakingInfo
+        List<TakingInformationItem> medications
 ) {
     public static TakingDetailResponse of(
             final Information information,
-            final List<TakingInformationItem> medicationTakingInfo) {
+            final List<TakingInformationItem> medications) {
         return new TakingDetailResponse(
                 information.getHospital(),
                 information.getDiseaseName(),
@@ -25,7 +25,7 @@ public record TakingDetailResponse(
                 information.isSupplement(),
                 information.getStartDate(),
                 information.getEndDate(),
-                medicationTakingInfo
+                medications
         );
     }
 }
