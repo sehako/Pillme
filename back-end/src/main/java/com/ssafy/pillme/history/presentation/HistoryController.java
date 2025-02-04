@@ -4,8 +4,10 @@ import com.ssafy.pillme.auth.annotation.Auth;
 import com.ssafy.pillme.auth.domain.entity.Member;
 import com.ssafy.pillme.global.response.JSONResponse;
 import com.ssafy.pillme.history.application.HistoryService;
+import com.ssafy.pillme.history.application.response.HistoryDetailResponse;
 import com.ssafy.pillme.history.application.response.HistorySearchResponse;
 import com.ssafy.pillme.history.domain.dto.HistorySearchFilter;
+import com.ssafy.pillme.history.presentation.request.PatchHistoryRequest;
 import java.time.LocalDate;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -15,7 +17,9 @@ import org.springframework.format.annotation.DateTimeFormat.ISO;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -46,10 +50,22 @@ public class HistoryController {
     }
 
     @GetMapping("/{info-id}")
-    public void searchHistory(
-            @PathVariable("info-id") final Long informationId
+    public ResponseEntity<JSONResponse<List<HistoryDetailResponse>>> searchHistory(
+            @PathVariable(value = "info-id") final Long informationId,
+            @RequestParam(value = "target") final Long target
     ) {
-        historyService.selectHistoryByInformationId(informationId);
+        return ResponseEntity.ok(JSONResponse.onSuccess(
+                historyService.selectHistoryByInformationId(informationId, target)
+        ));
+    }
+
+    @PatchMapping("/modify")
+    public ResponseEntity<JSONResponse<HistoryDetailResponse>> modifyHistory(
+            @RequestBody final PatchHistoryRequest request,
+            @Auth final Member member
+    ) {
+        historyService.patchHistories(request, member);
+        return null;
     }
 
     @DeleteMapping("{id}")

@@ -2,6 +2,7 @@ package com.ssafy.pillme.history.domain;
 
 import com.ssafy.pillme.auth.domain.entity.Member;
 import com.ssafy.pillme.global.entity.BaseEntity;
+import com.ssafy.pillme.history.domain.dto.HistoryChangeDto;
 import com.ssafy.pillme.management.domain.Information;
 import com.ssafy.pillme.management.domain.Management;
 import jakarta.persistence.Column;
@@ -77,5 +78,12 @@ public class History extends BaseEntity {
         this.lunchTaking = lunchTaking;
         this.dinnerTaking = dinnerTaking;
         this.sleepTaking = sleepTaking;
+    }
+
+    public void changeTakingInformation(HistoryChangeDto changeInformation) {
+        this.morningTaking = changeInformation.morningTaking();
+        this.lunchTaking = changeInformation.lunchTaking();
+        this.dinnerTaking = changeInformation.dinnerTaking();
+        this.sleepTaking = changeInformation.sleepTaking();
     }
 }
