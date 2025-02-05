@@ -132,5 +132,8 @@ public class DependencyService {
 
         // 관계 정보 삭제
         dependency.delete();
+
+        // 가족 관계 삭제 요청 수락 알림 전송
+        notificationService.sendDependencyDeleteAcceptNotification(loginMember, dependency.getOtherMember(loginMember));
     }
 }
