@@ -93,6 +93,15 @@ public class Notification extends BaseEntity {
                 .build();
     }
 
+    public static Notification createDependencyDeleteRequest(Member sender, Member receiver) {
+        return Notification.builder()
+                .sender(sender)
+                .receiver(receiver)
+                .code(NotificationCode.DEPENDENCY_DELETE_REQUEST)
+                .content(sender.getName() + "님이 " + NotificationCode.DEPENDENCY_DELETE_REQUEST.getMessage())
+                .build();
+    }
+
     public void updateConfirmStatus(boolean confirm) {
         this.confirm = confirm;
     }

@@ -187,6 +187,22 @@ public class NotificationServiceImpl implements NotificationService {
         fcmNotificationService.sendNotification(NotificationRequest.of(notification));
     }
 
+    /*
+    * 관계 삭제 요청 시, 해당 알림을 DB에 저장 후,
+    * 알림을 수신자에게 전송
+    * */
+    @Override
+    public void sendDependencyDeleteRequestNotification(Member sender, Member receiver) {
+        // 관계 삭제 요청 알림 생성
+        Notification notification = Notification.createDependencyDeleteRequest(sender, receiver);
+
+        // 알림 저장
+        notificationRepository.save(notification);
+
+        // 알림 전송
+        fcmNotificationService.sendNotification(NotificationRequest.of(notification));
+    }
+
     // 알림 리스트 조회
     @Override
     public List<NotificationResponse> getNotificationList() {
