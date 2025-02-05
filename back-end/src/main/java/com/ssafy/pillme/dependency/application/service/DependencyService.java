@@ -136,4 +136,18 @@ public class DependencyService {
         // 가족 관계 삭제 요청 수락 알림 전송
         notificationService.sendDependencyDeleteAcceptNotification(loginMember, dependency.getOtherMember(loginMember));
     }
+
+    // senderId를 통해 삭제 요청을 보낸 회원을 찾아서 삭제 요청을 거절
+    public void rejectDeleteDependency(RejectDependencyDeletionRequest request) {
+
+        // TODO: 현재 로그인한 회원
+        Member loginMember = memberRepository.findById(2L).get();
+
+        // 현재 로그인한 회원과 senderId를 통해 삭제 요청을 보낸 회원의 관계 정보 조회 (삭제 요청이 존재하는지 확인)
+        Dependency dependency = dependencyRepository.findByMemberIdsAndDeletedIsFalse(loginMember.getId(), request.senderId())
+                .orElseThrow(() -> new IllegalArgumentException("관계 정보가 존재하지 않습니다."));
+
+        // 가족 관계 삭제 요청 거절 알림 전송
+        notificationService.sendDependencyDeleteRejectNotification(loginMember, dependency.getOtherMember(loginMember));
+    }
 }

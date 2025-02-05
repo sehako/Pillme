@@ -71,4 +71,14 @@ public class DependencyController {
         dependencyService.acceptDeleteDependency(request);
         return ResponseEntity.ok(JSONResponse.onSuccess());
     }
+
+    /*
+    * 가족 관계 삭제 요청 거절 - 삭제 요청을 받은 회원이 삭제 요청을 거절하는 경우
+    * 메시지에 존재하는 senderId를 통해 삭제 요청을 보낸 회원을 찾아서 삭제 요청을 거절
+     */
+    @PostMapping("/delete/reject")
+    public ResponseEntity<JSONResponse<Void>> rejectDeleteDependency(@RequestBody RejectDependencyDeletionRequest request) {
+        dependencyService.rejectDeleteDependency(request);
+        return ResponseEntity.ok(JSONResponse.onSuccess());
+    }
 }
