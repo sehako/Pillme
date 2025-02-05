@@ -34,11 +34,18 @@ public class HistoryRepositoryImpl implements HistoryRepositoryCustom {
     }
 
     @Override
-    public List<History> findHistoryByInformationId(final Long informationId) {
+    public List<History> findHistoryByInformationId(final Long informationId, final Long target) {
         QHistory history = QHistory.history;
-        return queryFactory
-                .selectFrom(history)
-                .where(history.information.id.eq(informationId))
+        QManagement management = QManagement.management;
+        QInformation information = QInformation.information;
+        QMember member = QMember.member;
+        return queryFactory.selectFrom(history)
+                .leftJoin(history.management, management).fetchJoin()
+                .leftJoin(history.member, member).fetchJoin()
+                .leftJoin(management.information, information).fetchJoin()
+                .where(history.deleted.eq(false)
+                        .and(history.information.id.eq(informationId))
+                        .and(history.information.reader.id.eq(target)))
                 .fetch();
     }
 
