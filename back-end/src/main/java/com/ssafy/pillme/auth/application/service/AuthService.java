@@ -135,23 +135,38 @@ public class AuthService {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(InvalidMemberInfoException::new);
 
+        // OAuth2 회원인지 확인
+        if (!member.isOauth()) {
+            throw new InvalidOAuthStateException();
+        }
+
         // 닉네임 중복 확인
-        if (!request.nickname().equals(member.getNickname()) &&
-                memberRepository.existsByNickname(request.nickname())) {
+        String newNickname = request.nickname() != null ? request.nickname() : member.getNickname();
+        if (!newNickname.equals(member.getNickname()) &&
+                memberRepository.existsByNickname(newNickname)) {
             throw new DuplicateMemberNicknameException();
         }
 
+        // 휴대전화 중복 확인
+        String newPhone = request.phone() != null ? request.phone() : member.getPhone();
+        if (!newPhone.equals(member.getPhone()) &&
+                memberRepository.existsByPhone(newPhone)) {
+            throw new DuplicatePhoneNumberException();
+        }
+
         // 휴대전화 인증 확인
-        if (!smsService.isVerified(request.phone())) {
+        if (!smsService.isVerified(newPhone)) {
             throw new UnverifiedPhoneNumberException();
         }
 
         // 회원 정보 업데이트
-        member.updatePersonalInformation(
-                request.nickname(),
-                request.gender(),
-                request.phone(),
-                request.birthday()
+        member.updateAdditionalInformation(
+                request.name() != null ? request.name() : member.getName(),
+                request.email() != null ? request.email() : member.getEmail(),
+                newNickname,
+                request.gender() != null ? request.gender() : member.getGender(),
+                newPhone,
+                request.birthday() != null ? request.birthday() : member.getBirthday()
         );
 
         return MemberResponse.from(member);

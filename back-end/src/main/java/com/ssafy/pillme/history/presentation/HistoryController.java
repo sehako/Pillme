@@ -1,18 +1,25 @@
 package com.ssafy.pillme.history.presentation;
 
+import com.ssafy.pillme.auth.annotation.Auth;
+import com.ssafy.pillme.auth.domain.entity.Member;
 import com.ssafy.pillme.global.response.JSONResponse;
 import com.ssafy.pillme.history.application.HistoryService;
+import com.ssafy.pillme.history.application.response.HistoryDetailResponse;
 import com.ssafy.pillme.history.application.response.HistorySearchResponse;
 import com.ssafy.pillme.history.domain.dto.HistorySearchFilter;
+import com.ssafy.pillme.history.presentation.request.PatchHistoryRequest;
 import java.time.LocalDate;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.format.annotation.DateTimeFormat.ISO;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -27,17 +34,12 @@ public class HistoryController {
     @GetMapping
     public ResponseEntity<JSONResponse<List<HistorySearchResponse>>> searchHistory(
             @RequestParam(value = "start-date")
-            @DateTimeFormat(pattern = "yyyy-MM-dd")
-            LocalDate startDate,
+            @DateTimeFormat(iso = ISO.DATE, pattern = "yyyy-MM-dd") final LocalDate startDate,
             @RequestParam(value = "end-date")
-            @DateTimeFormat(pattern = "yyyy-MM-dd")
-            LocalDate endDate,
-            @RequestParam(value = "hospital", required = false)
-            String hospital,
-            @RequestParam(value = "diseaseName", required = false)
-            String diseaseName,
-            @RequestParam(value = "target")
-            Long memberId
+            @DateTimeFormat(iso = ISO.DATE, pattern = "yyyy-MM-dd") final LocalDate endDate,
+            @RequestParam(value = "target") final Long memberId,
+            @RequestParam(value = "hospital", required = false) final String hospital,
+            @RequestParam(value = "diseaseName", required = false) final String diseaseName
     ) {
         return ResponseEntity.ok(
                 JSONResponse.onSuccess(
@@ -47,19 +49,31 @@ public class HistoryController {
         );
     }
 
-/*    @GetMapping
-    public void searchDetailHistory(
-            @RequestParam(value = "date")
-            @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date
+    @GetMapping("/{info-id}")
+    public ResponseEntity<JSONResponse<List<HistoryDetailResponse>>> searchHistory(
+            @PathVariable(value = "info-id") final Long informationId,
+            @RequestParam(value = "target") final Long target
     ) {
+        return ResponseEntity.ok(JSONResponse.onSuccess(
+                historyService.selectHistoryByInformationId(informationId, target)
+        ));
+    }
 
-    }*/
+    @PatchMapping("/modify")
+    public ResponseEntity<JSONResponse<HistoryDetailResponse>> modifyHistory(
+            @RequestBody final PatchHistoryRequest request,
+            @Auth final Member member
+    ) {
+        historyService.patchHistories(request, member);
+        return null;
+    }
 
-    @DeleteMapping("{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<JSONResponse<Void>> deleteHistory(
-            @PathVariable(value = "id") Long id
+            @PathVariable(value = "id") final Long historyId,
+            @Auth final Member member
     ) {
-        historyService.deleteHistory(id);
+        historyService.deleteHistory(historyId, member);
         return ResponseEntity.noContent().build();
     }
 }
