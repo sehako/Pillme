@@ -53,4 +53,15 @@ public class DependencyController {
     public ResponseEntity<JSONResponse<List<DependentListResponse>>> getDependents() {
         return ResponseEntity.ok(JSONResponse.onSuccess(dependencyService.getDependents()));
     }
+
+    /* 가족 관계 삭제 요청 - 보호자와 피보호자 모두 삭제 요청가능
+     * dependencyId(가족 관계 ID)를 받아서 삭제
+     * 현재 로그인한 사용자가 삭제를 요청하는 입장.
+     * 삭제 요청을 보내는 회원이 sender, 삭제 요청을 받는 회원이 receiver
+     * */
+    @PostMapping("/delete/{dependencyId}")
+    public ResponseEntity<JSONResponse<Void>> deleteRequestDependency(@PathVariable Long dependencyId) {
+        dependencyService.deleteRequestDependency(dependencyId);
+        return ResponseEntity.ok(JSONResponse.onSuccess());
+    }
 }

@@ -104,4 +104,22 @@ public class DependencyService {
 
         return DependentListResponse.listOf(dependencies);
     }
+
+    /*
+     * 현재 로그인한 회원이 sender, receiver는 가족 관계를 맺고 있는 다른 회원
+     * */
+    public void deleteRequestDependency(Long dependencyId) {
+        // TODO: 현재 로그인한 회원
+        Member loginMember = memberRepository.findById(2L).get();
+
+        // 관계 정보 조회
+        Dependency dependency = dependencyRepository.findByIdAndDeletedIsFalse(dependencyId)
+                .orElseThrow(() -> new IllegalArgumentException("관계 정보가 존재하지 않습니다."));
+
+        // 가족 관계 삭제 요청 알림을 수신하는 사람
+        Member receiver = dependency.getOtherMember(loginMember);
+
+        // 가족 관계 삭제 요청 알림 전송
+        notificationService.sendDependencyDeleteRequestNotification(loginMember, receiver);
+    }
 }

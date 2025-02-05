@@ -32,4 +32,16 @@ public class Dependency extends BaseEntity {
                 .dependent(dependent)
                 .build();
     }
+
+    // 현재 로그인한 회원이 아닌 다른 회원을 판별하는 메서드
+    public Member getOtherMember(Member member) {
+        if (member.equals(protector)) {
+            return dependent;
+        }
+        if (member.equals(dependent)) {
+            return protector;
+        }
+
+        throw new IllegalArgumentException("해당 회원은 가족 관계가 아닙니다.");
+    }
 }
