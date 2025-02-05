@@ -92,9 +92,9 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     /*
-    * 관계 등록 요청 시, 해당 알림을 DB에 저장 후,
-    * 알림을 수신자에게 전송
-    * */
+     * 관계 등록 요청 시, 해당 알림을 DB에 저장 후,
+     * 알림을 수신자에게 전송
+     * */
     @Override
     public void sendDependencyRequestNotification(Member sender, Member receiver) {
         // 관계 요청 알림 생성
@@ -108,9 +108,9 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     /*
-    * 관계 등록 요청 수락 시, 해당 알림을 DB에 저장 후,
-    * 알림을 수신자에게 전송
-    * */
+     * 관계 등록 요청 수락 시, 해당 알림을 DB에 저장 후,
+     * 알림을 수신자에게 전송
+     * */
     @Override
     public void sendDependencyAcceptNotification(Member sender, Member receiver) {
         // 관계 요청 수락 알림 생성
@@ -124,9 +124,9 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     /*
-    * 관계 등록 요청 거절 시, 해당 알림을 DB에 저장 후,
-    * 알림을 수신자에게 전송
-    * */
+     * 관계 등록 요청 거절 시, 해당 알림을 DB에 저장 후,
+     * 알림을 수신자에게 전송
+     * */
     @Override
     public void sendDependencyRejectNotification(Member sender, Member receiver) {
         // 관계 요청 거절 알림 생성
@@ -140,9 +140,9 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     /*
-    * 약 등록 요청 시, 해당 알림을 DB에 저장 후,
-    * 알림을 수신자에게 전송
-    * */
+     * 약 등록 요청 시, 해당 알림을 DB에 저장 후,
+     * 알림을 수신자에게 전송
+     * */
     @Override
     public void sendMedicineRequestNotification(Member sender, Member receiver) {
         // 약 등록 요청 알림 생성
@@ -188,9 +188,9 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     /*
-    * 관계 삭제 요청 시, 해당 알림을 DB에 저장 후,
-    * 알림을 수신자에게 전송
-    * */
+     * 관계 삭제 요청 시, 해당 알림을 DB에 저장 후,
+     * 알림을 수신자에게 전송
+     * */
     @Override
     public void sendDependencyDeleteRequestNotification(Member sender, Member receiver) {
         // 관계 삭제 요청 알림 생성
@@ -204,13 +204,29 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     /*
-    * 관계 삭제 허락 시, 해당 알림을 DB에 저장 후,
-    * 알림을 수신자에게 전송
-    * */
+     * 관계 삭제 허락 시, 해당 알림을 DB에 저장 후,
+     * 알림을 수신자에게 전송
+     * */
     @Override
     public void sendDependencyDeleteAcceptNotification(Member sender, Member receiver) {
         // 관계 삭제 허락 알림 생성
         Notification notification = Notification.createDependencyDeleteAccept(sender, receiver);
+
+        // 알림 저장
+        notificationRepository.save(notification);
+
+        // 알림 전송
+        fcmNotificationService.sendNotification(NotificationRequest.of(notification));
+    }
+
+    /*
+     * 관계 삭제 거절 시, 해당 알림을 DB에 저장 후,
+     * 알림을 수신자에게 전송
+     * */
+    @Override
+    public void sendDependencyDeleteRejectNotification(Member sender, Member receiver) {
+        // 관계 삭제 거절 알림 생성
+        Notification notification = Notification.createDependencyDeleteReject(sender, receiver);
 
         // 알림 저장
         notificationRepository.save(notification);
@@ -231,8 +247,8 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     /*
-    * 여러 개의 알림 혹은 한 개의 알림을 읽은 것으로 처리
-    * */
+     * 여러 개의 알림 혹은 한 개의 알림을 읽은 것으로 처리
+     * */
     @Override
     public void readNotifications(NotificationConfirmRequest request) {
         // TODO: 회원 데이터 추가 필요

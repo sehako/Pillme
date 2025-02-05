@@ -36,6 +36,8 @@ public interface NotificationService {
 
     void sendDependencyDeleteAcceptNotification(Member sender, Member receiver);
 
+    void sendDependencyDeleteRejectNotification(Member sender, Member receiver);
+
     List<NotificationResponse> getNotificationList();
 
     void readNotifications(NotificationConfirmRequest request);
