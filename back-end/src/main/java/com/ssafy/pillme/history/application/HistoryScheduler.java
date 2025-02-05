@@ -8,6 +8,7 @@ import com.ssafy.pillme.management.domain.Management;
 import com.ssafy.pillme.management.infrastructure.InformationRepository;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -30,24 +31,25 @@ public class HistoryScheduler {
         for (Information information : validInformation) {
             List<Management> validManagements = information.getManagements();
             Member member = information.getReader();
-            validManagements.stream()
+            List<History> histories = validManagements.stream()
                     .filter(management -> !management.isDeleted())
-                    .forEach(management ->
-                            historyRepository.save(History.builder()
-                                    .information(information)
-                                    .management(management)
-                                    .member(member)
-                                    .morning(management.isMorning())
-                                    .lunch(management.isLunch())
-                                    .dinner(management.isDinner())
-                                    .sleep(management.isSleep())
-                                    .morningTaking(management.isMorningTaking())
-                                    .lunchTaking(management.isLunchTaking())
-                                    .dinnerTaking(management.isDinnerTaking())
-                                    .sleepTaking(management.isSleepTaking())
-                                    .takingDate(validInformationDate)
-                                    .build())
-                    );
+                    .map(management -> History.builder()
+                            .information(information)
+                            .management(management)
+                            .member(member)
+                            .morning(management.isMorning())
+                            .lunch(management.isLunch())
+                            .dinner(management.isDinner())
+                            .sleep(management.isSleep())
+                            .morningTaking(management.isMorningTaking())
+                            .lunchTaking(management.isLunchTaking())
+                            .dinnerTaking(management.isDinnerTaking())
+                            .sleepTaking(management.isSleepTaking())
+                            .takingDate(validInformationDate)
+                            .build())
+                    .collect(Collectors.toList());
+            historyRepository.saveAll(histories);
         }
+
     }
 }

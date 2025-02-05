@@ -43,7 +43,8 @@ public class HistoryRepositoryImpl implements HistoryRepositoryCustom {
                 .leftJoin(history.management, management).fetchJoin()
                 .leftJoin(history.member, member).fetchJoin()
                 .leftJoin(management.information, information).fetchJoin()
-                .where(history.information.id.eq(informationId)
+                .where(history.deleted.eq(false)
+                        .and(history.information.id.eq(informationId))
                         .and(history.information.reader.id.eq(target)))
                 .fetch();
     }

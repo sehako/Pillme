@@ -68,7 +68,7 @@ public class HistoryController {
         return null;
     }
 
-    @DeleteMapping("{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<JSONResponse<Void>> deleteHistory(
             @PathVariable(value = "id") final Long historyId,
             @Auth final Member member
