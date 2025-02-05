@@ -29,6 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class HistoryService {
     private final HistoryRepository historyRepository;
 
+    @Transactional(readOnly = true)
     public List<HistorySearchResponse> selectHistoryWithFilter(final HistorySearchFilter filter) {
         List<History> historyByCondition = historyRepository.findHistoryByCondition(filter);
 
@@ -37,6 +38,7 @@ public class HistoryService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
     public List<HistoryDetailResponse> selectHistoryByInformationId(
             final Long informationId,
             final Long target
