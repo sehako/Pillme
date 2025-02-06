@@ -41,15 +41,16 @@ public class ChatRoomService {
         }
         ChatRoom newChatRoom = new ChatRoom();
 
-        newChatRoom.updateChatRoom(careUser, careUser);
+        newChatRoom.updateChatRoom(careUser, user);
         newChatRoom= chatRoomRepository.save(newChatRoom);
         return ChatRoomResponse.from(newChatRoom);
     }
 
-    public void deleteChatRoom(ChatRoomRequest chatRoomRequest){
-        Member careUser = authService.findById(chatRoomRequest.careUserId());
-        Member user = authService.findById(chatRoomRequest.userId());
-
-        chatRoomRepository.deleteByCareUserAndUser(careUser, user);
+    public void deleteChatRoom(Long chatRoom){
+        if(chatRoomRepository.existsById(chatRoom)){
+            chatRoomRepository.deleteById(chatRoom);
+        } else{
+            throw new ChatRoomNotFoundException(ErrorCode.EMPTY_CHATROOM_ID);
+        }
     }
 }

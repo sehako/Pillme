@@ -31,9 +31,9 @@ public class ChatRoomController {
         return ResponseEntity.ok(JSONResponse.onSuccess(chatRoomService.getOrCreateChatRoom(chatRoomRequest)));
     }
 
-    @DeleteMapping
-    public ResponseEntity<JSONResponse<Void>> deleteChatRoom(@RequestBody ChatRoomRequest chatRoomRequest){
-        chatRoomService.deleteChatRoom(chatRoomRequest);
+    @DeleteMapping("/{chatRoom}")
+    public ResponseEntity<JSONResponse<Void>> deleteChatRoom(@PathVariable Long chatRoom){
+        chatRoomService.deleteChatRoom(chatRoom);
         return  ResponseEntity.ok(JSONResponse.of(SuccessCode.CHATROOM_DELETE_SUCCESS));
     }
 }
