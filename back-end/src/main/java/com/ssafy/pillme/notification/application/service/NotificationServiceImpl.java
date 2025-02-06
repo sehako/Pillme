@@ -1,11 +1,15 @@
 package com.ssafy.pillme.notification.application.service;
 
 import com.ssafy.pillme.auth.domain.entity.Member;
+import com.ssafy.pillme.dependency.application.service.DependencyService;
 import com.ssafy.pillme.global.code.ErrorCode;
+import com.ssafy.pillme.management.application.ManagementService;
+import com.ssafy.pillme.management.domain.item.TakingInformationItem;
 import com.ssafy.pillme.notification.application.exception.NotificationAccessDenied;
 import com.ssafy.pillme.notification.application.exception.NotificationSettingNotFoundException;
 import com.ssafy.pillme.notification.application.response.NotificationResponse;
 import com.ssafy.pillme.notification.application.response.NotificationSettingResponse;
+import com.ssafy.pillme.notification.domain.component.NotificationMessageProvider;
 import com.ssafy.pillme.notification.domain.entity.Notification;
 import com.ssafy.pillme.notification.domain.entity.NotificationSetting;
 import com.ssafy.pillme.notification.domain.vo.NotificationTimeType;
@@ -22,7 +26,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalTime;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 @Slf4j
@@ -72,23 +75,6 @@ public class NotificationServiceImpl implements NotificationService {
         NotificationSetting setting = notificationSettingRepository.findByMemberId(loginMember.getId())
                 .orElseThrow(() -> new NotificationSettingNotFoundException(ErrorCode.NOTIFICATION_SETTING_NOT_FOUND));
         notificationSettingRepository.delete(setting);
-    }
-
-    @Override
-    // Cron 표현식 사용 (매분 0초에 실행)
-    @Scheduled(cron = "0 * * * * *")
-    public void checkAndSendNotifications() {
-
-        // 현재 시간 분 단위로 이용
-        LocalTime currentTIme = LocalTime.now().truncatedTo(ChronoUnit.MINUTES);
-
-        // 현재 시간에 해당하는 알림 설정 조회
-        List<NotificationSetting> settings = notificationSettingRepository.findSettingsForCurrentTime(currentTIme);
-
-        // 알림 전송
-        for (NotificationSetting setting : settings) {
-            sendNotification(setting, currentTIme);
-        }
     }
 
     /*
@@ -280,13 +266,9 @@ public class NotificationServiceImpl implements NotificationService {
         }
     }
 
-    // 일관된 시간을 위해 currentTime을 매개변수로 받아 이용
-    private void sendNotification(NotificationSetting setting, LocalTime currentTime) {
-        // 알림 시간 타입 확인
-        NotificationTimeType timeType = NotificationTimeType.determineType(setting, currentTime);
-
-        //TODO: 회원의 약물 복용이 존재하는 경우, 해당 약물의 이름과 함께 알림 전송
-        // 현재는 알림 설정만 존재하므로 해당 시간에 알림 제목만 전송
-        fcmNotificationService.sendNotificationSetting(setting.getMember().getId(), timeType.getMessage(), "");
+    // 현재 시간에 해당하는 알림 설정 조회
+    @Override
+    public List<NotificationSetting> getNotificationSettingListForCurrentTime(LocalTime currentTime) {
+        return notificationSettingRepository.findSettingsForCurrentTime(currentTime);
     }
 }

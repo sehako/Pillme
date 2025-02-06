@@ -150,4 +150,9 @@ public class DependencyService {
         // 가족 관계 삭제 요청 거절 알림 전송
         notificationService.sendDependencyDeleteRejectNotification(loginMember, dependency.getOtherMember(loginMember));
     }
+
+    @Transactional(readOnly = true)
+    public List<Member> findProtectorsByDependent(Member dependent) {
+        return dependencyRepository.findProtectorsByDependentAndDeletedIsFalse(dependent);
+    }
 }

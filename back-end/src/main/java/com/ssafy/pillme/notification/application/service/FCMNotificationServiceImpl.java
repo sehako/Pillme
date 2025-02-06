@@ -101,6 +101,22 @@ public class FCMNotificationServiceImpl implements FCMNotificationService {
         }
     }
 
+    @Override
+    public void sendToProtectorNotificationForTaking(Long protectorId, String title, String body) {
+        // 보호자 id로 토큰들 조회
+        List<FCMToken> tokens = findValidTokens(protectorId);
+
+        for (FCMToken token : tokens) {
+            Message message = buildSendNotificationMessage(token.getToken(), title, body);
+
+            try {
+                firebaseMessaging.sendAsync(message);
+            } catch (Exception e) {
+                handleExceptionForSendMessage(e, token);
+            }
+        }
+    }
+
     // 메시지 전송 중 예외 처리
     private void handleExceptionForSendMessage(Exception e, FCMToken fcmToken) {
 
