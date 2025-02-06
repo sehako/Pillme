@@ -19,7 +19,6 @@
 </template>
 
 <script setup>
-import { defineProps, defineEmits } from 'vue';
 import AddMember from './AddMember.vue';
 
 // ✅ 부모에서 전달받은 props
