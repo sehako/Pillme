@@ -73,48 +73,6 @@ public class AuthController {
     }
 
     /**
-     * 이메일 인증번호 발송
-     */
-    @PostMapping("/email/verification")
-    public ResponseEntity<JSONResponse<Void>> sendEmailVerification(
-            @RequestParam String email) {
-        authService.sendEmailVerification(email);
-        return ResponseEntity.ok(JSONResponse.onSuccess(null));
-    }
-
-    /**
-     * 이메일 인증번호 확인
-     */
-    @PostMapping("/email/verify")
-    public ResponseEntity<JSONResponse<Void>> verifyEmail(
-            @RequestParam String email,
-            @RequestParam String code) {
-        authService.verifyEmail(email, code);
-        return ResponseEntity.ok(JSONResponse.onSuccess(null));
-    }
-
-    /**
-     * SMS 인증번호 발송
-     */
-    @PostMapping("/sms/verification")
-    public ResponseEntity<JSONResponse<Void>> sendSmsVerification(
-            @RequestParam String phoneNumber) {
-        authService.sendSmsVerification(phoneNumber);
-        return ResponseEntity.ok(JSONResponse.onSuccess(null));
-    }
-
-    /**
-     * SMS 인증번호 확인
-     */
-    @PostMapping("/sms/verify")
-    public ResponseEntity<JSONResponse<Void>> verifySmsCode(
-            @RequestParam String phoneNumber,
-            @RequestParam String code) {
-        authService.verifySmsCode(phoneNumber, code);
-        return ResponseEntity.ok(JSONResponse.onSuccess(null));
-    }
-
-    /**
      * 비밀번호 유효성 검증
      */
 
