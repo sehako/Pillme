@@ -23,6 +23,7 @@ public enum ErrorCode {
     INVALID_ACCESS_TOKEN(4101, UNAUTHORIZED, "유효하지 않은 액세스 토큰입니다"),
     INVALID_REFRESH_TOKEN(4102, UNAUTHORIZED, "유효하지 않은 리프레시 토큰입니다"),
     INVALID_RESET_TOKEN(4103, BAD_REQUEST, "잘못된 비밀번호 재설정 토큰입니다"),
+    DENYLISTED_TOKEN(4104, UNAUTHORIZED, "이미 로그아웃된 토큰입니다"),
 
     // 인증 코드 관련 에러
     INVALID_EMAIL_CODE(4111, BAD_REQUEST, "잘못된 이메일 인증 코드입니다"),
