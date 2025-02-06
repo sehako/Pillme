@@ -1,12 +1,12 @@
 package com.ssafy.pillme.auth.application.service;
 
-import com.ssafy.pillme.auth.application.exception.external.FailedSmsDeliveryException;
+import com.ssafy.pillme.auth.application.exception.sms.*;
+import com.ssafy.pillme.auth.application.exception.validation.InvalidPhoneNumberException;
+import com.ssafy.pillme.auth.application.exception.verification.ExpiredSmsCodeException;
 import com.ssafy.pillme.auth.application.exception.verification.InvalidSmsCodeException;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import net.nurigo.sdk.NurigoApp;
-import net.nurigo.sdk.message.exception.NurigoMessageNotReceivedException;
 import net.nurigo.sdk.message.model.Message;
 import net.nurigo.sdk.message.request.SingleMessageSendingRequest;
 import net.nurigo.sdk.message.response.SingleMessageSentResponse;
@@ -20,11 +20,7 @@ import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class SmsService {
-    private final RedisTemplate<String, String> redisTemplate;
-    private DefaultMessageService messageService;
-
     @Value("${COOLSMS_API_KEY}")
     private String apiKey;
 
@@ -34,22 +30,25 @@ public class SmsService {
     @Value("${COOLSMS_SENDER_NUMBER}")
     private String senderNumber;
 
+    private DefaultMessageService messageService;
+    private final RedisTemplate<String, String> redisTemplate;
+
     private static final String SMS_CODE_PREFIX = "SMS:";
     private static final String VERIFIED_PREFIX = "VSMS:";
     private static final long CODE_EXPIRATION_TIME = 300000; // 5분
-    private static final long VERIFIED_EXPIRATION_TIME = 600000; // 10분
+    private static final long VERIFIED_EXPIRATION_TIME = 1800000; // 30분
 
     @PostConstruct
     public void setupMessageService() {
         if (apiKey == null || apiSecret == null) {
-            throw new IllegalStateException("API 키와 시크릿이 설정되지 않았습니다.");
+            throw new InvalidSmsApiKeyException();
         }
         this.messageService = NurigoApp.INSTANCE.initialize(apiKey, apiSecret, "https://api.coolsms.co.kr");
     }
 
-    public void sendVerificationSms(String phoneNumber) {
+    public SingleMessageSentResponse sendVerificationSms(String phoneNumber) {
         if (!isValidPhoneNumber(phoneNumber)) {
-            throw new IllegalArgumentException("유효하지 않은 전화번호 형식입니다.");
+            throw new InvalidPhoneNumberException();
         }
 
         String verificationCode = generateVerificationCode();
@@ -58,21 +57,17 @@ public class SmsService {
         Message message = new Message();
         message.setFrom(senderNumber);
         message.setTo(phoneNumber);
-        message.setText(String.format("[PillMe] 인증번호 [%s]를 입력해주세요.", verificationCode));
+        message.setText(String.format("[PillMe]\n인증번호: %s\n인증번호는 5분간 유효합니다.", verificationCode));
 
-//        try {
-//            SingleMessageSentResponse response = this.messageService.sendOne(new SingleMessageSendingRequest(message));
-//            if (!response.getStatusCode().equals("2000")) {
-//                log.error("SMS 발송 실패: {}", response.getStatusMessage());
-//                throw new IllegalArgumentException("SMS 발송에 실패했습니다: " + response.getStatusMessage());
-//            }
-//        } catch (NurigoMessageNotReceivedException e) {
-//            log.error("메시지 전송 실패: {}", e.getMessage());
-//            throw new FailedSmsDeliveryException("메시지 전송에 실패했습니다");
-//        } catch (Exception e) {
-//            log.error("예상치 못한 에러 발생: {}", e.getMessage());
-//            throw new FailedSmsDeliveryException("SMS 서비스 오류가 발생했습니다");
-//        }
+        try {
+            SingleMessageSentResponse response = this.messageService.sendOne(new SingleMessageSendingRequest(message));
+            if (!response.getStatusCode().equals("2000")) {
+                throw new FailedSmsDeliveryException();
+            }
+            return response;
+        } catch (Exception e) {
+            throw new FailedSmsDeliveryException();
+        }
     }
 
     private boolean isValidPhoneNumber(String phoneNumber) {
@@ -82,6 +77,10 @@ public class SmsService {
     public void verifySmsCode(String phoneNumber, String code) {
         String savedCode = findVerificationCode(phoneNumber);
         if (savedCode == null) {
+            Long ttl = redisTemplate.getExpire(SMS_CODE_PREFIX + phoneNumber);
+            if (ttl != null && ttl <= 0) {
+                throw new ExpiredSmsCodeException();
+            }
             throw new FailedSmsDeliveryException();
         }
         if (!savedCode.equals(code)) {

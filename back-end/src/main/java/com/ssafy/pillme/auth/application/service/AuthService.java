@@ -226,34 +226,6 @@ public class AuthService {
     }
 
     /**
-     * 이메일 인증번호 발송
-     */
-    public void sendEmailVerification(String email) {
-        emailService.sendVerificationEmail(email);
-    }
-
-    /**
-     * 이메일 인증번호 확인
-     */
-    public void verifyEmail(String email, String code) {
-        emailService.verifyEmail(email, code);
-    }
-
-    /**
-     * SMS 인증번호 발송
-     */
-    public void sendSmsVerification(String phoneNumber) {
-        smsService.sendVerificationSms(phoneNumber);
-    }
-
-    /**
-     * SMS 인증번호 확인
-     */
-    public void verifySmsCode(String phoneNumber, String code) {
-        smsService.verifySmsCode(phoneNumber, code);
-    }
-
-    /**
      * 토큰 갱신
      */
     public TokenResponse refreshToken(String refreshToken) {
