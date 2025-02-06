@@ -53,6 +53,9 @@ public class AuthService {
         if (memberRepository.existsByNickname(request.nickname())) {
             throw new DuplicateMemberNicknameException();
         }
+        if (memberRepository.existsByPhone(request.phone())) {
+            throw new DuplicatePhoneNumberException();
+        }
 
         // 회원 생성
         Member member = Member.builder()
