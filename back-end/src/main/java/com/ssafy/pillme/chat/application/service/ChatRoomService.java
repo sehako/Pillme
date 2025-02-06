@@ -1,5 +1,7 @@
 package com.ssafy.pillme.chat.application.service;
 
+import com.ssafy.pillme.auth.application.service.AuthService;
+import com.ssafy.pillme.auth.domain.entity.Member;
 import com.ssafy.pillme.chat.application.exception.ChatRoomNotFoundException;
 import com.ssafy.pillme.chat.application.response.ChatMessageResponse;
 import com.ssafy.pillme.chat.application.response.ChatRoomResponse;
@@ -17,26 +19,37 @@ import java.util.Optional;
 @AllArgsConstructor
 public class ChatRoomService {
     private final ChatRoomRepository chatRoomRepository;
+    private final AuthService authService;
 
     public List<ChatRoomResponse> getUserChatRoom(Long userId){
-        List<ChatRoom> chatRooms =  chatRoomRepository.findByCareUserIdOrUserId(userId, userId);
+        Member user = authService.findById(userId);
+        List<ChatRoom> chatRooms =  chatRoomRepository.findByCareUserOrUser(user, user);
         if(chatRooms.isEmpty()){
-            new ChatRoomNotFoundException(ErrorCode.EMPTY_CHATROOM_ID);
+            throw new ChatRoomNotFoundException(ErrorCode.EMPTY_CHATROOM_ID);
         }
-        List<ChatRoomResponse> chatRoomResponses = chatRooms.stream().
+        return chatRooms.stream().
                 map(ChatRoomResponse::from)
                 .toList();
-        return chatRoomResponses;
     }
 
     public ChatRoomResponse getOrCreateChatRoom(ChatRoomRequest chatRoomRequest){
-        Optional<ChatRoom> chatRoom = chatRoomRepository.findByCareUserIdAndUserId(chatRoomRequest.careUserId(), chatRoomRequest.userId());
+        Member careUser = authService.findById(chatRoomRequest.careUserId());
+        Member user = authService.findById(chatRoomRequest.userId());
+        Optional<ChatRoom> chatRoom = chatRoomRepository.findByCareUserAndUser(careUser, user);
         if(chatRoom.isPresent()){
             return ChatRoomResponse.from(chatRoom.get());
         }
         ChatRoom newChatRoom = new ChatRoom();
-        newChatRoom.updateChatRoom(chatRoomRequest.careUserId(), chatRoomRequest.userId());
+
+        newChatRoom.updateChatRoom(careUser, careUser);
         newChatRoom= chatRoomRepository.save(newChatRoom);
         return ChatRoomResponse.from(newChatRoom);
+    }
+
+    public void deleteChatRoom(ChatRoomRequest chatRoomRequest){
+        Member careUser = authService.findById(chatRoomRequest.careUserId());
+        Member user = authService.findById(chatRoomRequest.userId());
+
+        chatRoomRepository.deleteByCareUserAndUser(careUser, user);
     }
 }

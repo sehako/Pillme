@@ -347,4 +347,12 @@ public class AuthService {
 
         return memberRepository.existsByNickname(nickname);
     }
+
+    /**
+     * 회원 정보 조회
+     */
+    public Member findById(Long id) {
+        return memberRepository.findByIdAndDeletedFalse(id)
+                .orElseThrow(InvalidMemberInfoException::new);
+    }
 }

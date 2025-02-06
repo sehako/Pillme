@@ -4,6 +4,7 @@ import com.ssafy.pillme.chat.application.response.ChatRoomResponse;
 import com.ssafy.pillme.chat.application.service.ChatRoomService;
 import com.ssafy.pillme.chat.domain.entity.ChatRoom;
 import com.ssafy.pillme.chat.presentation.request.ChatRoomRequest;
+import com.ssafy.pillme.global.code.SuccessCode;
 import com.ssafy.pillme.global.response.JSONResponse;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -30,8 +31,9 @@ public class ChatRoomController {
         return ResponseEntity.ok(JSONResponse.onSuccess(chatRoomService.getOrCreateChatRoom(chatRoomRequest)));
     }
 
-    @PostMapping
-    public ResponseEntity<Void> deleteChatRoom(@RequestBody ChatRoomRequest chatRoomRequest){
-        return (ResponseEntity<Void>) ResponseEntity.ok();
+    @DeleteMapping
+    public ResponseEntity<JSONResponse<Void>> deleteChatRoom(@RequestBody ChatRoomRequest chatRoomRequest){
+        chatRoomService.deleteChatRoom(chatRoomRequest);
+        return  ResponseEntity.ok(JSONResponse.of(SuccessCode.CHATROOM_DELETE_SUCCESS));
     }
 }
