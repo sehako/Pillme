@@ -2,10 +2,7 @@ package com.ssafy.pillme.dependency.presentation.controller;
 
 import com.ssafy.pillme.dependency.application.response.DependentListResponse;
 import com.ssafy.pillme.dependency.application.service.DependencyService;
-import com.ssafy.pillme.dependency.presentation.request.DependencyAcceptRequest;
-import com.ssafy.pillme.dependency.presentation.request.DependencyRejectRequest;
-import com.ssafy.pillme.dependency.presentation.request.DependentPhoneRequest;
-import com.ssafy.pillme.dependency.presentation.request.LocalMemberRequest;
+import com.ssafy.pillme.dependency.presentation.request.*;
 import com.ssafy.pillme.global.response.JSONResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -52,5 +49,36 @@ public class DependencyController {
     @GetMapping("/dependents")
     public ResponseEntity<JSONResponse<List<DependentListResponse>>> getDependents() {
         return ResponseEntity.ok(JSONResponse.onSuccess(dependencyService.getDependents()));
+    }
+
+    /* 가족 관계 삭제 요청 - 보호자와 피보호자 모두 삭제 요청가능
+     * dependencyId(가족 관계 ID)를 받아서 삭제
+     * 현재 로그인한 사용자가 삭제를 요청하는 입장.
+     * 삭제 요청을 보내는 회원이 sender, 삭제 요청을 받는 회원이 receiver
+     * */
+    @PostMapping("/delete/{dependencyId}")
+    public ResponseEntity<JSONResponse<Void>> deleteRequestDependency(@PathVariable Long dependencyId) {
+        dependencyService.deleteRequestDependency(dependencyId);
+        return ResponseEntity.ok(JSONResponse.onSuccess());
+    }
+
+    /*
+    * 가족 관계 삭제 요청 수락 - 삭제 요청을 받은 회원이 삭제 요청을 수락하는 경우
+    * 메시지에 존재하는 senderId를 통해 삭제 요청을 보낸 회원을 찾아서 삭제 요청을 수락
+    * */
+    @DeleteMapping("/delete/accept")
+    public ResponseEntity<JSONResponse<Void>> acceptDeleteDependency(@RequestBody AcceptDependencyDeletionRequest request) {
+        dependencyService.acceptDeleteDependency(request);
+        return ResponseEntity.ok(JSONResponse.onSuccess());
+    }
+
+    /*
+    * 가족 관계 삭제 요청 거절 - 삭제 요청을 받은 회원이 삭제 요청을 거절하는 경우
+    * 메시지에 존재하는 senderId를 통해 삭제 요청을 보낸 회원을 찾아서 삭제 요청을 거절
+     */
+    @PostMapping("/delete/reject")
+    public ResponseEntity<JSONResponse<Void>> rejectDeleteDependency(@RequestBody RejectDependencyDeletionRequest request) {
+        dependencyService.rejectDeleteDependency(request);
+        return ResponseEntity.ok(JSONResponse.onSuccess());
     }
 }
