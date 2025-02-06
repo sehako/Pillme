@@ -123,8 +123,4 @@ public class Notification extends BaseEntity {
     public void updateConfirmStatus(boolean confirm) {
         this.confirm = confirm;
     }
-
-    public void updateDeleteStatus() {
-        delete();
-    }
 }

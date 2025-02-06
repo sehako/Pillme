@@ -1,7 +1,6 @@
 package com.ssafy.pillme.notification.application.service;
 
 import com.ssafy.pillme.auth.domain.entity.Member;
-import com.ssafy.pillme.auth.infrastructure.repository.MemberRepository;
 import com.ssafy.pillme.notification.application.response.NotificationResponse;
 import com.ssafy.pillme.notification.application.response.NotificationSettingResponse;
 import com.ssafy.pillme.notification.domain.entity.Notification;
@@ -30,26 +29,26 @@ import java.util.List;
 public class NotificationServiceImpl implements NotificationService {
 
     private final NotificationSettingRepository notificationSettingRepository;
-    private final MemberRepository memberRepository;
     private final FCMNotificationService fcmNotificationService;
     private final NotificationRepository notificationRepository;
 
-    //TODO: 회원 데이터 추가 필요
     @Override
-    public void createNotificationSetting(NotificationSettingRequest request) {
-        // request.toEntity(new UserEntity());
-        notificationSettingRepository.save(request.toEntity(memberRepository.findById(1L).get()));
+    public void createNotificationSetting(NotificationSettingRequest request, Member loginMember) {
+        notificationSettingRepository.save(request.toEntity(loginMember));
     }
 
     @Override
-    public NotificationSettingResponse getNotificationSetting() {
-        //TODO: 회원 데이터 추가 필요
-        //TODO: 데이터 존재하지 않을 시, 예외 처리 필요
-        NotificationSetting setting = notificationSettingRepository.findByMemberId(1L)
-                .orElseThrow(() -> new IllegalArgumentException("알림 설정이 존재하지 않습니다."));
+    public NotificationSettingResponse getNotificationSetting(Member loginMember) {
+        NotificationSetting setting = notificationSettingRepository.findByMemberId(loginMember.getId())
+                .orElse(null);
+
+        // 알림 설정이 존재하지 않을 경우 빈 응답 반환
+        if (setting == null) {
+            return NotificationSettingResponse.builder().build();
+        }
 
         return NotificationSettingResponse.builder()
-                .id(setting.getId())
+                .notificationSettingId(setting.getId())
                 .morning(setting.getMorning())
                 .lunch(setting.getLunch())
                 .dinner(setting.getDinner())
@@ -58,18 +57,16 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
-    public void updateNotificationSetting(NotificationSettingRequest request) {
-        //TODO: 회원 데이터 추가 필요
-        NotificationSetting setting = notificationSettingRepository.findByMemberId(1L)
+    public void updateNotificationSetting(NotificationSettingRequest request, Member loginMember) {
+        NotificationSetting setting = notificationSettingRepository.findByMemberId(loginMember.getId())
                 .orElseThrow(() -> new IllegalArgumentException("알림 설정이 존재하지 않습니다."));
 
         setting.update(request);
     }
 
     @Override
-    public void deleteNotificationSetting() {
-        // TODO: 회원 데이터 추가 필요
-        NotificationSetting setting = notificationSettingRepository.findByMemberId(1L)
+    public void deleteNotificationSetting(Member loginMember) {
+        NotificationSetting setting = notificationSettingRepository.findByMemberId(loginMember.getId())
                 .orElseThrow(() -> new IllegalArgumentException("알림 설정이 존재하지 않습니다."));
         notificationSettingRepository.delete(setting);
     }
@@ -237,11 +234,8 @@ public class NotificationServiceImpl implements NotificationService {
 
     // 알림 리스트 조회
     @Override
-    public List<NotificationResponse> getNotificationList() {
-        // TODO: 회원 데이터 추가 필요
-        Member member = memberRepository.findById(1L).get();
-
-        List<Notification> notifications = notificationRepository.findAllByReceiverIdAndDeletedFalse(member.getId());
+    public List<NotificationResponse> getNotificationList(Member loginMember) {
+        List<Notification> notifications = notificationRepository.findAllByReceiverIdAndDeletedFalse(loginMember.getId());
 
         return NotificationResponse.listOf(notifications);
     }
@@ -250,13 +244,10 @@ public class NotificationServiceImpl implements NotificationService {
      * 여러 개의 알림 혹은 한 개의 알림을 읽은 것으로 처리
      * */
     @Override
-    public void readNotifications(NotificationConfirmRequest request) {
-        // TODO: 회원 데이터 추가 필요
-        Member member = memberRepository.findById(1L).get();
-
+    public void readNotifications(NotificationConfirmRequest request, Member loginMember) {
         // 현재 사용자 id와 요청으로 받은 알림 id를 통해 알림 조회
         List<Notification> notifications = notificationRepository
-                .findAllByIdInAndReceiverId(request.notificationConfirmList(), member.getId());
+                .findAllByIdInAndReceiverId(request.notificationConfirmList(), loginMember.getId());
 
         // 요청한 알림과 실제 조회된 알림의 개수가 다를 경우 예외 처리
         // TODO: 예외 정의 필요
@@ -271,13 +262,10 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
-    public void deleteNotifications(NotificationDeleteRequest request) {
-        // TODO: 회원 데이터 추가 필요
-        Member member = memberRepository.findById(1L).get();
-
+    public void deleteNotifications(NotificationDeleteRequest request, Member loginMember) {
         // 현재 사용자 id와 요청으로 받은 알림 id를 통해 알림 조회
         List<Notification> notifications = notificationRepository
-                .findAllByIdInAndReceiverId(request.notificationDeleteList(), member.getId());
+                .findAllByIdInAndReceiverId(request.notificationDeleteList(), loginMember.getId());
 
         // 요청한 알림과 실제 조회된 알림의 개수가 다를 경우 예외 처리
         // TODO: 예외 정의 필요
@@ -287,7 +275,7 @@ public class NotificationServiceImpl implements NotificationService {
 
         // 알림 soft 삭제
         for (Notification notification : notifications) {
-            notification.updateDeleteStatus();
+            notification.delete();
         }
     }
 
@@ -299,7 +287,7 @@ public class NotificationServiceImpl implements NotificationService {
 
             //TODO: 회원의 약물 복용이 존재하는 경우, 해당 약물의 이름과 함께 알림 전송
             // 현재는 알림 설정만 존재하므로 해당 시간에 알림 제목만 전송
-            fcmNotificationService.sendNotificationSetting(1L, timeType.getMessage(), "");
+            fcmNotificationService.sendNotificationSetting(setting.getMember().getId(), timeType.getMessage(), "");
         } catch (Exception e) {
             log.error("알림 전송 중 오류 발생: {}", e.getMessage());
         }

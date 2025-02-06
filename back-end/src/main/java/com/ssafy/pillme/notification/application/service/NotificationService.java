@@ -10,13 +10,13 @@ import com.ssafy.pillme.notification.presentation.request.NotificationSettingReq
 import java.util.List;
 
 public interface NotificationService {
-    void createNotificationSetting(NotificationSettingRequest request);
+    void createNotificationSetting(NotificationSettingRequest request, Member loginMember);
 
-    NotificationSettingResponse getNotificationSetting();
+    NotificationSettingResponse getNotificationSetting(Member loginMember);
 
-    void updateNotificationSetting(NotificationSettingRequest request);
+    void updateNotificationSetting(NotificationSettingRequest request, Member loginMember);
 
-    void deleteNotificationSetting();
+    void deleteNotificationSetting(Member loginMember);
 
     void checkAndSendNotifications();
 
@@ -38,9 +38,9 @@ public interface NotificationService {
 
     void sendDependencyDeleteRejectNotification(Member sender, Member receiver);
 
-    List<NotificationResponse> getNotificationList();
+    List<NotificationResponse> getNotificationList(Member loginMember);
 
-    void readNotifications(NotificationConfirmRequest request);
+    void readNotifications(NotificationConfirmRequest request, Member loginMember);
 
-    void deleteNotifications(NotificationDeleteRequest request);
+    void deleteNotifications(NotificationDeleteRequest request, Member loginMember);
 }
