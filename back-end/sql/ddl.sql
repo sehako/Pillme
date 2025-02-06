@@ -145,7 +145,7 @@ CREATE TABLE `chat_room`
 (
     `id`             BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `post_member_id` BIGINT NOT NULL,
-    `user_id`        BIGINT NOT NULL
+    `member_id`      BIGINT NOT NULL
 );
 
 DROP TABLE IF EXISTS `chat_message`;
@@ -190,9 +190,9 @@ CREATE TABLE `image`
     `path`         VARCHAR(100) NULL
 );
 
-DROP TABLE IF EXISTS `user`;
+DROP TABLE IF EXISTS `member`;
 
-CREATE TABLE `user`
+CREATE TABLE `member`
 (
     `id`          BIGINT       NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `email`       VARCHAR(50)  NULL,
