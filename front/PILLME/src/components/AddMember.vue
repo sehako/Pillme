@@ -107,7 +107,7 @@
 </template>
 
 <script setup>
-import { ref, defineEmits } from 'vue';
+import { ref } from 'vue';
 
 // ✅ 부모로 이벤트 전달
 const emit = defineEmits(["addMember"]);

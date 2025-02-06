@@ -20,6 +20,8 @@ import PersonalInfo from '../views/PersonalInfo.vue';
 import LoginSecurity from '../views/LoginSecurity.vue';
 import MyPage_PwChange from '../views/MyPage_PwChange.vue';
 import ChatView from '../views/ChatView.vue';
+import ChatIndividualView from '../views/ChatIndividualView.vue';
+
 // import NameDropdown from '../components/NameDropdown.vue';
 // import ProfileView from '../views/ProfileView.vue';
 // import SettingsView from '../views/SettingsView.vue';
@@ -47,6 +49,12 @@ const routes = [
     path: '/chat',
     name: 'ChatView',
     component: ChatView,
+  },
+  {
+    path: '/chat/:id',
+    name: 'ChatIndividualView',
+    component: ChatIndividualView,
+    props: true, // ✅ URL 매개변수를 컴포넌트 props로 전달
   },
   {
     path: '/idsearch',  
