@@ -1,5 +1,5 @@
 <template>
-  <div id="app" class="flex flex-row h-screen">
+  <div id="app" class="flex flex-row h-screen-custom">
     <!-- 왼쪽 (PC 전용) -->
     <div class="hidden md:block w-1/2 bg-gray-100"></div>
 
@@ -13,9 +13,9 @@
       <!-- 가운데(라우트) 영역 -->
       <div
         ref="contentRef"
-        :class="[
-          'h-screen',
-          isScrollAllowed ? 'overflow-y-auto overflow-x-hidden' : 'flex items-center justify-center overflow-hidden'
+        :class="[ 
+          'h-screen-custom', 
+          isScrollAllowed ? 'overflow-y-auto overflow-x-hidden' : 'flex items-center justify-center overflow-hidden' 
         ]"
       >
         <router-view v-if="isRouteReady" :navbarHeight="navbarHeight" />
@@ -41,7 +41,7 @@ const isRouteReady = ref(true);
 
 // 특정 라우트에서 스크롤 허용
 const isScrollAllowed = ref(false);
-const alwaysScrollablePages = ['/afteraccount', '/','/chat']; // 특정 경로 허용
+const alwaysScrollablePages = ['/afteraccount', '/']; // 특정 경로 허용
 
 watch(() => route.path, async () => {
   isRouteReady.value = false;
@@ -75,8 +75,24 @@ const updateNavbarHeight = () => {
   }
 };
 
+// ✅ 모바일 환경 감지
+const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
+// ✅ 모바일에서만 vh 값을 조정하는 함수
+const setRealVH = () => {
+  if (!isMobile) return;
+  const vh = window.innerHeight * 0.01;
+  document.documentElement.style.setProperty('--vh', `${vh}px`);
+};
+
 onMounted(() => {
   isScrollAllowed.value = alwaysScrollablePages.includes(route.path) || route.path.startsWith('/mypage');
+
+  // ✅ 모바일에서만 실행
+  if (isMobile) {
+    setRealVH();
+    window.addEventListener('resize', setRealVH);
+  }
 
   // ✅ 네비바 높이 감지 (실시간 감지)
   const observer = new ResizeObserver(() => {
@@ -90,6 +106,18 @@ onMounted(() => {
 
   onUnmounted(() => {
     observer.disconnect();
+    if (isMobile) {
+      window.removeEventListener('resize', setRealVH);
+    }
   });
 });
 </script>
+
+<style>
+/* ✅ 모바일 환경에서만 적용될 vh */
+@media (max-width: 768px) {
+  .h-screen-custom {
+    height: calc(var(--vh, 1vh) * 100);
+  }
+}
+</style>

@@ -16,7 +16,7 @@
     </undertopbar>
 
     <div class="grid gap-4 grid-cols-3 p-4">
-      <BaseButton class="whitespace-nowrap text-lg font-base"> 인원추가 </BaseButton>
+      <BaseButton class="whitespace-nowrap text-lg font-base" @click="openFamilyModal"> 인원추가 </BaseButton>
       <BaseButton class="whitespace-nowrap text-lg font-base"> 약정보검색 </BaseButton>
       <BaseButton class="whitespace-nowrap text-lg font-base"> 알림설정 </BaseButton>
     </div>
@@ -52,6 +52,8 @@
       </div>
     </mainview>
   </div>
+  <FamilyAddModal :isOpen="isFamilyModalOpen" @close="isFamilyModalOpen = false" />
+
 </template>
 
 <script setup>
@@ -61,6 +63,15 @@ import YellowCard from '../layout/YellowCard.vue';
 import WhiteCard from '../layout/WhiteCard.vue';
 import HamBugerMenu from '../components/HamBugerMenu.vue';
 import NameDropdown from '../components/NameDropdown.vue';
+import FamilyAddModal from '../components/FamilyAddModal.vue';
+// ✅ 모달 상태
+const isFamilyModalOpen = ref(false);
+
+// ✅ 모달 열기 함수
+const openFamilyModal = () => {
+  isFamilyModalOpen.value = true;
+};
+
 
 const selectedDate = ref(null);
 </script>
