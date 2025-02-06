@@ -29,4 +29,17 @@ public class ManagementRepositoryImpl implements ManagementRepositoryCustom {
                         .and(information.deleted.eq(false)))
                 .fetch();
     }
+
+    @Override
+    public List<Management> findByInformationByDateAndMember(LocalDate date, Member member) {
+        QManagement management = QManagement.management;
+        QInformation information = QInformation.information;
+        return queryFactory.selectFrom(management)
+                .leftJoin(management.information, information).fetchJoin()
+                .where(information.reader.id.eq(member.getId())
+                        .and(information.startDate.loe(date))
+                        .and(information.endDate.goe(date))
+                        .and(information.deleted.eq(false)))
+                .fetch();
+    }
 }

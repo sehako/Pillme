@@ -19,11 +19,9 @@ import com.ssafy.pillme.management.presentation.request.DeleteManagementRequest;
 import com.ssafy.pillme.management.presentation.request.SingleTakingCheckRequest;
 import com.ssafy.pillme.management.presentation.request.TakingInformationRegisterRequest;
 import java.net.URI;
-import java.time.LocalDate;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -66,12 +64,11 @@ public class ManagementController {
 
     @GetMapping
     public ResponseEntity<JSONResponse<List<PrescriptionResponse>>> currentTakingAll(
-            @RequestParam("date") @DateTimeFormat(pattern = "yyyy-MM-dd") final LocalDate localDate,
             @Auth Member member
     ) {
         return ResponseEntity.ok(
                 JSONResponse.onSuccess(
-                        managementService.selectManagementByDate(localDate, member)
+                        managementService.selectManagementByDate(member)
                 )
         );
     }
