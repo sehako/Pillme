@@ -69,7 +69,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-mail'
 
     // CoolSMS
-    implementation 'net.nurigo:javaSDK:2.2'
+    implementation 'net.nurigo:sdk:4.3.2'
 
     // MySQL
     implementation 'com.mysql:mysql-connector-j:9.2.0'

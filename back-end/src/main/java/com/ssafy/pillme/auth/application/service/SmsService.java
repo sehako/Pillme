@@ -2,21 +2,28 @@ package com.ssafy.pillme.auth.application.service;
 
 import com.ssafy.pillme.auth.application.exception.external.FailedSmsDeliveryException;
 import com.ssafy.pillme.auth.application.exception.verification.InvalidSmsCodeException;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
-import net.nurigo.java_sdk.api.Message;
-import net.nurigo.java_sdk.exceptions.CoolsmsException;
+import lombok.extern.slf4j.Slf4j;
+import net.nurigo.sdk.NurigoApp;
+import net.nurigo.sdk.message.exception.NurigoMessageNotReceivedException;
+import net.nurigo.sdk.message.model.Message;
+import net.nurigo.sdk.message.request.SingleMessageSendingRequest;
+import net.nurigo.sdk.message.response.SingleMessageSentResponse;
+import net.nurigo.sdk.message.service.DefaultMessageService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class SmsService {
     private final RedisTemplate<String, String> redisTemplate;
+    private DefaultMessageService messageService;
 
     @Value("${COOLSMS_API_KEY}")
     private String apiKey;
@@ -27,36 +34,51 @@ public class SmsService {
     @Value("${COOLSMS_SENDER_NUMBER}")
     private String senderNumber;
 
-    private static final String SMS_CODE_PREFIX = "SMS:";  // 인증번호 저장용
-    private static final String VERIFIED_PREFIX = "VSMS:"; // 인증 완료 저장용
+    private static final String SMS_CODE_PREFIX = "SMS:";
+    private static final String VERIFIED_PREFIX = "VSMS:";
     private static final long CODE_EXPIRATION_TIME = 300000; // 5분
     private static final long VERIFIED_EXPIRATION_TIME = 600000; // 10분
 
-    /**
-     * 휴대전화 인증번호 발송
-     */
+    @PostConstruct
+    public void setupMessageService() {
+        if (apiKey == null || apiSecret == null) {
+            throw new IllegalStateException("API 키와 시크릿이 설정되지 않았습니다.");
+        }
+        this.messageService = NurigoApp.INSTANCE.initialize(apiKey, apiSecret, "https://api.coolsms.co.kr");
+    }
+
     public void sendVerificationSms(String phoneNumber) {
+        if (!isValidPhoneNumber(phoneNumber)) {
+            throw new IllegalArgumentException("유효하지 않은 전화번호 형식입니다.");
+        }
+
         String verificationCode = generateVerificationCode();
         saveVerificationCode(phoneNumber, verificationCode);
 
-        Message coolsms = new Message(apiKey, apiSecret);
+        Message message = new Message();
+        message.setFrom(senderNumber);
+        message.setTo(phoneNumber);
+        message.setText(String.format("[PillMe] 인증번호 [%s]를 입력해주세요.", verificationCode));
 
-        HashMap<String, String> params = new HashMap<>();
-        params.put("to", phoneNumber);
-        params.put("from", senderNumber);
-        params.put("type", "SMS");
-        params.put("text", String.format("[PillMe] 인증번호 [%s]를 입력해주세요.", verificationCode));
-
-        try {
-            coolsms.send(params);
-        } catch (CoolsmsException e) {
-            throw new FailedSmsDeliveryException();
-        }
+//        try {
+//            SingleMessageSentResponse response = this.messageService.sendOne(new SingleMessageSendingRequest(message));
+//            if (!response.getStatusCode().equals("2000")) {
+//                log.error("SMS 발송 실패: {}", response.getStatusMessage());
+//                throw new IllegalArgumentException("SMS 발송에 실패했습니다: " + response.getStatusMessage());
+//            }
+//        } catch (NurigoMessageNotReceivedException e) {
+//            log.error("메시지 전송 실패: {}", e.getMessage());
+//            throw new FailedSmsDeliveryException("메시지 전송에 실패했습니다");
+//        } catch (Exception e) {
+//            log.error("예상치 못한 에러 발생: {}", e.getMessage());
+//            throw new FailedSmsDeliveryException("SMS 서비스 오류가 발생했습니다");
+//        }
     }
 
-    /**
-     * 인증번호 확인
-     */
+    private boolean isValidPhoneNumber(String phoneNumber) {
+        return phoneNumber != null && phoneNumber.matches("^01[0-9]{9}$");
+    }
+
     public void verifySmsCode(String phoneNumber, String code) {
         String savedCode = findVerificationCode(phoneNumber);
         if (savedCode == null) {
@@ -66,14 +88,10 @@ public class SmsService {
             throw new InvalidSmsCodeException();
         }
 
-        // 인증번호 삭제 및 인증 완료 상태 저장
         deleteVerificationCode(phoneNumber);
         saveVerifiedStatus(phoneNumber);
     }
 
-    /**
-     * 인증 완료 상태 확인
-     */
     public boolean isVerified(String phoneNumber) {
         String key = VERIFIED_PREFIX + phoneNumber;
         return Boolean.TRUE.equals(redisTemplate.hasKey(key));
