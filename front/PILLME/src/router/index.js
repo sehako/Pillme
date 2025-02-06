@@ -19,6 +19,7 @@ import CalendarView from '../views/CalendarView.vue';
 import PersonalInfo from '../views/PersonalInfo.vue';
 import LoginSecurity from '../views/LoginSecurity.vue';
 import MyPage_PwChange from '../views/MyPage_PwChange.vue';
+import ChatView from '../views/ChatView.vue';
 // import NameDropdown from '../components/NameDropdown.vue';
 // import ProfileView from '../views/ProfileView.vue';
 // import SettingsView from '../views/SettingsView.vue';
@@ -41,6 +42,11 @@ const routes = [
     path: '/afteraccount',  // URL 경로
     name: 'AfterAccount',
     component: AfterAccountView,  // 등록한 컴포넌트
+  },
+  {
+    path: '/chat',
+    name: 'ChatView',
+    component: ChatView,
   },
   {
     path: '/idsearch',  

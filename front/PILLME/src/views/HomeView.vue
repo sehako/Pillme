@@ -1,6 +1,6 @@
 <template>
   <div class="flex flex-col w-full">
-    <undertopbar class="bg-[#B5CCB7] rounded-bl-lg rounded-br-lg">
+    <undertopbar class="bg-[#B5CCB7] rounded-bl-xl rounded-br-lg">
       <div class="flex flex-row items-center justify-between px-4 py-1">
         <!-- ✅ 햄버거 메뉴 컴포넌트 -->
         <div class="flex-1 flex">
@@ -16,9 +16,9 @@
     </undertopbar>
 
     <div class="grid gap-4 grid-cols-3 p-4">
-      <BaseButton class="whitespace-nowrap"> 인원추가 </BaseButton>
-      <BaseButton class="whitespace-nowrap"> 약정보검색 </BaseButton>
-      <BaseButton class="whitespace-nowrap"> 알림설정 </BaseButton>
+      <BaseButton class="whitespace-nowrap text-lg font-base"> 인원추가 </BaseButton>
+      <BaseButton class="whitespace-nowrap text-lg font-base"> 약정보검색 </BaseButton>
+      <BaseButton class="whitespace-nowrap text-lg font-base"> 알림설정 </BaseButton>
     </div>
 
     <mainview>
@@ -34,7 +34,7 @@
       </YellowCard>
 
       <div class="m-4 flex flex-col">
-        <p class="text-lg font-bold">복용 내역</p>
+        <p class="text-xl font-bold">복용 내역</p>
         <WhiteCard overrideClass="bg-white">
           <div class="flex flex-row items-center">
             <img src="../assets/logi_nofont.png" alt="알약이미지" class="w-16 h-16">

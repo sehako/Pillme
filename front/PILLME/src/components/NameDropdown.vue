@@ -2,7 +2,7 @@
   <div class="relative">
     <!-- ✅ 사용자 이름과 드롭다운 버튼 -->
     <button @click="toggleModal" class="flex items-center space-x-1">
-      <p class="text-center whitespace-nowrap">사용자이름</p>
+      <p class="text-center whitespace-nowrap text-2xl font-base">사용자이름</p>
       <img src="../assets/namedropdown.svg" alt="이름드롭다운"
            class="w-4 h-4 transition-transform duration-300"
            :class="{ 'rotate-180': isOpen }">
