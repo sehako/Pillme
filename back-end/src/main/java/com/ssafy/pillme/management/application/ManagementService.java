@@ -106,12 +106,23 @@ public class ManagementService {
     }
 
     @Transactional(readOnly = true)
-    public List<PrescriptionResponse> selectManagementByDate(final LocalDate localDate, final Member member) {
-        return informationRepository.findByDate(localDate)
+    public List<PrescriptionResponse> selectManagementByDate(final Member member) {
+        return informationRepository.findByDate(LocalDate.now())
                 .stream()
                 .map(information -> PrescriptionResponse.of(
                         information, member
                 ))
+                .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public List<TakingInformationItem> selectCurrentTakingInformationList(
+            final Member member
+    ) {
+        List<Management> managements = managementRepository.findByInformationByDateAndMember(LocalDate.now(), member);
+
+        return managements.stream()
+                .map(TakingInformationItem::from)
                 .collect(Collectors.toList());
     }
 
