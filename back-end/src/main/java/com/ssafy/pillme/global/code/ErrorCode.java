@@ -67,6 +67,9 @@ public enum ErrorCode {
     INVALID_TIME_REQUEST(4054, BAD_REQUEST, "유효하지 않은 시간 요청입니다"),
     INVALID_MEMBER_REQUEST(4055, UNAUTHORIZED, "다른 사용자의 복약 내역은 수정할 수 없습니다"),
 
+    //채팅방 관리
+    EMPTY_CHATROOM_ID(4070, BAD_REQUEST, "요청한 채팅방은 존재하지 않습니다."),
+
     // 복약 내역
     HISTORY_NOT_FOUND(4100, NOT_FOUND, "복약 내역을 찾을 수 없습니다."),
     MEMBER_NOT_MATCHED(4101, UNAUTHORIZED, "복약 내역은 사용자 본인만 삭제 가능합니다");

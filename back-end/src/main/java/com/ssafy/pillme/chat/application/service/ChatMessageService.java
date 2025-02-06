@@ -16,14 +16,13 @@ public class ChatMessageService {
 
     public List<ChatMessageResponse> getChatMessages(Long chatRoomId){
         List<ChatMessage> chatMessages = chatMessageRepository.findByChatRoomIdOrderByTimestampAsc(chatRoomId);
-        List<ChatMessageResponse> responses = chatMessages.
+        return chatMessages.
                 stream()
                 .map(ChatMessageResponse::from)
                 .toList();
-        return responses;
     }
 
-    public ChatMessage saveMessage(ChatMessage chatMessage){
-        return chatMessageRepository.save(chatMessage);
+    public void saveMessage(ChatMessage chatMessage){
+        chatMessageRepository.save(chatMessage);
     }
 }
