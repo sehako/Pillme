@@ -1,14 +1,14 @@
 <template>
-  <div class="flex flex-col w-full h-screen">
+  <div class="flex flex-col w-full max-h-full !items-start !justify-start">
     <!-- 상단 (70%) -->
     <div class="w-full">
-      <VCalendar class="w-full"/>
+      <VCalendar trim-weeks expanded/>
     </div>
 
     <div class="grid grid-cols-3 divide-x-0"></div>
 
     <!-- ✅ 하단 (30%) - 스크롤 가능 -->
-    <div class="flex-1 w-full overflow-y-auto p-4">
+    <div class="flex flex-col w-full overflow-y-auto p-4">
       <!-- ✅ 블록 요소 사용 -->
       <div v-for="i in 50" :key="i" class="mb-4">
         <WhiteCard overrideClass="bg-white">

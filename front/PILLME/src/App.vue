@@ -76,7 +76,8 @@ const updateNavbarHeight = () => {
 };
 
 // ✅ 모바일 환경 감지
-const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+const isMobile = window.matchMedia("(pointer:coarse)").matches || /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
 
 // ✅ 모바일에서만 vh 값을 조정하는 함수
 const setRealVH = () => {
@@ -115,9 +116,14 @@ onMounted(() => {
 
 <style>
 /* ✅ 모바일 환경에서만 적용될 vh */
+.h-screen-custom {
+  height: 100vh; /* 기본적으로 100vh 사용 */
+}
+
 @media (max-width: 768px) {
   .h-screen-custom {
     height: calc(var(--vh, 1vh) * 100);
   }
 }
+
 </style>
