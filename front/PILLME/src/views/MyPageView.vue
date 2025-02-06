@@ -2,9 +2,8 @@
   <div class="flex flex-row h-screen">
     <!-- 왼쪽 메뉴 (대분류) -->
     <aside 
-      class="left-0 top-0 p-4 flex flex-col border-r border-gray-200 
-             min-w-[120px] max-w-[200px] w-full"
-      :style="{ height: `calc(100vh - ${navbarHeight * 1.6}px)` }"
+      class="left-0 top-0 p-4 flex flex-col border-r border-gray-200"
+      :style="{ height: `calc(100vh - ${navbarHeight * 1.6}px)`, width: '33.33%' }"
     >
       <!-- ✅ 검색창 (검색어 입력 시 모든 세부 메뉴에서 필터링) -->
       <div class="pb-4 border-b border-gray-300">
@@ -32,7 +31,8 @@
     </aside>
 
     <!-- 오른쪽 콘텐츠 (검색 결과 / 세부 메뉴) -->
-    <div class="flex-1 flex flex-col justify-start items-start border-l border-gray-200 p-4">
+    <div class="flex-1 flex flex-col justify-start items-start border-l border-gray-200 p-4"
+         :style="{ width: '66.66%' }">
       <h1 class="text-xl font-bold mb-4">
         {{ searchQuery ? "검색 결과" : selectedMenu || "메뉴 선택" }}
       </h1>
