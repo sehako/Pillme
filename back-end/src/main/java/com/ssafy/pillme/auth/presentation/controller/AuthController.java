@@ -6,11 +6,7 @@ import com.ssafy.pillme.auth.application.service.AuthService;
 import com.ssafy.pillme.auth.domain.vo.Role;
 import com.ssafy.pillme.auth.infrastructure.repository.MemberRepository;
 import com.ssafy.pillme.auth.application.service.OAuth2Service;
-import com.ssafy.pillme.auth.presentation.request.LoginRequest;
-import com.ssafy.pillme.auth.presentation.request.OAuthAdditionalInfoRequest;
-import com.ssafy.pillme.auth.presentation.request.OAuthSignUpRequest;
-import com.ssafy.pillme.auth.presentation.request.PasswordResetRequest;
-import com.ssafy.pillme.auth.presentation.request.SignUpRequest;
+import com.ssafy.pillme.auth.presentation.request.*;
 import com.ssafy.pillme.auth.application.response.FindEmailResponse;
 import com.ssafy.pillme.auth.application.response.OAuth2Response;
 import com.ssafy.pillme.global.response.JSONResponse;
@@ -87,16 +83,6 @@ public class AuthController {
     }
 
     /**
-     * SMS 인증번호 발송
-     */
-    @PostMapping("/sms/verification")
-    public ResponseEntity<JSONResponse<Void>> sendSmsVerification(
-            @RequestParam String phoneNumber) {
-        authService.sendSmsVerification(phoneNumber);
-        return ResponseEntity.ok(JSONResponse.onSuccess(null));
-    }
-
-    /**
      * 이메일 인증번호 확인
      */
     @PostMapping("/email/verify")
@@ -104,6 +90,16 @@ public class AuthController {
             @RequestParam String email,
             @RequestParam String code) {
         authService.verifyEmail(email, code);
+        return ResponseEntity.ok(JSONResponse.onSuccess(null));
+    }
+
+    /**
+     * SMS 인증번호 발송
+     */
+    @PostMapping("/sms/verification")
+    public ResponseEntity<JSONResponse<Void>> sendSmsVerification(
+            @RequestParam String phoneNumber) {
+        authService.sendSmsVerification(phoneNumber);
         return ResponseEntity.ok(JSONResponse.onSuccess(null));
     }
 
@@ -222,5 +218,11 @@ public class AuthController {
     public ResponseEntity<JSONResponse<Boolean>> checkPhoneDuplicate(@RequestParam String phone) {
         boolean isDuplicate = memberRepository.existsByPhone(phone);
         return ResponseEntity.ok(JSONResponse.onSuccess(isDuplicate));
+    }
+
+    @PostMapping("/local/signup")
+    public ResponseEntity<Long> localSignUp(@RequestBody @Valid CreateLocalMemberRequest request) {
+        Long memberId = authService.createLocalMember(request);
+        return ResponseEntity.ok(memberId);
     }
 }
