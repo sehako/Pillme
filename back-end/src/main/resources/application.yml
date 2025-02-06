@@ -1,7 +1,6 @@
 spring:
   application:
     name: pillme
-
   config:
     import:
       - classpath:application-auth.yml
@@ -10,4 +9,5 @@ spring:
       - classpath:application-mysql.yml
       - classpath:application-firebase.yml
       - classpath:application-mongo.yml
+      - classpath:application-elastic.yml
       - optional:file:.env[.properties]
