@@ -11,4 +11,6 @@ public interface FCMTokenService {
 
     // 사용자 id로 토큰들 조회
     List<FCMToken> findAllByMemberId(Long memberId);
+
+    void deleteFCMToken(FCMToken fcmToken);
 }

@@ -1,15 +1,19 @@
 package com.ssafy.pillme.notification.application.service;
 
 import com.google.firebase.messaging.*;
+import com.ssafy.pillme.global.code.ErrorCode;
+import com.ssafy.pillme.notification.application.exception.FCMTokenNotFoundException;
 import com.ssafy.pillme.notification.domain.entity.FCMToken;
 import com.ssafy.pillme.notification.presentation.request.NotificationRequest;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class FCMNotificationServiceImpl implements FCMNotificationService {
@@ -39,17 +43,17 @@ public class FCMNotificationServiceImpl implements FCMNotificationService {
          */
         List<FCMToken> tokens = findValidTokens(memberId);
 
-        if (tokens.isEmpty()) {
-            //TODO: 사용자가 알림을 허용한 토큰이 없을 경우 예외 처리
-        }
-
         for (FCMToken token : tokens) {
             Message message = buildSendNotificationMessage(token.getToken(), title, body);
 
             /* 사용자가 알림을 허용한 토큰이 여러 개일 수 있기 때문에 비동기로 처리
             동기로 처리할 경우, 모든 토큰에 알림을 보내는데 시간이 오래 걸릴 수 있음
              */
-            firebaseMessaging.sendAsync(message);
+            try {
+                firebaseMessaging.sendAsync(message);
+            } catch (Exception e) {
+                handleExceptionForSendMessage(e, token);
+            }
         }
     }
 
@@ -89,11 +93,38 @@ public class FCMNotificationServiceImpl implements FCMNotificationService {
                             .build())
                     .build();
             try {
-                firebaseMessaging.send(message);
-            } catch (FirebaseMessagingException e) {
-                // TODO: 예외 처리 로직 추가
+                firebaseMessaging.sendAsync(message);
+            } catch (Exception e) {
+                handleExceptionForSendMessage(e, receiverFCMToken);
             }
 
+        }
+    }
+
+    // 메시지 전송 중 예외 처리
+    private void handleExceptionForSendMessage(Exception e, FCMToken fcmToken) {
+
+        if (e.getCause() instanceof FirebaseMessagingException exception) {
+            MessagingErrorCode errorCode = exception.getMessagingErrorCode();
+            // 알림 전송 실패 시 처리
+            if (errorCode.equals(MessagingErrorCode.UNREGISTERED)) {
+                fcmTokenService.deleteFCMToken(fcmToken);
+            }
+            /*
+             * FCM 서버에서 장애가 발생했을 때, 재전송 로직을 추가
+             * */
+            else if (errorCode.equals(MessagingErrorCode.UNAVAILABLE) ||
+                    errorCode.equals(MessagingErrorCode.INTERNAL)) {
+                // TODO: 재전송 로직 추가
+            }
+            // 기타 예외는 로그로 기록
+            else {
+                log.error("Failed to send message: {}", e.getMessage());
+            }
+        }
+        // 기타 예외는 로그로 기록
+        else {
+            log.error("Failed to send message: {}", e.getMessage());
         }
     }
 
@@ -118,7 +149,7 @@ public class FCMNotificationServiceImpl implements FCMNotificationService {
 
         // 사용자가 알림을 허용한 토큰이 없을 경우 예외 처리
         if (tokens.isEmpty()) {
-            // TODO: 사용자가 알림을 허용한 토큰이 없을 경우 예외 처리
+            throw new FCMTokenNotFoundException(ErrorCode.FCM_TOKEN_NOT_FOUND);
         }
 
         return tokens;

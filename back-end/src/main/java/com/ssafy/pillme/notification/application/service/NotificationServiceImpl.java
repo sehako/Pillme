@@ -1,6 +1,9 @@
 package com.ssafy.pillme.notification.application.service;
 
 import com.ssafy.pillme.auth.domain.entity.Member;
+import com.ssafy.pillme.global.code.ErrorCode;
+import com.ssafy.pillme.notification.application.exception.NotificationAccessDenied;
+import com.ssafy.pillme.notification.application.exception.NotificationSettingNotFoundException;
 import com.ssafy.pillme.notification.application.response.NotificationResponse;
 import com.ssafy.pillme.notification.application.response.NotificationSettingResponse;
 import com.ssafy.pillme.notification.domain.entity.Notification;
@@ -59,7 +62,7 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     public void updateNotificationSetting(NotificationSettingRequest request, Member loginMember) {
         NotificationSetting setting = notificationSettingRepository.findByMemberId(loginMember.getId())
-                .orElseThrow(() -> new IllegalArgumentException("알림 설정이 존재하지 않습니다."));
+                .orElseThrow(() -> new NotificationSettingNotFoundException(ErrorCode.NOTIFICATION_SETTING_NOT_FOUND));
 
         setting.update(request);
     }
@@ -67,7 +70,7 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     public void deleteNotificationSetting(Member loginMember) {
         NotificationSetting setting = notificationSettingRepository.findByMemberId(loginMember.getId())
-                .orElseThrow(() -> new IllegalArgumentException("알림 설정이 존재하지 않습니다."));
+                .orElseThrow(() -> new NotificationSettingNotFoundException(ErrorCode.NOTIFICATION_SETTING_NOT_FOUND));
         notificationSettingRepository.delete(setting);
     }
 
@@ -247,12 +250,11 @@ public class NotificationServiceImpl implements NotificationService {
     public void readNotifications(NotificationConfirmRequest request, Member loginMember) {
         // 현재 사용자 id와 요청으로 받은 알림 id를 통해 알림 조회
         List<Notification> notifications = notificationRepository
-                .findAllByIdInAndReceiverId(request.notificationConfirmList(), loginMember.getId());
+                .findAllByIdInAndReceiverIdAndDeletedFalse(request.notificationConfirmList(), loginMember.getId());
 
         // 요청한 알림과 실제 조회된 알림의 개수가 다를 경우 예외 처리
-        // TODO: 예외 정의 필요
         if (notifications.size() != request.notificationConfirmList().size()) {
-            throw new IllegalArgumentException("일부 알림에 대한 접근 권한이 없습니다");
+            throw new NotificationAccessDenied(ErrorCode.NOTIFICATION_ACCESS_DENIED);
         }
 
         // 읽은 알림 처리
@@ -265,12 +267,11 @@ public class NotificationServiceImpl implements NotificationService {
     public void deleteNotifications(NotificationDeleteRequest request, Member loginMember) {
         // 현재 사용자 id와 요청으로 받은 알림 id를 통해 알림 조회
         List<Notification> notifications = notificationRepository
-                .findAllByIdInAndReceiverId(request.notificationDeleteList(), loginMember.getId());
+                .findAllByIdInAndReceiverIdAndDeletedFalse(request.notificationDeleteList(), loginMember.getId());
 
         // 요청한 알림과 실제 조회된 알림의 개수가 다를 경우 예외 처리
-        // TODO: 예외 정의 필요
         if (notifications.size() != request.notificationDeleteList().size()) {
-            throw new IllegalArgumentException("일부 알림에 대한 접근 권한이 없습니다");
+            throw new NotificationAccessDenied(ErrorCode.NOTIFICATION_ACCESS_DENIED);
         }
 
         // 알림 soft 삭제
@@ -281,15 +282,11 @@ public class NotificationServiceImpl implements NotificationService {
 
     // 일관된 시간을 위해 currentTime을 매개변수로 받아 이용
     private void sendNotification(NotificationSetting setting, LocalTime currentTime) {
-        try {
-            // 알림 시간 타입 확인
-            NotificationTimeType timeType = NotificationTimeType.determineType(setting, currentTime);
+        // 알림 시간 타입 확인
+        NotificationTimeType timeType = NotificationTimeType.determineType(setting, currentTime);
 
-            //TODO: 회원의 약물 복용이 존재하는 경우, 해당 약물의 이름과 함께 알림 전송
-            // 현재는 알림 설정만 존재하므로 해당 시간에 알림 제목만 전송
-            fcmNotificationService.sendNotificationSetting(setting.getMember().getId(), timeType.getMessage(), "");
-        } catch (Exception e) {
-            log.error("알림 전송 중 오류 발생: {}", e.getMessage());
-        }
+        //TODO: 회원의 약물 복용이 존재하는 경우, 해당 약물의 이름과 함께 알림 전송
+        // 현재는 알림 설정만 존재하므로 해당 시간에 알림 제목만 전송
+        fcmNotificationService.sendNotificationSetting(setting.getMember().getId(), timeType.getMessage(), "");
     }
 }
