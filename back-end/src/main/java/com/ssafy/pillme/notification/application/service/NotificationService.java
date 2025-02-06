@@ -32,6 +32,12 @@ public interface NotificationService {
 
     void sendMedicineRejectNotification(Member sender, Member receiver);
 
+    void sendDependencyDeleteRequestNotification(Member sender, Member receiver);
+
+    void sendDependencyDeleteAcceptNotification(Member sender, Member receiver);
+
+    void sendDependencyDeleteRejectNotification(Member sender, Member receiver);
+
     List<NotificationResponse> getNotificationList();
 
     void readNotifications(NotificationConfirmRequest request);
