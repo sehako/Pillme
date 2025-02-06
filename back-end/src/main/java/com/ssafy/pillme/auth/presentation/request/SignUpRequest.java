@@ -26,11 +26,11 @@ public record SignUpRequest(
         @NotNull(message = "성별은 필수입니다")
         Gender gender,
 
-        @Pattern(regexp = "^\\d{3}-\\d{3,4}-\\d{4}$",
+        @Pattern(regexp = "^01\\d{9}$",
                 message = "올바른 전화번호 형식이 아닙니다")
         String phone,
 
-        @Pattern(regexp = "^\\d{4}-\\d{2}-\\d{2}$",
+        @Pattern(regexp = "^(19|20)\\d{2}(0[1-9]|1[0-2])(0[1-9]|[12]\\d|3[01])$",
                 message = "올바른 생년월일 형식이 아닙니다")
         String birthday
 ) {
