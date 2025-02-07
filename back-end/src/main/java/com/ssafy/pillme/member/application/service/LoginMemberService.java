@@ -6,6 +6,7 @@ import com.ssafy.pillme.member.application.exception.AlreadyExistEmailAddressExc
 import com.ssafy.pillme.member.application.exception.NoMemberInfoException;
 import com.ssafy.pillme.member.domain.entity.LoginMember;
 import com.ssafy.pillme.member.infrastructure.repository.LoginMemberRepository;
+import com.ssafy.pillme.member.presentation.request.UpdateLoginMemberRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -53,7 +54,7 @@ public class LoginMemberService {
     }
 
     // 전화번호 인증 코드 검증
-    public boolean verifyPhoneCode(String phone, String code) {
+    public boolean verifySmsCode(String phone, String code) {
         smsService.verifySmsCode(phone, code);
         return smsService.isVerified(phone);
     }
@@ -90,10 +91,10 @@ public class LoginMemberService {
     }
 
     // 최종 회원정보 업데이트
-    public void updateMemberInformation(Long memberId, MemberUpdateRequest request) {
+    public void updateMemberInformation(Long memberId, UpdateLoginMemberRequest request) {
         LoginMember member = loginMemberRepository.findById(memberId).orElseThrow(NoMemberInfoException::new);
 
         // 모든 검증이 통과되면 정보 업데이트
-        member.updateInformation(request.getEmail(), request.getNickname(), request.getPhone());
+        member.updateInformation(request.email(), request.nickname(), request.phone());
     }
 }
