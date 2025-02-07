@@ -6,17 +6,28 @@
     <!-- 페이지 타이틀 -->
     <h1 class="text-xl font-bold mb-4">알림 설정</h1>
 
+    <!-- 알림 활성화 토글 박스 -->
+    <div class="mb-4">
+      <label class="inline-flex items-center">
+        <input 
+          type="checkbox" 
+          v-model="notificationSettings.enabled" 
+          class="form-checkbox h-5 w-5 text-green-600"
+        />
+        <span class="ml-2">알림 활성화</span>
+      </label>
+    </div>
+
     <!-- 알림 설정 폼 -->
     <form @submit.prevent="updateNotificationSettings" class="space-y-4">
       <!-- 아침 알림 -->
       <div>
         <label for="morning" class="block mb-1 font-medium">아침 알림 시간</label>
-        <!-- input type="time"는 HH:MM 형식의 문자열을 반환합니다.
-             백엔드에서 timestamp로 관리하더라도, 저장 전 변환할 수 있습니다. -->
         <input 
           id="morning"
           type="time" 
           v-model="notificationSettings.morning" 
+          :disabled="!notificationSettings.enabled"
           class="border rounded p-2 w-full"
         />
       </div>
@@ -28,6 +39,7 @@
           id="lunch"
           type="time" 
           v-model="notificationSettings.lunch" 
+          :disabled="!notificationSettings.enabled"
           class="border rounded p-2 w-full"
         />
       </div>
@@ -39,6 +51,7 @@
           id="dinner"
           type="time" 
           v-model="notificationSettings.dinner" 
+          :disabled="!notificationSettings.enabled"
           class="border rounded p-2 w-full"
         />
       </div>
@@ -50,6 +63,7 @@
           id="bedtime"
           type="time" 
           v-model="notificationSettings.bedtime" 
+          :disabled="!notificationSettings.enabled"
           class="border rounded p-2 w-full"
         />
       </div>
@@ -66,53 +80,26 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { onMounted } from 'vue';
+import { useNotificationSettingsStore } from '../stores/notificationSettingsStore';
+import { storeToRefs } from 'pinia';
 import BackButton from '../components/BackButton.vue';
 import BaseButton from '../components/BaseButton.vue';
-// 로그인 시 전달받은 사용자 번호 (실제 앱에서는 스토어나 props 등을 통해 전달받음)
-const userId = 123;
 
-// 알림 설정 객체
-// id: 알림설정번호(pk), userId: 사용자 번호(fk)
-// 아침, 점심, 저녁, 자기전 값은 타임스탬프(혹은 시간 문자열)로 관리
-const notificationSettings = ref({
-  id: null,
-  userId: userId,
-  morning: '',  // 예: "07:00"
-  lunch: '',    // 예: "12:00"
-  dinner: '',   // 예: "18:00"
-  bedtime: ''   // 예: "22:00"
-});
+// Pinia 스토어 불러오기
+const notificationStore = useNotificationSettingsStore();
+// storeToRefs를 사용하여 상태를 반응형으로 바인딩 (템플릿에서 편리하게 사용)
+const { notificationSettings } = storeToRefs(notificationStore);
 
-// 백엔드에서 현재 사용자의 알림 설정 정보를 가져오는 함수
-const fetchNotificationSettings = async () => {
-  // 실제 환경에서는 axios나 fetch를 사용하여 API 호출
-  // 아래는 예시 더미 데이터입니다.
-  const response = {
-    id: 1,          // 알림설정번호 (개인별 부여)
-    userId: userId, // 사용자 번호 (fk)
-    morning: "07:00",
-    lunch: "12:00",
-    dinner: "18:00",
-    bedtime: "22:00"
-  };
-  notificationSettings.value = response;
-};
-
-// 알림 설정 정보를 저장(업데이트)하는 함수
+// 알림 설정 저장 함수 (Pinia 스토어를 통해 업데이트)
 const updateNotificationSettings = async () => {
-  // 필요에 따라 입력된 HH:MM 형식의 값을 timestamp로 변환할 수 있음.
-  // 예를 들어, 오늘 날짜를 기준으로 생성할 수 있습니다.
-  // 여기서는 단순히 console.log와 alert로 시뮬레이션합니다.
   console.log("업데이트할 알림 설정:", notificationSettings.value);
-
-  // 실제 API 호출 예시 (axios 등 사용)
-  // await axios.put('/api/notification-settings', notificationSettings.value);
-
+  await notificationStore.updateNotificationSettings(notificationSettings.value);
   alert("알림 설정이 저장되었습니다.");
 };
 
+// 컴포넌트 마운트 시 스토어에서 현재 알림 설정 정보를 불러옴
 onMounted(() => {
-  fetchNotificationSettings();
+  notificationStore.fetchNotificationSettings();
 });
 </script>
