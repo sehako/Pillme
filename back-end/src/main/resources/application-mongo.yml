@@ -1,5 +1,7 @@
 spring:
   data:
     mongodb:
-      uri: mongodb://localhost:27017/chatdb
-      database : chatdb
+      uri: ${MONGO_URI}
+      database: chatdb
+      username: ${MONGO_USERNAME}
+      password: ${MONGO_PASSWORD}
