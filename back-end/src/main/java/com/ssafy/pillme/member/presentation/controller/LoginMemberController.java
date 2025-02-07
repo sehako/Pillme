@@ -2,6 +2,9 @@ package com.ssafy.pillme.member.presentation.controller;
 
 import com.ssafy.pillme.global.response.JSONResponse;
 import com.ssafy.pillme.member.application.service.LoginMemberService;
+import com.ssafy.pillme.member.presentation.request.EmailVerificationRequest;
+import com.ssafy.pillme.member.presentation.request.PhoneVerificationRequest;
+import com.ssafy.pillme.member.presentation.request.UpdateLoginMemberRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,7 +28,7 @@ public class LoginMemberController {
     @PostMapping("/{memberId}/email/verify-code")
     public ResponseEntity<JSONResponse<Void>> verifyEmailCode(
             @RequestBody EmailVerificationRequest request) {
-        loginMemberService.verifyEmailCode(request.getEmail(), request.getCode());
+        loginMemberService.verifyEmailCode(request.email(), request.code());
         return ResponseEntity.ok(JSONResponse.onSuccess());
     }
 
@@ -42,7 +45,7 @@ public class LoginMemberController {
     @PostMapping("/{memberId}/phone/verify-code")
     public ResponseEntity<JSONResponse<Void>> verifyPhoneCode(
             @RequestBody PhoneVerificationRequest request) {
-        loginMemberService.verifyPhoneCode(request.getPhone(), request.getCode());
+        loginMemberService.verifySmsCode(request.phoneNumber(), request.code());
         return ResponseEntity.ok(JSONResponse.onSuccess());
     }
 
@@ -57,7 +60,7 @@ public class LoginMemberController {
 
     // 최종 정보 업데이트
     @PostMapping("/{memberId}/email/verify")
-    public ResponseEntity<JSONResponse<Void>> updateMemberInfo(@PathVariable Long memberId, @RequestBody MemberUpdateRequest request) {
+    public ResponseEntity<JSONResponse<Void>> updateMemberInfo(@PathVariable Long memberId, @RequestBody UpdateLoginMemberRequest request) {
         loginMemberService.updateMemberInformation(memberId, request);
         return ResponseEntity.ok(JSONResponse.onSuccess());
     }
