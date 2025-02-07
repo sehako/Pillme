@@ -1,13 +1,12 @@
 package com.ssafy.pillme.auth.presentation.controller;
 
 import com.ssafy.pillme.auth.application.service.EmailService;
+import com.ssafy.pillme.auth.presentation.request.SendEmailVerificationRequset;
+import com.ssafy.pillme.auth.presentation.request.VerifyEmailRequest;
 import com.ssafy.pillme.global.response.JSONResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/auth")
@@ -19,9 +18,9 @@ public class EmailController {
      */
     @PostMapping("/email/verification")
     public ResponseEntity<JSONResponse<Void>> sendEmailVerification(
-            @RequestParam String email) {
-        emailService.sendVerificationEmail(email);
-        return ResponseEntity.ok(JSONResponse.onSuccess(null));
+            @RequestBody SendEmailVerificationRequset requset) {
+        emailService.sendVerificationEmail(requset.email());
+        return ResponseEntity.ok(JSONResponse.onSuccess());
     }
 
     /**
@@ -29,9 +28,8 @@ public class EmailController {
      */
     @PostMapping("/email/verify")
     public ResponseEntity<JSONResponse<Void>> verifyEmail(
-            @RequestParam String email,
-            @RequestParam String code) {
-        emailService.verifyEmail(email, code);
-        return ResponseEntity.ok(JSONResponse.onSuccess(null));
+            @RequestBody VerifyEmailRequest request) {
+        emailService.verifyEmail(request.email(), request.code());
+        return ResponseEntity.ok(JSONResponse.onSuccess());
     }
 }
