@@ -42,7 +42,7 @@
  <script setup>
  import { ref, onMounted, onBeforeUnmount } from "vue";
  import BaseLogo from "../components/BaseLogo.vue";
- import logoSrc from "../assets/logi_nofont.png";
+ import logoSrc from "../assets/logi_nofont.svg";
  
  defineProps({
    title: String,

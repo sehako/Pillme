@@ -25,7 +25,7 @@
     <script setup>
     import BaseLogo from "../components/BaseLogo.vue";
     import BaseButton from "../components/BaseButton.vue";
-    import logoSrc from "../assets/logi_nofont.png"; 
+    import logoSrc from "../assets/logi_nofont.svg"; 
     
     defineProps({
       title: String,

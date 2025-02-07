@@ -55,7 +55,7 @@
   import BaseButton from "../components/BaseButton.vue";
   import BaseText from "../components/BaseText.vue"; // ✅ BaseText 추가
   
-  import logoSrc from "../assets/logi_nofont.png";
+  import logoSrc from "../assets/logi_nofont.svg";
   const phoneNumber = ref("");
   const verificationMessage = ref("");
   
