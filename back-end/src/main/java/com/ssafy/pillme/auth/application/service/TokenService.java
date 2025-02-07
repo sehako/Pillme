@@ -11,7 +11,7 @@ import java.util.concurrent.TimeUnit;
 public class TokenService {
     private final RedisTemplate<String, String> redisTemplate;
     private static final String REFRESH_TOKEN_PREFIX = "RT:";
-    private static final String BLACKLIST_PREFIX = "BL:";
+    private static final String DENYLIST_PREFIX = "DL:";
     private static final String PASSWORD_RESET_PREFIX = "PW_RESET:";
     private static final String TEMP_AUTH_PREFIX = "TEMP_AUTH:";
 
@@ -40,18 +40,18 @@ public class TokenService {
     }
 
     /**
-     * Access Token 블랙리스트 추가
+     * Access Token 거부 목록 추가
      */
-    public void blacklistToken(String token, long expirationTime) {
-        String key = BLACKLIST_PREFIX + token;
+    public void denylistToken(String token, long expirationTime) {
+        String key = DENYLIST_PREFIX + token;
         redisTemplate.opsForValue().set(key, "true", expirationTime, TimeUnit.MILLISECONDS);
     }
 
     /**
-     * Access Token 블랙리스트 확인
+     * Access Token 거부 목록 확인
      */
-    public boolean isTokenBlacklisted(String token) {
-        String key = BLACKLIST_PREFIX + token;
+    public boolean isTokenDenylisted(String token) {
+        String key = DENYLIST_PREFIX + token;
         return Boolean.TRUE.equals(redisTemplate.hasKey(key));
     }
 

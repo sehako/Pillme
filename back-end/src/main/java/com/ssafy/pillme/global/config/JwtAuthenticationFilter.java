@@ -28,8 +28,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         // Authorization 헤더에서 JWT 토큰 추출
         String token = extractToken(request);
 
-        // 토큰이 유효하고 블랙리스트에 없는 경우에만 인증 처리
-        if (token != null && jwtUtil.validateToken(token) && !tokenService.isTokenBlacklisted(token)) {
+        // 토큰이 유효하고 거부 목록에 없는 경우에만 인증 처리
+        if (token != null && jwtUtil.validateToken(token) && !tokenService.isTokenDenylisted(token)) {
             var claims = jwtUtil.extractClaims(token);
             // SecurityContext에 인증 정보 설정
             var authentication = new UsernamePasswordAuthenticationToken(
