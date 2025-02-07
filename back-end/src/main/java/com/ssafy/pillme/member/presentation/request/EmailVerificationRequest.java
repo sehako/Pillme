@@ -1,7 +1,7 @@
 package com.ssafy.pillme.member.presentation.request;
 
-public record PhoneVerificationRequest(
-        String phoneNumber,
+public record EmailVerificationRequest(
+        String email,
         String code
 ) {
 }
