@@ -35,6 +35,8 @@ public enum ErrorCode {
     DUPLICATE_MEMBER_NICKNAME(4122, BAD_REQUEST, "이미 존재하는 닉네임입니다"),
     DUPLICATE_PHONE_NUMBER(4123, BAD_REQUEST, "이미 존재하는 전화번호입니다"),
     MISMATCHED_PHONE_NUMBER(4124, BAD_REQUEST, "전화번호가 일치하지 않습니다"),
+    INVALID_PHONE_NUMBER_FORMAT(4125, BAD_REQUEST, "유효하지 않은 전화번호 형식입니다"),
+    INVALID_EMAIL_ADDRESS_FORMAT(4126, BAD_REQUEST, "유효하지 않은 이메일 형식입니다"),
 
     // 회원 인증 관련 에러
     INVALID_MEMBER_INFO(4131, BAD_REQUEST, "존재하지 않는 사용자입니다"),
@@ -51,13 +53,16 @@ public enum ErrorCode {
     RESTRICTED_OAUTH_PASSWORD(4152, BAD_REQUEST, "OAuth 사용자는 비밀번호를 재설정할 수 없습니다"),
 
     // Security Context 관련 에러
-    SECURITY_CONTEXT_AUTH_INFO_NOT_FOUND(4161, UNAUTHORIZED, "Security Context에 인증 정보가 없습니다"),
-    SECURITY_CONTEXT_ROLE_INFO_NOT_FOUND(4162, UNAUTHORIZED, "Security Context에 권한 정보가 없습니다"),
+    SECURITY_CONTEXT_AUTH_INFO_NOT_FOUND(4161, UNAUTHORIZED, "사용자 인증 정보가 없습니다"),
+    SECURITY_CONTEXT_ROLE_INFO_NOT_FOUND(4162, UNAUTHORIZED, "사용자 권한 정보가 없습니다"),
     INVALID_MEMBER_ID_FORMAT(4163, UNAUTHORIZED, "잘못된 사용자 ID 형식입니다"),
 
-    // 외부 서비스 연동 에러
+    // SMS 관련 에러
+    INVALID_SMS_API_KEY(4171, UNAUTHORIZED, "유효하지 않은 SMS API 키입니다"),
+    FAILED_SMS_DELIVERY(4172, INTERNAL_SERVER_ERROR, "SMS 메시지 전송에 실패했습니다"),
+
+    // email 관련 에러
     FAILED_EMAIL_DELIVERY(5101, INTERNAL_SERVER_ERROR, "이메일 발송에 실패했습니다"),
-    FAILED_SMS_DELIVERY(5102, INTERNAL_SERVER_ERROR, "SMS 발송에 실패했습니다"),
 
     // 약물 관리
     MEDICATION_NOT_FOUND(4050, NOT_FOUND, "약물을 찾을 수 없습니다"),

@@ -10,11 +10,7 @@ import com.ssafy.pillme.auth.domain.entity.Member;
 import com.ssafy.pillme.auth.domain.vo.Provider;
 import com.ssafy.pillme.auth.domain.vo.Role;
 import com.ssafy.pillme.auth.infrastructure.repository.MemberRepository;
-import com.ssafy.pillme.auth.presentation.request.LoginRequest;
-import com.ssafy.pillme.auth.presentation.request.OAuthAdditionalInfoRequest;
-import com.ssafy.pillme.auth.presentation.request.OAuthSignUpRequest;
-import com.ssafy.pillme.auth.presentation.request.PasswordResetRequest;
-import com.ssafy.pillme.auth.presentation.request.SignUpRequest;
+import com.ssafy.pillme.auth.presentation.request.*;
 import com.ssafy.pillme.auth.application.response.FindEmailResponse;
 import com.ssafy.pillme.auth.util.JwtUtil;
 import java.util.UUID;
@@ -42,7 +38,7 @@ public class AuthService {
     public MemberResponse signUp(SignUpRequest request) {
         // 이메일 인증 확인
         if (!emailService.isVerified(request.email())) {
-            throw new MismatchedPhoneNumberException();
+            throw new UnverifiedEmailAddressException();
         }
 
         // 휴대전화 인증 확인
@@ -230,34 +226,6 @@ public class AuthService {
     }
 
     /**
-     * 이메일 인증번호 발송
-     */
-    public void sendEmailVerification(String email) {
-        emailService.sendVerificationEmail(email);
-    }
-
-    /**
-     * 이메일 인증번호 확인
-     */
-    public void verifyEmail(String email, String code) {
-        emailService.verifyEmail(email, code);
-    }
-
-    /**
-     * SMS 인증번호 발송
-     */
-    public void sendSmsVerification(String phoneNumber) {
-        smsService.sendVerificationSms(phoneNumber);
-    }
-
-    /**
-     * SMS 인증번호 확인
-     */
-    public void verifySmsCode(String phoneNumber, String code) {
-        smsService.verifySmsCode(phoneNumber, code);
-    }
-
-    /**
      * 토큰 갱신
      */
     public TokenResponse refreshToken(String refreshToken) {
@@ -354,5 +322,24 @@ public class AuthService {
     public Member findById(Long id) {
         return memberRepository.findByIdAndDeletedFalse(id)
                 .orElseThrow(InvalidMemberInfoException::new);
+    }
+
+    /**
+     * 로컬 회원 생성
+     */
+    public Long createLocalMember(CreateLocalMemberRequest request) {
+        Member localMember = Member.builder()
+                .name(request.name())
+                .gender(request.gender())
+                .birthday(request.birthday())
+                .email(UUID.randomUUID().toString())
+                .password(UUID.randomUUID().toString())
+                .nickname(request.name())
+                .phone(UUID.randomUUID().toString())
+                .deleted(false)
+                .oauth(false)
+                .role(Role.LOCAL)
+                .build();
+        return memberRepository.save(localMember).getId();
     }
 }

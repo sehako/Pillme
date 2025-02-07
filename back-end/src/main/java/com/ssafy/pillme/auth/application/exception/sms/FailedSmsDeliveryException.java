@@ -1,4 +1,4 @@
-package com.ssafy.pillme.auth.application.exception.external;
+package com.ssafy.pillme.auth.application.exception.sms;
 
 import com.ssafy.pillme.global.code.ErrorCode;
 import com.ssafy.pillme.global.exception.CommonException;
