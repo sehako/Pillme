@@ -25,30 +25,38 @@ public class LoginMember extends BaseEntity {
     private String name;
 
     @Column(length = 30)
-    private String nickname;
+    private String phone;
 
-    @Enumerated(EnumType.STRING)
-    @Column(length = 50)
-    private Role role;
+    @Column(length = 10)
+    private String birthday;
 
     @Enumerated(EnumType.STRING)
     @Column(length = 1)
     private Gender gender;
 
     @Column(length = 30)
-    private String phone;
+    private String nickname;
+
+    @Enumerated(EnumType.STRING)
+    @Column(length = 50)
+    private Role role;
 
     private boolean deleted;
-
     private boolean oauth;
-
-    @Column(length = 10)
-    private String birthday;
 
     @Builder
     private LoginMember(Long id, String email, String name, String nickname,
-                        Gender gender, String phone, String birthday, boolean deleted, boolean oauth, Role role) {
-
+                        Gender gender, String phone, String birthday, Role role, boolean deleted, boolean oauth) {
+        this.id = id;
+        this.email = email;
+        this.name = name;
+        this.nickname = nickname;
+        this.gender = gender;
+        this.phone = phone;
+        this.birthday = birthday;
+        this.role = role;
+        this.deleted = deleted;
+        this.oauth = oauth;
     }
 
     // 회원 정보 수정
