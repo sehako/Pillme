@@ -31,6 +31,8 @@ public class NotificationScheduler {
     private final ManagementService managementService;
     private final FCMNotificationService fcmNotificationService;
 
+    private static final long MEDICATION_STATUS_NOTIFICATION_DELAY_MINUTES = 5;
+
     // Cron 표현식 사용 (매분 0초에 실행)
     @Scheduled(cron = "0 * * * * *")
     public void checkAndSendNotifications() {
@@ -48,8 +50,8 @@ public class NotificationScheduler {
     }
 
     /*
-     * 피보호자가 약 복용 여부를 확인하고 보호자에게 알림을 전송
-     * 1. 복용 알림 시간을 가진 회원 조회
+     * 피보호자가 약 복용 여부를 5분 후에 확인하고 보호자에게 알림을 전송
+     * 1. 복용 알림 시간 + 5분을 가진 회원 조회
      * 2. 해당 회원과 관계가 등록되어 있는 보호자 조회
      * 3. 해당 회원의 복용 여부 조회
      * 4. 복용 여부에 따라 보호자에게 알림 전송
@@ -59,8 +61,9 @@ public class NotificationScheduler {
         // 현재 시간 분 단위로 이용
         LocalTime currentTime = LocalTime.now().truncatedTo(ChronoUnit.MINUTES);
 
-        // 1. 현재 시간에 해당하는 복용 알림 설정 조회
-        List<NotificationSetting> settings = notificationService.getNotificationSettingListForCurrentTime(currentTime);
+        // 1. 현재 시간 - 5분에 해당하는 복용 알림 설정 조회(복용 알림 시간 + 5분)
+        List<NotificationSetting> settings = notificationService.getNotificationSettingListForCurrentTime(
+                currentTime.minusMinutes(MEDICATION_STATUS_NOTIFICATION_DELAY_MINUTES));
 
         // 1-1. NotificationSetting을 Member로 빠르게 조회하기 위한 Map 생성
         Map<Member, NotificationSetting> memberToSetting = settings.stream()
