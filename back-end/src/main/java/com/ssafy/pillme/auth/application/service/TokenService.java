@@ -11,7 +11,7 @@ import java.util.concurrent.TimeUnit;
 public class TokenService {
     private final RedisTemplate<String, String> redisTemplate;
     private static final String REFRESH_TOKEN_PREFIX = "RT:";
-    private static final String DENYLIST_PREFIX = "BL:";
+    private static final String DENYLIST_PREFIX = "DL:";
     private static final String PASSWORD_RESET_PREFIX = "PW_RESET:";
     private static final String TEMP_AUTH_PREFIX = "TEMP_AUTH:";
 
