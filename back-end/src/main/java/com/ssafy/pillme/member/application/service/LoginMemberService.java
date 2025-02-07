@@ -2,13 +2,13 @@ package com.ssafy.pillme.member.application.service;
 
 import com.ssafy.pillme.auth.application.service.EmailService;
 import com.ssafy.pillme.auth.application.service.SmsService;
-import com.ssafy.pillme.member.application.exception.AlreadyExistEmailAddressException;
-import com.ssafy.pillme.member.application.exception.NoMemberInfoException;
+import com.ssafy.pillme.member.application.exception.*;
 import com.ssafy.pillme.member.domain.entity.LoginMember;
 import com.ssafy.pillme.member.infrastructure.repository.LoginMemberRepository;
 import com.ssafy.pillme.member.presentation.request.UpdateLoginMemberRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional
@@ -27,9 +27,9 @@ public class LoginMemberService {
     }
 
     // 이메일 인증 코드 검증
-    public boolean verifyEmailCode(String email, String code) {
+    public void verifyEmailCode(String email, String code) {
         emailService.verifyEmailCode(email, code);
-        return emailService.isVerified(email);
+        emailService.isVerified(email);
     }
 
     // 이메일 중복 및 현재값 검증
@@ -54,9 +54,9 @@ public class LoginMemberService {
     }
 
     // 전화번호 인증 코드 검증
-    public boolean verifySmsCode(String phone, String code) {
+    public void verifySmsCode(String phone, String code) {
         smsService.verifySmsCode(phone, code);
-        return smsService.isVerified(phone);
+        smsService.isVerified(phone);
     }
 
     // 전화번호 중복 및 현재값 검증
@@ -64,7 +64,7 @@ public class LoginMemberService {
         LoginMember member = loginMemberRepository.findById(memberId).orElseThrow(NoMemberInfoException::new);
 
         if (member.getPhone().equals(newPhone)) {
-            throw new SamePhoneException();
+            throw new SamePhoneNumberException();
         }
 
         if(loginMemberRepository.existsByPhoneAndDeletedFalse(newPhone)) {
