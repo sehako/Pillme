@@ -39,7 +39,7 @@ public class SmsController {
             @RequestParam String phoneNumber,
             @RequestParam String code) {
         smsService.verifySmsCode(phoneNumber, code);
-        return ResponseEntity.ok(JSONResponse.onSuccess(null));
+        return ResponseEntity.ok(JSONResponse.onSuccess());
     }
 }
 
