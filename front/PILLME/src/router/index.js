@@ -1,24 +1,46 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import StartView from '../views/StartView.vue';
+
+
+//로그인관련
 import LoginView from '../views/LoginView.vue';
 import LoginSelectionView from '../views/LoginSelectionView.vue';
+import SigninSelectionView from '../views/SigninSelectionView.vue';
+
+
+// 회원가입 이후 관련
 import AccountSearchSelectionView from '../views/AccountSearchSelectionView.vue';
 import AfterAccountView from '../views/AfterAccountView.vue';
-import SigninSelectionView from '../views/SigninSelectionView.vue';
+
+
+// 아이디 비밀번호 찾기 관련
 import IdSearchView from '../views/IdSearchView.vue';
 import IdFoundView from '../views/IdFoundView.vue';
 import PwSearchView from '../views/PwSearchView.vue';
-import MyPageView from '../views/MyPageView.vue';
+
+// 멤버 추가 관련
 import ManageMemberListView from '../views/ManageMemberListView.vue';
 import NonMemberRegisterView from '../views/NonMemberRegisterView.vue';
+
+//회원가입
+import StartView from '../views/StartView.vue';
 import MemberRegisterView from '../views/MemberRegisterView.vue';
 import RegisterView from '../views/RegisterView.vue';
+
+//알림뷰
 import NotificationListView from '../views/NotificationListView.vue';
+
+//홈뷰, 캘린더뷰
 import HomeView from '../views/HomeView.vue';
 import CalendarView from '../views/CalendarView.vue';
-import PersonalInfo from '../views/PersonalInfo.vue';
-import LoginSecurity from '../views/LoginSecurity.vue';
-import MyPage_PwChange from '../views/MyPage_PwChange.vue';
+
+// 마이페이지 관련
+import MyPageView from '../views/MyPageView.vue';
+import MyPage_PwChange from '../views/MyPwChange.vue';
+import PersonalInfo from '../views/MyPersonalInfo.vue';
+import LoginSecurity from '../views/MyLoginSecurity.vue';
+import My_Alarm from '../views/My_Alarm.vue';
+
+// 채팅 관련
 import ChatView from '../views/ChatView.vue';
 import ChatIndividualView from '../views/ChatIndividualView.vue';
 
@@ -136,6 +158,12 @@ const routes = [
     path: '/mypage',
     name: 'mypage',
     component: MyPageView,
+    meta: { cache: false }, // ❌ 오프라인 시 접근 불가
+  },
+  {
+    path: '/mypage/alarm',
+    name: 'alarm',
+    component: My_Alarm,
     meta: { cache: false }, // ❌ 오프라인 시 접근 불가
   },
   {

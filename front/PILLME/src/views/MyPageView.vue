@@ -87,7 +87,7 @@ const subMenus = ref({
     { name: "비밀번호 변경", route: "/mypage/pw-change" }
   ],
   "설정": [
-    { name: "알림 설정", route: "/mypage/notification-settings" },
+    { name: "알림 설정", route: "/mypage/alarm" },
     { name: "디스플레이 설정", route: "/mypage/display-settings" }
   ],
   "고객 지원": [
