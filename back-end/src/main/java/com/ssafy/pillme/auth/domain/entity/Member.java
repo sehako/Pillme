@@ -18,6 +18,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.util.UUID;
+
 @Entity
 @Table(name = "member")
 @Getter
@@ -40,8 +42,8 @@ public class Member extends BaseEntity {
     private String nickname;
 
     @Enumerated(EnumType.STRING)
-    @Column(length = 50)
-    private Role role = Role.USER;
+    @Column(nullable = false, length = 50)
+    private Role role;
 
     @Enumerated(EnumType.STRING)
     @Column(length = 1)
@@ -63,7 +65,7 @@ public class Member extends BaseEntity {
 
     @Builder
     private Member(String email, String password, String name, String nickname,
-                   Gender gender, String phone, String birthday, Provider provider, boolean oauth) {
+                   Gender gender, String phone, String birthday, Provider provider, boolean deleted, boolean oauth, Role role) {
         this.email = email;
         this.password = password;
         this.name = name;
@@ -72,7 +74,9 @@ public class Member extends BaseEntity {
         this.phone = phone;
         this.birthday = birthday;
         this.provider = provider;
+        this.deleted = deleted;
         this.oauth = oauth;
+        this.role = (role != null) ? role : Role.USER;
     }
 
     // 비밀번호 확인

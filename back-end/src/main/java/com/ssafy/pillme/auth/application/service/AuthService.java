@@ -10,11 +10,7 @@ import com.ssafy.pillme.auth.domain.entity.Member;
 import com.ssafy.pillme.auth.domain.vo.Provider;
 import com.ssafy.pillme.auth.domain.vo.Role;
 import com.ssafy.pillme.auth.infrastructure.repository.MemberRepository;
-import com.ssafy.pillme.auth.presentation.request.LoginRequest;
-import com.ssafy.pillme.auth.presentation.request.OAuthAdditionalInfoRequest;
-import com.ssafy.pillme.auth.presentation.request.OAuthSignUpRequest;
-import com.ssafy.pillme.auth.presentation.request.PasswordResetRequest;
-import com.ssafy.pillme.auth.presentation.request.SignUpRequest;
+import com.ssafy.pillme.auth.presentation.request.*;
 import com.ssafy.pillme.auth.application.response.FindEmailResponse;
 import com.ssafy.pillme.auth.util.JwtUtil;
 import java.util.UUID;
@@ -42,7 +38,7 @@ public class AuthService {
     public MemberResponse signUp(SignUpRequest request) {
         // 이메일 인증 확인
         if (!emailService.isVerified(request.email())) {
-            throw new MismatchedPhoneNumberException();
+            throw new UnverifiedEmailAddressException();
         }
 
         // 휴대전화 인증 확인
@@ -56,6 +52,9 @@ public class AuthService {
         }
         if (memberRepository.existsByNickname(request.nickname())) {
             throw new DuplicateMemberNicknameException();
+        }
+        if (memberRepository.existsByPhone(request.phone())) {
+            throw new DuplicatePhoneNumberException();
         }
 
         // 회원 생성
@@ -230,34 +229,6 @@ public class AuthService {
     }
 
     /**
-     * 이메일 인증번호 발송
-     */
-    public void sendEmailVerification(String email) {
-        emailService.sendVerificationEmail(email);
-    }
-
-    /**
-     * 이메일 인증번호 확인
-     */
-    public void verifyEmail(String email, String code) {
-        emailService.verifyEmail(email, code);
-    }
-
-    /**
-     * SMS 인증번호 발송
-     */
-    public void sendSmsVerification(String phoneNumber) {
-        smsService.sendVerificationSms(phoneNumber);
-    }
-
-    /**
-     * SMS 인증번호 확인
-     */
-    public void verifySmsCode(String phoneNumber, String code) {
-        smsService.verifySmsCode(phoneNumber, code);
-    }
-
-    /**
      * 토큰 갱신
      */
     public TokenResponse refreshToken(String refreshToken) {
@@ -281,6 +252,10 @@ public class AuthService {
      * 로그아웃
      */
     public void logout(String accessToken) {
+        if (tokenService.isTokenDenylisted(accessToken)) {
+            throw new DenylistedTokenException();
+        }
+
         if (!jwtUtil.validateToken(accessToken)) {
             throw new InvalidAccessTokenException();
         }
@@ -290,10 +265,10 @@ public class AuthService {
 
         tokenService.deleteRefreshToken(memberId);
 
-        // Access Token을 블랙리스트에 추가
-        // 남은 만료 시간만큼만 블랙리스트에 보관
+        // Access Token을 거부 목록에 추가
+        // 남은 만료 시간만큼만 거부 목록에 보관
         long expiration = claims.getExpiration().getTime() - System.currentTimeMillis();
-        tokenService.blacklistToken(accessToken, expiration);
+        tokenService.denylistToken(accessToken, expiration);
     }
 
     /**
@@ -354,5 +329,24 @@ public class AuthService {
     public Member findById(Long id) {
         return memberRepository.findByIdAndDeletedFalse(id)
                 .orElseThrow(InvalidMemberInfoException::new);
+    }
+
+    /**
+     * 로컬 회원 생성
+     */
+    public Long createLocalMember(CreateLocalMemberRequest request) {
+        Member localMember = Member.builder()
+                .name(request.name())
+                .gender(request.gender())
+                .birthday(request.birthday())
+                .email(UUID.randomUUID().toString())
+                .password(UUID.randomUUID().toString())
+                .nickname(request.name())
+                .phone(UUID.randomUUID().toString())
+                .deleted(false)
+                .oauth(false)
+                .role(Role.LOCAL)
+                .build();
+        return memberRepository.save(localMember).getId();
     }
 }
