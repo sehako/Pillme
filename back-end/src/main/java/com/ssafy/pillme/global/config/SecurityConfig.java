@@ -33,23 +33,23 @@ public class SecurityConfig {
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .userDetailsService(userDetailsService)
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(
-                                "/api/v1/auth/signup",
-                                "/api/v1/auth/login",
-                                "/api/v1/auth/email/verification",
-                                "/api/v1/auth/email/verify",
-                                "/api/v1/auth/sms/verification",
-                                "/api/v1/auth/sms/verify",
-                                "/api/v1/auth/find-email",
-                                "/api/v1/auth/reset-password/**",
-                                "/api/v1/auth/oauth2/**",
-                                "/api/v1/auth/check/**"
-                        )
-                        .permitAll()
-                        .anyRequest().authenticated()
-                )
-//                .authorizeHttpRequests(authorizeRequests -> authorizeRequests.anyRequest().permitAll())
+//                .authorizeHttpRequests(auth -> auth
+//                        .requestMatchers(
+//                                "/api/v1/auth/signup",
+//                                "/api/v1/auth/login",
+//                                "/api/v1/auth/email/verification",
+//                                "/api/v1/auth/email/verify",
+//                                "/api/v1/auth/sms/verification",
+//                                "/api/v1/auth/sms/verify",
+//                                "/api/v1/auth/find-email",
+//                                "/api/v1/auth/reset-password/**",
+//                                "/api/v1/auth/oauth2/**",
+//                                "/api/v1/auth/check/**"
+//                        )
+//                        .permitAll()
+//                        .anyRequest().authenticated()
+//                )
+                .authorizeHttpRequests(authorizeRequests -> authorizeRequests.anyRequest().permitAll())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
@@ -58,7 +58,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000")); // 프론트엔드 URL
+        configuration.setAllowedOriginPatterns(Arrays.asList("*")); // 프론트엔드 URL
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setAllowCredentials(true);

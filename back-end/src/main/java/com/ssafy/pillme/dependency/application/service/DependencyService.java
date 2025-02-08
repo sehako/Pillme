@@ -5,10 +5,7 @@ import com.ssafy.pillme.auth.infrastructure.repository.MemberRepository;
 import com.ssafy.pillme.dependency.application.response.DependentListResponse;
 import com.ssafy.pillme.dependency.domain.entity.Dependency;
 import com.ssafy.pillme.dependency.infrastructure.repository.DependencyRepository;
-import com.ssafy.pillme.dependency.presentation.request.DependencyAcceptRequest;
-import com.ssafy.pillme.dependency.presentation.request.DependencyRejectRequest;
-import com.ssafy.pillme.dependency.presentation.request.DependentPhoneRequest;
-import com.ssafy.pillme.dependency.presentation.request.LocalMemberRequest;
+import com.ssafy.pillme.dependency.presentation.request.*;
 import com.ssafy.pillme.member.application.service.MemberService;
 import com.ssafy.pillme.notification.application.service.NotificationService;
 import lombok.RequiredArgsConstructor;
@@ -103,5 +100,54 @@ public class DependencyService {
         List<Dependency> dependencies = dependencyRepository.findAllByProtectorIdAndDeletedIsFalse(protector.getId());
 
         return DependentListResponse.listOf(dependencies);
+    }
+
+    /*
+     * 현재 로그인한 회원이 sender, receiver는 가족 관계를 맺고 있는 다른 회원
+     * */
+    public void deleteRequestDependency(Long dependencyId) {
+        // TODO: 현재 로그인한 회원
+        Member loginMember = memberRepository.findById(2L).get();
+
+        // 관계 정보 조회
+        Dependency dependency = dependencyRepository.findByIdAndDeletedIsFalse(dependencyId)
+                .orElseThrow(() -> new IllegalArgumentException("관계 정보가 존재하지 않습니다."));
+
+        // 가족 관계 삭제 요청 알림을 수신하는 사람
+        Member receiver = dependency.getOtherMember(loginMember);
+
+        // 가족 관계 삭제 요청 알림 전송
+        notificationService.sendDependencyDeleteRequestNotification(loginMember, receiver);
+    }
+
+    // senderId를 통해 삭제 요청을 보낸 회원을 찾아서 삭제 요청을 수락
+    public void acceptDeleteDependency(AcceptDependencyDeletionRequest request) {
+
+        // TODO: 현재 로그인한 회원
+        Member loginMember = memberRepository.findById(2L).get();
+
+        // 현재 로그인한 회원과 senderId를 통해 삭제 요청을 보낸 회원의 관계 정보 조회
+        Dependency dependency = dependencyRepository.findByMemberIdsAndDeletedIsFalse(loginMember.getId(), request.senderId())
+                .orElseThrow(() -> new IllegalArgumentException("관계 정보가 존재하지 않습니다."));
+
+        // 관계 정보 삭제
+        dependency.delete();
+
+        // 가족 관계 삭제 요청 수락 알림 전송
+        notificationService.sendDependencyDeleteAcceptNotification(loginMember, dependency.getOtherMember(loginMember));
+    }
+
+    // senderId를 통해 삭제 요청을 보낸 회원을 찾아서 삭제 요청을 거절
+    public void rejectDeleteDependency(RejectDependencyDeletionRequest request) {
+
+        // TODO: 현재 로그인한 회원
+        Member loginMember = memberRepository.findById(2L).get();
+
+        // 현재 로그인한 회원과 senderId를 통해 삭제 요청을 보낸 회원의 관계 정보 조회 (삭제 요청이 존재하는지 확인)
+        Dependency dependency = dependencyRepository.findByMemberIdsAndDeletedIsFalse(loginMember.getId(), request.senderId())
+                .orElseThrow(() -> new IllegalArgumentException("관계 정보가 존재하지 않습니다."));
+
+        // 가족 관계 삭제 요청 거절 알림 전송
+        notificationService.sendDependencyDeleteRejectNotification(loginMember, dependency.getOtherMember(loginMember));
     }
 }

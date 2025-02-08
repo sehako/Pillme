@@ -1,11 +1,21 @@
 package com.ssafy.pillme.auth.application.service;
 
-import com.ssafy.pillme.auth.application.exception.oauth.*;
-import com.ssafy.pillme.auth.application.exception.security.*;
-import com.ssafy.pillme.auth.application.exception.validation.*;
-import com.ssafy.pillme.auth.application.exception.token.*;
-import com.ssafy.pillme.auth.application.response.TokenResponse;
+import com.ssafy.pillme.auth.application.exception.oauth.InvalidOAuthStateException;
+import com.ssafy.pillme.auth.application.exception.oauth.RestrictedOAuthPasswordException;
+import com.ssafy.pillme.auth.application.exception.security.InvalidMemberInfoException;
+import com.ssafy.pillme.auth.application.exception.security.InvalidMemberPasswordException;
+import com.ssafy.pillme.auth.application.exception.security.InvalidPasswordFormatException;
+import com.ssafy.pillme.auth.application.exception.security.UnverifiedPhoneNumberException;
+import com.ssafy.pillme.auth.application.exception.token.InvalidAccessTokenException;
+import com.ssafy.pillme.auth.application.exception.token.InvalidRefreshTokenException;
+import com.ssafy.pillme.auth.application.exception.token.InvalidResetTokenException;
+import com.ssafy.pillme.auth.application.exception.validation.DuplicateEmailAddressException;
+import com.ssafy.pillme.auth.application.exception.validation.DuplicateMemberNicknameException;
+import com.ssafy.pillme.auth.application.exception.validation.DuplicatePhoneNumberException;
+import com.ssafy.pillme.auth.application.exception.validation.MismatchedPhoneNumberException;
+import com.ssafy.pillme.auth.application.response.FindEmailResponse;
 import com.ssafy.pillme.auth.application.response.MemberResponse;
+import com.ssafy.pillme.auth.application.response.TokenResponse;
 import com.ssafy.pillme.auth.domain.entity.Member;
 import com.ssafy.pillme.auth.domain.vo.Provider;
 import com.ssafy.pillme.auth.domain.vo.Role;
@@ -15,7 +25,6 @@ import com.ssafy.pillme.auth.presentation.request.OAuthAdditionalInfoRequest;
 import com.ssafy.pillme.auth.presentation.request.OAuthSignUpRequest;
 import com.ssafy.pillme.auth.presentation.request.PasswordResetRequest;
 import com.ssafy.pillme.auth.presentation.request.SignUpRequest;
-import com.ssafy.pillme.auth.application.response.FindEmailResponse;
 import com.ssafy.pillme.auth.util.JwtUtil;
 import java.util.UUID;
 import java.util.regex.Pattern;
@@ -41,14 +50,14 @@ public class AuthService {
     @Transactional
     public MemberResponse signUp(SignUpRequest request) {
         // 이메일 인증 확인
-        if (!emailService.isVerified(request.email())) {
-            throw new MismatchedPhoneNumberException();
-        }
-
-        // 휴대전화 인증 확인
-        if (!smsService.isVerified(request.phone())) {
-            throw new UnverifiedPhoneNumberException();
-        }
+//        if (!emailService.isVerified(request.email())) {
+//            throw new MismatchedPhoneNumberException();
+//        }
+//
+//        // 휴대전화 인증 확인
+//        if (!smsService.isVerified(request.phone())) {
+//            throw new UnverifiedPhoneNumberException();
+//        }
 
         // 중복 확인
         if (memberRepository.existsByEmailAndRoleNot(request.email(), Role.LOCAL)) {
@@ -346,5 +355,13 @@ public class AuthService {
         }
 
         return memberRepository.existsByNickname(nickname);
+    }
+
+    /**
+     * 회원 정보 조회
+     */
+    public Member findById(Long id) {
+        return memberRepository.findByIdAndDeletedFalse(id)
+                .orElseThrow(InvalidMemberInfoException::new);
     }
 }
