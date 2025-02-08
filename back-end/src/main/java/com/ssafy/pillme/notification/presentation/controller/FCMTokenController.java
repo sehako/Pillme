@@ -1,5 +1,7 @@
 package com.ssafy.pillme.notification.presentation.controller;
 
+import com.ssafy.pillme.auth.annotation.Auth;
+import com.ssafy.pillme.auth.domain.entity.Member;
 import com.ssafy.pillme.global.code.SuccessCode;
 import com.ssafy.pillme.global.response.JSONResponse;
 import com.ssafy.pillme.notification.application.service.FCMTokenService;
@@ -19,8 +21,8 @@ public class FCMTokenController {
     private final FCMTokenService fcmTokenService;
 
     @PostMapping
-    public ResponseEntity<JSONResponse<Void>> createToken(@RequestBody FCMTokenRequest request) {
-        fcmTokenService.createToken(request);
+    public ResponseEntity<JSONResponse<Void>> createToken(@RequestBody FCMTokenRequest request, @Auth Member loginMember) {
+        fcmTokenService.createToken(request, loginMember);
 
         return ResponseEntity.ok(JSONResponse.onSuccess());
     }

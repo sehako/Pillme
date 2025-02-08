@@ -11,5 +11,5 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
     // 삭제되지 않은 알림 조회
     List<Notification> findAllByReceiverIdAndDeletedFalse(Long id);
 
-    List<Notification> findAllByIdInAndReceiverId(List<Long> ids, Long receiverId);
+    List<Notification> findAllByIdInAndReceiverIdAndDeletedFalse(List<Long> ids, Long receiverId);
 }
