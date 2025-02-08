@@ -1,8 +1,8 @@
 spring:
   elasticsearch:
     uris: http://localhost:9200
-    username: ${ELASTIC_SEARCH_USERNAME}
-    password: ${ELASTIC_SEARCH_PASSWORD}
+  #    username: ${ELASTIC_SEARCH_USERNAME}
+  #    password: ${ELASTIC_SEARCH_PASSWORD}
 
   data:
     elasticsearch:
