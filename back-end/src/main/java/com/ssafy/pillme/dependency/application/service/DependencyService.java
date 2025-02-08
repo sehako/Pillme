@@ -155,4 +155,14 @@ public class DependencyService {
     public List<Member> findProtectorsByDependent(Member dependent) {
         return dependencyRepository.findProtectorsByDependentAndDeletedIsFalse(dependent);
     }
+
+    // 보호자가 피보호자에게 약 복용 알림을 전송
+    public void sendMedicineNotification(SendMedicineNotificationRequest request, Member loginMember) {
+        // 피보호자 id와 현재 로그인(보호자) 회원 id로 관계 정보 조회
+        Dependency dependency = dependencyRepository.findByDependentIdAndProtectorIdAndDeletedIsFalse(request.dependentId(), loginMember.getId())
+                .orElseThrow(() -> new IllegalArgumentException("관계 정보가 존재하지 않습니다."));
+
+        // 복용 알림 전송
+        notificationService.sendProtectorToDependentNotification(dependency.getProtector(), dependency.getDependent());
+    }
 }

@@ -34,8 +34,8 @@ public class NotificationController {
 
     // 알림 삭제 기능
     @DeleteMapping
-    public ResponseEntity<JSONResponse<Void>> deleteNotificationSetting(@RequestBody NotificationDeleteRequest request, @Auth Member member) {
-        notificationService.deleteNotifications(request, member);
+    public ResponseEntity<JSONResponse<Void>> deleteNotificationSetting(@RequestBody NotificationDeleteRequest request, @Auth Member loginMember) {
+        notificationService.deleteNotifications(request, loginMember);
         return ResponseEntity.ok(JSONResponse.onSuccess());
     }
 }

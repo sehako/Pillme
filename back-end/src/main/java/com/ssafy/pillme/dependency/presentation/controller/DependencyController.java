@@ -1,5 +1,7 @@
 package com.ssafy.pillme.dependency.presentation.controller;
 
+import com.ssafy.pillme.auth.annotation.Auth;
+import com.ssafy.pillme.auth.domain.entity.Member;
 import com.ssafy.pillme.dependency.application.response.DependentListResponse;
 import com.ssafy.pillme.dependency.application.service.DependencyService;
 import com.ssafy.pillme.dependency.presentation.request.*;
@@ -79,6 +81,13 @@ public class DependencyController {
     @PostMapping("/delete/reject")
     public ResponseEntity<JSONResponse<Void>> rejectDeleteDependency(@RequestBody RejectDependencyDeletionRequest request) {
         dependencyService.rejectDeleteDependency(request);
+        return ResponseEntity.ok(JSONResponse.onSuccess());
+    }
+
+    // 보호자가 피보호자에게 약 복용 알림 전송 기능
+    @PostMapping("/medicine")
+    public ResponseEntity<JSONResponse<Void>> sendMedicineNotification(@RequestBody SendMedicineNotificationRequest request, @Auth Member loginMember) {
+        dependencyService.sendMedicineNotification(request, loginMember);
         return ResponseEntity.ok(JSONResponse.onSuccess());
     }
 }

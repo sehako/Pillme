@@ -120,6 +120,15 @@ public class Notification extends BaseEntity {
                 .build();
     }
 
+    public static Notification createProtectorToDependent(Member sender, Member receiver) {
+        return Notification.builder()
+                .sender(sender)
+                .receiver(receiver)
+                .code(NotificationCode.MEDICINE_TAKE_REMINDER)
+                .content(sender.getName() + "님이 " + NotificationCode.MEDICINE_TAKE_REMINDER.getMessage())
+                .build();
+    }
+
     public void updateConfirmStatus(boolean confirm) {
         this.confirm = confirm;
     }

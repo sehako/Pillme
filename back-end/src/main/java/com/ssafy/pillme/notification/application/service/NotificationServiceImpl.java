@@ -1,27 +1,18 @@
 package com.ssafy.pillme.notification.application.service;
 
 import com.ssafy.pillme.auth.domain.entity.Member;
-import com.ssafy.pillme.dependency.application.service.DependencyService;
 import com.ssafy.pillme.global.code.ErrorCode;
-import com.ssafy.pillme.management.application.ManagementService;
-import com.ssafy.pillme.management.domain.item.TakingInformationItem;
 import com.ssafy.pillme.notification.application.exception.NotificationAccessDenied;
 import com.ssafy.pillme.notification.application.exception.NotificationSettingNotFoundException;
 import com.ssafy.pillme.notification.application.response.NotificationResponse;
 import com.ssafy.pillme.notification.application.response.NotificationSettingResponse;
-import com.ssafy.pillme.notification.domain.component.NotificationMessageProvider;
 import com.ssafy.pillme.notification.domain.entity.Notification;
 import com.ssafy.pillme.notification.domain.entity.NotificationSetting;
-import com.ssafy.pillme.notification.domain.vo.NotificationTimeType;
 import com.ssafy.pillme.notification.infrastructure.repository.NotificationRepository;
 import com.ssafy.pillme.notification.infrastructure.repository.NotificationSettingRepository;
-import com.ssafy.pillme.notification.presentation.request.NotificationConfirmRequest;
-import com.ssafy.pillme.notification.presentation.request.NotificationDeleteRequest;
-import com.ssafy.pillme.notification.presentation.request.NotificationRequest;
-import com.ssafy.pillme.notification.presentation.request.NotificationSettingRequest;
+import com.ssafy.pillme.notification.presentation.request.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -270,5 +261,18 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     public List<NotificationSetting> getNotificationSettingListForCurrentTime(LocalTime currentTime) {
         return notificationSettingRepository.findSettingsForCurrentTime(currentTime);
+    }
+
+    // 보호자가 피보호자에게 약 복용 알림 전송
+    @Override
+    public void sendProtectorToDependentNotification(Member sender, Member receiver) {
+        // 알림 생성
+        Notification notification = Notification.createProtectorToDependent(sender, receiver);
+
+        // 알림 저장
+        notificationRepository.save(notification);
+
+        // 알림 전송
+        fcmNotificationService.sendNotification(NotificationRequest.of(notification));
     }
 }

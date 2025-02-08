@@ -26,4 +26,9 @@ public interface DependencyRepository extends JpaRepository<Dependency, Long> {
     // 회원의 모든 보호자 조회
     @Query("SELECT d.protector FROM Dependency d WHERE d.dependent = :dependent AND d.deleted = false")
     List<Member> findProtectorsByDependentAndDeletedIsFalse(Member dependent);
+
+
+    // 피보호자와 보호자 id로 관계 조회
+    @Query("SELECT d FROM Dependency d WHERE d.dependent.id = :dependentId AND d.protector.id = :protectorId AND d.deleted = false")
+    Optional<Dependency> findByDependentIdAndProtectorIdAndDeletedIsFalse(Long dependentId, Long protectorId);
 }

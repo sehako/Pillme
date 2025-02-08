@@ -45,4 +45,6 @@ public interface NotificationService {
     void deleteNotifications(NotificationDeleteRequest request, Member loginMember);
 
     List<NotificationSetting> getNotificationSettingListForCurrentTime(LocalTime currentTime);
+
+    void sendProtectorToDependentNotification(Member sender, Member receiver);
 }
