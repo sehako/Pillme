@@ -53,6 +53,9 @@ public class AuthService {
         if (memberRepository.existsByNickname(request.nickname())) {
             throw new DuplicateMemberNicknameException();
         }
+        if (memberRepository.existsByPhone(request.phone())) {
+            throw new DuplicatePhoneNumberException();
+        }
 
         // 회원 생성
         Member member = Member.builder()
@@ -249,6 +252,10 @@ public class AuthService {
      * 로그아웃
      */
     public void logout(String accessToken) {
+        if (tokenService.isTokenDenylisted(accessToken)) {
+            throw new DenylistedTokenException();
+        }
+
         if (!jwtUtil.validateToken(accessToken)) {
             throw new InvalidAccessTokenException();
         }
@@ -258,10 +265,10 @@ public class AuthService {
 
         tokenService.deleteRefreshToken(memberId);
 
-        // Access Token을 블랙리스트에 추가
-        // 남은 만료 시간만큼만 블랙리스트에 보관
+        // Access Token을 거부 목록에 추가
+        // 남은 만료 시간만큼만 거부 목록에 보관
         long expiration = claims.getExpiration().getTime() - System.currentTimeMillis();
-        tokenService.blacklistToken(accessToken, expiration);
+        tokenService.denylistToken(accessToken, expiration);
     }
 
     /**

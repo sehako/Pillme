@@ -23,6 +23,7 @@ public enum ErrorCode {
     INVALID_ACCESS_TOKEN(4101, UNAUTHORIZED, "유효하지 않은 액세스 토큰입니다"),
     INVALID_REFRESH_TOKEN(4102, UNAUTHORIZED, "유효하지 않은 리프레시 토큰입니다"),
     INVALID_RESET_TOKEN(4103, BAD_REQUEST, "잘못된 비밀번호 재설정 토큰입니다"),
+    DENYLISTED_TOKEN(4104, UNAUTHORIZED, "이미 로그아웃된 토큰입니다"),
 
     // 인증 코드 관련 에러
     INVALID_EMAIL_CODE(4111, BAD_REQUEST, "잘못된 이메일 인증 코드입니다"),
@@ -56,8 +57,8 @@ public enum ErrorCode {
     RESTRICTED_OAUTH_PASSWORD(4152, BAD_REQUEST, "OAuth 사용자는 비밀번호를 재설정할 수 없습니다"),
 
     // Security Context 관련 에러
-    SECURITY_CONTEXT_AUTH_INFO_NOT_FOUND(4161, UNAUTHORIZED, "Security Context에 인증 정보가 없습니다"),
-    SECURITY_CONTEXT_ROLE_INFO_NOT_FOUND(4162, UNAUTHORIZED, "Security Context에 권한 정보가 없습니다"),
+    SECURITY_CONTEXT_AUTH_INFO_NOT_FOUND(4161, UNAUTHORIZED, "사용자 인증 정보가 없습니다"),
+    SECURITY_CONTEXT_ROLE_INFO_NOT_FOUND(4162, UNAUTHORIZED, "사용자 권한 정보가 없습니다"),
     INVALID_MEMBER_ID_FORMAT(4163, UNAUTHORIZED, "잘못된 사용자 ID 형식입니다"),
 
     // SMS 관련 에러
