@@ -1,5 +1,6 @@
 package com.ssafy.pillme.chat.infrastructure.repository;
 
+import com.ssafy.pillme.auth.domain.entity.Member;
 import com.ssafy.pillme.chat.domain.entity.ChatRoom;
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -8,7 +9,9 @@ import java.util.Optional;
 
 public interface ChatRoomRepository extends JpaRepository<ChatRoom, Long> {
 
-    List<ChatRoom> findByCareUserIdOrUserId(Long userId1, Long userId2);
+    List<ChatRoom> findByCareUserOrUser(Member careUser, Member user);
 
-    Optional<ChatRoom> findByCareUserIdAndUserId(Long care_user_id, Long user_id);
+    Optional<ChatRoom> findByCareUserAndUser(Member careUser, Member user);
+
+    void deleteByCareUserAndUser(Member careUser, Member user);
 }

@@ -1,5 +1,6 @@
 package com.ssafy.pillme.chat.domain.entity;
 
+import com.ssafy.pillme.auth.domain.entity.Member;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -16,14 +17,16 @@ public class ChatRoom {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name="care_user_id", nullable = false)
-    private Long careUserId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name="care_user_id", nullable = false)
+    private Member careUser;
 
-    @Column(name="user_id", nullable = false)
-    private Long userId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name="user_id", nullable = false)
+    private Member user;
 
-    public void updateChatRoom(Long care_user_id, Long user_id){
-        this.careUserId = care_user_id;
-        this.userId = user_id;
+    public void updateChatRoom(Member careUser, Member user){
+        this.careUser = careUser;
+        this.user = user;
     }
 }
