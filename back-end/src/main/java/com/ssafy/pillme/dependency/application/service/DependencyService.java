@@ -1,12 +1,15 @@
 package com.ssafy.pillme.dependency.application.service;
 
+import com.ssafy.pillme.auth.application.service.AuthService;
 import com.ssafy.pillme.auth.domain.entity.Member;
-import com.ssafy.pillme.auth.infrastructure.repository.MemberRepository;
+import com.ssafy.pillme.auth.presentation.request.CreateLocalMemberRequest;
+import com.ssafy.pillme.dependency.application.exception.DependencyNotFoundException;
+import com.ssafy.pillme.dependency.application.exception.DuplicateDependencyException;
 import com.ssafy.pillme.dependency.application.response.DependentListResponse;
 import com.ssafy.pillme.dependency.domain.entity.Dependency;
 import com.ssafy.pillme.dependency.infrastructure.repository.DependencyRepository;
 import com.ssafy.pillme.dependency.presentation.request.*;
-import com.ssafy.pillme.member.application.service.MemberService;
+import com.ssafy.pillme.global.code.ErrorCode;
 import com.ssafy.pillme.notification.application.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -20,33 +23,31 @@ import java.util.List;
 public class DependencyService {
     private final DependencyRepository dependencyRepository;
     private final NotificationService notificationService;
-    // TODO: MemberService로 변경
-    //  피보호자 정보를 가져오는 메서드 필요
-    private final MemberRepository memberRepository;
+    private final AuthService authService;
 
-    public void requestDependency(DependentPhoneRequest request) {
-        //TODO: 현재 로그인한 회원(보호자)
-        Member protector = memberRepository.findById(2L).get();
+    public void requestDependency(DependentPhoneRequest request, Member protector) {
+        // 피보호자 정보 조회
+        Member dependent = authService.findByPhone(request.phone());
 
-        //TODO: 피보호자 정보 조회 메서드로 변경
-        Member dependent = memberRepository.findById(1L).get();
-
-//        Member dependent = memberRepository.findByPhone(request.getPhone())
-//                .orElseThrow(() -> new IllegalArgumentException("피보호자 정보가 존재하지 않습니다."));
-
-        //TODO: 이미 관계가 존재하는 경우 예외 처리 필요
+        // 이미 관계가 존재하는 경우 예외 처리
+        dependencyRepository.findByDependentIdAndProtectorIdAndDeletedIsFalse(dependent.getId(), protector.getId())
+                .ifPresent(dependency -> {
+                    throw new DuplicateDependencyException(ErrorCode.DUPLICATE_DEPENDENCY);
+                });
 
         // 보호자가 피보호자에게 관계 알림 전송
         notificationService.sendDependencyRequestNotification(protector, dependent);
     }
 
-    public void acceptDependency(DependencyAcceptRequest request) {
-        //TODO: 현재 로그인한 회원(피보호자)
-        Member dependent = memberRepository.findById(1L).get();
-
+    public void acceptDependency(DependencyAcceptRequest request, Member dependent) {
         // 보호자 정보 조회 메서드로 변경
-        Member protector = memberRepository.findById(request.protectorId()).get();
-        //TODO: 관계 등록 요청이 존재하는지 검증 필요
+        Member protector = authService.findById(request.protectorId());
+
+        // 관계 정보가 존재하는지 검증
+        dependencyRepository.findByDependentIdAndProtectorIdAndDeletedIsFalse(dependent.getId(), protector.getId())
+                .ifPresent(dependency -> {
+                    throw new DuplicateDependencyException(ErrorCode.DUPLICATE_DEPENDENCY);
+                });
 
         // 관계 정보 저장
         Dependency dependency = Dependency.createDependency(protector, dependent);
@@ -56,14 +57,9 @@ public class DependencyService {
         notificationService.sendDependencyAcceptNotification(dependent, protector);
     }
 
-    public void rejectDependency(DependencyRejectRequest request) {
-        //TODO: 현재 로그인한 회원(피보호자)
-        Member dependent = memberRepository.findById(1L).get();
-
-        //TODO: 보호자 정보 조회 메서드로 변경
-        Member protector = memberRepository.findById(request.protectorId()).get();
-
-        //TODO: 관계 등록 요청이 존재하는지 검증 필요
+    public void rejectDependency(DependencyRejectRequest request, Member dependent) {
+        // 보호자 정보 조회
+        Member protector = authService.findById(request.protectorId());
 
         // 피보호자가 보호자에게 관계 거절 알림 전송
         notificationService.sendDependencyRejectNotification(dependent, protector);
@@ -73,30 +69,18 @@ public class DependencyService {
      * 기존 erd 유지를 위해 회원 테이블에 이름, 성별, 생년월일을 가지는 회원 추가
      * 로그인되어 있는 회원은 보호자로, 생성된 로컬 회원은 피보호자로 관계 생성
      * */
-    public void createLocalMemberWithDependency(LocalMemberRequest request) {
-        //TODO: 현재 로그인한 회원(보호자)
-        Member protector = memberRepository.findById(2L).get();
-
-        //TODO: 이미 관계가 존재하는 경우 예외 처리 필요
-
-        //TODO: memberService에서 회원 생성 메서드 추가
+    public void createLocalMemberWithDependency(LocalMemberRequest request, Member protector) {
         // 로컬 회원 생성
-        Member dependent = Member.builder()
-                .name(request.name())
-                .gender(request.gender())
-                .birthday(request.birthday())
-                .build();
+        Member dependent = authService.createLocalMember(CreateLocalMemberRequest.from(request));
 
         // 관계 정보 저장
         Dependency dependency = Dependency.createDependency(protector, dependent);
         dependencyRepository.save(dependency);
     }
 
-    public List<DependentListResponse> getDependents() {
-        // TODO: 현재 로그인한 회원(보호자)
-        Member protector = memberRepository.findById(3L).get();
+    // 현재 로그인한 회원(보호자)의 피보호자 목록 조회
+    public List<DependentListResponse> getDependents(Member protector) {
 
-        // 보호자의 피보호자 목록 조회
         List<Dependency> dependencies = dependencyRepository.findAllByProtectorIdAndDeletedIsFalse(protector.getId());
 
         return DependentListResponse.listOf(dependencies);
@@ -105,13 +89,10 @@ public class DependencyService {
     /*
      * 현재 로그인한 회원이 sender, receiver는 가족 관계를 맺고 있는 다른 회원
      * */
-    public void deleteRequestDependency(Long dependencyId) {
-        // TODO: 현재 로그인한 회원
-        Member loginMember = memberRepository.findById(2L).get();
-
+    public void deleteRequestDependency(Long dependencyId, Member loginMember) {
         // 관계 정보 조회
         Dependency dependency = dependencyRepository.findByIdAndDeletedIsFalse(dependencyId)
-                .orElseThrow(() -> new IllegalArgumentException("관계 정보가 존재하지 않습니다."));
+                .orElseThrow(() -> new DependencyNotFoundException(ErrorCode.DEPENDENCY_NOT_FOUND));
 
         // 가족 관계 삭제 요청 알림을 수신하는 사람
         Member receiver = dependency.getOtherMember(loginMember);
@@ -121,14 +102,10 @@ public class DependencyService {
     }
 
     // senderId를 통해 삭제 요청을 보낸 회원을 찾아서 삭제 요청을 수락
-    public void acceptDeleteDependency(AcceptDependencyDeletionRequest request) {
-
-        // TODO: 현재 로그인한 회원
-        Member loginMember = memberRepository.findById(2L).get();
-
+    public void acceptDeleteDependency(AcceptDependencyDeletionRequest request, Member loginMember) {
         // 현재 로그인한 회원과 senderId를 통해 삭제 요청을 보낸 회원의 관계 정보 조회
         Dependency dependency = dependencyRepository.findByMemberIdsAndDeletedIsFalse(loginMember.getId(), request.senderId())
-                .orElseThrow(() -> new IllegalArgumentException("관계 정보가 존재하지 않습니다."));
+                .orElseThrow(() -> new DependencyNotFoundException(ErrorCode.DEPENDENCY_NOT_FOUND));
 
         // 관계 정보 삭제
         dependency.delete();
@@ -138,14 +115,10 @@ public class DependencyService {
     }
 
     // senderId를 통해 삭제 요청을 보낸 회원을 찾아서 삭제 요청을 거절
-    public void rejectDeleteDependency(RejectDependencyDeletionRequest request) {
-
-        // TODO: 현재 로그인한 회원
-        Member loginMember = memberRepository.findById(2L).get();
-
-        // 현재 로그인한 회원과 senderId를 통해 삭제 요청을 보낸 회원의 관계 정보 조회 (삭제 요청이 존재하는지 확인)
+    public void rejectDeleteDependency(RejectDependencyDeletionRequest request, Member loginMember) {
+        // 현재 로그인한 회원과 senderId를 통해 삭제 요청을 보낸 회원의 관계 정보 조회
         Dependency dependency = dependencyRepository.findByMemberIdsAndDeletedIsFalse(loginMember.getId(), request.senderId())
-                .orElseThrow(() -> new IllegalArgumentException("관계 정보가 존재하지 않습니다."));
+                .orElseThrow(() -> new DependencyNotFoundException(ErrorCode.DEPENDENCY_NOT_FOUND));
 
         // 가족 관계 삭제 요청 거절 알림 전송
         notificationService.sendDependencyDeleteRejectNotification(loginMember, dependency.getOtherMember(loginMember));
@@ -160,7 +133,7 @@ public class DependencyService {
     public void sendMedicineNotification(SendMedicineNotificationRequest request, Member loginMember) {
         // 피보호자 id와 현재 로그인(보호자) 회원 id로 관계 정보 조회
         Dependency dependency = dependencyRepository.findByDependentIdAndProtectorIdAndDeletedIsFalse(request.dependentId(), loginMember.getId())
-                .orElseThrow(() -> new IllegalArgumentException("관계 정보가 존재하지 않습니다."));
+                .orElseThrow(() -> new DependencyNotFoundException(ErrorCode.DEPENDENCY_NOT_FOUND));
 
         // 복용 알림 전송
         notificationService.sendProtectorToDependentNotification(dependency.getProtector(), dependency.getDependent());

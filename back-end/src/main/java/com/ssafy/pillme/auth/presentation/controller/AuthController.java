@@ -177,10 +177,4 @@ public class AuthController {
         boolean isDuplicate = memberRepository.existsByPhone(phone);
         return ResponseEntity.ok(JSONResponse.onSuccess(isDuplicate));
     }
-
-    @PostMapping("/local/signup")
-    public ResponseEntity<Long> localSignUp(@RequestBody @Valid CreateLocalMemberRequest request) {
-        Long memberId = authService.createLocalMember(request);
-        return ResponseEntity.ok(memberId);
-    }
 }

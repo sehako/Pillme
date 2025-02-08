@@ -1,7 +1,6 @@
 package com.ssafy.pillme.dependency.domain.vo;
 
 import com.ssafy.pillme.auth.domain.entity.Member;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 

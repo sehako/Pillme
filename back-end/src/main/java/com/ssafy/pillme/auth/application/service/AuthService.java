@@ -13,8 +13,10 @@ import com.ssafy.pillme.auth.infrastructure.repository.MemberRepository;
 import com.ssafy.pillme.auth.presentation.request.*;
 import com.ssafy.pillme.auth.application.response.FindEmailResponse;
 import com.ssafy.pillme.auth.util.JwtUtil;
+
 import java.util.UUID;
 import java.util.regex.Pattern;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -334,7 +336,13 @@ public class AuthService {
     /**
      * 로컬 회원 생성
      */
-    public Long createLocalMember(CreateLocalMemberRequest request) {
+    public Member createLocalMember(CreateLocalMemberRequest request) {
+
+        // 로컬 회원 중복 확인
+        if (memberRepository.existsByNameAndGenderAndBirthday(request.name(), request.gender(), request.birthday())) {
+            throw new DuplicateLocalMemberException();
+        }
+
         Member localMember = Member.builder()
                 .name(request.name())
                 .gender(request.gender())
@@ -347,6 +355,14 @@ public class AuthService {
                 .oauth(false)
                 .role(Role.LOCAL)
                 .build();
-        return memberRepository.save(localMember).getId();
+        return memberRepository.save(localMember);
+    }
+
+    /**
+     * 휴대번호로 회원 조회
+     */
+    public Member findByPhone(String phone) {
+        return memberRepository.findByPhoneAndDeletedFalse(phone)
+                .orElseThrow(InvalidMemberInfoException::new);
     }
 }

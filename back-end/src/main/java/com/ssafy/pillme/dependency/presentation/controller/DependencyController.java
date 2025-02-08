@@ -20,37 +20,36 @@ public class DependencyController {
 
     // 보호자가 피보호자 등록 요청
     @PostMapping
-    public ResponseEntity<JSONResponse<Void>> requestDependency(@RequestBody DependentPhoneRequest request) {
-        dependencyService.requestDependency(request);
+    public ResponseEntity<JSONResponse<Void>> requestDependency(@RequestBody DependentPhoneRequest request, @Auth Member loginMember) {
+        dependencyService.requestDependency(request, loginMember);
         return ResponseEntity.ok(JSONResponse.onSuccess());
     }
 
     // 피보호자가 보호자 등록 요청 수락
     @PostMapping("/accept")
-    public ResponseEntity<JSONResponse<Void>> acceptDependency(@RequestBody DependencyAcceptRequest request) {
-        dependencyService.acceptDependency(request);
+    public ResponseEntity<JSONResponse<Void>> acceptDependency(@RequestBody DependencyAcceptRequest request, @Auth Member loginMember) {
+        dependencyService.acceptDependency(request, loginMember);
         return ResponseEntity.ok(JSONResponse.onSuccess());
     }
 
     // 피보호자가 보호자 등록 요청 거절
     @PostMapping("/reject")
-    public ResponseEntity<JSONResponse<Void>> rejectDependency(@RequestBody DependencyRejectRequest request) {
-        dependencyService.rejectDependency(request);
+    public ResponseEntity<JSONResponse<Void>> rejectDependency(@RequestBody DependencyRejectRequest request, @Auth Member loginMember) {
+        dependencyService.rejectDependency(request, loginMember);
         return ResponseEntity.ok(JSONResponse.onSuccess());
     }
 
-    //TODO: memberService 추가 후, 테스트 필요
     // 로컬 회원(피보호자) 등록
     @PostMapping("/local-member")
-    public ResponseEntity<JSONResponse<Void>> createLocalMember(@RequestBody LocalMemberRequest request) {
-        dependencyService.createLocalMemberWithDependency(request);
+    public ResponseEntity<JSONResponse<Void>> createLocalMember(@RequestBody LocalMemberRequest request, @Auth Member loginMember) {
+        dependencyService.createLocalMemberWithDependency(request, loginMember);
         return ResponseEntity.ok(JSONResponse.onSuccess());
     }
 
     // 피보호자 관리 목록
     @GetMapping("/dependents")
-    public ResponseEntity<JSONResponse<List<DependentListResponse>>> getDependents() {
-        return ResponseEntity.ok(JSONResponse.onSuccess(dependencyService.getDependents()));
+    public ResponseEntity<JSONResponse<List<DependentListResponse>>> getDependents(@Auth Member loginMember) {
+        return ResponseEntity.ok(JSONResponse.onSuccess(dependencyService.getDependents(loginMember)));
     }
 
     /* 가족 관계 삭제 요청 - 보호자와 피보호자 모두 삭제 요청가능
@@ -59,8 +58,8 @@ public class DependencyController {
      * 삭제 요청을 보내는 회원이 sender, 삭제 요청을 받는 회원이 receiver
      * */
     @PostMapping("/delete/{dependencyId}")
-    public ResponseEntity<JSONResponse<Void>> deleteRequestDependency(@PathVariable Long dependencyId) {
-        dependencyService.deleteRequestDependency(dependencyId);
+    public ResponseEntity<JSONResponse<Void>> deleteRequestDependency(@PathVariable Long dependencyId, @Auth Member loginMember) {
+        dependencyService.deleteRequestDependency(dependencyId, loginMember);
         return ResponseEntity.ok(JSONResponse.onSuccess());
     }
 
@@ -69,8 +68,8 @@ public class DependencyController {
     * 메시지에 존재하는 senderId를 통해 삭제 요청을 보낸 회원을 찾아서 삭제 요청을 수락
     * */
     @DeleteMapping("/delete/accept")
-    public ResponseEntity<JSONResponse<Void>> acceptDeleteDependency(@RequestBody AcceptDependencyDeletionRequest request) {
-        dependencyService.acceptDeleteDependency(request);
+    public ResponseEntity<JSONResponse<Void>> acceptDeleteDependency(@RequestBody AcceptDependencyDeletionRequest request, @Auth Member loginMember) {
+        dependencyService.acceptDeleteDependency(request, loginMember);
         return ResponseEntity.ok(JSONResponse.onSuccess());
     }
 
@@ -79,8 +78,8 @@ public class DependencyController {
     * 메시지에 존재하는 senderId를 통해 삭제 요청을 보낸 회원을 찾아서 삭제 요청을 거절
      */
     @PostMapping("/delete/reject")
-    public ResponseEntity<JSONResponse<Void>> rejectDeleteDependency(@RequestBody RejectDependencyDeletionRequest request) {
-        dependencyService.rejectDeleteDependency(request);
+    public ResponseEntity<JSONResponse<Void>> rejectDeleteDependency(@RequestBody RejectDependencyDeletionRequest request, @Auth Member loginMember) {
+        dependencyService.rejectDeleteDependency(request, loginMember);
         return ResponseEntity.ok(JSONResponse.onSuccess());
     }
 

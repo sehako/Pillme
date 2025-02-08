@@ -38,6 +38,7 @@ public enum ErrorCode {
     MISMATCHED_PHONE_NUMBER(4124, BAD_REQUEST, "전화번호가 일치하지 않습니다"),
     INVALID_PHONE_NUMBER_FORMAT(4125, BAD_REQUEST, "유효하지 않은 전화번호 형식입니다"),
     INVALID_EMAIL_ADDRESS_FORMAT(4126, BAD_REQUEST, "유효하지 않은 이메일 형식입니다"),
+    DUPLICATE_LOCAL_MEMBER(4127, BAD_REQUEST, "이미 존재하는 로컬 회원입니다"),
 
     // 회원 인증 관련 에러
     INVALID_MEMBER_INFO(4131, BAD_REQUEST, "존재하지 않는 사용자입니다"),
@@ -85,7 +86,11 @@ public enum ErrorCode {
 
     // 알림
     NOTIFICATION_SETTING_NOT_FOUND(4300, NOT_FOUND, "알림 설정을 찾을 수 없습니다"),
-    NOTIFICATION_ACCESS_DENIED(4301, UNAUTHORIZED, "알림 설정에 접근할 수 없습니다");
+    NOTIFICATION_ACCESS_DENIED(4301, UNAUTHORIZED, "알림 설정에 접근할 수 없습니다"),
+
+    // 관계
+    DEPENDENCY_NOT_FOUND(4400, NOT_FOUND, "등록된 관계를 찾을 수 없습니다"),
+    DUPLICATE_DEPENDENCY(4401, BAD_REQUEST, "이미 등록된 관계입니다");
 
     private final int code;
     private final HttpStatus httpStatus;
