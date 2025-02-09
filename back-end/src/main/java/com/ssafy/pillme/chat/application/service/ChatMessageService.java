@@ -32,6 +32,7 @@ public class ChatMessageService {
         Long chatRoomId = chatMessage.getChatRoomId();
         Long receiverId = chatMessage.getReceiverId();
 
+
         //채팅 상대가 채팅방에 있는지 확인
         Boolean isOnline = chatRedisService.checkMember(chatRoomId, receiverId);
 
@@ -44,7 +45,6 @@ public class ChatMessageService {
 
     public void markMessageAsRead(Long chatRoomId, Long userId){
         List<ChatMessage> unreadMessages = chatMessageRepository.findByChatRoomIdAndReceiverIdAndReadFalse(chatRoomId, userId);
-
         if (!unreadMessages.isEmpty()) {
             for (ChatMessage message : unreadMessages) {
                 message.markAsRead();

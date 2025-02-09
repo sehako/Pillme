@@ -23,11 +23,12 @@ public class ChatController {
 
     private final ChatMessageService chatMessageService;
 
+    //채팅방에 해당하는 메세지 불러오기
     @GetMapping("/{chatRoomId}")
     public ResponseEntity<JSONResponse<List<ChatMessageResponse>>> getChatMessages(@PathVariable Long chatRoomId){
         return ResponseEntity.ok(JSONResponse.onSuccess(chatMessageService.getChatMessages(chatRoomId)));
     }
-
+    //채팅방에 유저가 들어올 시 본인에게 온 메세지 중 안 읽은 메세지 읽음으로 처리
     @PostMapping("/read")
     public ResponseEntity<JSONResponse<Void>> readChatRoom(@ModelAttribute ChatReadRequest chatReadRequest){
         chatMessageService.markMessageAsRead(chatReadRequest.chatRoomId(), chatReadRequest.userId());

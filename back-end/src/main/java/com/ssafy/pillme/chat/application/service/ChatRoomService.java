@@ -10,7 +10,9 @@ import com.ssafy.pillme.chat.infrastructure.repository.ChatMessageRepository;
 import com.ssafy.pillme.chat.infrastructure.repository.ChatRoomRepository;
 import com.ssafy.pillme.chat.presentation.request.ChatRoomRequest;
 import com.ssafy.pillme.global.code.ErrorCode;
+import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +23,8 @@ import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
+@Transactional
+@Slf4j
 public class ChatRoomService {
     private final ChatRoomRepository chatRoomRepository;
     private final ChatMessageRepository chatMessageRepository;
@@ -30,7 +34,7 @@ public class ChatRoomService {
 
     public List<ChatRoomResponse> getUserChatRoom(Long userId){
         Member user = authService.findById(userId);
-        List<ChatRoom> chatRooms =  chatRoomRepository.findByCareUserOrUser(user, user);
+        List<ChatRoom> chatRooms =  chatRoomRepository.findBySendUserOrReceiveUser(user, user);
         if(chatRooms.isEmpty()){
             throw new ChatRoomNotFoundException(ErrorCode.EMPTY_CHATROOM_ID);
         }
@@ -43,18 +47,18 @@ public class ChatRoomService {
     }
 
     public ChatRoomResponse getOrCreateChatRoom(ChatRoomRequest chatRoomRequest){
-        Member careUser = authService.findById(chatRoomRequest.careUserId());
-        Member user = authService.findById(chatRoomRequest.userId());
+        Member careUser = authService.findById(chatRoomRequest.sendUserId());
+        Member user = authService.findById(chatRoomRequest.receiveUserId());
         Optional<ChatRoom> chatRoom = chatRoomRepository.findByUsers(careUser, user);
         if(chatRoom.isPresent()){
-            chatRedisService.enterChatRoom(chatRoom.get().getId(), chatRoomRequest.careUserId());   //myId로 바꿔야됨
+            chatRedisService.enterChatRoom(chatRoom.get().getId(), chatRoomRequest.sendUserId());   //myId로 바꿔야됨
             return ChatRoomResponse.from(chatRoom.get(),0);
         }
         ChatRoom newChatRoom = new ChatRoom();
 
         newChatRoom.updateChatRoom(careUser, user);
         newChatRoom= chatRoomRepository.save(newChatRoom);
-        chatRedisService.enterChatRoom(newChatRoom.getId(), chatRoomRequest.careUserId());   //myId로 바꿔야됨
+        chatRedisService.enterChatRoom(newChatRoom.getId(), chatRoomRequest.sendUserId());   //myId로 바꿔야됨
         return ChatRoomResponse.from(newChatRoom,0);
     }
 
