@@ -19,8 +19,8 @@ public enum SuccessCode {
     INFORMATION_ADD_SUCCESS(2102, OK, "복약 정보 추가가 성공적으로 처리되었습니다"),
 
     //채팅
-    CHATROOM_DELETE_SUCCESS(2200, OK, "요청하신 채팅방이 삭제되었습니다.");
-
+    CHATROOM_DELETE_SUCCESS(2200, OK, "요청하신 채팅방이 삭제되었습니다."),
+    CHATROOM_LEAVE_SUCCESS(2201, OK, "사용자가 채팅방에서 나갔습니다.");
 
     private final int code;
     private final HttpStatus httpStatus;
