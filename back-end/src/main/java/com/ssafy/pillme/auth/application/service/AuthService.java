@@ -7,6 +7,7 @@ import com.ssafy.pillme.auth.application.exception.token.*;
 import com.ssafy.pillme.auth.application.response.TokenResponse;
 import com.ssafy.pillme.auth.application.response.MemberResponse;
 import com.ssafy.pillme.auth.domain.entity.Member;
+import com.ssafy.pillme.auth.domain.vo.Gender;
 import com.ssafy.pillme.auth.domain.vo.Provider;
 import com.ssafy.pillme.auth.domain.vo.Role;
 import com.ssafy.pillme.auth.infrastructure.repository.MemberRepository;
@@ -338,11 +339,6 @@ public class AuthService {
      */
     public Member createLocalMember(CreateLocalMemberRequest request) {
 
-        // 로컬 회원 중복 확인
-        if (memberRepository.existsByNameAndGenderAndBirthday(request.name(), request.gender(), request.birthday())) {
-            throw new DuplicateLocalMemberException();
-        }
-
         Member localMember = Member.builder()
                 .name(request.name())
                 .gender(request.gender())
@@ -364,5 +360,13 @@ public class AuthService {
     public Member findByPhone(String phone) {
         return memberRepository.findByPhoneAndDeletedFalse(phone)
                 .orElseThrow(InvalidMemberInfoException::new);
+    }
+
+    /**
+     * 이름, 성별, 생년월일로 로컬 회원 조회
+     */
+    public Member findLocalMember(String name, Gender gender, String birthday) {
+        return memberRepository.findByNameAndGenderAndBirthdayAndDeletedFalse(name, gender, birthday)
+                .orElse(null);
     }
 }

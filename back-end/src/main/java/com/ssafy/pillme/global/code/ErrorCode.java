@@ -38,7 +38,6 @@ public enum ErrorCode {
     MISMATCHED_PHONE_NUMBER(4124, BAD_REQUEST, "전화번호가 일치하지 않습니다"),
     INVALID_PHONE_NUMBER_FORMAT(4125, BAD_REQUEST, "유효하지 않은 전화번호 형식입니다"),
     INVALID_EMAIL_ADDRESS_FORMAT(4126, BAD_REQUEST, "유효하지 않은 이메일 형식입니다"),
-    DUPLICATE_LOCAL_MEMBER(4127, BAD_REQUEST, "이미 존재하는 로컬 회원입니다"),
 
     // 회원 인증 관련 에러
     INVALID_MEMBER_INFO(4131, BAD_REQUEST, "존재하지 않는 사용자입니다"),

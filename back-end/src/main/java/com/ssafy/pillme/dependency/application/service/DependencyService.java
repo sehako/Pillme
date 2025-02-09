@@ -70,8 +70,23 @@ public class DependencyService {
      * 로그인되어 있는 회원은 보호자로, 생성된 로컬 회원은 피보호자로 관계 생성
      * */
     public void createLocalMemberWithDependency(LocalMemberRequest request, Member protector) {
-        // 로컬 회원 생성
-        Member dependent = authService.createLocalMember(CreateLocalMemberRequest.from(request));
+        /*
+        * 이름, 성별, 생년월일이 동일한 회원이 존재하면 해당 회원과 보호자의 관계가 존재하는지 확인
+        *   관계가 존재하면 예외 처리
+        *   관계가 존재하지 않으면 관계 정보 저장
+        * 존재하지 않으면 로컬 회원 생성 후 관계 정보 저장
+        * */
+        Member dependent = authService.findLocalMember(request.name(), request.gender(), request.birthday());
+
+        if (dependent != null) {
+            dependencyRepository.findByDependentIdAndProtectorIdAndDeletedIsFalse(dependent.getId(), protector.getId())
+                    .ifPresent(dependency -> {
+                        throw new DuplicateDependencyException(ErrorCode.DUPLICATE_DEPENDENCY);
+                    });
+        } else {
+            // 로컬 회원 생성
+            dependent = authService.createLocalMember(CreateLocalMemberRequest.from(request));
+        }
 
         // 관계 정보 저장
         Dependency dependency = Dependency.createDependency(protector, dependent);
