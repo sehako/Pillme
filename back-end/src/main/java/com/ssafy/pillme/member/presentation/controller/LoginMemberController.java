@@ -1,10 +1,9 @@
 package com.ssafy.pillme.member.presentation.controller;
 
 import com.ssafy.pillme.global.response.JSONResponse;
+import com.ssafy.pillme.member.application.response.LoginMemberResponse;
 import com.ssafy.pillme.member.application.service.LoginMemberService;
-import com.ssafy.pillme.member.presentation.request.EmailVerificationRequest;
-import com.ssafy.pillme.member.presentation.request.PhoneVerificationRequest;
-import com.ssafy.pillme.member.presentation.request.UpdateLoginMemberRequest;
+import com.ssafy.pillme.member.presentation.request.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,53 +14,45 @@ import org.springframework.web.bind.annotation.*;
 public class LoginMemberController {
     private final LoginMemberService loginMemberService;
 
-    // 이메일 변경 검증 및 인증메일 발송
-    @PostMapping("/{memberId}/email/verify")
-    public ResponseEntity<JSONResponse<Void>> verifyAndSendEmail(
-            @PathVariable Long memberId,
-            @RequestBody String newEmail) {
-        loginMemberService.validateAndSendEmailVerification(memberId, newEmail);
-        return ResponseEntity.ok(JSONResponse.onSuccess());
-    }
-
-    // 이메일 인증 코드 확인
-    @PostMapping("/{memberId}/email/verify-code")
-    public ResponseEntity<JSONResponse<Void>> verifyEmailCode(
-            @RequestBody EmailVerificationRequest request) {
-        loginMemberService.verifyEmailCode(request.email(), request.code());
-        return ResponseEntity.ok(JSONResponse.onSuccess());
-    }
-
-    // 전화번호 변경 검증 및 인증SMS 발송
-    @PostMapping("/{memberId}/phone/verify")
-    public ResponseEntity<JSONResponse<Void>> verifyAndSendPhone(
-            @PathVariable Long memberId,
-            @RequestBody String newPhone) {
-        loginMemberService.validateAndSendPhoneVerification(memberId, newPhone);
-        return ResponseEntity.ok(JSONResponse.onSuccess());
-    }
-
-    // 전화번호 인증 코드 확인
-    @PostMapping("/{memberId}/phone/verify-code")
-    public ResponseEntity<JSONResponse<Void>> verifyPhoneCode(
-            @RequestBody PhoneVerificationRequest request) {
-        loginMemberService.verifySmsCode(request.phoneNumber(), request.code());
-        return ResponseEntity.ok(JSONResponse.onSuccess());
+    // 멤버 프로필 조회
+    @GetMapping("/{memberId}")
+    public ResponseEntity<JSONResponse<LoginMemberResponse>> findMemberProfile(
+            @PathVariable Long memberId) {
+        LoginMemberResponse profile = loginMemberService.findMemberProfile(memberId);
+        return ResponseEntity.ok(JSONResponse.onSuccess(profile));
     }
 
     // 닉네임 중복 검증
     @PostMapping("/{memberId}/nickname/verify")
     public ResponseEntity<JSONResponse<Void>> verifyNickname(
             @PathVariable Long memberId,
-            @RequestBody String newNickname) {
-        loginMemberService.validateNicknameChange(memberId, newNickname);
+            @RequestBody ChangeNicknameVerifyRequest request) {
+        loginMemberService.validateNicknameChange(memberId, request.newNickname());
         return ResponseEntity.ok(JSONResponse.onSuccess());
     }
 
     // 최종 정보 업데이트
-    @PostMapping("/{memberId}/email/verify")
+    // 프론트와 협의 후 제거 예정
+    @PostMapping("/{memberId}/update")
     public ResponseEntity<JSONResponse<Void>> updateMemberInfo(@PathVariable Long memberId, @RequestBody UpdateLoginMemberRequest request) {
         loginMemberService.updateMemberInformation(memberId, request);
+        return ResponseEntity.ok(JSONResponse.onSuccess());
+    }
+
+    // 비밀번호 변경
+    @PostMapping("/{memberId}/password")
+    public ResponseEntity<JSONResponse<Void>> updatePassword(
+            @PathVariable Long memberId,
+            @RequestBody UpdatePasswordRequest request) {
+        loginMemberService.updatePassword(memberId, request);
+        return ResponseEntity.ok(JSONResponse.onSuccess());
+    }
+
+    // 회원 탈퇴
+    @DeleteMapping("/{memberId}")
+    public ResponseEntity<JSONResponse<Void>> deleteMember(
+            @PathVariable Long memberId) {
+        loginMemberService.deleteMember(memberId);
         return ResponseEntity.ok(JSONResponse.onSuccess());
     }
 }

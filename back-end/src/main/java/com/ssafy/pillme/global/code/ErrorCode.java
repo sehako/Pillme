@@ -41,6 +41,7 @@ public enum ErrorCode {
     SAME_PHONE_NUMBER(4127, BAD_REQUEST, "기존 전화번호와 동일합니다"),
     SAME_NICKNAME(4128, BAD_REQUEST, "기존 닉네임과 동일합니다"),
     SAME_EMAIL_ADDRESS(4129, BAD_REQUEST, "기존 이메일과 동일합니다"),
+    MISMATCHED_CURRENT_PASSWORD(4130, BAD_REQUEST, "현재 비밀번호가 일치하지 않습니다"),
 
     // 회원 인증 관련 에러
     INVALID_MEMBER_INFO(4131, BAD_REQUEST, "존재하지 않는 사용자입니다"),

@@ -24,6 +24,9 @@ public class LoginMember extends BaseEntity {
     @Column(length = 30)
     private String name;
 
+    @Column(length = 300)
+    private String password;
+
     @Column(length = 30)
     private String phone;
 
@@ -45,11 +48,12 @@ public class LoginMember extends BaseEntity {
     private boolean oauth;
 
     @Builder
-    private LoginMember(Long id, String email, String name, String nickname,
+    private LoginMember(Long id, String email, String name, String password, String nickname,
                         Gender gender, String phone, String birthday, Role role, boolean deleted, boolean oauth) {
         this.id = id;
         this.email = email;
         this.name = name;
+        this.password = password;
         this.nickname = nickname;
         this.gender = gender;
         this.phone = phone;
@@ -65,6 +69,12 @@ public class LoginMember extends BaseEntity {
         this.email = email;
         this.nickname = nickname;
         this.phone = phone;
+    }
+
+    // 비밀번호 변경
+    public void updatePassword(String newPassword) {
+        validateLocalUser();
+        this.password = newPassword;
     }
 
     // LOCAL 사용자 검증
