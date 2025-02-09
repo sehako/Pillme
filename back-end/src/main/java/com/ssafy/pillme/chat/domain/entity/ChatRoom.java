@@ -18,11 +18,11 @@ public class ChatRoom {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="care_user_id", nullable = false)
+    @JoinColumn(name="send_user_id", nullable = false)
     private Member sendUser;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="user_id", nullable = false)
+    @JoinColumn(name="receive_user_id", nullable = false)
     private Member receiveUser;
 
     public void updateChatRoom(Member sendUser, Member receiveuser){
