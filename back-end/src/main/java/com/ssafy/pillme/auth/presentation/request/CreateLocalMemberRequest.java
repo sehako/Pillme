@@ -15,7 +15,11 @@ public record CreateLocalMemberRequest(
         @NotBlank(message = "생년월일은 필수입니다.")
         String birthday
 ) {
-    public static LocalMemberRequest of(String name, Gender gender, String birthday) {
-        return new LocalMemberRequest(name, gender, birthday);
+    public static CreateLocalMemberRequest from(LocalMemberRequest request) {
+        return new CreateLocalMemberRequest(
+                request.name(),
+                request.gender(),
+                request.birthday()
+        );
     }
 }

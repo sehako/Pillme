@@ -57,7 +57,7 @@ public class SmsService {
         Message message = new Message();
         message.setFrom(senderNumber);
         message.setTo(phoneNumber);
-        message.setText(String.format("[PillMe]\n인증번호: %s\n인증번호는 5분간 유효합니다.", verificationCode));
+        message.setText(String.format("[Pillme]\n인증번호: %s\n인증번호는 5분간 유효합니다.", verificationCode));
 
         try {
             SingleMessageSentResponse response = this.messageService.sendOne(new SingleMessageSendingRequest(message));

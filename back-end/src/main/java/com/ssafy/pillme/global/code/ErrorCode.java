@@ -86,7 +86,11 @@ public enum ErrorCode {
 
     // 알림
     NOTIFICATION_SETTING_NOT_FOUND(4300, NOT_FOUND, "알림 설정을 찾을 수 없습니다"),
-    NOTIFICATION_ACCESS_DENIED(4301, UNAUTHORIZED, "알림 설정에 접근할 수 없습니다");
+    NOTIFICATION_ACCESS_DENIED(4301, UNAUTHORIZED, "알림 설정에 접근할 수 없습니다"),
+
+    // 관계
+    DEPENDENCY_NOT_FOUND(4400, NOT_FOUND, "등록된 관계를 찾을 수 없습니다"),
+    DUPLICATE_DEPENDENCY(4401, BAD_REQUEST, "이미 등록된 관계입니다");
 
     private final int code;
     private final HttpStatus httpStatus;
