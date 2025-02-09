@@ -1,7 +1,9 @@
 package com.ssafy.pillme.auth.infrastructure.repository;
 
 import com.ssafy.pillme.auth.domain.entity.Member;
+import com.ssafy.pillme.auth.domain.vo.Gender;
 import com.ssafy.pillme.auth.domain.vo.Provider;
+
 import java.util.Optional;
 
 import com.ssafy.pillme.auth.domain.vo.Role;
@@ -23,4 +25,10 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     Optional<Member> findByEmailAndProviderAndDeletedFalse(String email, Provider provider);
 
     Optional<Member> findByIdAndDeletedFalse(Long id);
+
+    Optional<Member> findByPhoneAndDeletedFalse(String phone);
+
+    boolean existsByNameAndGenderAndBirthday(String name, Gender gender, String birthday);
+
+    Optional<Member> findByNameAndGenderAndBirthdayAndDeletedFalse(String name, Gender gender, String birthday);
 }
