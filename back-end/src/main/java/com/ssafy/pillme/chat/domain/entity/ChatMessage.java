@@ -18,6 +18,12 @@ public class ChatMessage {
 
     private Long chatRoomId;
     private Long senderId;
+    private Long receiverId;
     private String message;
     private Long timestamp;
+    private boolean read;
+
+    public void markAsRead(){
+        this.read = true;
+    }
 }

@@ -79,6 +79,7 @@ public enum ErrorCode {
 
     //채팅방 관리
     EMPTY_CHATROOM_ID(4070, BAD_REQUEST, "요청한 채팅방은 존재하지 않습니다."),
+    MARK_NOT_WORK(4071, BAD_REQUEST, "요청한 채팅방의 채팅이 읽음처리 되지 않았습니다."),
 
     // 복약 내역
     HISTORY_NOT_FOUND(4100, NOT_FOUND, "복약 내역을 찾을 수 없습니다."),

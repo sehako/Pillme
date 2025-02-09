@@ -1,8 +1,10 @@
 package com.ssafy.pillme.chat.presentation.controller;
 
+import com.ssafy.pillme.auth.annotation.Auth;
+import com.ssafy.pillme.auth.domain.entity.Member;
 import com.ssafy.pillme.chat.application.response.ChatRoomResponse;
+import com.ssafy.pillme.chat.application.service.ChatRedisService;
 import com.ssafy.pillme.chat.application.service.ChatRoomService;
-import com.ssafy.pillme.chat.domain.entity.ChatRoom;
 import com.ssafy.pillme.chat.presentation.request.ChatRoomRequest;
 import com.ssafy.pillme.global.code.SuccessCode;
 import com.ssafy.pillme.global.response.JSONResponse;
@@ -20,20 +22,31 @@ import java.util.List;
 public class ChatRoomController {
 
     private final ChatRoomService chatRoomService;
+    private final ChatRedisService chatRedisService;
 
+    //유저의 채팅방 정보 조회
     @GetMapping("/{userId}")
     public ResponseEntity<JSONResponse<List<ChatRoomResponse>>> getUserChatRooms(@PathVariable Long userId){
         return ResponseEntity.ok(JSONResponse.onSuccess(chatRoomService.getUserChatRoom(userId)));
     }
 
+    //채팅방 없을 시 채팅방 생성 or 채팅방 존재할 경우 이전 채팅방 정보 불러오기(redis에 유저 정보 추가)
     @PostMapping
     public ResponseEntity<JSONResponse<ChatRoomResponse>> getOrCreateChatRoom(@RequestBody ChatRoomRequest chatRoomRequest){
         return ResponseEntity.ok(JSONResponse.onSuccess(chatRoomService.getOrCreateChatRoom(chatRoomRequest)));
     }
 
+    //채팅방 지우기
     @DeleteMapping("/{chatRoom}")
     public ResponseEntity<JSONResponse<Void>> deleteChatRoom(@PathVariable Long chatRoom){
         chatRoomService.deleteChatRoom(chatRoom);
-        return  ResponseEntity.ok(JSONResponse.of(SuccessCode.CHATROOM_DELETE_SUCCESS));
+        return ResponseEntity.ok(JSONResponse.of(SuccessCode.CHATROOM_DELETE_SUCCESS));
     }
+    //채팅방을 나갈 시 redis에서 유저 정보 삭제
+    @PostMapping("leave/{chatRoomId}/{userId}")
+    public ResponseEntity<JSONResponse<Void>> leaveChatRoom(@PathVariable Long chatRoomId, @PathVariable Long userId){
+        chatRedisService.leaveChatRoom(chatRoomId, userId);
+        return ResponseEntity.ok(JSONResponse.of(SuccessCode.CHATROOM_LEAVE_SUCCESS));
+    }
+
 }
