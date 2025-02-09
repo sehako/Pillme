@@ -27,9 +27,9 @@ public class EmailController {
      * 이메일 인증번호 확인
      */
     @PostMapping("/email/verify")
-    public ResponseEntity<JSONResponse<Void>> verifyEmail(
+    public ResponseEntity<JSONResponse<Void>> verifyEmailCode(
             @RequestBody VerifyEmailRequest request) {
-        emailService.verifyEmail(request.email(), request.code());
+        emailService.verifyEmailCode(request.email(), request.code());
         return ResponseEntity.ok(JSONResponse.onSuccess());
     }
 }

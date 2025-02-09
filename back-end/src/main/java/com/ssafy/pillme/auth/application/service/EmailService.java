@@ -73,7 +73,7 @@ public class EmailService {
     /**
      * 이메일 인증번호 확인
      */
-    public void verifyEmail(String email, String code) {
+    public void verifyEmailCode(String email, String code) {
         String savedCode = getVerificationCode(email);
         if (savedCode == null) {
             throw new ExpiredEmailCodeException();
