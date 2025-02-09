@@ -1,5 +1,6 @@
 package com.ssafy.pillme.dependency.infrastructure.repository;
 
+import com.ssafy.pillme.auth.domain.entity.Member;
 import com.ssafy.pillme.dependency.domain.entity.Dependency;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -21,4 +22,13 @@ public interface DependencyRepository extends JpaRepository<Dependency, Long> {
             "(d.protector.id = :secondMemberId AND d.dependent.id = :firstMemberId)) AND " +
             "d.deleted = false")
     Optional<Dependency> findByMemberIdsAndDeletedIsFalse(Long firstMemberId, Long secondMemberId);
+
+    // 회원의 모든 보호자 조회
+    @Query("SELECT d.protector FROM Dependency d WHERE d.dependent = :dependent AND d.deleted = false")
+    List<Member> findProtectorsByDependentAndDeletedIsFalse(Member dependent);
+
+
+    // 피보호자와 보호자 id로 관계 조회
+    @Query("SELECT d FROM Dependency d WHERE d.dependent.id = :dependentId AND d.protector.id = :protectorId AND d.deleted = false")
+    Optional<Dependency> findByDependentIdAndProtectorIdAndDeletedIsFalse(Long dependentId, Long protectorId);
 }

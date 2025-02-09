@@ -61,6 +61,7 @@ dependencies {
 
     //Spring Security
     implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.springframework.security:spring-security-config'
     implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
     runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
     runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
@@ -69,10 +70,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-mail'
 
     // CoolSMS
-    implementation 'net.nurigo:javaSDK:2.2'
-
-    // MySQL
-    implementation 'com.mysql:mysql-connector-j:9.2.0'
+    implementation 'net.nurigo:sdk:4.3.2'
 
     // ElasticSearch
     implementation 'org.springframework.boot:spring-boot-starter-data-elasticsearch:3.4.2'

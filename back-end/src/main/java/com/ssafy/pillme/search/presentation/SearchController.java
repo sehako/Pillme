@@ -1,7 +1,9 @@
 package com.ssafy.pillme.search.presentation;
 
+import com.ssafy.pillme.global.response.JSONResponse;
 import com.ssafy.pillme.management.application.ManagementService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,7 +26,7 @@ public class SearchController {
     }
 
     @GetMapping("/{info-id}")
-    public void currentTakingDetail(@PathVariable("info-id") Long infoId) {
-
+    public ResponseEntity<JSONResponse<Long>> currentTakingDetail(@PathVariable("info-id") Long infoId) {
+        return ResponseEntity.ok(JSONResponse.onSuccess(infoId));
     }
 }

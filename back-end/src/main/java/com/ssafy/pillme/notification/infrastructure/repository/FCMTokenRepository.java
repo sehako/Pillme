@@ -9,4 +9,6 @@ import java.util.List;
 @Repository
 public interface FCMTokenRepository extends JpaRepository<FCMToken, Integer> {
     List<FCMToken> findAllByMemberId(Long memberId);
+
+    boolean existsByMemberIdAndToken(Long memberId, String token);
 }

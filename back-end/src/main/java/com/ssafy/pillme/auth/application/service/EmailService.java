@@ -1,6 +1,6 @@
 package com.ssafy.pillme.auth.application.service;
 
-import com.ssafy.pillme.auth.application.exception.external.FailedEmailDeliveryException;
+import com.ssafy.pillme.auth.application.exception.email.FailedEmailDeliveryException;
 import com.ssafy.pillme.auth.application.exception.verification.*;
 
 import jakarta.mail.MessagingException;
@@ -27,7 +27,7 @@ public class EmailService {
     private static final String EMAIL_CODE_PREFIX = "EC:";    // 인증번호 저장용
     private static final String VERIFIED_PREFIX = "VE:";      // 인증 완료 저장용
     private static final long CODE_EXPIRATION_TIME = 300000;  // 5분
-    private static final long VERIFIED_EXPIRATION_TIME = 600000; // 10분
+    private static final long VERIFIED_EXPIRATION_TIME = 1800000; // 30분
 
     /**
      * 이메일 인증번호 발송
@@ -42,7 +42,7 @@ public class EmailService {
 
             helper.setFrom(sender);
             helper.setTo(to);
-            helper.setSubject("[PillMe] 이메일 인증");
+            helper.setSubject("[Pillme] 이메일 인증");
             helper.setText(createVerificationEmailContent(code), true);
 
             mailSender.send(message);
@@ -61,7 +61,7 @@ public class EmailService {
 
             helper.setFrom(sender);
             helper.setTo(to);
-            helper.setSubject("[PillMe] 비밀번호 재설정");
+            helper.setSubject("[Pillme] 비밀번호 재설정");
             helper.setText(createPasswordResetEmailContent(token), true);
 
             mailSender.send(message);
