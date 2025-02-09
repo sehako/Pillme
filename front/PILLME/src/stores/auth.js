@@ -1,53 +1,98 @@
-import { defineStore } from 'pinia';
-import apiClient from '../api';
+import { defineStore } from "pinia";
+import apiClient from "../api";
+import { verifySmsCode } from "../api/auth";
+import qs from "qs"; // x-www-form-urlencoded 변환을 위한 라이브러리
 
-export const useAuthStore = defineStore('auth', {
+export const useAuthStore = defineStore("auth", {
   state: () => ({
-    user: null,
-    accessToken: localStorage.getItem('accessToken') || null, // ✅ 새로고침 후 유지
+    user: JSON.parse(localStorage.getItem("user")) || null,
+    accessToken: localStorage.getItem("accessToken") || null,
   }),
+
   actions: {
-    // ✅ 로그인 API 요청
-    async login(credentials) {
+    // ✅ 이메일 인증번호 검증 API 요청 (Access Token 저장 추가)
+    async verifyEmail(email, code) {
       try {
-        const response = await apiClient.post('/api/v1/auth/login', credentials);
-        const { accessToken } = response.data.result;
+        console.log("✅ 이메일 인증번호 확인 요청:", { email, code });
+        const response = await apiClient.post("/api/v1/auth/email/verify", { email, code });
 
-        this.accessToken = accessToken;
-        localStorage.setItem('accessToken', accessToken); // ✅ accessToken 저장
-        apiClient.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
+        console.log("🛠 서버 응답:", response.data);
 
-        return response;
+        if (!response.data) {
+          throw new Error("서버 응답이 없습니다.");
+        }
+
+        if (response.data.code === 2000) {
+          console.log("✅ 이메일 인증 성공!");
+
+          if (response.data.accessToken) {
+            this.accessToken = response.data.accessToken;
+            localStorage.setItem("accessToken", response.data.accessToken);
+            apiClient.defaults.headers.common["Authorization"] = `Bearer ${response.data.accessToken}`;
+            console.log("🔐 Access Token 저장 완료:", this.accessToken);
+          }
+
+          return true;
+        } else {
+          throw new Error(response.data.message || "이메일 인증 실패");
+        }
       } catch (error) {
-        console.error('로그인 실패:', error);
-        throw error;
+        console.error("🚨 이메일 인증 실패:", error.message);
+        return false;
       }
     },
 
-    // ✅ Access Token 갱신 (Refresh Token은 HttpOnly 쿠키에서 자동 전송됨)
-    async refreshAccessToken() {
-      try {
-        const response = await apiClient.post('/api/v1/auth/refresh'); // ✅ Refresh Token 자동 포함
-        const { accessToken } = response.data.result;
+// ✅ SMS 인증번호 요청 (휴대폰 인증번호 발송)
+async requestPhoneVerification(phoneNumber) {
+  try {
+    console.log("📨 SMS 인증번호 요청:", phoneNumber);
 
-        this.accessToken = accessToken;
-        localStorage.setItem('accessToken', accessToken); // ✅ accessToken 업데이트
-        apiClient.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
+    // JSON 형식의 리퀘스트 데이터 생성
+    const requestData = { phoneNumber };
 
-        return accessToken;
-      } catch (error) {
-        console.error('Access Token 갱신 실패:', error);
-        this.logout();
-        throw error;
+    const response = await apiClient.post(
+      "/api/v1/auth/sms/verification",
+      requestData, 
+      {
+        headers: {
+          "Content-Type": "application/json", // JSON 형식으로 변경
+        },
       }
-    },
+    );
 
-    // ✅ 로그아웃 처리
-    logout() {
-      this.user = null;
-      this.accessToken = null;
-      localStorage.removeItem('accessToken'); // ✅ 저장된 accessToken 삭제
-      apiClient.defaults.headers.common['Authorization'] = null;
+    console.log("🛠 서버 응답:", response.data);
+
+    if (response.data.code === 2000) {
+      console.log("✅ SMS 인증번호 발송 성공");
+      return true;
+    } else {
+      throw new Error(response.data.message || "SMS 인증번호 요청 실패");
+    }
+  } catch (error) {
+    console.error("🚨 SMS 인증번호 요청 실패:", error.response?.data || error);
+    return false;
+  }
+},
+
+
+    // ✅ SMS 인증번호 확인 (휴대폰 인증번호 검증)
+    async verifyPhoneCode(phoneNumber, code) {
+      try {
+        console.log("✅ SMS 인증번호 확인 요청:", { phoneNumber, code });
+        const response = await verifySmsCode(phoneNumber, code);
+
+        console.log("🛠 서버 응답:", response.data);
+
+        if (response.data.code === 2000) {
+          console.log("✅ 휴대폰 인증 성공");
+          return true;
+        } else {
+          throw new Error(response.data.message || "휴대폰 인증 실패");
+        }
+      } catch (error) {
+        console.error("🚨 휴대폰 인증 실패:", error.message);
+        return false;
+      }
     },
   },
 });
