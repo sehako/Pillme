@@ -7,14 +7,17 @@ import com.ssafy.pillme.auth.application.exception.token.*;
 import com.ssafy.pillme.auth.application.response.TokenResponse;
 import com.ssafy.pillme.auth.application.response.MemberResponse;
 import com.ssafy.pillme.auth.domain.entity.Member;
+import com.ssafy.pillme.auth.domain.vo.Gender;
 import com.ssafy.pillme.auth.domain.vo.Provider;
 import com.ssafy.pillme.auth.domain.vo.Role;
 import com.ssafy.pillme.auth.infrastructure.repository.MemberRepository;
 import com.ssafy.pillme.auth.presentation.request.*;
 import com.ssafy.pillme.auth.application.response.FindEmailResponse;
 import com.ssafy.pillme.auth.util.JwtUtil;
+
 import java.util.UUID;
 import java.util.regex.Pattern;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -334,7 +337,8 @@ public class AuthService {
     /**
      * 로컬 회원 생성
      */
-    public Long createLocalMember(CreateLocalMemberRequest request) {
+    public Member createLocalMember(CreateLocalMemberRequest request) {
+
         Member localMember = Member.builder()
                 .name(request.name())
                 .gender(request.gender())
@@ -347,6 +351,22 @@ public class AuthService {
                 .oauth(false)
                 .role(Role.LOCAL)
                 .build();
-        return memberRepository.save(localMember).getId();
+        return memberRepository.save(localMember);
+    }
+
+    /**
+     * 휴대번호로 회원 조회
+     */
+    public Member findByPhone(String phone) {
+        return memberRepository.findByPhoneAndDeletedFalse(phone)
+                .orElseThrow(InvalidMemberInfoException::new);
+    }
+
+    /**
+     * 이름, 성별, 생년월일로 로컬 회원 조회
+     */
+    public Member findLocalMember(String name, Gender gender, String birthday) {
+        return memberRepository.findByNameAndGenderAndBirthdayAndDeletedFalse(name, gender, birthday)
+                .orElse(null);
     }
 }
