@@ -45,9 +45,9 @@ public class AuthService {
         }
 
         // 휴대전화 인증 확인
-        if (!smsService.isVerified(request.phone())) {
-            throw new UnverifiedPhoneNumberException();
-        }
+//        if (!smsService.isVerified(request.phone())) {
+//            throw new UnverifiedPhoneNumberException();
+//        }
 
         // 중복 확인
         if (memberRepository.existsByEmailAndRoleNot(request.email(), Role.LOCAL)) {
@@ -338,15 +338,23 @@ public class AuthService {
      * 로컬 회원 생성
      */
     public Member createLocalMember(CreateLocalMemberRequest request) {
+        // 이메일 생성 (50자 제한, unique 보장)
+        String email = "local_" + UUID.randomUUID().toString().substring(0, 20) + "@example.com";
+
+        // 전화번호 생성 (30자 제한)
+        String phone = "999" + UUID.randomUUID().toString().substring(0, 7);
+
+        // 비밀번호 생성 (300자 제한)
+        String password = UUID.randomUUID().toString();
 
         Member localMember = Member.builder()
                 .name(request.name())
                 .gender(request.gender())
                 .birthday(request.birthday())
-                .email(UUID.randomUUID().toString())
-                .password(UUID.randomUUID().toString())
+                .email(email)
+                .password(password)
                 .nickname(request.name())
-                .phone(UUID.randomUUID().toString())
+                .phone(phone)
                 .deleted(false)
                 .oauth(false)
                 .role(Role.LOCAL)

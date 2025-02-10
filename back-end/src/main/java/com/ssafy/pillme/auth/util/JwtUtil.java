@@ -30,15 +30,15 @@ public class JwtUtil {
     /**
      * Access Token 생성
      */
-    public String createAccessToken(Long userId, String role) {
-        return createToken(userId, role, accessTokenValidityTime);
+    public String createAccessToken(Long memberId, String role) {
+        return createToken(memberId, role, accessTokenValidityTime);
     }
 
     /**
      * Refresh Token 생성
      */
-    public String createRefreshToken(Long userId, String role) {
-        return createToken(userId, role, refreshTokenValidityTime);
+    public String createRefreshToken(Long memberId, String role) {
+        return createToken(memberId, role, refreshTokenValidityTime);
     }
 
     /**
@@ -82,9 +82,9 @@ public class JwtUtil {
     /**
      * 토큰 생성
      */
-    private String createToken(Long userId, String role, long validityTime) {
+    private String createToken(Long memberId, String role, long validityTime) {
         Claims claims = Jwts.claims();
-        claims.put("userId", userId);
+        claims.put("memberId", memberId);
         claims.put("role", role);
 
         Date now = new Date();
