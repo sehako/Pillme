@@ -1,4 +1,8 @@
 package com.ssafy.pillme.member.presentation.request;
 
-public class UpdateLoginMemberRequest {
+public record UpdateLoginMemberRequest(
+        String nickname,
+        String email,
+        String phone
+) {
 }

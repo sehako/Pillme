@@ -24,6 +24,19 @@ public class LoginMember extends BaseEntity {
     @Column(length = 30)
     private String name;
 
+    @Column(length = 300)
+    private String password;
+
+    @Column(length = 30)
+    private String phone;
+
+    @Column(length = 10)
+    private String birthday;
+
+    @Enumerated(EnumType.STRING)
+    @Column(length = 1)
+    private Gender gender;
+
     @Column(length = 30)
     private String nickname;
 
@@ -31,24 +44,23 @@ public class LoginMember extends BaseEntity {
     @Column(length = 50)
     private Role role;
 
-    @Enumerated(EnumType.STRING)
-    @Column(length = 1)
-    private Gender gender;
-
-    @Column(length = 30)
-    private String phone;
-
     private boolean deleted;
-
     private boolean oauth;
 
-    @Column(length = 10)
-    private String birthday;
-
     @Builder
-    private LoginMember(Long id, String email, String name, String nickname,
-                        Gender gender, String phone, String birthday, boolean deleted, boolean oauth, Role role) {
-
+    private LoginMember(Long id, String email, String name, String password, String nickname,
+                        Gender gender, String phone, String birthday, Role role, boolean deleted, boolean oauth) {
+        this.id = id;
+        this.email = email;
+        this.name = name;
+        this.password = password;
+        this.nickname = nickname;
+        this.gender = gender;
+        this.phone = phone;
+        this.birthday = birthday;
+        this.role = role;
+        this.deleted = deleted;
+        this.oauth = oauth;
     }
 
     // 회원 정보 수정
@@ -57,6 +69,12 @@ public class LoginMember extends BaseEntity {
         this.email = email;
         this.nickname = nickname;
         this.phone = phone;
+    }
+
+    // 비밀번호 변경
+    public void updatePassword(String newPassword) {
+        validateLocalUser();
+        this.password = newPassword;
     }
 
     // LOCAL 사용자 검증

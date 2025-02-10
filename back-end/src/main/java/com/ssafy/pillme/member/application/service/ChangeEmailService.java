@@ -1,8 +1,8 @@
-package com.ssafy.pillme.auth.application.service;
+package com.ssafy.pillme.member.application.service;
 
-import com.ssafy.pillme.auth.application.exception.email.FailedEmailDeliveryException;
-import com.ssafy.pillme.auth.application.exception.verification.*;
-
+import com.ssafy.pillme.member.application.exception.*;
+import com.ssafy.pillme.member.domain.entity.LoginMember;
+import com.ssafy.pillme.member.infrastructure.repository.LoginMemberRepository;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
@@ -17,9 +17,10 @@ import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor
-public class EmailService {
+public class ChangeEmailService {
     private final JavaMailSender mailSender;
     private final RedisTemplate<String, String> redisTemplate;
+    private final LoginMemberRepository loginMemberRepository;
 
     @Value("${EMAIL_SENDER}")
     private String sender;
@@ -30,9 +31,35 @@ public class EmailService {
     private static final long VERIFIED_EXPIRATION_TIME = 1800000; // 30분
 
     /**
-     * 이메일 인증번호 발송
+     * 이메일 변경 검증 및 인증번호 발송
      */
-    public void sendVerificationEmail(String to) {
+    public void validateAndSendEmailVerification(Long memberId, String newEmail) {
+        // 기존 이메일과 중복 검증
+        validateNewEmail(newEmail, memberId);
+        // 인증 메일 발송
+        sendVerificationEmail(newEmail);
+    }
+
+    /**
+     * 이메일 중복 및 현재값 검증
+     */
+    private void validateNewEmail(String newEmail, Long memberId) {
+        LoginMember member = loginMemberRepository.findById(memberId)
+                .orElseThrow(NoMemberInfoException::new);
+
+        if (member.getEmail().equals(newEmail)) {
+            throw new SameEmailException();
+        }
+
+        if(loginMemberRepository.existsByEmailAndDeletedFalse(newEmail)) {
+            throw new AlreadyExistEmailAddressException();
+        }
+    }
+
+    /**
+     * 이메일 변경 인증번호 발송
+     */
+    private void sendVerificationEmail(String to) {
         String code = generateVerificationCode();
         saveVerificationCode(to, code);
 
@@ -43,30 +70,11 @@ public class EmailService {
             helper.setFrom(sender);
             helper.setTo(to);
             helper.setSubject("[Pillme] 이메일 인증");
-            helper.setText(createVerificationEmailContent(code), true);
+            helper.setText(createChangeEmailVerificationEmailContent(code), true);
 
             mailSender.send(message);
         } catch (MessagingException e) {
-            throw new FailedEmailDeliveryException();
-        }
-    }
-
-    /**
-     * 비밀번호 재설정 이메일 발송
-     */
-    public void sendPasswordResetEmail(String to, String token) {
-        try {
-            MimeMessage message = mailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(message, true);
-
-            helper.setFrom(sender);
-            helper.setTo(to);
-            helper.setSubject("[Pillme] 비밀번호 재설정");
-            helper.setText(createPasswordResetEmailContent(token), true);
-
-            mailSender.send(message);
-        } catch (MessagingException e) {
-            throw new FailedEmailDeliveryException();
+            throw new FailedEmailSendException();
         }
     }
 
@@ -76,10 +84,10 @@ public class EmailService {
     public void verifyEmailCode(String email, String code) {
         String savedCode = getVerificationCode(email);
         if (savedCode == null) {
-            throw new ExpiredEmailCodeException();
+            throw new ExpiredChagneEmailCodeException();
         }
         if (!savedCode.equals(code)) {
-            throw new InvalidEmailCodeException();
+            throw new InvalidChangeEmailCodeException();
         }
 
         // 인증번호 삭제 및 인증 완료 상태 저장
@@ -95,6 +103,7 @@ public class EmailService {
         return Boolean.TRUE.equals(redisTemplate.hasKey(key));
     }
 
+    // 기존의 private 메서드들은 그대로 유지
     private String generateVerificationCode() {
         Random random = new Random();
         return String.format("%06d", random.nextInt(1000000));
@@ -120,7 +129,7 @@ public class EmailService {
         redisTemplate.opsForValue().set(key, "true", VERIFIED_EXPIRATION_TIME, TimeUnit.MILLISECONDS);
     }
 
-    private String createVerificationEmailContent(String code) {
+    private String createChangeEmailVerificationEmailContent(String code) {
         return String.format("""
             <div style='margin:100px;'>
                 <h1>이메일 인증번호</h1>
@@ -129,16 +138,5 @@ public class EmailService {
                 <p>이 인증번호는 5분 후에 만료됩니다.</p>
             </div>
             """, code);
-    }
-
-    private String createPasswordResetEmailContent(String token) {
-        return String.format("""
-            <div style='margin:100px;'>
-                <h1>비밀번호 재설정</h1>
-                <p>아래 링크를 클릭하여 비밀번호를 재설정해주세요:</p>
-                <div><a href='https://pillme.com/reset-password?token=%s'>비밀번호 재설정</a></div>
-                <p>이 링크는 5분 후에 만료됩니다.</p>
-            </div>
-            """, token);
     }
 }
