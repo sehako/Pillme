@@ -11,6 +11,9 @@ export const fetchDependents = async () => {
       dependentName: item.dependentInfo.dependentName,
     }));
 
+    // ✅ 디버깅 로그 추가
+    console.log("Fetched dependents:", dependents);
+
     return dependents; // ✅ 객체 배열 반환
   } catch (error) {
     console.error("피부양자 목록 불러오기 실패:", error);
