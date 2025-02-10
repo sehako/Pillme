@@ -49,3 +49,41 @@ export const refreshAccessToken = () => {
 export const logout = () => {
   return apiClient.post("/api/v1/auth/logout");
 };
+
+export const oauthLogin = async (code, provider = 'google') => {
+  try {
+    const response = await apiClient.get(`/api/v1/auth/oauth2/${provider}`, {
+      params: { code }
+    });
+    return response;
+  } catch (error) {
+    console.error('OAuth 로그인 에러:', error);
+    throw error;
+  }
+};
+
+export const oauthSignUp = async (data, provider) => {
+  try {
+    const response = await apiClient.post('/api/v1/auth/oauth2/signup', data, {
+      params: { provider }
+    });
+    return response;
+  } catch (error) {
+    console.error('OAuth 회원가입 에러:', error);
+    throw error;
+  }
+};
+
+export const submitAdditionalInfo = async (data) => {
+  try {
+    const response = await apiClient.put('/api/v1/auth/oauth2/additional-info', data, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('accessToken')}`
+      }
+    });
+    return response;
+  } catch (error) {
+    console.error('추가 정보 제출 에러:', error);
+    throw error;
+  }
+};

@@ -1,5 +1,5 @@
 <template>
-    <div class="flex flex-col justify-center items-center min-h-screen px-4">
+    <div class="flex flex-col items-center justify-center min-h-screen px-4">
       <!-- ✅ 로고 (BaseLogo 컴포넌트 사용) -->
       <BaseLogo :src="logoSrc" size="md" />
   
@@ -9,13 +9,9 @@
         highlightText="PILLME" 
       />
   
-      <div class="login-options w-full max-w-xs mt-4 space-y-2 md:space-y-3">
-        <SocialLoginButton :iconSrc="googleIcon">
+      <div class="w-full max-w-xs mt-4 space-y-2 login-options md:space-y-3">
+        <SocialLoginButton :iconSrc="googleIcon" @click="handleGoogleLogin">
           구글 계정으로 가입하기
-        </SocialLoginButton>
-  
-        <SocialLoginButton :iconSrc="naverIcon">
-          네이버 계정으로 가입하기
         </SocialLoginButton>
   
         <!-- ✅ 이메일 버튼 클릭 시 `/login`으로 이동 -->
@@ -43,11 +39,17 @@
   const router = useRouter();
 
   const goToSignin = () => {
-  router.push('/emailregist');
+    router.push('/emailregist');
+  }
+  
+  const handleGoogleLogin = () => {
+    const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+    const redirectUri = import.meta.env.VITE_GOOGLE_REDIRECT_URI;
+    const url = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=code&scope=email profile`;
+    window.location.href = url;
 };
 
-
-  </script>
+</script>
   
   <style scoped>
   .pillme-text {

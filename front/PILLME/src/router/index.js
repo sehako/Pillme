@@ -15,6 +15,8 @@ import StartView from '../views/StartView.vue';
 import MemberRegisterView from '../views/MemberRegisterView.vue';
 import RegisterView from '../views/RegisterView.vue';
 import EmailRegistView from '../views/EmailRegistView.vue';
+import OAuthCallback from '../views/OAuthCallback.vue';
+
 // ✅ 로그인 관련
 import LoginView from '../views/LoginView.vue';
 import LoginSelectionView from '../views/LoginSelectionView.vue';
@@ -47,6 +49,8 @@ const routes = [
   { path: '/memberregister', name: 'memberregister', component: MemberRegisterView },
   { path: '/register', name: 'register', component: RegisterView },
   { path: '/emailregist', name: 'emailregist', component: EmailRegistView },
+  { path: '/oauth/callback/:provider',  name: 'OAuthCallback', component: OAuthCallback, props: true },
+  { path: '/oauth/additional-info', name: 'OAuthAdditionalInfo', component: AfterAccountView, meta: { requiresAuth: false } },
 
   // ✅ 로그인해야 접근 가능한 페이지 (requiresAuth: true)
   { path: '/', name: 'Home', component: HomeView, meta: { requiresAuth: true } },
