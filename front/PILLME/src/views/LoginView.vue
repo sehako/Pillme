@@ -48,19 +48,27 @@ const handleLogin = async () => {
       email: email.value,
       password: password.value,
     });
+
+    console.log("🔍 로그인 API 응답:", response); // ✅ API 응답 구조 확인
+    console.log("🔍 response.result:", response.result);
+
+    if (!response || !response.result) {
+      throw new Error("서버에서 예상치 못한 응답을 받았습니다.");
+    }
     
-    // 로그인 성공 후, 별도의 함수로 토큰 저장 및 만료시간 설정을 처리
-    handleLoginSuccess(response.data);
+    // ✅ `response` 자체를 handleLoginSuccess()에 전달
+    handleLoginSuccess(response);
     
     alert("로그인 성공!");
     window.location.replace("/");
   } catch (error) {
-    console.error("로그인 오류:", error);
+    console.error("❌ 로그인 오류:", error);
     alert("로그인 실패. 이메일과 비밀번호를 확인해주세요.");
   } finally {
     isLoading.value = false;
   }
 };
+
 
 </script>
 
