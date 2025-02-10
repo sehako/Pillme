@@ -26,7 +26,7 @@ public class SearchController {
     }
 
     @GetMapping("/{info-id}")
-    public ResponseEntity<JSONResponse<Long>> currentTakingDetail(@PathVariable("info-id") Long infoId) {
-        return ResponseEntity.ok(JSONResponse.onSuccess(infoId));
+    public ResponseEntity<JSONResponse<String>> currentTakingDetail(@PathVariable("info-id") Long infoId) {
+        return ResponseEntity.ok(JSONResponse.onSuccess("cicd 완료" + infoId));
     }
 }
