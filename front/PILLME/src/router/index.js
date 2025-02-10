@@ -74,8 +74,7 @@ const router = createRouter({
 
 // ✅ 전역 네비게이션 가드 (로그인 안 하면 `/start`로 강제 이동, 예외 페이지 제외)
 router.beforeEach((to, from, next) => {
-  const authStore = useAuthStore();
-  const isAuthenticated = !!authStore.accessToken; // ✅ 로그인 여부 확인
+  const isAuthenticated = localStorage.accessToken; // ✅ 로그인 여부 확인
 
   console.log(`[Route Guard] 이동하려는 경로: ${to.path}, 로그인 상태: ${isAuthenticated}`);
 
@@ -94,5 +93,4 @@ router.beforeEach((to, from, next) => {
 
   next(); // ✅ 정상 이동
 });
-
 export default router;

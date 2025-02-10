@@ -111,7 +111,7 @@ import { ref } from 'vue';
 import { addLocalMember } from '../api/addlocalmember';
 
 // ✅ 부모로 이벤트 전달
-const emit = defineEmits(["addMember"]);
+const emit = defineEmits(["add"]);
 
 // ✅ 회원/비회원 선택
 const type = ref("guest");
@@ -156,7 +156,7 @@ const submitForm = async () => {
       });
 
       alert("비회원 추가가 완료되었습니다.");
-      emit("addMember", response);
+      emit("addMember");
     } catch (error) {
       alert("비회원 추가에 실패했습니다.");
     }

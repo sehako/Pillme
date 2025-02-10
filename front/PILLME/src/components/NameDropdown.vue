@@ -14,7 +14,7 @@
                 w-max min-w-[150px] bg-white border border-gray-300 shadow-lg rounded-lg p-2 z-50"
          @click.stop>
       <ul class="space-y-2 text-sm text-center">
-        <!-- ✅ 피부양자가 있을 경우 목록 표시 -->
+        <!-- ✅ 가족 목록 -->
         <template v-if="dependents.length">
           <li v-for="dependent in dependents" :key="dependent.dependentId"
               class="cursor-pointer hover:bg-gray-100 p-2 rounded border-t"
@@ -23,12 +23,12 @@
           </li>
         </template>
 
-        <!-- ✅ 피부양자가 없을 경우 메시지 -->
+        <!-- ✅ 가족이 없을 경우 -->
         <template v-else>
           <li class="text-gray-500 text-sm p-2">등록된 가족이 없습니다.</li>
         </template>
 
-        <!-- ✅ 구분선 & 가족 추가하기 버튼 -->
+        <!-- ✅ 가족 추가 버튼 -->
         <li class="border-t mt-2">
           <button @click="openFamilyModal" 
                   class="w-full text-[#3D5A3F] hover:bg-gray-100 p-2 rounded">
@@ -41,8 +41,7 @@
     <!-- ✅ 가족 추가 모달 -->
     <FamilyAddModal 
       :isOpen="isFamilyModalOpen" 
-      @close="isFamilyModalOpen = false" 
-      @add="addNewFamily" 
+      @close="handleModalClose" 
     />
   </div>
 </template>
@@ -54,21 +53,21 @@ import FamilyAddModal from '../components/FamilyAddModal.vue';
 import { fetchUsername } from '../api/username';
 import { fetchDependents } from '../api/dependentmember';
 
-// 상태 변수 선언
+// ✅ 상태 관리
 const isOpen = ref(false);
 const isFamilyModalOpen = ref(false);
-const dependents = ref([]); // API 데이터를 저장할 배열
+const dependents = ref([]); // 가족 목록
 const username = ref('');
 const router = useRouter();
 const route = useRoute();
 
-// ✅ 모달 토글 함수
+// ✅ 모달 토글
 const toggleModal = (event) => {
   event.stopPropagation();
   isOpen.value = !isOpen.value;
 };
 
-// ✅ 가족 전환 기능 (dependentId 포함한 경로로 이동)
+// ✅ 가족 전환 (경로 변경)
 const switchToDependent = (dependent) => {
   const newPath = `${route.path}/${dependent.dependentId}`;
   alert(`${dependent.dependentName}의 메인페이지로 이동합니다.`);
@@ -76,17 +75,16 @@ const switchToDependent = (dependent) => {
   isOpen.value = false;
 };
 
-// ✅ 가족 추가하기 모달 열기
+// ✅ 가족 추가 모달 열기
 const openFamilyModal = () => {
   isOpen.value = false;
   isFamilyModalOpen.value = true;
 };
 
-// ✅ 가족 추가 로직 (API 반영은 안 함, UI에서만 추가)
-const addNewFamily = (newFamily) => {
-  dependents.value.push({ dependentId: Date.now(), dependentName: newFamily.name });
-  alert(`${newFamily.name} (${newFamily.relation})가 추가되었습니다.`);
+// ✅ 모달 닫힐 때 가족 목록 갱신
+const handleModalClose = async () => {
   isFamilyModalOpen.value = false;
+  dependents.value = await fetchDependents(); // 가족 목록 새로고침
 };
 
 // ✅ 외부 클릭 감지 → 모달 닫기
@@ -96,29 +94,19 @@ const closeModal = (event) => {
   }
 };
 
-// 컴포넌트 마운트 시 처리
-onMounted(() => {
-  // ✅ 실제 API에서 피부양자 목록 가져오기
-  fetchDependents()
-    .then((data) => {
-      dependents.value = data;
-    })
-    .catch((error) => {
-      console.error("피부양자 목록 불러오기 실패:", error);
-    });
-
-  // ✅ 사용자 이름 가져오기
-  fetchUsername()
-    .then((name) => {
-      username.value = name;
-    })
-    .catch((error) => {
-      console.error("사용자 이름 불러오기 실패:", error);
-    });
-
+// ✅ 초기 데이터 불러오기
+onMounted(async () => {
+  try {
+    dependents.value = await fetchDependents();
+    username.value = await fetchUsername();
+  } catch (error) {
+    console.error("초기 데이터 불러오기 실패:", error);
+  }
+  
   window.addEventListener('click', closeModal);
 });
 
+// ✅ 이벤트 제거 (컴포넌트 언마운트 시)
 onUnmounted(() => {
   window.removeEventListener('click', closeModal);
 });

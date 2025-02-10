@@ -10,36 +10,36 @@ export const useAuthStore = defineStore("auth", {
 
  actions: {
     // ✅ 이메일 인증번호 검증 API 요청 (Access Token 저장 추가)
-    async verifyEmail(email, code) {
-      try {
-        console.log("✅ 이메일 인증번호 확인 요청:", { email, code });
-        const response = await apiClient.post("/api/v1/auth/email/verify", { email, code });
+    // async verifyEmail(email, code) {
+    //   try {
+    //     console.log("✅ 이메일 인증번호 확인 요청:", { email, code });
+    //     const response = await apiClient.post("/api/v1/auth/email/verify", { email, code });
 
-        console.log("🛠 서버 응답:", response.data);
+    //     console.log("🛠 서버 응답:", response.data);
 
-        if (!response.data) {
-          throw new Error("서버 응답이 없습니다.");
-        }
+    //     if (!response.data) {
+    //       throw new Error("서버 응답이 없습니다.");
+    //     }
 
-        if (response.data.code === 2000) {
-          console.log("✅ 이메일 인증 성공!");
+    //     if (response.data.code === 2000) {
+    //       console.log("✅ 이메일 인증 성공!");
 
-          if (response.data.accessToken) {
-            this.accessToken = response.data.accessToken;
-            localStorage.setItem("accessToken", response.data.accessToken);
-            apiClient.defaults.headers.common["Authorization"] = `Bearer ${response.data.accessToken}`;
-            console.log("🔐 Access Token 저장 완료:", this.accessToken);
-          }
+    //       if (response.data.accessToken) {
+    //         this.accessToken = response.data.accessToken;
+    //         localStorage.setItem("accessToken", response.data.accessToken);
+    //         apiClient.defaults.headers.common["Authorization"] = `Bearer ${response.data.accessToken}`;
+    //         console.log("🔐 Access Token 저장 완료:", this.accessToken);
+    //       }
 
-          return true;
-        } else {
-          throw new Error(response.data.message || "이메일 인증 실패");
-        }
-      } catch (error) {
-        console.error("🚨 이메일 인증 실패:", error.message);
-        return false;
-      }
-    },
+    //       return true;
+    //     } else {
+    //       throw new Error(response.data.message || "이메일 인증 실패");
+    //     }
+    //   } catch (error) {
+    //     console.error("🚨 이메일 인증 실패:", error.message);
+    //     return false;
+    //   }
+    // },
 
 
     // ✅ SMS 인증번호 요청 (api/auth 함수 활용)
