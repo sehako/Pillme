@@ -124,48 +124,6 @@ public class AuthController {
         return ResponseEntity.ok(JSONResponse.onSuccess(null));
     }
 
-    /**
-     * 구글 OAuth2 로그인
-     */
-    @GetMapping("/oauth2/google")
-    public ResponseEntity<JSONResponse<OAuth2Response>> googleCallback(
-            @RequestParam String code) {
-        OAuth2Response response = oauth2Service.googleLogin(code);
-        return ResponseEntity.ok(JSONResponse.onSuccess(response));
-    }
-
-    /**
-     * 네이버 OAuth2 로그인
-     */
-    @GetMapping("/oauth2/naver")
-    public ResponseEntity<JSONResponse<OAuth2Response>> naverCallback(
-            @RequestParam String code) {
-        OAuth2Response response = oauth2Service.naverLogin(code);
-        return ResponseEntity.ok(JSONResponse.onSuccess(response));
-    }
-
-    /**
-     * OAuth2 추가 회원정보 입력
-     */
-    @PutMapping("/oauth2/additional-info")
-    public ResponseEntity<JSONResponse<MemberResponse>> submitAdditionalInfo(
-            @AuthenticationPrincipal Long memberId,
-            @Valid @RequestBody OAuthAdditionalInfoRequest request) {
-        MemberResponse response = authService.submitAdditionalInfo(memberId, request);
-        return ResponseEntity.ok(JSONResponse.onSuccess(response));
-    }
-
-    /**
-     * OAuth2 회원가입 완료
-     */
-    @PostMapping("/oauth2/signup")
-    public ResponseEntity<JSONResponse<TokenResponse>> oauthSignUp(
-            @Valid @RequestBody OAuthSignUpRequest request,
-            @RequestParam String provider) {
-        TokenResponse response = authService.oauthSignUp(request, provider);
-        return ResponseEntity.ok(JSONResponse.onSuccess(response));
-    }
-
     @GetMapping("/check/email")
     public ResponseEntity<JSONResponse<Boolean>> checkEmailDuplicate(@RequestParam String email) {
         boolean isDuplicate = memberRepository.existsByEmailAndRoleNot(email, Role.LOCAL);
