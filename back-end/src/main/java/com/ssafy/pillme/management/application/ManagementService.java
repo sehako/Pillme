@@ -74,7 +74,7 @@ public class ManagementService {
     ) {
         Information information = findInformationById(infoId);
         checkMemberValidation(member, information);
-        saveManagement(request.medication(), information);
+        saveManagement(request.management(), information);
         return information;
     }
 
@@ -82,9 +82,7 @@ public class ManagementService {
             final TakingSettingItem settingItem,
             final Information information
     ) {
-        Medication medication = getMedicationById(settingItem.medicationId());
-
-        Management management = settingItem.toManagement(medication, information);
+        Management management = settingItem.toManagement(information);
         managementRepository.save(management);
     }
 
@@ -136,12 +134,12 @@ public class ManagementService {
 
         List<TakingInformationItem> items = new ArrayList<>();
 
-        request.medications().forEach(medication -> {
+        request.managementList().forEach(managementInfo -> {
             Management management = managementRepository
-                    .findByInformationIdAndMedicationId(infoId, medication.medicationId())
+                    .findByIdAndInformationId(managementInfo.managementId(), infoId)
                     .orElseThrow(() -> new NoManagementException(INFORMATION_NOT_FOUND));
 
-            management.changeTakingInformation(medication);
+            management.changeTakingInformation(managementInfo);
 
             items.add(TakingInformationItem.from(management));
         });
@@ -158,7 +156,7 @@ public class ManagementService {
 
         checkMemberValidation(member, information);
 
-        Management management = managementRepository.findByInformationIdAndMedicationId(infoId, request.medicationId())
+        Management management = managementRepository.findByIdAndInformationId(request.managementId(), infoId)
                 .orElseThrow(() -> new NoManagementException(MANAGEMENT_NOT_FOUND));
 
         checkMedicationTaking(management, request.time());
@@ -199,13 +197,13 @@ public class ManagementService {
     }
 
     public void deleteManagement(final Long infoId, final DeleteManagementRequest request) {
-        if (request.medications().isEmpty()) {
+        if (request.managementList().isEmpty()) {
             deleteInformation(infoId);
             return;
         }
 
-        for (Long medicationId : request.medications()) {
-            Management management = managementRepository.findByInformationIdAndMedicationId(medicationId, infoId)
+        for (Long managementId : request.managementList()) {
+            Management management = managementRepository.findByIdAndInformationId(managementId, infoId)
                     .orElseThrow(() -> new NoManagementException(INFORMATION_NOT_FOUND));
 
             management.delete();

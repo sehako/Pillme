@@ -4,17 +4,6 @@ CREATE DATABASE IF NOT EXISTS `pillme`;
 
 USE `pillme`;
 
-DROP TABLE IF EXISTS `medication`;
-
-
-CREATE TABLE `medication`
-(
-    `id`      BIGINT       NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    `name`    VARCHAR(255) NOT NULL,
-    `company` VARCHAR(100) NULL,
-    `image`   VARCHAR(200) NULL
-);
-
 DROP TABLE IF EXISTS `hospital`;
 
 CREATE TABLE `hospital`
@@ -30,22 +19,22 @@ DROP TABLE IF EXISTS `management`;
 
 CREATE TABLE `management`
 (
-    `id`             BIGINT    NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    `information_id` BIGINT    NOT NULL,
-    `medication_id`  BIGINT    NOT NULL,
-    `serving_size`   INT       NULL,
-    `period`         INT       NULL,
-    `morning`        TINYINT   NULL,
-    `lunch`          TINYINT   NULL,
-    `dinner`         TINYINT   NULL,
-    `sleep`          TINYINT   NULL,
-    `morning_taking` TINYINT   NULL,
-    `lunch_taking`   TINYINT   NULL,
-    `dinner_taking`  TINYINT   NULL,
-    `sleep_taking`   TINYINT   NULL,
-    `created_at`     TIMESTAMP NULL,
-    `modified_at`    TIMESTAMP NULL,
-    `deleted`        TIMESTAMP NULL
+    `id`              BIGINT    NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    `information_id`  BIGINT    NOT NULL,
+    `medication_name` BIGINT    NOT NULL,
+    `serving_size`    INT       NULL,
+    `period`          INT       NULL,
+    `morning`         TINYINT   NULL,
+    `lunch`           TINYINT   NULL,
+    `dinner`          TINYINT   NULL,
+    `sleep`           TINYINT   NULL,
+    `morning_taking`  TINYINT   NULL,
+    `lunch_taking`    TINYINT   NULL,
+    `dinner_taking`   TINYINT   NULL,
+    `sleep_taking`    TINYINT   NULL,
+    `created_at`      TIMESTAMP NULL,
+    `modified_at`     TIMESTAMP NULL,
+    `deleted`         TIMESTAMP NULL
 );
 
 DROP TABLE IF EXISTS `comment`;

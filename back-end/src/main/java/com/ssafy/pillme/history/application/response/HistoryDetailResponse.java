@@ -1,13 +1,11 @@
 package com.ssafy.pillme.history.application.response;
 
 import com.ssafy.pillme.history.domain.History;
-import com.ssafy.pillme.search.domain.Medication;
+import com.ssafy.pillme.management.domain.Management;
 
 public record HistoryDetailResponse(
         Long historyId,
-        String medication,
-        String company,
-        String image,
+        String medicationName,
         boolean morning,
         boolean lunch,
         boolean dinner,
@@ -18,12 +16,10 @@ public record HistoryDetailResponse(
         boolean sleepTaking
 ) {
     public static HistoryDetailResponse of(final History history) {
-        Medication medication = history.getManagement().getMedication();
+        Management management = history.getManagement();
         return new HistoryDetailResponse(
                 history.getId(),
-                medication.getName(),
-                medication.getCompany(),
-                medication.getImage(),
+                management.getMedicationName(),
                 history.isMorning(),
                 history.isLunch(),
                 history.isDinner(),

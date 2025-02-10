@@ -3,7 +3,7 @@ package com.ssafy.pillme.management.domain.item;
 import com.ssafy.pillme.management.domain.Management;
 
 public record TakingInformationItem(
-        Long medicationId,
+        Long managementId,
         String medicationName,
         Integer period,
         Integer servingSize,
@@ -19,7 +19,7 @@ public record TakingInformationItem(
     public static TakingInformationItem from(final Management management) {
         return new TakingInformationItem(
                 management.getId(),
-                management.getMedication().getName(),
+                management.getMedicationName(),
                 management.getPeriod(),
                 management.getServingSize(),
                 management.isMorning(),

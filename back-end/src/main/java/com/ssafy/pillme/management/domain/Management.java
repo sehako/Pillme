@@ -1,8 +1,7 @@
 package com.ssafy.pillme.management.domain;
 
 import com.ssafy.pillme.global.entity.BaseEntity;
-import com.ssafy.pillme.management.domain.item.TakingSettingItem;
-import com.ssafy.pillme.search.domain.Medication;
+import com.ssafy.pillme.management.domain.item.ChangeManagementItem;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -26,9 +25,8 @@ public class Management extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "medication_id")
-    private Medication medication;
+    @Column(name = "medication_name")
+    private String medicationName;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "information_id")
     private Information information;
@@ -57,11 +55,11 @@ public class Management extends BaseEntity {
     private boolean sleepTaking = false;
 
     @Builder
-    private Management(Long id, Medication medication, Information information, Integer servingSize, Integer period,
-                       boolean morning, boolean lunch, boolean dinner, boolean sleep, boolean morningTaking,
-                       boolean lunchTaking, boolean dinnerTaking, boolean sleepTaking) {
+    public Management(Long id, String medicationName, Information information, Integer servingSize, Integer period,
+                      boolean morning, boolean lunch, boolean dinner, boolean sleep, boolean morningTaking,
+                      boolean lunchTaking, boolean dinnerTaking, boolean sleepTaking) {
         this.id = id;
-        this.medication = medication;
+        this.medicationName = medicationName;
         this.information = information;
         this.servingSize = servingSize;
         this.period = period;
@@ -75,7 +73,8 @@ public class Management extends BaseEntity {
         this.sleepTaking = sleepTaking;
     }
 
-    public void changeTakingInformation(final TakingSettingItem item) {
+
+    public void changeTakingInformation(final ChangeManagementItem item) {
         this.servingSize = item.servingSize();
         this.period = item.period();
         this.morning = item.morning();
