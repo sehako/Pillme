@@ -1,4 +1,6 @@
 import apiClient from "./index";
+import { useUserStore } from "../stores/user"; // ✅ Pinia 유저 스토어 추가
+import { decodeToken } from "../utils/jwt"; // ✅ JWT 디코딩 유틸 추가
 
 // ===========================
 // 인증 관련 API 함수들
@@ -36,25 +38,75 @@ export const verifySmsCode = (phoneNumber, code) => {
   return apiClient.post("/api/v1/auth/sms/verify", { phoneNumber, code });
 };
 
-// ✅ 로그인 요청
-export const login = (credentials) => {
-  return apiClient.post("/api/v1/auth/login", credentials);
+// ✅ 로그인 요청 (JWT 디코딩 추가)
+export const login = async (credentials) => {
+  try {
+    const response = await apiClient.post("/api/v1/auth/login", credentials);
+    console.log("✅ 로그인 성공:", response.data);
+
+    // ✅ Access Token & Refresh Token 저장
+    handleLoginSuccess(response.data);
+
+    return response.data;
+  } catch (error) {
+    console.error("❌ 로그인 실패:", error);
+    throw error;
+  }
 };
 
-// ✅ 액세스 토큰 갱신 API (리프레시 토큰을 이용)
-export const refreshAccessTokenAPI = () => {
-  return apiClient.post("/api/v1/auth/refresh");
+// ✅ 액세스 토큰 갱신 API (리프레시 토큰을 이용, JWT 디코딩 포함)
+export const refreshAccessTokenAPI = async () => {
+  try {
+    const response = await apiClient.post("/api/v1/auth/refresh");
+
+    console.log("🔄 액세스 토큰 갱신 성공:", response.data);
+    saveAccessToken(response.data.result.accessToken);
+
+    // ✅ Access Token 디코딩 → 유저 정보 업데이트
+    const authStore = useUserStore();
+    const userInfo = decodeToken(response.data.result.accessToken);
+    authStore.setUser(userInfo); // Pinia 상태 업데이트
+
+    return response.data;
+  } catch (error) {
+    console.error("❌ 액세스 토큰 갱신 실패:", error);
+    throw error;
+  }
 };
 
 // ✅ 로그아웃 요청
-export const logoutAPI = () => {
-  return apiClient.post("/api/v1/auth/logout");
+export const logoutAPI = async () => {
+  try {
+    await apiClient.post("/api/v1/auth/logout");
+    handleLogout();
+
+    // ✅ 유저 정보 초기화
+    const authStore = useUserStore();
+    authStore.clearUser(); // Pinia 상태 초기화
+  } catch (error) {
+    console.error("❌ 로그아웃 실패:", error);
+    throw error;
+  }
 };
 
 // ===========================
 // 토큰 관리 및 저장 관련 헬퍼 함수들
-// (필요에 따라 authStore나 다른 상태관리 라이브러리와 연동 가능)
 // ===========================
+
+/**
+ * 로그인 성공 후 토큰 저장 + JWT 디코딩 후 Pinia에 유저 정보 저장
+ * @param {object} responseData - API 응답 데이터 (예: { result: { accessToken, refreshToken } })
+ */
+export const handleLoginSuccess = (responseData) => {
+  const { accessToken, refreshToken } = responseData.result;
+  saveAccessToken(accessToken);
+  saveRefreshToken(refreshToken);
+
+  // ✅ JWT 디코딩 후 Pinia 업데이트
+  const authStore = useUserStore();
+  const userInfo = decodeToken(accessToken);
+  authStore.setUser(userInfo); // Pinia 상태 업데이트
+};
 
 /**
  * 액세스 토큰 저장 (30분 유효)
@@ -76,16 +128,6 @@ export const saveRefreshToken = (refreshToken) => {
 };
 
 /**
- * 로그인 성공 후 토큰 저장 처리
- * @param {object} responseData - API 응답 데이터 (예: { result: { accessToken, refreshToken } })
- */
-export const handleLoginSuccess = (responseData) => {
-  const { accessToken, refreshToken } = responseData.result;
-  saveAccessToken(accessToken);
-  saveRefreshToken(refreshToken);
-};
-
-/**
  * 로그아웃 처리 함수
  * - 로컬 스토리지의 토큰 및 만료시간 삭제
  * - 쿠키에 저장된 리프레시 토큰 삭제 (만료시간을 과거로 설정)
@@ -94,4 +136,8 @@ export const handleLogout = () => {
   localStorage.removeItem("accessToken");
   localStorage.removeItem("accessTokenExpiry");
   document.cookie = "refreshToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; Secure; SameSite=Strict";
+
+  // ✅ 유저 정보 초기화
+  const authStore = useUserStore();
+  authStore.clearUser();
 };

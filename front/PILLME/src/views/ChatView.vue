@@ -49,12 +49,12 @@
       </div>
       
       <!-- ✅ 채팅 목록 -->
-      <div v-if="filteredChatRooms.length === 0" class="text-gray-500">
+      <div v-if="chatRooms.length === 0" class="text-gray-500">
         친구 추가된 사용자와의 채팅방이 없습니다.
       </div>
       <div v-else class="space-y-2">
         <!-- 스토어의 채팅방 데이터를 기반으로 필터링된 채팅방 목록 출력 -->
-        <div v-for="room in filteredChatRooms" :key="room.id"
+        <div v-for="room in chatRooms" :key="room.id"
              class="flex items-center justify-between p-4 bg-[#9DBB9F26] rounded-lg shadow-md cursor-pointer hover:bg-[#B5CCB7] transition"
              @click="enterChatRoom(room.id)">
           <div class="flex items-center space-x-2">
@@ -75,17 +75,39 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed,onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
 import GreenCard from '../layout/GreenCard.vue';
 import { useChatStore } from '../stores/chatStore';
-
+import { getChatRoomList} from '../api/chatRoom';
 // 중앙 상태 관리(스토어)에서 데이터를 가져옵니다.
 const chatStore = useChatStore();
 const router = useRouter();
 
 // 검색 쿼리는 로컬 상태로 관리합니다.
 const searchQuery = ref("");
+const chatRooms = ref([]);
+
+const loadChatRooms = async () => {
+  try {
+    const chatRooms = await getChatRoomList();
+    console.log(chatRooms)
+    chatRooms.value = rooms.map(room => ({
+      chatRoomId: room.chatRoomId,
+      sendUserId : room.sendUserId,
+      sendUserName: room.sendUserName,
+      receiveUserId: room.receiveUserId,
+      receiveUserName: room.receiveUserName,
+      unreadMessageCount: room.unreadMessageCount
+    }));
+  } catch (error) {
+    console.error("채팅방 데이터를 불러오는 데 실패했습니다.", error);
+  }
+};
+
+onMounted(() => {
+  loadChatRooms();
+});
 
 // 친구로 등록된 사용자와 검색어에 맞는 채팅방만 필터링합니다.
 // (DB 테이블 구조에 맞춘 데이터 모델을 기준으로, 채팅방 객체에 포함된 userId를 사용)
