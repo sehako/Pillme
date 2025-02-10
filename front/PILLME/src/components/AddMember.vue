@@ -33,24 +33,24 @@
                  :class="guestInfo.name ? 'text-black' : 'text-gray-400'" />
         </div>
 
-        <!-- ✅ 성별 선택 (버튼 방식) -->
+        <!-- ✅ 성별 선택 -->
         <div class="flex items-center justify-between border-b border-gray-300 py-2">
           <p class="text-[#4E7351] font-medium">성별</p>
           <div class="flex space-x-2">
-            <button @click="setGender('남성')" 
+            <button @click="setGender('M')" 
                     :class="['px-4 py-1 rounded-lg transition-all', 
-                            guestInfo.gender === '남성' ? 'bg-[#4E7351] text-white' : 'bg-gray-200 text-gray-600']">
+                            guestInfo.gender === 'M' ? 'bg-[#4E7351] text-white' : 'bg-gray-200 text-gray-600']">
               남
             </button>
-            <button @click="setGender('여성')" 
+            <button @click="setGender('F')" 
                     :class="['px-4 py-1 rounded-lg transition-all', 
-                            guestInfo.gender === '여성' ? 'bg-[#4E7351] text-white' : 'bg-gray-200 text-gray-600']">
+                            guestInfo.gender === 'F' ? 'bg-[#4E7351] text-white' : 'bg-gray-200 text-gray-600']">
               여
             </button>
           </div>
         </div>
 
-        <!-- ✅ 생년월일 입력 (사용자 직접 입력) -->
+        <!-- ✅ 생년월일 입력 -->
         <div class="flex items-center justify-between border-b border-gray-300 py-2">
           <p class="text-[#4E7351] font-medium">생년월일</p>
           <input v-model="guestInfo.birthdate"
@@ -108,6 +108,7 @@
 
 <script setup>
 import { ref } from 'vue';
+import { addLocalMember } from '../api/add_localmember';
 
 // ✅ 부모로 이벤트 전달
 const emit = defineEmits(["addMember"]);
@@ -123,12 +124,12 @@ const setType = (selectedType) => {
   type.value = selectedType;
 };
 
-// ✅ 성별 선택 (버튼)
+// ✅ 성별 선택 (M, F로 저장)
 const setGender = (gender) => {
   guestInfo.value.gender = gender;
 };
 
-// ✅ 생년월일 입력 포맷팅
+// ✅ 생년월일 입력 포맷팅 (YYYY-MM-DD)
 const formatBirthdate = () => {
   let value = guestInfo.value.birthdate.replace(/\D/g, ''); // 숫자만 입력 가능
   if (value.length > 4) value = `${value.slice(0, 4)}-${value.slice(4)}`;
@@ -136,32 +137,29 @@ const formatBirthdate = () => {
   guestInfo.value.birthdate = value.slice(0, 10); // YYYY-MM-DD 형식 유지
 };
 
-// ✅ 전화번호 인증 요청
-const verifyPhone = () => {
-  if (!memberPhone.value) {
-    verificationError.value = "전화번호를 입력해주세요.";
-    return;
-  }
-
-  // 🚨 TODO: 백엔드 API 연동 필요 (핸드폰 인증 요청)
-  const isValidNumber = Math.random() > 0.3;
-
-  if (!isValidNumber) {
-    verificationError.value = "존재하지 않는 사용자입니다.";
-  } else {
-    verificationError.value = "";
-    alert("인증 요청이 완료되었습니다.");
-  }
-};
-
-// ✅ 추가 버튼 클릭 시 실행
-const submitForm = () => {
+// ✅ 비회원 가입 요청
+const submitForm = async () => {
   if (type.value === "guest") {
     if (!guestInfo.value.name || !guestInfo.value.birthdate || !guestInfo.value.gender) {
       alert("모든 정보를 입력해주세요.");
       return;
     }
-    emit("addMember", { type: "guest", ...guestInfo.value });
+
+    // ✅ birthday에서 "-" 제거 후 API 요청
+    const cleanBirthday = guestInfo.value.birthdate.replace(/-/g, '');
+
+    try {
+      const response = await addLocalMember({
+        name: guestInfo.value.name,
+        gender: guestInfo.value.gender, // 이미 M, F로 변환됨
+        birthday: cleanBirthday,
+      });
+
+      alert("비회원 추가가 완료되었습니다.");
+      emit("addMember", response);
+    } catch (error) {
+      alert("비회원 추가에 실패했습니다.");
+    }
   } else {
     if (!memberPhone.value || verificationError.value) {
       alert("회원 추가를 위해 인증을 완료해주세요.");
