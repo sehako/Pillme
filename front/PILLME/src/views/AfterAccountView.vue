@@ -130,8 +130,16 @@
         >
           이전
         </BaseButton>
-
         <BaseButton
+          class="flex-1 !min-w-full"
+          textColor="text-white"
+          size="md"
+          type="submit"
+          overrideClass="!bg-[#EF7C8E] hover:!bg-[#E96C7E]"
+        >
+          가입하기
+        </BaseButton>
+        <!-- <BaseButton
           class="flex-1 !min-w-full"
           textColor="text-white"
           size="md"
@@ -140,7 +148,7 @@
           overrideClass="!bg-[#EF7C8E] hover:!bg-[#E96C7E]"
         >
           가입하기
-        </BaseButton>
+        </BaseButton> -->
       </div>
     </form>
   </div>
