@@ -97,4 +97,11 @@ public class Management extends BaseEntity {
     public void checkSleepTaking() {
         this.sleepTaking = true;
     }
+
+    public void resetTakingInformation() {
+        this.morningTaking = false;
+        this.lunchTaking = false;
+        this.dinnerTaking = false;
+        this.sleepTaking = false;
+    }
 }

@@ -7,6 +7,7 @@ import static com.ssafy.pillme.global.code.ErrorCode.INVALID_TIME_REQUEST;
 import static com.ssafy.pillme.global.code.ErrorCode.MANAGEMENT_NOT_FOUND;
 import static com.ssafy.pillme.global.code.ErrorCode.MEDICATION_NOT_FOUND;
 
+import com.ssafy.pillme.auth.application.service.AuthService;
 import com.ssafy.pillme.auth.domain.entity.Member;
 import com.ssafy.pillme.auth.infrastructure.repository.MemberRepository;
 import com.ssafy.pillme.global.exception.CommonException;
@@ -15,7 +16,7 @@ import com.ssafy.pillme.management.application.exception.InvalidTimeSelectExcept
 import com.ssafy.pillme.management.application.exception.NoInformationException;
 import com.ssafy.pillme.management.application.exception.NoManagementException;
 import com.ssafy.pillme.management.application.exception.NoMedicationException;
-import com.ssafy.pillme.management.application.response.PrescriptionResponse;
+import com.ssafy.pillme.management.application.response.CurrentTakingResponse;
 import com.ssafy.pillme.management.application.response.TakingDetailResponse;
 import com.ssafy.pillme.management.domain.Information;
 import com.ssafy.pillme.management.domain.Management;
@@ -51,6 +52,7 @@ public class ManagementService {
     private final InformationRepository informationRepository;
     private final MedicationRepository medicationRepository;
     private final MemberRepository memberRepository;
+    private final AuthService authService;
 
     public Information saveTakingInformation(
             final TakingInformationRegisterRequest request,
@@ -104,12 +106,16 @@ public class ManagementService {
     }
 
     @Transactional(readOnly = true)
-    public List<PrescriptionResponse> selectManagementByDate(final Member member) {
-        return informationRepository.findByDate(LocalDate.now())
+    public List<CurrentTakingResponse> selectManagementByDate(
+            final Long memberId,
+            final Member member) {
+        return managementRepository
+                .findByInformationByDateAndMember(
+                        LocalDate.now(),
+                        memberId == null ? member : authService.findById(memberId)
+                )
                 .stream()
-                .map(information -> PrescriptionResponse.of(
-                        information, member
-                ))
+                .map(CurrentTakingResponse::from)
                 .collect(Collectors.toList());
     }
 
@@ -179,7 +185,7 @@ public class ManagementService {
             final CheckCurrentTakingRequest request,
             final Member member
     ) {
-        List<Management> managements = managementRepository.findByInformationByDate(request.date(), member);
+        List<Management> managements = managementRepository.findByInformationByDateAndMember(request.date(), member);
 
         for (Management management : managements) {
             checkMedicationTaking(management, request.time());
