@@ -33,7 +33,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             var claims = jwtUtil.extractClaims(token);
             // SecurityContext에 인증 정보 설정
             var authentication = new UsernamePasswordAuthenticationToken(
-                    claims.get("userId"),
+                    claims.get("memberId"),
                     null,
                     List.of(new SimpleGrantedAuthority("ROLE_" + claims.get("role")))
             );
