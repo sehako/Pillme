@@ -42,16 +42,7 @@ public class OAuth2Service {
     @Value("${GOOGLE_REDIRECT_URI}")
     private String googleRedirectUri;
 
-    @Value("${NAVER_CLIENT_ID}")
-    private String naverClientId;
-
-    @Value("${NAVER_CLIENT_SECRET}")
-    private String naverClientSecret;
-
-    @Value("${NAVER_REDIRECT_URI}")
-    private String naverRedirectUri;
-
-    @Value("${FRONTEND_URL}")
+    @Value("${FRONTEND_URL}/oauth/additional-info")
     private String frontendProfileUrl;
 
     /**
@@ -70,28 +61,6 @@ public class OAuth2Service {
             // 임시 인증 정보 저장
             tokenService.saveTempAuthInfo(memberInfo.email(), Provider.GOOGLE.name(), 1800000); // 30분
             return createRedirectResponse(memberInfo.email(), memberInfo.name(), Provider.GOOGLE);
-        }
-
-        // 기존 회원인 경우 토큰 발급
-        return createOAuth2TokenResponse(member);
-    }
-
-    /**
-     * 네이버 로그인 처리
-     */
-    public OAuth2Response naverLogin(String code) {
-        String accessToken = extractNaverAccessToken(code);
-        NaverOAuthInfo memberInfo = extractNaverOAuthInfo(accessToken);
-
-        // 기존 회원 조회
-        Member member = memberRepository.findByEmailAndProviderAndDeletedFalse(memberInfo.email(), Provider.NAVER)
-                .orElse(null);
-
-        // 신규 회원인 경우 회원정보 입력 페이지로 리다이렉트
-        if (member == null) {
-            // 임시 인증 정보 저장
-            tokenService.saveTempAuthInfo(memberInfo.email(), Provider.NAVER.name(), 1800000); // 30분
-            return createRedirectResponse(memberInfo.email(), memberInfo.name(), Provider.NAVER);
         }
 
         // 기존 회원인 경우 토큰 발급
@@ -178,68 +147,6 @@ public class OAuth2Service {
                     jsonNode.get("email").asText(),
                     jsonNode.get("name").asText(),
                     jsonNode.get("given_name").asText() // 구글 오어스에서 nickname이 없어 이름만 가져와서 닉네임으로 사용하도록
-            );
-        } catch (JsonProcessingException e) {
-            throw new JsonParsingException();
-        }
-    }
-
-    /**
-     * 네이버 액세스 토큰 추출
-     */
-    private String extractNaverAccessToken(String code) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-
-        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-        params.add("grant_type", "authorization_code");
-        params.add("client_id", naverClientId);
-        params.add("client_secret", naverClientSecret);
-        params.add("redirect_uri", naverRedirectUri);
-        params.add("code", code);
-        params.add("state", "STATE_STRING");
-
-        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
-
-        ResponseEntity<String> response = restTemplate.postForEntity(
-                "https://nid.naver.com/oauth2.0/token",
-                request,
-                String.class
-        );
-
-        try {
-            return objectMapper.readTree(response.getBody()).get("access_token").asText();
-        } catch (JsonProcessingException e) {
-            throw new JsonParsingException();
-        }
-    }
-
-    /**
-     * 네이버 사용자 정보 추출
-     */
-    private NaverOAuthInfo extractNaverOAuthInfo(String accessToken) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(accessToken);
-
-        HttpEntity<?> request = new HttpEntity<>(headers);
-
-        ResponseEntity<String> response = restTemplate.exchange(
-                "https://openapi.naver.com/v1/nid/me",
-                HttpMethod.GET,
-                request,
-                String.class
-        );
-
-        try {
-            var responseData = objectMapper.readTree(response.getBody()).get("response");
-            return NaverOAuthInfo.of(
-                    responseData.get("email").asText(),
-                    responseData.get("name").asText(),
-                    responseData.get("nickname").asText(),
-                    responseData.get("gender").asText(),
-                    responseData.get("birthyear").asText(),
-                    responseData.get("birthday").asText(),
-                    responseData.get("mobile").asText()
             );
         } catch (JsonProcessingException e) {
             throw new JsonParsingException();
