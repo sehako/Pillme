@@ -7,5 +7,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface ManagementRepository extends JpaRepository<Management, Long>, ManagementRepositoryCustom {
-    Optional<Management> findByInformationIdAndMedicationId(Long informationId, Long medicationId);
+    Optional<Management> findByIdAndInformationId(Long managementId, Long informationId);
 }
