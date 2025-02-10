@@ -1,14 +1,11 @@
 package com.ssafy.pillme.history.application;
 
-import com.ssafy.pillme.auth.domain.entity.Member;
 import com.ssafy.pillme.history.domain.History;
 import com.ssafy.pillme.history.infrastructure.HistoryRepository;
-import com.ssafy.pillme.management.domain.Information;
 import com.ssafy.pillme.management.domain.Management;
-import com.ssafy.pillme.management.infrastructure.InformationRepository;
+import com.ssafy.pillme.management.infrastructure.ManagementRepository;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -19,24 +16,22 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class HistoryScheduler {
     private final HistoryRepository historyRepository;
-    private final InformationRepository informationRepository;
+    private final ManagementRepository managementRepository;
 
     @Scheduled(cron = "0 0 4 * * *")
     public void creatHistory() {
         LocalDate validInformationDate = LocalDate.now().minusDays(1);
 
         log.info("{} 복약 내역 스케줄러 동작", validInformationDate);
-        List<Information> validInformation = informationRepository.findByDate(validInformationDate);
+        List<Management> validManagements = managementRepository.findByInformationDate(validInformationDate);
 
-        for (Information information : validInformation) {
-            List<Management> validManagements = information.getManagements();
-            Member member = information.getReader();
-            List<History> histories = validManagements.stream()
-                    .filter(management -> !management.isDeleted())
-                    .map(management -> History.builder()
-                            .information(information)
+        List<History> histories = validManagements.stream()
+                .filter(management -> !management.isDeleted())
+                .map(management -> {
+                    History history = History.builder()
+                            .information(management.getInformation())
                             .management(management)
-                            .member(member)
+                            .member(management.getInformation().getReader())
                             .morning(management.isMorning())
                             .lunch(management.isLunch())
                             .dinner(management.isDinner())
@@ -46,10 +41,14 @@ public class HistoryScheduler {
                             .dinnerTaking(management.isDinnerTaking())
                             .sleepTaking(management.isSleepTaking())
                             .takingDate(validInformationDate)
-                            .build())
-                    .collect(Collectors.toList());
-            historyRepository.saveAll(histories);
-        }
+                            .build();
+
+                    management.resetTakingInformation();
+                    return history;
+                })
+                .toList();
+
+        historyRepository.saveAll(histories);
 
     }
 }
