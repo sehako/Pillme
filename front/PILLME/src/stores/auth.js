@@ -1,7 +1,6 @@
 import { defineStore } from "pinia";
 import apiClient from "../api";
-import { verifySmsCode } from "../api/auth";
-import qs from "qs"; // x-www-form-urlencoded 변환을 위한 라이브러리
+import { requestSmsVerification, verifySmsCode } from "../api/auth";
 
 export const useAuthStore = defineStore("auth", {
   state: () => ({
@@ -9,7 +8,7 @@ export const useAuthStore = defineStore("auth", {
     accessToken: localStorage.getItem("accessToken") || null,
   }),
 
-  actions: {
+ actions: {
     // ✅ 이메일 인증번호 검증 API 요청 (Access Token 저장 추가)
     async verifyEmail(email, code) {
       try {
@@ -42,47 +41,31 @@ export const useAuthStore = defineStore("auth", {
       }
     },
 
-// ✅ SMS 인증번호 요청 (휴대폰 인증번호 발송)
-async requestPhoneVerification(phoneNumber) {
-  try {
-    console.log("📨 SMS 인증번호 요청:", phoneNumber);
 
-    // JSON 형식의 리퀘스트 데이터 생성
-    const requestData = { phoneNumber };
-
-    const response = await apiClient.post(
-      "/api/v1/auth/sms/verification",
-      requestData, 
-      {
-        headers: {
-          "Content-Type": "application/json", // JSON 형식으로 변경
-        },
+    // ✅ SMS 인증번호 요청 (api/auth 함수 활용)
+    async requestPhoneVerification(phoneNumber) {
+      try {
+        console.log("📨 SMS 인증번호 요청:", phoneNumber);
+        const response = await requestSmsVerification(phoneNumber);
+        console.log("🛠 서버 응답:", response.data);
+        if (response.data.code === 2000) {
+          console.log("✅ SMS 인증번호 발송 성공");
+          return true;
+        } else {
+          throw new Error(response.data.message || "SMS 인증번호 요청 실패");
+        }
+      } catch (error) {
+        console.error("🚨 SMS 인증번호 요청 실패:", error.response?.data || error);
+        return false;
       }
-    );
+    },
 
-    console.log("🛠 서버 응답:", response.data);
-
-    if (response.data.code === 2000) {
-      console.log("✅ SMS 인증번호 발송 성공");
-      return true;
-    } else {
-      throw new Error(response.data.message || "SMS 인증번호 요청 실패");
-    }
-  } catch (error) {
-    console.error("🚨 SMS 인증번호 요청 실패:", error.response?.data || error);
-    return false;
-  }
-},
-
-
-    // ✅ SMS 인증번호 확인 (휴대폰 인증번호 검증)
+    // ✅ SMS 인증번호 확인 (api/auth 함수 활용)
     async verifyPhoneCode(phoneNumber, code) {
       try {
         console.log("✅ SMS 인증번호 확인 요청:", { phoneNumber, code });
         const response = await verifySmsCode(phoneNumber, code);
-
         console.log("🛠 서버 응답:", response.data);
-
         if (response.data.code === 2000) {
           console.log("✅ 휴대폰 인증 성공");
           return true;

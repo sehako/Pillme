@@ -20,6 +20,7 @@
 
 <script setup>
 import { ref } from "vue";
+import { login } from "../api/auth.js";
 import axios from "axios";
 import BaseButton from "../components/BaseButton.vue";
 import BaseInput from "../components/BaseInput.vue";
@@ -34,6 +35,8 @@ const password = ref("");
 const isLoading = ref(false);
 
 const handleLogin = async () => {
+  console.log('handleLogin 함수 실행됨'); 
+  
   if (!email.value || !password.value) {
     alert("이메일과 비밀번호를 입력해주세요.");
     return;
@@ -41,7 +44,7 @@ const handleLogin = async () => {
 
   isLoading.value = true;
   try {
-    const response = await axios.post("/api/auth/login", {
+    const response = await login({
       email: email.value,
       password: password.value,
     });
@@ -70,3 +73,4 @@ const handleLogin = async () => {
   color: #4E7351;
 }
 </style>
+
