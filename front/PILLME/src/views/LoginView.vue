@@ -58,6 +58,7 @@ const handleLogin = async () => {
     document.cookie = `refreshToken=${refreshToken}; path=/; HttpOnly; Secure; SameSite=Strict`;
 
     alert("로그인 성공!");
+    window.location.replace("/");
     // TODO: 로그인 후 메인 페이지로 이동 로직 추가
   } catch (error) {
     console.error("로그인 오류:", error);
