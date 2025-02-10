@@ -108,7 +108,7 @@
 
 <script setup>
 import { ref } from 'vue';
-import { addLocalMember } from '../api/add_localmember';
+import { addLocalMember } from '../api/addlocalmember';
 
 // ✅ 부모로 이벤트 전달
 const emit = defineEmits(["addMember"]);
