@@ -49,6 +49,10 @@ import ChatIndividualView from '../views/ChatIndividualView.vue';
 // import SettingsView from '../views/SettingsView.vue';
 // import NotFoundView from '../views/NotFoundView.vue'; // ✅ 404 페이지
 
+// ocr
+import CameraCapture from '../components/CameraCapture.vue';
+import ImageAnalysis from '../components/ImageAnalysis.vue';
+
 const routes = [
   {
     path: '/start', // /로 할지 /start로 할지 고민 필요
@@ -135,6 +139,16 @@ const routes = [
     path: '/notificationlist',  
     name: 'NotificationList',
     component: NotificationListView, 
+  },
+  {
+    path: '/camera',  
+    name: 'CameraCapture',
+    component: CameraCapture, 
+  },
+  {
+    path: '/imageanalysis',  
+    name: 'ImageAnalysis',
+    component: ImageAnalysis, 
   },
   {
     path: '/',
