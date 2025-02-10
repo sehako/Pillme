@@ -30,7 +30,7 @@ export const requestSmsVerification = (phoneNumber) => {
 
 export const verifySmsCode = async (phoneNumber, code) => {
   console.log("✅ SMS 인증번호 확인 요청:", { phoneNumber, code });
-  return apiClient.post("/api/v1/auth/phone/verify", { phoneNumber, code });
+  return apiClient.post("/api/v1/auth/sms/verify", { phoneNumber, code });
 };
 
 // ✅ 로그인 요청
