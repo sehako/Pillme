@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import { useAuthStore } from '../stores/auth'; // ✅ 상대 경로 사용
+// import { useAuthStore } from '../stores/auth'; // ✅ 상대 경로 사용
 
 // ✅ 회원가입 이후 관련
 import AccountSearchSelectionView from '../views/AccountSearchSelectionView.vue';

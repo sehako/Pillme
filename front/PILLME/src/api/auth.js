@@ -19,18 +19,8 @@ export const verifyEmailCode = (email, code) => {
 
 // ✅ SMS 인증 관련 API
 export const requestSmsVerification = (phoneNumber) => {
-  const requestData = { phoneNumber };
-  console.log("📨 SMS 인증 요청 전 데이터:", JSON.stringify(requestData));
-
-  return apiClient.post(
-    "/api/v1/auth/sms/verification",
-    requestData,
-    {
-      headers: {
-        "Content-Type": "application/json", // JSON 형식으로 전송
-      },
-    }
-  );
+  console.log("📨 SMS 인증 요청 전 데이터:", phoneNumber);
+  return apiClient.post("/api/v2/auth/sms/verification", { phoneNumber });
 };
 
 export const verifySmsCode = (phoneNumber, code) => {
