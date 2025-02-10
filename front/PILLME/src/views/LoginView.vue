@@ -21,7 +21,7 @@
 <script setup>
 import { ref } from "vue";
 import { login } from "../api/auth.js";
-import axios from "axios";
+import { handleLoginSuccess } from "../api/auth.js";
 import BaseButton from "../components/BaseButton.vue";
 import BaseInput from "../components/BaseInput.vue";
 import BaseLogo from "../components/BaseLogo.vue";
@@ -36,7 +36,7 @@ const isLoading = ref(false);
 
 const handleLogin = async () => {
   console.log('handleLogin 함수 실행됨'); 
-  
+
   if (!email.value || !password.value) {
     alert("이메일과 비밀번호를 입력해주세요.");
     return;
@@ -49,17 +49,11 @@ const handleLogin = async () => {
       password: password.value,
     });
     
-    const { accessToken, refreshToken } = response.data.result;
+    // 로그인 성공 후, 별도의 함수로 토큰 저장 및 만료시간 설정을 처리
+    handleLoginSuccess(response.data);
     
-    // ✅ 액세스 토큰은 로컬 스토리지에 저장
-    localStorage.setItem("accessToken", accessToken);
-    
-    // ✅ 리프레시 토큰은 쿠키에 저장 (보안 강화 필요)
-    document.cookie = `refreshToken=${refreshToken}; path=/; HttpOnly; Secure; SameSite=Strict`;
-
     alert("로그인 성공!");
     window.location.replace("/");
-    // TODO: 로그인 후 메인 페이지로 이동 로직 추가
   } catch (error) {
     console.error("로그인 오류:", error);
     alert("로그인 실패. 이메일과 비밀번호를 확인해주세요.");
@@ -67,6 +61,7 @@ const handleLogin = async () => {
     isLoading.value = false;
   }
 };
+
 </script>
 
 <style scoped>
