@@ -5,7 +5,6 @@ import static com.ssafy.pillme.global.code.ErrorCode.INVALID_MEMBER_INFO;
 import static com.ssafy.pillme.global.code.ErrorCode.INVALID_MEMBER_REQUEST;
 import static com.ssafy.pillme.global.code.ErrorCode.INVALID_TIME_REQUEST;
 import static com.ssafy.pillme.global.code.ErrorCode.MANAGEMENT_NOT_FOUND;
-import static com.ssafy.pillme.global.code.ErrorCode.MEDICATION_NOT_FOUND;
 
 import com.ssafy.pillme.auth.application.service.AuthService;
 import com.ssafy.pillme.auth.domain.entity.Member;
@@ -15,7 +14,6 @@ import com.ssafy.pillme.management.application.exception.InvalidMemberException;
 import com.ssafy.pillme.management.application.exception.InvalidTimeSelectException;
 import com.ssafy.pillme.management.application.exception.NoInformationException;
 import com.ssafy.pillme.management.application.exception.NoManagementException;
-import com.ssafy.pillme.management.application.exception.NoMedicationException;
 import com.ssafy.pillme.management.application.response.CurrentTakingResponse;
 import com.ssafy.pillme.management.application.response.TakingDetailResponse;
 import com.ssafy.pillme.management.domain.Information;
@@ -32,8 +30,6 @@ import com.ssafy.pillme.management.presentation.request.CheckCurrentTakingReques
 import com.ssafy.pillme.management.presentation.request.DeleteManagementRequest;
 import com.ssafy.pillme.management.presentation.request.SingleTakingCheckRequest;
 import com.ssafy.pillme.management.presentation.request.TakingInformationRegisterRequest;
-import com.ssafy.pillme.search.domain.Medication;
-import com.ssafy.pillme.search.infrastructure.MedicationRepository;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -50,7 +46,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class ManagementService {
     private final ManagementRepository managementRepository;
     private final InformationRepository informationRepository;
-    private final MedicationRepository medicationRepository;
     private final MemberRepository memberRepository;
     private final AuthService authService;
 
@@ -237,10 +232,5 @@ public class ManagementService {
     private Information findInformationById(final Long infoId) {
         return informationRepository.findByIdAndDeletedIsFalse(infoId)
                 .orElseThrow(() -> new NoInformationException(INFORMATION_NOT_FOUND));
-    }
-
-    private Medication getMedicationById(final Long medicationId) {
-        return medicationRepository.findById(medicationId)
-                .orElseThrow(() -> new NoMedicationException(MEDICATION_NOT_FOUND));
     }
 }

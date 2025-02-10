@@ -118,13 +118,13 @@ DROP TABLE IF EXISTS `notification`;
 CREATE TABLE `notification`
 (
     `id`          BIGINT       NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    `sender`      BIGINT       NOT NULL,
-    `receiver`    BIGINT       NOT NULL,
+    `sender_id`   BIGINT       NOT NULL,
+    `receiver_id` BIGINT       NOT NULL,
     `code`        VARCHAR(20)  NULL,
     `content`     VARCHAR(255) NULL,
+    `confirm`     TINYINT      NULL,
     `created_at`  TIMESTAMP    NULL,
     `modified_at` TIMESTAMP    NULL,
-    `confirm`     TINYINT      NULL,
     `deleted`     TINYINT      NULL
 );
 
@@ -132,20 +132,9 @@ DROP TABLE IF EXISTS `chat_room`;
 
 CREATE TABLE `chat_room`
 (
-    `id`             BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    `post_member_id` BIGINT NOT NULL,
-    `member_id`      BIGINT NOT NULL
-);
-
-DROP TABLE IF EXISTS `chat_message`;
-
-CREATE TABLE `chat_message`
-(
-    `id`         BIGINT        NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    `member_id`  BIGINT        NOT NULL,
-    `chat_id`    BIGINT        NOT NULL,
-    `message`    VARCHAR(3000) NULL,
-    `created_at` TIMESTAMP     NULL
+    `id`              BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    `send_user_id`    BIGINT NOT NULL,
+    `receive_user_id` BIGINT NOT NULL
 );
 
 DROP TABLE IF EXISTS `sub_comment`;
