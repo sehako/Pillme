@@ -6,7 +6,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 public interface ManagementRepositoryCustom {
-    List<Management> findByInformationByDate(final LocalDate date, final Member member);
-
     List<Management> findByInformationByDateAndMember(final LocalDate date, final Member member);
+
+    List<Management> findByInformationDate(final LocalDate date);
 }
