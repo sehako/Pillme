@@ -11,7 +11,7 @@
 
 <script setup>
 import BaseLogo from "../components/BaseLogo.vue";
-import logoSrc from "../assets/logi_nofont.png";
+import logoSrc from "../assets/logi_nofont.svg";
 
 defineProps({
   name: String,

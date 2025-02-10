@@ -6,23 +6,36 @@
     <!-- ✅ 알림 아이콘 -->
     <BaseNotificationIcon />
   </div>
-  
 </template>
 
 <script setup>
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-// 라우트는 읽기전용정보 라우터는 실제기능
 import BaseNotificationIcon from "./BaseNotificationIcon.vue";
 
 const router = useRouter();
-const gohome = () => {
-  router.push("/start");
-};
 
+// 더미 로그인 상태 변수 (실제 백엔드 연결 시에는 API 호출 등을 통해 상태를 확인)
+const isLoggedIn = ref(false);
+
+// onMounted 훅을 사용해 컴포넌트가 마운트될 때 로그인 상태를 확인 (예시: localStorage의 토큰 존재 여부)
+onMounted(() => {
+  // 예시로 localStorage에 'token'이 존재하면 로그인 상태로 간주
+  isLoggedIn.value = !!localStorage.getItem('token');
+});
+
+// 로고 클릭 시 로그인 상태에 따라 이동 경로를 다르게 지정
+const gohome = () => {
+  if (isLoggedIn.value) {
+    router.push("/");
+  } else {
+    router.push("/start");
+  }
+};
 </script>
 
 <style scoped>
-/* ✅ 그림자 효과 추가 */
+/* ✅ 그림자 효과 추가 (필요 시 주석 해제) */
 /* div {
   @apply shadow-md;
 } */

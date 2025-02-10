@@ -1,7 +1,27 @@
 <template>
   <div id="app" class="flex flex-row h-screen-custom">
     <!-- 왼쪽 (PC 전용) -->
-    <div class="hidden md:block w-1/2 bg-gray-100"></div>
+    <div class="hidden md:flex flex-col w-1/2 bg-white items-center justify-center">
+      <img :src="logo" alt="로고 이미지" class="w-1/2 h-auto" />
+      <div>
+        <p class="text-4xl">
+          <br><br>
+PILLME 소개 및 QR 코드 제공
+<br>
+PILLME 소개 및 QR 코드 제공
+<br>
+PILLME 소개 및 QR 코드 제공
+<br>
+PILLME 소개 및 QR 코드 제공
+<br>
+PILLME 소개 및 QR 코드 제공
+<br>
+PILLME 소개 및 QR 코드 제공
+<br>
+<br><br><br>
+      </p>
+    </div>
+    </div>
 
     <!-- 오른쪽 (모바일 전체) -->
     <div class="flex flex-col w-full md:w-1/2">
@@ -34,6 +54,7 @@ import { ref, onMounted, onUnmounted, watch, nextTick } from 'vue';
 import { useRoute } from 'vue-router';
 import BaseTopbar from './components/BaseTopbar.vue';
 import BaseNavbar from './components/BaseNavbar.vue';
+import logo from './assets/Logo_font.svg';
 
 const route = useRoute();
 const contentRef = ref(null);

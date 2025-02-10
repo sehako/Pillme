@@ -1,178 +1,98 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import StartView from '../views/StartView.vue';
-import LoginView from '../views/LoginView.vue';
-import LoginSelectionView from '../views/LoginSelectionView.vue';
+import { useAuthStore } from '../stores/auth'; // ✅ 상대 경로 사용
+
+// ✅ 회원가입 이후 관련
 import AccountSearchSelectionView from '../views/AccountSearchSelectionView.vue';
 import AfterAccountView from '../views/AfterAccountView.vue';
-import SigninSelectionView from '../views/SigninSelectionView.vue';
+
+// ✅ 아이디 비밀번호 찾기 관련
 import IdSearchView from '../views/IdSearchView.vue';
 import IdFoundView from '../views/IdFoundView.vue';
 import PwSearchView from '../views/PwSearchView.vue';
-import MyPageView from '../views/MyPageView.vue';
-import ManageMemberListView from '../views/ManageMemberListView.vue';
-import NonMemberRegisterView from '../views/NonMemberRegisterView.vue';
+
+// ✅ 회원가입 관련
+import StartView from '../views/StartView.vue';
 import MemberRegisterView from '../views/MemberRegisterView.vue';
 import RegisterView from '../views/RegisterView.vue';
-import NotificationListView from '../views/NotificationListView.vue';
+import EmailRegistView from '../views/EmailRegistView.vue';
+// ✅ 로그인 관련
+import LoginView from '../views/LoginView.vue';
+import LoginSelectionView from '../views/LoginSelectionView.vue';
+import SigninSelectionView from '../views/SigninSelectionView.vue';
+
+// ✅ 로그인 후 접근 가능 페이지
 import HomeView from '../views/HomeView.vue';
 import CalendarView from '../views/CalendarView.vue';
-import PersonalInfo from '../views/PersonalInfo.vue';
-import LoginSecurity from '../views/LoginSecurity.vue';
-import MyPage_PwChange from '../views/MyPage_PwChange.vue';
+import MyPageView from '../views/MyPageView.vue';
+import MyPage_PwChange from '../views/MyPwChange.vue';
+import PersonalInfo from '../views/MyPersonalInfo.vue';
+import LoginSecurity from '../views/MyLoginSecurity.vue';
+import My_Alarm from '../views/My_Alarm.vue';
 import ChatView from '../views/ChatView.vue';
 import ChatIndividualView from '../views/ChatIndividualView.vue';
-
-// import NameDropdown from '../components/NameDropdown.vue';
-// import ProfileView from '../views/ProfileView.vue';
-// import SettingsView from '../views/SettingsView.vue';
-// import NotFoundView from '../views/NotFoundView.vue'; // ✅ 404 페이지
+import ManageMemberListView from '../views/ManageMemberListView.vue';
+import NotificationListView from '../views/NotificationListView.vue';
 
 const routes = [
-  {
-    path: '/start', // /로 할지 /start로 할지 고민 필요
-    name: 'StartView',
-    component: StartView,
-    meta: { cache: true },
-  },
-  {
-    path: '/login',
-    name: 'LoginView',
-    component: LoginView,
-    meta: { cache: true },
-  },
-  {
-    path: '/afteraccount',  // URL 경로
-    name: 'AfterAccount',
-    component: AfterAccountView,  // 등록한 컴포넌트
-  },
-  {
-    path: '/chat',
-    name: 'ChatView',
-    component: ChatView,
-  },
-  {
-    path: '/chat/:id',
-    name: 'ChatIndividualView',
-    component: ChatIndividualView,
-    props: true, // ✅ URL 매개변수를 컴포넌트 props로 전달
-  },
-  {
-    path: '/idsearch',  
-    name: 'IdSearch',
-    component: IdSearchView, 
-  },
-  {
-    path: '/idfound',  
-    name: 'IdFound',
-    component: IdFoundView, 
-  },
-  {
-    path: '/pwsearch',  
-    name: 'PwSearch',
-    component: PwSearchView, 
-  },
-  {
-    path: '/nonmemberregister',  
-    name: 'nonmemberregister',
-    component: NonMemberRegisterView, 
-  },
-  {
-    path: '/memberregister',  
-    name: 'memberregister',
-    component: MemberRegisterView, 
-  },
-  {
-    path: '/register',  
-    name: 'register',
-    component: RegisterView, 
-  },
-  {
-    path: '/signinselection',
-    name: 'SigninSelectionView',
-    component: SigninSelectionView,
-    meta: { cache: true },
-  },
-  {
-    path: '/loginselection',
-    name: 'LoginSelectionView',
-    component: LoginSelectionView,
-    meta: { cache: true },
-  },
-  {
-    path: '/accountsearchselection',
-    name: 'AccountSearchSelectionView',
-    component: AccountSearchSelectionView,
-    meta: { cache: true },
-  },
-  {
-    path: '/managememberlist',  
-    name: 'ManageMemberList',
-    component: ManageMemberListView, 
-  },
-  {
-    path: '/notificationlist',  
-    name: 'NotificationList',
-    component: NotificationListView, 
-  },
-  {
-    path: '/',
-    name: 'Home',
-    component: HomeView,
-    meta: { cache: true }, // ✅ 캐싱할 페이지
-  },
-  {
-    path: '/calendar',
-    name: 'calendar',
-    component: CalendarView, // ✅ TODO: 실제 컴포넌트 연결 예정
-    meta: { cache: true }, // ✅ 캐싱할 페이지
-  },
-  {
-    path: '/profile',
-    name: 'profile',
-    // component: ProfileView, // ✅ TODO: 실제 컴포넌트 연결 예정
-    meta: { cache: false }, // ❌ 오프라인 시 접근 불가
-  },
-  {
-    path: '/mypage',
-    name: 'mypage',
-    component: MyPageView,
-    meta: { cache: false }, // ❌ 오프라인 시 접근 불가
-  },
-  {
-    path: '/mypage/personal-info',
-    name: 'personal-info',
-    component: PersonalInfo,
-    meta: { cache: false }, // ❌ 오프라인 시 접근 불가
-  },
-  {
-    path: '/mypage/login-security',
-    name: 'login-security',
-    component: LoginSecurity,
-    meta: { cache: false },
-  },
-  {
-    path: '/mypage/pw-change',
-    name: 'pw-change',
-    component: MyPage_PwChange,
-    meta: { cache: false },
-  },
-  {
-    path: '/settings',
-    name: 'settings',
-    // component: SettingsView, // ✅ TODO: 실제 컴포넌트 연결 예정
-    meta: { cache: false }, // ❌ 오프라인 시 접근 불가
-  },
-  {
-    path: '/:catchAll(.*)', // ✅ 존재하지 않는 페이지 요청 시
-    name: 'NotFound',
-    component: () => import('../views/StartView.vue') //✅ TODO: 404 페이지 구현 필요
-  },
-  
+  // ✅ 비로그인 사용자만 접근 가능
+  { path: '/start', name: 'StartView', component: StartView },
+  { path: '/login', name: 'LoginView', component: LoginView },
+  { path: '/signinselection', name: 'SigninSelectionView', component: SigninSelectionView },
+  { path: '/loginselection', name: 'LoginSelectionView', component: LoginSelectionView },
+  { path: '/accountsearchselection', name: 'AccountSearchSelectionView', component: AccountSearchSelectionView },
+  { path: '/afteraccount', name: 'AfterAccountView', component: AfterAccountView },
+  { path: '/idsearch', name: 'IdSearch', component: IdSearchView },
+  { path: '/idfound', name: 'IdFound', component: IdFoundView },
+  { path: '/pwsearch', name: 'PwSearch', component: PwSearchView },
+  { path: '/memberregister', name: 'memberregister', component: MemberRegisterView },
+  { path: '/register', name: 'register', component: RegisterView },
+  { path: '/emailregist', name: 'emailregist', component: EmailRegistView },
+
+  // ✅ 로그인해야 접근 가능한 페이지 (requiresAuth: true)
+  { path: '/', name: 'Home', component: HomeView, meta: { requiresAuth: true } },
+  { path: '/calendar', name: 'CalendarView', component: CalendarView, meta: { requiresAuth: true } },
+  { path: '/mypage', name: 'mypage', component: MyPageView, meta: { requiresAuth: true } },
+  { path: '/mypage/alarm', name: 'alarm', component: My_Alarm, meta: { requiresAuth: true } },
+  { path: '/mypage/personal-info', name: 'personal-info', component: PersonalInfo, meta: { requiresAuth: true } },
+  { path: '/mypage/login-security', name: 'login-security', component: LoginSecurity, meta: { requiresAuth: true } },
+  { path: '/mypage/pw-change', name: 'pw-change', component: MyPage_PwChange, meta: { requiresAuth: true } },
+  { path: '/notificationlist', name: 'NotificationList', component: NotificationListView, meta: { requiresAuth: true } },
+  { path: '/managememberlist', name: 'ManageMemberList', component: ManageMemberListView, meta: { requiresAuth: true } },
+
+  // ✅ 로그인 여부 상관없이 접근 가능 (예: 채팅)
+  { path: '/chat', name: 'ChatView', component: ChatView, meta: { requiresAuth: true } },
+  { path: '/chat/:id', name: 'ChatIndividualView', component: ChatIndividualView, props: true, meta: { requiresAuth: true } },
+
+  // ✅ 404 페이지 처리
+  { path: '/:catchAll(.*)', name: 'NotFound', component: StartView }, // TODO: 404 페이지 구현 필요
 ];
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes,
+});
+
+// ✅ 전역 네비게이션 가드 (로그인 안 하면 `/start`로 강제 이동, 예외 페이지 제외)
+router.beforeEach((to, from, next) => {
+  const authStore = useAuthStore();
+  const isAuthenticated = !!authStore.accessToken; // ✅ 로그인 여부 확인
+
+  console.log(`[Route Guard] 이동하려는 경로: ${to.path}, 로그인 상태: ${isAuthenticated}`);
+
+  // ✅ 로그인하지 않은 사용자가 접근 가능한 페이지 목록
+  const guestPages = [
+    '/start', '/login', '/signinselection', '/loginselection',
+    '/accountsearchselection', '/afteraccount', '/idsearch',
+    '/idfound', '/pwsearch', '/memberregister', '/register','/emailregist'
+  ];
+
+  // ✅ 로그인하지 않은 사용자가 보호된 페이지에 접근하려 하면 `/start`로 이동
+  if (!isAuthenticated && !guestPages.includes(to.path)) {
+    console.log('[Route Guard] 비로그인 사용자, /start로 강제 이동');
+    return next('/start');
+  }
+
+  next(); // ✅ 정상 이동
 });
 
 export default router;

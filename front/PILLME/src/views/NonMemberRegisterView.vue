@@ -62,7 +62,7 @@
   import BaseButton from "../components/BaseButton.vue";
   import BaseText from "../components/BaseText.vue"; 
 
-  import logoSrc from "../assets/logi_nofont.png";
+  import logoSrc from "../assets/logi_nofont.svg";
   
   const form = ref({
     name: "",

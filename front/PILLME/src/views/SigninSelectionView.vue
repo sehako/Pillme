@@ -43,8 +43,8 @@
   const router = useRouter();
 
   const goToSignin = () => {
-  router.push('/afteraccount');
-}
+  router.push('/emailregist');
+};
 
 
   </script>

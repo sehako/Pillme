@@ -13,9 +13,9 @@
       <div v-for="i in 50" :key="i" class="mb-4">
         <WhiteCard overrideClass="bg-white">
           <div class="flex flex-row items-center">
-            <img src="../assets/logi_nofont.png" alt="알약이미지" class="w-16 h-16">
+            <img src="../assets/logi_nofont.svg" alt="알약이미지" class="w-16 h-16">
             <div class="flex flex-col">
-              <p>📌 스크롤 테스트용 카드 {{ i }}</p>
+              <p> 스크롤 테스트용 카드 {{ i }}</p>
             </div>
           </div>
         </WhiteCard>
