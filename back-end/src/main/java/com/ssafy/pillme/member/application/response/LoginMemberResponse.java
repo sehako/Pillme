@@ -4,9 +4,10 @@ import com.ssafy.pillme.auth.domain.vo.Gender;
 import com.ssafy.pillme.auth.domain.vo.Role;
 import com.ssafy.pillme.member.domain.entity.LoginMember;
 
-public record LoginMemberResponse(String email, String phone, String birthday, Gender gender, String nickname, Role role, boolean deleted, boolean oauth) {
+public record LoginMemberResponse(String name, String email, String phone, String birthday, Gender gender, String nickname, Role role, boolean deleted, boolean oauth) {
     public static LoginMemberResponse from(LoginMember member) {
         return new LoginMemberResponse(
+                member.getName(),
                 member.getEmail(),
                 member.getPhone(),
                 member.getBirthday(),

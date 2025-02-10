@@ -1,5 +1,6 @@
 package com.ssafy.pillme.member.application.service;
 
+import com.ssafy.pillme.global.util.SecurityUtil;
 import com.ssafy.pillme.member.application.exception.*;
 import com.ssafy.pillme.member.application.response.LoginMemberResponse;
 import com.ssafy.pillme.member.domain.entity.LoginMember;
@@ -20,16 +21,18 @@ public class LoginMemberService {
     private final LoginMemberRepository loginMemberRepository;
     private final PasswordEncoder passwordEncoder;
 
-    // 멤버 프로필 조회
-    public LoginMemberResponse findMemberProfile(Long memberId) {
-        LoginMember member = loginMemberRepository.findByIdAndDeletedFalse(memberId)
+    // 현재 로그인한 멤버 프로필 조회
+    public LoginMemberResponse findCurrentMemberProfile() {
+        Long currentMemberId = SecurityUtil.extractCurrentMemberId();
+        LoginMember member = loginMemberRepository.findByIdAndDeletedFalse(currentMemberId)
                 .orElseThrow(NoMemberInfoException::new);
         return LoginMemberResponse.from(member);
     }
 
     // 닉네임 변경 검증
-    public void validateNicknameChange(Long memberId, String newNickname) {
-        validateNewNickname(newNickname, memberId);
+    public void validateNicknameChange(String newNickname) {
+        Long currentMemberId = SecurityUtil.extractCurrentMemberId();
+        validateNewNickname(newNickname, currentMemberId);
     }
 
     // 닉네임 중복 및 현재값 검증
@@ -45,20 +48,12 @@ public class LoginMemberService {
         }
     }
 
-    // 최종 회원정보 업데이트
-    public void updateMemberInformation(Long memberId, UpdateLoginMemberRequest request) {
-        LoginMember member = loginMemberRepository.findByIdAndDeletedFalse(memberId).orElseThrow(NoMemberInfoException::new);
-
-        // 모든 검증이 통과되면 정보 업데이트
-        member.updateInformation(request.email(), request.nickname(), request.phone());
-        loginMemberRepository.save(member);
-    }
-
     // 비밀번호 변경
-    public void updatePassword(Long memberId, UpdatePasswordRequest request) {
-        LoginMember member = loginMemberRepository.findByIdAndDeletedFalse(memberId).orElseThrow(NoMemberInfoException::new);
+    public void updatePassword( UpdatePasswordRequest request) {
+        Long currentMemberId = SecurityUtil.extractCurrentMemberId();
+        LoginMember member = loginMemberRepository.findByIdAndDeletedFalse(currentMemberId).orElseThrow(NoMemberInfoException::new);
 
-        validateCurrentPassword(request.currentPassword(), memberId);
+        validateCurrentPassword(request.currentPassword(), currentMemberId);
         validateNewPassword(request.newPassword());
 
         String encodedPassword = passwordEncoder.encode(request.newPassword());
@@ -95,8 +90,9 @@ public class LoginMemberService {
     }
 
     // 회원 탈퇴
-    public void deleteMember(Long memberId) {
-        LoginMember member = loginMemberRepository.findByIdAndDeletedFalse(memberId)
+    public void deleteMember() {
+        Long currentMemberId = SecurityUtil.extractCurrentMemberId();
+        LoginMember member = loginMemberRepository.findByIdAndDeletedFalse(currentMemberId)
                 .orElseThrow(NoMemberInfoException::new);
 
         member.delete();
