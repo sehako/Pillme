@@ -125,52 +125,85 @@
 
     <!-- 📌 복약 시간 설정 다이얼로그 -->
     <div v-if="showMedicationDialog" class="dialog-overlay">
-    <div class="dialog-box">
-      <h2 class="text-lg font-semibold text-center text-pink-500">⏰ 복약 시간 설정</h2>
+      <div class="dialog-box">
+        <button @click="closeMedicationDialog" class="close-btn">✖</button>
+        <h2 class="text-lg font-semibold text-center text-pink-500">⏰ 복약 시간 설정</h2>
 
-      <!-- ✅ 스크롤 가능하도록 감싸는 div 추가 -->
-      <div class="medication-container">
-        <!-- ✅ 복약 시간 헤더 (고정) -->
-        <div class="medication-header">
-          <span></span> <!-- 빈 칸 -->
-          <span>아침</span>
-          <span>점심</span>
-          <span>저녁</span>
-          <span>자기 전</span>
-        </div>
+        <!-- ✅ 스크롤 가능하도록 감싸는 div 추가 -->
+        <div class="medication-container">
+          <!-- ✅ 복약 시간 헤더 (고정) -->
+          <div class="medication-header">
+            <span></span>
+            <!-- 빈 칸 -->
+            <span>아침</span>
+            <span>점심</span>
+            <span>저녁</span>
+            <span>자기 전</span>
+          </div>
 
-        <!-- ✅ 전체 체크 -->
-        <div class="medication-row">
-          <span class="med-name">전체</span>
-          <input type="checkbox" @change="toggleAll('breakfast', $event.target.checked)" />
-          <input type="checkbox" @change="toggleAll('lunch', $event.target.checked)" />
-          <input type="checkbox" @change="toggleAll('dinner', $event.target.checked)" />
-          <input type="checkbox" @change="toggleAll('bedtime', $event.target.checked)" />
-        </div>
-
-        <!-- ✅ 약 목록을 감싸는 div 추가 (스크롤 적용) -->
-        <div class="medication-list">
-          <div v-for="(med, index) in medications" :key="index" class="medication-row">
-            <span class="med-name">{{ med.name }}</span>
-            <input type="checkbox" v-model="med.times.breakfast" />
-            <input type="checkbox" v-model="med.times.lunch" />
-            <input type="checkbox" v-model="med.times.dinner" />
-            <input type="checkbox" v-model="med.times.bedtime" />
+          <!-- ✅ 전체 체크 -->
+          <div class="medication-row">
+            <span class="med-name">전체</span>
+            <input
+              type="checkbox"
+              v-model="overallCheck.breakfast"
+              @change="toggleAll('breakfast', $event.target.checked)"
+            />
+            <input
+              type="checkbox"
+              v-model="overallCheck.lunch"
+              @change="toggleAll('lunch', $event.target.checked)"
+            />
+            <input
+              type="checkbox"
+              v-model="overallCheck.dinner"
+              @change="toggleAll('dinner', $event.target.checked)"
+            />
+            <input
+              type="checkbox"
+              v-model="overallCheck.bedtime"
+              @change="toggleAll('bedtime', $event.target.checked)"
+            />
+          </div>
+          <!-- ✅ 약 목록을 감싸는 div 추가 (스크롤 적용) -->
+          <div class="medication-list">
+            <div v-for="(med, index) in medications" :key="index" class="medication-row">
+              <span class="med-name">{{ med.name }}</span>
+              <input
+                type="checkbox"
+                v-model="med.times.breakfast"
+                @change="handleIndividualCheck('breakfast')"
+              />
+              <input
+                type="checkbox"
+                v-model="med.times.lunch"
+                @change="handleIndividualCheck('lunch')"
+              />
+              <input
+                type="checkbox"
+                v-model="med.times.dinner"
+                @change="handleIndividualCheck('dinner')"
+              />
+              <input
+                type="checkbox"
+                v-model="med.times.bedtime"
+                @change="handleIndividualCheck('bedtime')"
+              />
+            </div>
           </div>
         </div>
-      </div>
 
-      <div class="button-group">
-        <button @click="closeAllDialogs" class="secondary-btn">닫기</button>
-        <button @click="confirmMedicationSchedule" class="primary-btn">확인</button>
+        <div class="button-group">
+          <button @click="backToNextDialog" class="secondary-btn">이전</button>
+          <button @click="confirmMedicationSchedule" class="primary-btn">확인</button>
+        </div>
       </div>
     </div>
-  </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import VueDatePicker from '@vuepic/vue-datepicker';
 import '@vuepic/vue-datepicker/dist/main.css';
@@ -259,7 +292,7 @@ const removeDrug = (index) => {
 
 const addDrug = () => {
   if (newDrug.value.trim() !== '') {
-    results.value.push({matched_drug: newDrug.value.trim()});
+    results.value.push({ matched_drug: newDrug.value.trim() });
     medications.value.push({
       name: newDrug.value.trim(),
       times: { breakfast: false, lunch: false, dinner: false, bedtime: false },
@@ -273,19 +306,18 @@ const openMedicationDialog = () => {
   showMedicationDialog.value = true;
 };
 
+const backToNextDialog = () => {
+  showMedicationDialog.value = false;
+  showNextDialog.value = true;
+}
+
 const closeMedicationDialog = () => {
   showMedicationDialog.value = false;
 };
 
-const resetImage = () => {
-  imagePreview.value = null;
-  selectedFile.value = null;
-  results.value = [];
-  showResultsDialog.value = false;
-};
-
 const openNextDialog = () => {
   if (results.value.length > 0) {
+    showResultsDialog.value = false;
     showNextDialog.value = true;
   }
 };
@@ -300,24 +332,36 @@ const closeAllDialogs = () => {
   showMedicationDialog.value = false;
 };
 
-const selectAll = () => {
-  medications.value.forEach((med) => {
-    Object.keys(med.times).forEach((time) => {
-      med.times[time] = true;
-    });
-  });
+// ✅ 개별 체크 변경 시 전체 체크 상태 자동 업데이트
+const updateOverallCheck = () => {
+  overallCheck.value = {
+    breakfast: medications.value.every((med) => med.times.breakfast),
+    lunch: medications.value.every((med) => med.times.lunch),
+    dinner: medications.value.every((med) => med.times.dinner),
+    bedtime: medications.value.every((med) => med.times.bedtime),
+  };
 };
 
-const deselectAll = () => {
-  medications.value.forEach((med) => {
-    Object.keys(med.times).forEach((time) => {
-      med.times[time] = false;
-    });
-  });
+const handleIndividualCheck = (time) => {
+  updateOverallCheck();
 };
+
+const overallCheck = ref({
+  breakfast: false,
+  lunch: false,
+  dinner: false,
+  bedtime: false,
+});
+
+const checkOverallStatus = () => {
+  updateOverallCheck();
+};
+
+watch(medications, checkOverallStatus, { deep: true });
 
 const closeNextAndPreviousDialog = () => {
   showNextDialog.value = false;
+  showResultsDialog.value = true;
 };
 
 // ✅ BaseNavbar에서 전달된 이미지 자동 로드 및 분석 실행
@@ -369,6 +413,7 @@ onMounted(() => {
 
 .dialog-box {
   background: white;
+  position:relative;
   padding: 24px;
   border-radius: 10px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
@@ -398,9 +443,11 @@ onMounted(() => {
   font-weight: bold;
   color: #ff4081;
   text-align: center;
-  padding-bottom: 10px;
+  padding-top: 10px;
+  padding-bottom: 5px;
   align-items: center; /* 중앙 정렬 */
 }
+
 
 .medication-row {
   display: grid;
@@ -410,6 +457,7 @@ onMounted(() => {
   padding: 10px 0;
   border-bottom: 1px solid #ddd;
 }
+
 
 /* ✅ 개별 행 스타일 */
 .med-name {
@@ -437,8 +485,31 @@ onMounted(() => {
   width: 100px;
 }
 
-input[type="checkbox"] {
-  transform: scale(1.2);
+.medication-row:first-child input[type="checkbox"] {
+  justify-self: center; /* 중앙 정렬 */
+}
+
+.medication-row input[type="checkbox"] {
+  transform: scale(1.3); /* 체크박스 크기 조정 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
   margin: auto;
 }
+
+.close-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  color: #aaa;
+}
+
+.close-btn:hover {
+  color: #999;
+}
+
 </style>
