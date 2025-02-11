@@ -53,10 +53,10 @@ public class AuthService {
         if (memberRepository.existsByEmailAndRoleNot(request.email(), Role.LOCAL)) {
             throw new DuplicateEmailAddressException();
         }
-        if (memberRepository.existsByNickname(request.nickname())) {
+        if (memberRepository.existsByNicknameAndDeletedFalse(request.nickname())) {
             throw new DuplicateMemberNicknameException();
         }
-        if (memberRepository.existsByPhone(request.phone())) {
+        if (memberRepository.existsByPhoneAndDeletedFalse(request.phone())) {
             throw new DuplicatePhoneNumberException();
         }
 
@@ -88,90 +88,6 @@ public class AuthService {
         }
 
         return createTokenResponseFromMember(member);
-    }
-
-    /**
-     * OAuth2 회원가입
-     */
-    @Transactional
-    public TokenResponse oauthSignUp(OAuthSignUpRequest request, String providerString) {
-        Provider provider = Provider.valueOf(providerString.toUpperCase());
-
-        // 이전 인증 정보 확인
-        String savedProvider = tokenService.extractTempAuthInfo(request.email());
-        if (savedProvider == null || !savedProvider.equals(provider.name())) {
-            throw new InvalidOAuthStateException();
-        }
-
-        // 휴대전화 인증 확인
-        if (!smsService.isVerified(request.phone())) {
-            throw new UnverifiedPhoneNumberException();
-        }
-
-        // 닉네임 중복 확인
-        if (memberRepository.existsByNickname(request.nickname())) {
-            throw new DuplicateMemberNicknameException();
-        }
-
-        // 회원 생성
-        Member member = Member.builder()
-                .email(request.email())
-                .password(UUID.randomUUID().toString())
-                .name(request.name())
-                .nickname(request.nickname())
-                .phone(request.phone())
-                .birthday(request.birthday())
-                .gender(request.gender())
-                .oauth(true)
-                .provider(provider)
-                .build();
-
-        return createTokenResponseFromMember(memberRepository.save(member));
-    }
-
-    /**
-     * OAuth2 추가 회원정보 입력 처리
-     */
-    @Transactional
-    public MemberResponse submitAdditionalInfo(Long memberId, OAuthAdditionalInfoRequest request) {
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(InvalidMemberInfoException::new);
-
-        // OAuth2 회원인지 확인
-        if (!member.isOauth()) {
-            throw new InvalidOAuthStateException();
-        }
-
-        // 닉네임 중복 확인
-        String newNickname = request.nickname() != null ? request.nickname() : member.getNickname();
-        if (!newNickname.equals(member.getNickname()) &&
-                memberRepository.existsByNickname(newNickname)) {
-            throw new DuplicateMemberNicknameException();
-        }
-
-        // 휴대전화 중복 확인
-        String newPhone = request.phone() != null ? request.phone() : member.getPhone();
-        if (!newPhone.equals(member.getPhone()) &&
-                memberRepository.existsByPhone(newPhone)) {
-            throw new DuplicatePhoneNumberException();
-        }
-
-        // 휴대전화 인증 확인
-        if (!smsService.isVerified(newPhone)) {
-            throw new UnverifiedPhoneNumberException();
-        }
-
-        // 회원 정보 업데이트
-        member.updateAdditionalInformation(
-                request.name() != null ? request.name() : member.getName(),
-                request.email() != null ? request.email() : member.getEmail(),
-                newNickname,
-                request.gender() != null ? request.gender() : member.getGender(),
-                newPhone,
-                request.birthday() != null ? request.birthday() : member.getBirthday()
-        );
-
-        return MemberResponse.from(member);
     }
 
     /**
@@ -277,7 +193,7 @@ public class AuthService {
     /**
      * 사용자 정보로 토큰 응답 생성
      */
-    private TokenResponse createTokenResponseFromMember(Member member) {
+    public TokenResponse createTokenResponseFromMember(Member member) {
         return createTokenResponseWithCredentials(member.getId(), member.getRole().name());
     }
 
@@ -323,7 +239,7 @@ public class AuthService {
             throw new DuplicateMemberNicknameException();
         }
 
-        return memberRepository.existsByNickname(nickname);
+        return memberRepository.existsByNicknameAndDeletedFalse(nickname);
     }
 
     /**
