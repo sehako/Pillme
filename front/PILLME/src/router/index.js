@@ -1,4 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router';
+import Cookies from 'js-cookie';
+import { refreshAccessTokenAPI } from '../api/auth'; // 경로는 실제 위치에 맞게 수정
 // import { useAuthStore } from '../stores/auth'; // ✅ 상대 경로 사용
 
 // ✅ 회원가입 이후 관련
@@ -34,7 +36,7 @@ import ManageMemberListView from '../views/ManageMemberListView.vue';
 import NotificationListView from '../views/NotificationListView.vue';
 
 const routes = [
-  // ✅ 비로그인 사용자만 접근 가능
+  // ✅ 비로그인 사용자만 접근 가능한 페이지
   { path: '/start', name: 'StartView', component: StartView },
   { path: '/login', name: 'LoginView', component: LoginView },
   { path: '/signinselection', name: 'SigninSelectionView', component: SigninSelectionView },
@@ -59,12 +61,12 @@ const routes = [
   { path: '/notificationlist', name: 'NotificationList', component: NotificationListView, meta: { requiresAuth: true } },
   { path: '/managememberlist', name: 'ManageMemberList', component: ManageMemberListView, meta: { requiresAuth: true } },
 
-  // ✅ 로그인 여부 상관없이 접근 가능 (예: 채팅)
+  // ✅ 로그인 여부와 상관없이 접근 가능한 페이지 (예: 채팅)
   { path: '/chat', name: 'ChatView', component: ChatView, meta: { requiresAuth: true } },
   { path: '/chat/:id', name: 'ChatIndividualView', component: ChatIndividualView, props: true, meta: { requiresAuth: true } },
 
   // ✅ 404 페이지 처리
-  { path: '/:catchAll(.*)', name: 'NotFound', component: StartView }, // TODO: 404 페이지 구현 필요
+  { path: '/:catchAll(.*)', name: 'NotFound', component: StartView },
 ];
 
 const router = createRouter({
@@ -72,25 +74,51 @@ const router = createRouter({
   routes,
 });
 
-// ✅ 전역 네비게이션 가드 (로그인 안 하면 `/start`로 강제 이동, 예외 페이지 제외)
-router.beforeEach((to, from, next) => {
-  const isAuthenticated = localStorage.accessToken; // ✅ 로그인 여부 확인
-
-  console.log(`[Route Guard] 이동하려는 경로: ${to.path}, 로그인 상태: ${isAuthenticated}`);
-
-  // ✅ 로그인하지 않은 사용자가 접근 가능한 페이지 목록
+router.beforeEach(async (to, from, next) => {
+  // 접근 가능한 게스트 페이지 목록
   const guestPages = [
     '/start', '/login', '/signinselection', '/loginselection',
     '/accountsearchselection', '/afteraccount', '/idsearch',
-    '/idfound', '/pwsearch', '/memberregister', '/register','/emailregist'
+    '/idfound', '/pwsearch', '/memberregister', '/register', '/emailregist'
   ];
 
-  // ✅ 로그인하지 않은 사용자가 보호된 페이지에 접근하려 하면 `/start`로 이동
-  if (!isAuthenticated && !guestPages.includes(to.path)) {
-    console.log('[Route Guard] 비로그인 사용자, /start로 강제 이동');
+  // 보호된 페이지가 아니라면 그냥 이동
+  if (guestPages.includes(to.path)) {
+    return next();
+  }
+
+  // localStorage에서 accessToken과 만료시간 가져오기
+  const accessToken = localStorage.getItem('accessToken');
+  const accessTokenExpiry = localStorage.getItem('accessTokenExpiry');
+  const refreshToken = Cookies.get('refreshToken');
+
+  const currentTime = new Date().getTime();
+  // accessToken이 존재하고, 만료시간이 남아있으면 유효하다고 판단
+  const isAccessTokenValid = accessToken && currentTime < Number(accessTokenExpiry);
+
+  // accessToken이 없거나 만료되었는데 refreshToken이 있으면 갱신 시도
+  if (!isAccessTokenValid && refreshToken) {
+    try {
+      await refreshAccessTokenAPI();
+      // 갱신 후에는 refreshAccessTokenAPI 내부에서 accessToken과 만료시간을 저장하므로 보호된 페이지로 이동
+      return next();
+    } catch (error) {
+      console.error('[Route Guard] 토큰 갱신 실패:', error);
+      // 갱신 실패 시 토큰 제거 후 로그인 페이지로 이동
+      localStorage.removeItem('accessToken');
+      // localStorage.removeItem('accessTokenExpiry');
+      Cookies.remove('refreshToken');
+      return next('/start');
+    }
+  }
+
+  // 토큰이 유효하지 않으면 로그인 페이지로 이동
+  if (!isAccessTokenValid) {
     return next('/start');
   }
 
-  next(); // ✅ 정상 이동
+  // 모든 조건이 만족되면 정상 이동
+  next();
 });
+
 export default router;
