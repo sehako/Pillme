@@ -163,9 +163,10 @@ public class FCMNotificationServiceImpl implements FCMNotificationService {
     private List<FCMToken> findValidTokens(Long memberId) {
         List<FCMToken> tokens = fcmTokenService.findAllByMemberId(memberId);
 
-        // 사용자가 알림을 허용한 토큰이 없을 경우 예외 처리
+        // 토큰이 없을 경우, 로그로 기록만 남기고 빈 리스트 반환
         if (tokens.isEmpty()) {
-            throw new FCMTokenNotFoundException(ErrorCode.FCM_TOKEN_NOT_FOUND);
+            log.error("FCM Token not found for member id: {}", memberId);
+            return List.of();
         }
 
         return tokens;
