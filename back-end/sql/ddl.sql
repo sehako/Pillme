@@ -55,7 +55,8 @@ CREATE TABLE `fcm_token`
     `member_id`   BIGINT       NOT NULL,
     `token`       VARCHAR(255) NULL,
     `created_at`  TIMESTAMP    NULL,
-    `modified_at` TIMESTAMP    NULL
+    `modified_at` TIMESTAMP    NULL,
+    `deleted`     TINYINT      NULL
 );
 
 DROP TABLE IF EXISTS `information`;
@@ -81,11 +82,12 @@ CREATE TABLE `fcm_log`
 (
     `id`        BIGINT       NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `member_id` BIGINT       NOT NULL,
-    `Field`     VARCHAR(255) NULL,
-    `Field2`    VARCHAR(255) NULL,
+    `title`     VARCHAR(20) NULL,
+    `content`    VARCHAR(255) NULL,
     `status`    VARCHAR(50)  NULL,
-    `sent_at`   TIMESTAMP    NULL,
-    `Field3`    VARCHAR(255) NULL
+    `retry_count` BIGINT NULL,
+    `initial_send_at`   TIMESTAMP    NULL,
+    `send_at`    TIMESTAMP NULL
 );
 
 DROP TABLE IF EXISTS `community`;
@@ -152,8 +154,8 @@ DROP TABLE IF EXISTS `dependency`;
 CREATE TABLE `dependency`
 (
     `id`            BIGINT    NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    `administrator` BIGINT    NOT NULL,
-    `member`        BIGINT    NOT NULL,
+    `protector_id`  BIGINT    NOT NULL,
+    `dependent_id`  BIGINT    NOT NULL,
     `created_at`    TIMESTAMP NULL,
     `modified_at`   TIMESTAMP NULL,
     `deleted`       TINYINT   NULL
