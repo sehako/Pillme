@@ -1,22 +1,30 @@
 import apiClient from "./index";
 
-// ✅ 비회원 추가 API 호출 함수
-export const addLocalMember = async ({ name, gender, birthday }) => {
+export const addLocalMember = async ({ name, gender, birthday,
+  //  member
+  // Token
+   }) => {
   try {
-    // ✅ 요청 전 데이터 디버깅 출력
-    console.log("📤 비회원 추가 요청 데이터:", { name, gender, birthday });
+    // ✅ 요청 데이터 확인
 
+    console.log("📤 비회원 추가 요청 데이터:", { name, gender, birthday,
+      //  member
+      // Token
+      });
     const response = await apiClient.post("/api/v1/dependency/local-member", {
       name,
       gender,
       birthday,
-      phone,
-    });
+      // member,
+      // Token,
+    }, 
+    // {memberId}
+  );
 
     console.log("✅ 비회원 추가 성공:", response.data);
     return response.data;
   } catch (error) {
-    console.error("❌ 비회원 추가 실패:", error);
+    console.error("❌ 비회원 추가 실패:", error.response ? error.response.data : error);
     throw error;
   }
 };
