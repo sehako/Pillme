@@ -3,11 +3,14 @@ package com.ssafy.pillme.notification.application.service;
 import com.ssafy.pillme.auth.domain.entity.Member;
 import com.ssafy.pillme.global.code.ErrorCode;
 import com.ssafy.pillme.notification.application.exception.NotificationAccessDenied;
+import com.ssafy.pillme.notification.application.exception.NotificationRequestDuplicateException;
+import com.ssafy.pillme.notification.application.exception.NotificationRequestNotFoundException;
 import com.ssafy.pillme.notification.application.exception.NotificationSettingNotFoundException;
 import com.ssafy.pillme.notification.application.response.NotificationResponse;
 import com.ssafy.pillme.notification.application.response.NotificationSettingResponse;
 import com.ssafy.pillme.notification.domain.entity.Notification;
 import com.ssafy.pillme.notification.domain.entity.NotificationSetting;
+import com.ssafy.pillme.notification.domain.vo.NotificationCode;
 import com.ssafy.pillme.notification.infrastructure.repository.NotificationRepository;
 import com.ssafy.pillme.notification.infrastructure.repository.NotificationSettingRepository;
 import com.ssafy.pillme.notification.presentation.request.*;
@@ -19,7 +22,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalTime;
 import java.util.List;
 
-@Slf4j
 @Service
 @Transactional
 @RequiredArgsConstructor // 생성자 주입
@@ -77,6 +79,9 @@ public class NotificationServiceImpl implements NotificationService {
         // 관계 요청 알림 생성
         Notification notification = Notification.createDependencyRequest(sender, receiver);
 
+        // 등록 요청이 이미 존재하는 경우 예외 처리
+        checkDuplicate(sender, receiver, NotificationCode.DEPENDENCY_REQUEST);
+
         // 알림 저장
         notificationRepository.save(notification);
 
@@ -93,11 +98,17 @@ public class NotificationServiceImpl implements NotificationService {
         // 관계 요청 수락 알림 생성
         Notification notification = Notification.createDependencyAccept(sender, receiver);
 
+        // 등록된 요청이 없는 경우 예외 처리
+        Notification existNotification = checkRequestExist(sender, receiver, NotificationCode.DEPENDENCY_REQUEST);
+
         // 알림 저장
         notificationRepository.save(notification);
 
         // 알림 전송
         fcmNotificationService.sendNotification(NotificationRequest.of(notification));
+
+        // 요청 알림 삭제
+        existNotification.delete();
     }
 
     /*
@@ -109,11 +120,17 @@ public class NotificationServiceImpl implements NotificationService {
         // 관계 요청 거절 알림 생성
         Notification notification = Notification.createDependencyReject(sender, receiver);
 
+        // 등록된 요청이 없는 경우 예외 처리
+        Notification existNotification = checkRequestExist(sender, receiver, NotificationCode.DEPENDENCY_REQUEST);
+
         // 알림 저장
         notificationRepository.save(notification);
 
         // 알림 전송
         fcmNotificationService.sendNotification(NotificationRequest.of(notification));
+
+        // 요청 알림 삭제
+        existNotification.delete();
     }
 
     /*
@@ -124,6 +141,9 @@ public class NotificationServiceImpl implements NotificationService {
     public void sendMedicineRequestNotification(Member sender, Member receiver) {
         // 약 등록 요청 알림 생성
         Notification notification = Notification.createMedicineRequest(sender, receiver);
+
+        // 등록 요청이 이미 존재하는 경우 예외 처리
+        checkDuplicate(sender, receiver, NotificationCode.MEDICINE_REQUEST);
 
         // 알림 저장
         notificationRepository.save(notification);
@@ -141,11 +161,17 @@ public class NotificationServiceImpl implements NotificationService {
         // 약 등록 요청 수락 알림 생성
         Notification notification = Notification.createMedicineAccept(sender, receiver);
 
+        // 등록된 요청이 없는 경우 예외 처리
+        Notification existNotification = checkRequestExist(sender, receiver, NotificationCode.MEDICINE_REQUEST);
+
         // 알림 저장
         notificationRepository.save(notification);
 
         // 알림 전송
         fcmNotificationService.sendNotification(NotificationRequest.of(notification));
+
+        // 요청 알림 삭제
+        existNotification.delete();
     }
 
     /*
@@ -157,11 +183,17 @@ public class NotificationServiceImpl implements NotificationService {
         // 약 등록 요청 거절 알림 생성
         Notification notification = Notification.createMedicineReject(sender, receiver);
 
+        // 등록된 요청이 없는 경우 예외 처리
+        Notification existNotification = checkRequestExist(sender, receiver, NotificationCode.MEDICINE_REQUEST);
+
         // 알림 저장
         notificationRepository.save(notification);
 
         // 알림 전송
         fcmNotificationService.sendNotification(NotificationRequest.of(notification));
+
+        // 요청 알림 삭제
+        existNotification.delete();
     }
 
     /*
@@ -172,6 +204,9 @@ public class NotificationServiceImpl implements NotificationService {
     public void sendDependencyDeleteRequestNotification(Member sender, Member receiver) {
         // 관계 삭제 요청 알림 생성
         Notification notification = Notification.createDependencyDeleteRequest(sender, receiver);
+
+        // 삭제 요청이 이미 존재하는 경우 예외 처리
+        checkDuplicate(sender, receiver, NotificationCode.DEPENDENCY_DELETE_REQUEST);
 
         // 알림 저장
         notificationRepository.save(notification);
@@ -189,11 +224,17 @@ public class NotificationServiceImpl implements NotificationService {
         // 관계 삭제 허락 알림 생성
         Notification notification = Notification.createDependencyDeleteAccept(sender, receiver);
 
+        // 삭제된 요청이 없는 경우 예외 처리
+        Notification existNotification = checkRequestExist(sender, receiver, NotificationCode.DEPENDENCY_DELETE_REQUEST);
+
         // 알림 저장
         notificationRepository.save(notification);
 
         // 알림 전송
         fcmNotificationService.sendNotification(NotificationRequest.of(notification));
+
+        // 요청 알림 삭제
+        existNotification.delete();
     }
 
     /*
@@ -205,11 +246,17 @@ public class NotificationServiceImpl implements NotificationService {
         // 관계 삭제 거절 알림 생성
         Notification notification = Notification.createDependencyDeleteReject(sender, receiver);
 
+        // 삭제된 요청이 없는 경우 예외 처리
+        Notification existNotification = checkRequestExist(sender, receiver, NotificationCode.DEPENDENCY_DELETE_REQUEST);
+
         // 알림 저장
         notificationRepository.save(notification);
 
         // 알림 전송
         fcmNotificationService.sendNotification(NotificationRequest.of(notification));
+
+        // 요청 알림 삭제
+        existNotification.delete();
     }
 
     // 알림 리스트 조회
@@ -274,5 +321,22 @@ public class NotificationServiceImpl implements NotificationService {
 
         // 알림 전송
         fcmNotificationService.sendNotification(NotificationRequest.of(notification));
+    }
+
+    // 등록 요청이 이미 존재하는 경우 예외 처리
+    private void checkDuplicate(Member sender, Member receiver, NotificationCode code) {
+        notificationRepository.findBySenderIdAndReceiverIdAndCodeAndDeletedFalse(sender.getId(), receiver.getId(), code)
+                .ifPresent(existNotification -> {
+                    throw new NotificationRequestDuplicateException(ErrorCode.NOTIFICATION_REQUEST_DUPLICATE);
+                });
+    }
+
+    /*
+     * 등록된 요청이 없는 경우 예외 처리
+     * 허락/거절 요청에서 등록 요청을 찾을 때는 받는 사람이 sender, 보낸 사람이 receiver로 전달되어야 함
+     * */
+    private Notification checkRequestExist(Member requestReceiver, Member requestSender, NotificationCode code) {
+        return notificationRepository.findBySenderIdAndReceiverIdAndCodeAndDeletedFalse(requestSender.getId(), requestReceiver.getId(), code)
+                .orElseThrow(() -> new NotificationRequestNotFoundException(ErrorCode.NOTIFICATION_REQUEST_NOT_FOUND));
     }
 }
