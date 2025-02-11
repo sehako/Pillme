@@ -26,5 +26,11 @@ public class SmsController {
         smsService.verifySmsCode(request.phoneNumber(), request.code());
         return ResponseEntity.ok(JSONResponse.onSuccess());
     }
+
+    @PostMapping("/sms/test")
+    public ResponseEntity<JSONResponse<SingleMessageSentResponse>> test() {
+        SingleMessageSentResponse response = smsService.sendVerificationSms("01024137151");
+        return ResponseEntity.ok(JSONResponse.onSuccess(response));
+    }
 }
 
