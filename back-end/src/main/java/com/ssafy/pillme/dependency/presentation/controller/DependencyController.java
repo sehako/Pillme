@@ -3,6 +3,7 @@ package com.ssafy.pillme.dependency.presentation.controller;
 import com.ssafy.pillme.auth.annotation.Auth;
 import com.ssafy.pillme.auth.domain.entity.Member;
 import com.ssafy.pillme.dependency.application.response.DependentListResponse;
+import com.ssafy.pillme.dependency.application.response.RelationShipListResponse;
 import com.ssafy.pillme.dependency.application.service.DependencyService;
 import com.ssafy.pillme.dependency.presentation.request.*;
 import com.ssafy.pillme.global.response.JSONResponse;
@@ -64,9 +65,9 @@ public class DependencyController {
     }
 
     /*
-    * 가족 관계 삭제 요청 수락 - 삭제 요청을 받은 회원이 삭제 요청을 수락하는 경우
-    * 메시지에 존재하는 senderId를 통해 삭제 요청을 보낸 회원을 찾아서 삭제 요청을 수락
-    * */
+     * 가족 관계 삭제 요청 수락 - 삭제 요청을 받은 회원이 삭제 요청을 수락하는 경우
+     * 메시지에 존재하는 senderId를 통해 삭제 요청을 보낸 회원을 찾아서 삭제 요청을 수락
+     * */
     @DeleteMapping("/delete/accept")
     public ResponseEntity<JSONResponse<Void>> acceptDeleteDependency(@RequestBody AcceptDependencyDeletionRequest request, @Auth Member loginMember) {
         dependencyService.acceptDeleteDependency(request, loginMember);
@@ -74,8 +75,8 @@ public class DependencyController {
     }
 
     /*
-    * 가족 관계 삭제 요청 거절 - 삭제 요청을 받은 회원이 삭제 요청을 거절하는 경우
-    * 메시지에 존재하는 senderId를 통해 삭제 요청을 보낸 회원을 찾아서 삭제 요청을 거절
+     * 가족 관계 삭제 요청 거절 - 삭제 요청을 받은 회원이 삭제 요청을 거절하는 경우
+     * 메시지에 존재하는 senderId를 통해 삭제 요청을 보낸 회원을 찾아서 삭제 요청을 거절
      */
     @PostMapping("/delete/reject")
     public ResponseEntity<JSONResponse<Void>> rejectDeleteDependency(@RequestBody RejectDependencyDeletionRequest request, @Auth Member loginMember) {
@@ -88,5 +89,11 @@ public class DependencyController {
     public ResponseEntity<JSONResponse<Void>> sendMedicineNotification(@RequestBody SendMedicineNotificationRequest request, @Auth Member loginMember) {
         dependencyService.sendMedicineNotification(request, loginMember);
         return ResponseEntity.ok(JSONResponse.onSuccess());
+    }
+
+    // 피보호자와 자신의 보호자 목록 조회
+    @GetMapping("/relationships")
+    public ResponseEntity<JSONResponse<RelationShipListResponse>> getRelationships(@Auth Member loginMember) {
+        return ResponseEntity.ok(JSONResponse.onSuccess(dependencyService.getRelationships(loginMember)));
     }
 }
