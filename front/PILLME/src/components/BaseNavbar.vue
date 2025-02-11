@@ -13,11 +13,11 @@
       </router-link>
     </nav>
 
-    <!-- 드롭다운 메뉴 -->
     <div v-if="isDropdownOpen" class="absolute bottom-16 left-0 w-full flex justify-center" @click.self="isDropdownOpen = false">
       <div class="bg-white shadow-lg rounded-xl p-2 flex flex-col w-64 border border-gray-200 transition-all duration-300">
         <button @click="openCamera" class="py-3 text-center text-gray-700 hover:bg-gray-100">📷 처방전 촬영</button>
-        <button @click="openGallery" class="py-3 text-center text-gray-700 hover:bg-gray-100">🖼 사진 업로드</button>
+        <button @click="triggerFileInput" class="py-3 text-center text-gray-700 hover:bg-gray-100">🖼 사진 업로드</button>
+        <input type="file" ref="fileInputRef" @change="handleFileChange" accept="image/*" class="hidden"/>
       </div>
     </div>
   </div>
@@ -34,6 +34,7 @@ import navPlusIcon from "../assets/navplus.png";
 
 const isDropdownOpen = ref(false);
 const router = useRouter();
+const fileInputRef = ref(null);
 
 const navItems = [
   { name: "홈", icon: navHomeIcon, route: "/" },
@@ -56,8 +57,34 @@ const openCamera = () => {
   router.push("/camera");
 };
 
-const openGallery = () => {
+const triggerFileInput = () => {
   isDropdownOpen.value = false;
-  router.push("/imageanalysis");
+  fileInputRef.value.click();
 };
+
+
+const handleFileChange = (event) => {
+  const file = event.target.files[0];
+  if (!file) {
+    console.warn("파일이 선택되지 않았습니다.");
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const base64Image = e.target.result; // ✅ Base64 데이터
+    console.log("📸 업로드된 이미지 Base64:", base64Image);
+
+    // ✅ URL 인코딩 적용하여 전송
+    router.push({
+      path: "/imageanalysis",
+      query: {
+        image: encodeURIComponent(base64Image), // Base64를 URL-safe하게 변환
+        filename: file.name
+      },
+    });
+  };
+  reader.readAsDataURL(file); // ✅ Base64 변환 실행
+};
+
 </script>
