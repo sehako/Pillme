@@ -81,16 +81,6 @@ public class FCMNotificationServiceImpl implements FCMNotificationService {
             Message message = Message.builder()
                     .setToken(receiverFCMToken.getToken())
                     .putAllData(data) // 전체 데이터를 메시지에 포함
-                    // 웹 푸시 특화 설정 시작
-                    .setWebpushConfig(WebpushConfig.builder()
-                            .setNotification(WebpushNotification.builder()
-                                    .putCustomData(DataKey.CODE, data.get(DataKey.CODE))
-                                    .setTitle(data.get(DataKey.TITLE))
-                                    .setBody(data.get(DataKey.BODY))
-                                    // 발신자 정보 추가 (알림 처리 시 필요)
-                                    .putCustomData(DataKey.SENDER_ID, data.get(DataKey.SENDER_ID))
-                                    .build())
-                            .build())
                     .build();
             try {
                 firebaseMessaging.sendAsync(message);
