@@ -33,8 +33,8 @@ const closeModal = () => {
 };
 
 // ✅ 인원 추가 기능
-const addNewFamily = (newFamily) => {
-  emit("add", newFamily);
-  closeModal();
-};
+// const addNewFamily = (newFamily) => {
+//   emit("add", newFamily);
+//   closeModal();
+// };
 </script>

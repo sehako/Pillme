@@ -130,16 +130,8 @@
         >
           이전
         </BaseButton>
+
         <BaseButton
-          class="flex-1 !min-w-full"
-          textColor="text-white"
-          size="md"
-          type="submit"
-          overrideClass="!bg-[#EF7C8E] hover:!bg-[#E96C7E]"
-        >
-          가입하기
-        </BaseButton>
-        <!-- <BaseButton
           class="flex-1 !min-w-full"
           textColor="text-white"
           size="md"
@@ -148,7 +140,7 @@
           overrideClass="!bg-[#EF7C8E] hover:!bg-[#E96C7E]"
         >
           가입하기
-        </BaseButton> -->
+        </BaseButton>
       </div>
     </form>
   </div>
@@ -157,7 +149,8 @@
 <script setup>
 import { ref } from "vue";
 import { useRouter, useRoute } from "vue-router";
-import { useAuthStore } from "../stores/auth"; // store에서 인증 관련 액션 사용
+import { requestSmsVerification,verifySmsCode } from "../api/auth";
+// import { useAuthStore } from "../stores/auth"; // store에서 인증 관련 액션 사용
 import apiClient from "../api"; // 가입 요청을 위한 apiClient 사용
 import BaseButton from "../components/BaseButton.vue";
 import BaseInput from "../components/BaseInput.vue";
@@ -167,7 +160,7 @@ import logoSrc from "../assets/logi_nofont.svg";
 
 const router = useRouter();
 const route = useRoute();
-const authStore = useAuthStore();
+// const authStore = useAuthStore();
 
 const name = ref("");
 const nickname = ref("");
@@ -189,13 +182,12 @@ const goBack = () => {
   router.back();
 };
 
-// SMS 인증번호 요청 함수 (stores/auth 액션 활용)
 const sendVerificationCode = async () => {
   isSending.value = true;
   verificationMessage.value = null;
   try {
     console.log("📨 SMS 인증번호 요청 데이터:", { phoneNumber: phone.value });
-    const success = await authStore.requestPhoneVerification(phone.value);
+    const success = await requestSmsVerification(phone.value);
     if (success) {
       verificationMessage.value = "SMS 인증번호 발송 성공";
       verificationSuccess.value = true;
@@ -217,7 +209,7 @@ const verifyCode = async () => {
   authVerificationMessage.value = null;
   try {
     console.log("📨 인증번호 확인 요청 데이터:", { phoneNumber: phone.value, code: authCode.value });
-    const success = await authStore.verifyPhoneCode(phone.value, authCode.value);
+    const success = await verifySmsCode(phone.value, authCode.value);
     if (success) {
       authVerificationSuccess.value = true;
       authVerificationMessage.value = "전화번호 인증이 완료되었습니다.";

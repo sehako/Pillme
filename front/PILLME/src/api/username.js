@@ -15,9 +15,7 @@ export const fetchUsername = async () => {
 
     // ✅ API 요청 시 `Authorization: Bearer {token}` 추가
     const response = await apiClient.get('/api/v1/members/me', {
-      headers: {
-        'Authorization': `Bearer ${token}`
-      }
+
     });
 
     return response.data.result.name;

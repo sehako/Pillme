@@ -108,16 +108,25 @@
 
 <script setup>
 import { ref } from 'vue';
-import { addLocalMember } from '../api/add_localmember';
+import { addLocalMember } from '../api/addlocalmember';
+
+// const Token = localStorage.getItem("accessToken"); // 문자열 가져오기
+// const userInfo = userInfoString ? JSON.parse(userInfoString) : null; // JSON 변환
+// const memberId = userInfo?.memberId || null; // memberId 가져오기
+
+// console.log("📌 memberId:", memberId);
 
 // ✅ 부모로 이벤트 전달
-const emit = defineEmits(["addMember"]);
+const emit = defineEmits(["add"]);
 
 // ✅ 회원/비회원 선택
 const type = ref("guest");
 const guestInfo = ref({ name: "", birthdate: "", gender: "" });
 const memberPhone = ref("");
 const verificationError = ref("");
+
+// ✅ 비동기 요청 상태 관리
+const isLoading = ref(false); // 로딩 상태 추가
 
 // ✅ 회원/비회원 토글
 const setType = (selectedType) => {
@@ -137,11 +146,15 @@ const formatBirthdate = () => {
   guestInfo.value.birthdate = value.slice(0, 10); // YYYY-MM-DD 형식 유지
 };
 
-// ✅ 비회원 가입 요청
+// ✅ 비회원 가입 요청 (비동기 처리 개선)
 const submitForm = async () => {
+  if (isLoading.value) return; // 중복 실행 방지
+  isLoading.value = true; // 로딩 시작
+
   if (type.value === "guest") {
     if (!guestInfo.value.name || !guestInfo.value.birthdate || !guestInfo.value.gender) {
       alert("모든 정보를 입력해주세요.");
+      isLoading.value = false;
       return;
     }
 
@@ -149,23 +162,28 @@ const submitForm = async () => {
     const cleanBirthday = guestInfo.value.birthdate.replace(/-/g, '');
 
     try {
-      const response = await addLocalMember({
+      await addLocalMember({
         name: guestInfo.value.name,
         gender: guestInfo.value.gender, // 이미 M, F로 변환됨
         birthday: cleanBirthday,
+        // Token: Token,
       });
 
       alert("비회원 추가가 완료되었습니다.");
-      emit("addMember", response);
+      emit("add"); // 이벤트 전송 (변경됨)
     } catch (error) {
-      alert("비회원 추가에 실패했습니다.");
+      console.error("❌ 비회원 추가 실패:", error);
+      alert("비회원 추가에 실패했습니다. 다시 시도해주세요.");
     }
   } else {
     if (!memberPhone.value || verificationError.value) {
       alert("회원 추가를 위해 인증을 완료해주세요.");
+      isLoading.value = false;
       return;
     }
-    emit("addMember", { type: "member", phone: memberPhone.value });
+    emit("add", { type: "member", phone: memberPhone.value });
   }
+
+  isLoading.value = false; // 로딩 종료
 };
 </script>
