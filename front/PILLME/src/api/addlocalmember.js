@@ -1,15 +1,25 @@
 import apiClient from "./index";
 
-export const addLocalMember = async ({ name, gender, birthday }) => {
+export const addLocalMember = async ({ name, gender, birthday,
+  //  member
+  // Token
+   }) => {
   try {
     // ✅ 요청 데이터 확인
-    console.log("📤 비회원 추가 요청 데이터:", { name, gender, birthday });
 
+    console.log("📤 비회원 추가 요청 데이터:", { name, gender, birthday,
+      //  member
+      // Token
+      });
     const response = await apiClient.post("/api/v1/dependency/local-member", {
       name,
       gender,
       birthday,
-    });
+      // member,
+      // Token,
+    }, 
+    // {memberId}
+  );
 
     console.log("✅ 비회원 추가 성공:", response.data);
     return response.data;

@@ -106,6 +106,7 @@ export const saveAccessToken = (accessToken) => {
   const expiryTime = new Date().getTime() + 30 * 60 * 1000; // 현재 시간 + 30분
   localStorage.setItem("accessToken", accessToken);
   localStorage.setItem("accessTokenExpiry", expiryTime);
+  localStorage.setItem("userInfo", JSON.stringify(decodeToken(accessToken)));
 };
 
 /**
