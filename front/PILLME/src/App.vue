@@ -62,7 +62,7 @@ const isRouteReady = ref(true);
 
 // 특정 라우트에서 스크롤 허용
 const isScrollAllowed = ref(false);
-const alwaysScrollablePages = ['/afteraccount', '/']; // 특정 경로 허용
+const alwaysScrollablePages = ['/afteraccount', '/','/notificationlist']; // 특정 경로 허용
 
 watch(() => route.path, async () => {
   isRouteReady.value = false;
