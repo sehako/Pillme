@@ -80,7 +80,11 @@ import WhiteCard from '../layout/WhiteCard.vue';
 import HamBugerMenu from '../components/HamBugerMenu.vue';
 import NameDropdown from '../components/NameDropdown.vue';
 import FamilyAddModal from '../components/FamilyAddModal.vue';
+import { useFCM } from '../utils/usefcm';
 // 필요에 따라 VCalendar 컴포넌트도 import 합니다.
+
+const { getFCMToken } = useFCM();
+
 
 // ✅ 모달 상태 관리
 const isFamilyModalOpen = ref(false);
@@ -175,8 +179,17 @@ const completeMedications = async () => {
 };
 
 // 컴포넌트가 마운트되면 오늘의 복약 내역과 알림 설정을 가져옵니다.
-onMounted(() => {
+onMounted(async () => {
+  // 약 복용 정보와 알림 설정을 불러옵니다.
   fetchTodaysMedications();
   notificationStore.fetchNotificationSettings();
+
+  // FCM 토큰을 가져오는 비동기 작업을 시도합니다.
+  try {
+    await getFCMToken();
+  } catch (error) {
+    console.error('FCM 초기화 실패:', error);
+  }
 });
+
 </script>

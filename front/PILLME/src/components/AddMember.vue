@@ -78,15 +78,15 @@
           14세 이상 회원 추가는 동의 요청 및 승인 과정을 거쳐야 합니다.
         </p>
 
-        <!-- ✅ 전화번호 입력 & 인증 요청 -->
-        <div class="flex items-center justify-between border-b border-gray-300 py-2">
+        <!-- ✅ 전화번호 입력 & 회원등록 요청 (세로 배치) -->
+        <div class="flex flex-col space-y-2 border-b border-gray-300 py-2">
           <input v-model="memberPhone" 
                  type="tel" 
                  placeholder="상대방 전화번호 인증"
                  class="w-full text-gray-500 focus:outline-none focus:border-[#3D5A3F]" />
           <button @click="verifyPhone" 
-                  class="px-4 py-2 bg-[#4E7351] text-white rounded-lg hover:bg-[#3D5A3F] whitespace-nowrap">
-            인증
+                  class="w-full px-4 py-2 bg-[#4E7351] text-white rounded-lg hover:bg-[#3D5A3F]">
+            회원등록 요청
           </button>
         </div>
 
@@ -95,11 +95,11 @@
       </div>
     </div>
 
-    <!-- ✅ 버튼 -->
-    <div class="p-4 w-full max-w-sm">
+    <!-- ✅ 하단 버튼: 비회원일 때만 표시 -->
+    <div v-if="type === 'guest'" class="p-4 w-full max-w-sm">
       <button @click="submitForm" 
               class="w-full py-3 bg-gray-100 text-[#4E7351] rounded-full text-lg font-semibold hover:bg-gray-200">
-        {{ type === 'guest' ? '완료' : '인증 완료' }}
+        완료
       </button>
     </div>
 
@@ -109,47 +109,41 @@
 <script setup>
 import { ref } from 'vue';
 import { addLocalMember } from '../api/addlocalmember';
+import { addMemberAlarm } from '../api/addmember';
 
-// const Token = localStorage.getItem("accessToken"); // 문자열 가져오기
-// const userInfo = userInfoString ? JSON.parse(userInfoString) : null; // JSON 변환
-// const memberId = userInfo?.memberId || null; // memberId 가져오기
-
-// console.log("📌 memberId:", memberId);
-
-// ✅ 부모로 이벤트 전달
 const emit = defineEmits(["add"]);
 
-// ✅ 회원/비회원 선택
+// 회원/비회원 선택
 const type = ref("guest");
 const guestInfo = ref({ name: "", birthdate: "", gender: "" });
 const memberPhone = ref("");
 const verificationError = ref("");
 
-// ✅ 비동기 요청 상태 관리
-const isLoading = ref(false); // 로딩 상태 추가
+// 비동기 요청 상태 관리
+const isLoading = ref(false);
 
-// ✅ 회원/비회원 토글
+// 회원/비회원 토글
 const setType = (selectedType) => {
   type.value = selectedType;
 };
 
-// ✅ 성별 선택 (M, F로 저장)
+// 성별 선택 (M, F)
 const setGender = (gender) => {
   guestInfo.value.gender = gender;
 };
 
-// ✅ 생년월일 입력 포맷팅 (YYYY-MM-DD)
+// 생년월일 입력 포맷팅 (YYYY-MM-DD)
 const formatBirthdate = () => {
-  let value = guestInfo.value.birthdate.replace(/\D/g, ''); // 숫자만 입력 가능
+  let value = guestInfo.value.birthdate.replace(/\D/g, '');
   if (value.length > 4) value = `${value.slice(0, 4)}-${value.slice(4)}`;
   if (value.length > 7) value = `${value.slice(0, 7)}-${value.slice(7)}`;
-  guestInfo.value.birthdate = value.slice(0, 10); // YYYY-MM-DD 형식 유지
+  guestInfo.value.birthdate = value.slice(0, 10);
 };
 
-// ✅ 비회원 가입 요청 (비동기 처리 개선)
+// 비회원/회원 가입 요청 (비동기 처리)
 const submitForm = async () => {
-  if (isLoading.value) return; // 중복 실행 방지
-  isLoading.value = true; // 로딩 시작
+  if (isLoading.value) return;
+  isLoading.value = true;
 
   if (type.value === "guest") {
     if (!guestInfo.value.name || !guestInfo.value.birthdate || !guestInfo.value.gender) {
@@ -157,33 +151,49 @@ const submitForm = async () => {
       isLoading.value = false;
       return;
     }
-
-    // ✅ birthday에서 "-" 제거 후 API 요청
     const cleanBirthday = guestInfo.value.birthdate.replace(/-/g, '');
 
     try {
       await addLocalMember({
         name: guestInfo.value.name,
-        gender: guestInfo.value.gender, // 이미 M, F로 변환됨
+        gender: guestInfo.value.gender,
         birthday: cleanBirthday,
-        // Token: Token,
       });
 
       alert("비회원 추가가 완료되었습니다.");
-      emit("add"); // 이벤트 전송 (변경됨)
+      emit("add");
     } catch (error) {
       console.error("❌ 비회원 추가 실패:", error);
       alert("비회원 추가에 실패했습니다. 다시 시도해주세요.");
-    }
-  } else {
-    if (!memberPhone.value || verificationError.value) {
-      alert("회원 추가를 위해 인증을 완료해주세요.");
-      isLoading.value = false;
-      return;
-    }
-    emit("add", { type: "member", phone: memberPhone.value });
-  }
+    }}};
 
-  isLoading.value = false; // 로딩 종료
+const verifyPhone = async () => {
+  if (isLoading.value) return;
+  isLoading.value = true;
+  
+  if (!memberPhone.value) {
+    alert("전화번호를 입력해주세요.");
+    isLoading.value = false;
+    return;
+  }
+  
+  // 보내는 데이터 객체 생성
+  const dataToSend = { phone: memberPhone.value };
+  
+  // 디버깅 로그: 전송할 데이터 출력
+  console.log("디버깅 로그 - addMemberAlarm에 보내는 데이터:", dataToSend);
+
+  try {
+    console.log("📨 회원 추가 알림 요청:", memberPhone.value);
+    await addMemberAlarm(dataToSend);
+    alert("상대방이 요청을 수락하면 나의 가족 목록에서 확인하실 수 있습니다.");
+  } catch (error) {
+    console.error("❌ 회원 추가 알림 실패:", error);
+    alert("회원 추가 알림 요청에 실패했습니다. 다시 시도해주세요.");
+  }
+  
+  isLoading.value = false;
 };
+
+
 </script>
