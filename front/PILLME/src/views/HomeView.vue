@@ -1,7 +1,8 @@
 <template>
   <div class="flex flex-col w-full">
-    <undertopbar class="bg-[#B5CCB7] rounded-bl-xl rounded-br-lg">
+    <div class="bg-[#B5CCB7] rounded-bl-xl rounded-br-lg">
       <div class="flex flex-row items-center justify-between px-4 py-1">
+        <!-- 베이스탑바 바로 밑의 바임 -->
         <!-- ✅ 햄버거 메뉴 컴포넌트 -->
         <div class="flex-1 flex">
           <HamBugerMenu />
@@ -13,7 +14,7 @@
         <!-- ✅ 공백 (햄버거 아이콘과 크기 맞춤) -->
         <div class="flex-1"></div>
       </div>
-    </undertopbar>
+    </div>
 
     <div class="grid gap-4 grid-cols-3 p-4">
       <BaseButton class="whitespace-nowrap text-lg font-base" @click="openFamilyModal">
@@ -27,7 +28,7 @@
       </BaseButton>
     </div>
 
-    <mainview>
+    <main>
       <!-- 오늘의 복약 내역 카드 -->
       <YellowCard class="m-4 flex flex-col">
         <div class="flex flex-row items-end">
@@ -64,7 +65,7 @@
       <div class="m-4 flex flex-col">
         <VCalendar class="w-full"/>
       </div>
-    </mainview>
+    </main>
   </div>
   <FamilyAddModal :isOpen="isFamilyModalOpen" @close="isFamilyModalOpen = false" />
 </template>
@@ -82,7 +83,9 @@ import NameDropdown from '../components/NameDropdown.vue';
 import FamilyAddModal from '../components/FamilyAddModal.vue';
 import { useFCM } from '../utils/usefcm';
 // 필요에 따라 VCalendar 컴포넌트도 import 합니다.
-
+defineProps({
+  navbarHeight: Number, // ✅ props 정의
+});
 const { getFCMToken } = useFCM();
 
 
