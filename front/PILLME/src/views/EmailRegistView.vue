@@ -90,8 +90,8 @@
 <script setup>
 import { ref, computed } from "vue";
 import { useRouter } from "vue-router";
-import { useAuthStore } from "../stores/auth"; // ✅ Pinia Store import 확인
-import { requestEmailVerification } from "../api/auth";
+// import { requestSmsVerification } from "../api/auth";
+import { requestEmailVerification,verifyEmailCode } from "../api/auth";
 import BaseButton from "../components/BaseButton.vue";
 import BaseInput from "../components/BaseInput.vue";
 import BaseLogo from "../components/BaseLogo.vue";
@@ -99,9 +99,8 @@ import BaseText from "../components/BaseText.vue";
 import logoSrc from "../assets/logi_nofont.svg";
 
 const router = useRouter();
-const authStore = useAuthStore();
+// import { addLocalMember } from '../api/addlocalmember';
 
-console.log("🛠 authStore 객체:", authStore); // ✅ 로그 추가하여 확인
 
 const email = ref("");
 const emailAuthCode = ref("");
@@ -182,7 +181,7 @@ const verifyCode = async () => {
   console.log("📩 인증번호 검증 시작:", { email: email.value.trim(), code: emailAuthCode.value.trim() });
 
   try {
-    const success = await authStore.verifyEmail(email.value.trim(), emailAuthCode.value.trim());
+    const success = await verifyEmailCode(email.value.trim(), emailAuthCode.value.trim());
 
     if (success) {
       verificationSuccess.value = true;
