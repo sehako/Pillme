@@ -60,7 +60,7 @@ const router = useRouter();
 
 // props로 채팅방 ID 받기 (채팅방 번호와 연동)
 const props = defineProps({
-  id: String
+  info: Object
 });
 
 // 채팅창 스크롤 관련 변수
