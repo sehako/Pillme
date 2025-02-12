@@ -62,12 +62,12 @@
 
       <!-- 자기 전 알림 -->
       <div>
-        <label for="bedtime" class="block mb-1 font-medium">자기 전 알림 시간</label>
+        <label for="sleep" class="block mb-1 font-medium">자기 전 알림 시간</label>
         <input 
-          id="bedtime"
+          id="sleep"
           type="time" 
-          v-model="bedtimeTime" 
-          @change="updateTime('bedtime', bedtimeTime)"
+          v-model="sleep" 
+          @change="updateTime('sleep', sleep)"
           :disabled="!notificationSettings.enabled"
           class="border rounded p-2 w-full"
         />
@@ -95,7 +95,7 @@ const notificationSettings = reactive({
   morning: null,      // 아침 알림 시간
   lunch: null,        // 점심 알림 시간
   dinner: null,       // 저녁 알림 시간
-  bedtime: null,      // 자기 전 알림 시간
+  sleep: null,      // 자기 전 알림 시간
   settingsCreated: false
 });
 
@@ -119,7 +119,7 @@ const loadNotificationSettings = async () => {
     notificationSettings.morning = formatTime(data.morning);
     notificationSettings.lunch = formatTime(data.lunch);
     notificationSettings.dinner = formatTime(data.dinner);
-    notificationSettings.bedtime = formatTime(data.sleep);
+    notificationSettings.sleep = formatTime(data.sleep);
     notificationSettings.settingsCreated = true;
     notificationSettings.enabled = true; // ✅ 성공 시 알림 활성화
   } catch (error) {
@@ -160,12 +160,12 @@ const dinnerTime = computed({
   }
 });
 
-const bedtimeTime = computed({
+const sleep = computed({
   get() {
-    return notificationSettings.bedtime === null ? '00:00' : notificationSettings.bedtime;
+    return notificationSettings.sleep === null ? '00:00' : notificationSettings.sleep;
   },
   set(value) {
-    notificationSettings.bedtime = value;
+    notificationSettings.sleep = value;
   }
 });
 
@@ -182,7 +182,7 @@ const toggleNotificationSetting = async () => {
         morning: morningTime.value === "00:00" ? null : morningTime.value,
         lunch: lunchTime.value === "00:00" ? null : lunchTime.value,
         dinner: dinnerTime.value === "00:00" ? null : dinnerTime.value,
-        sleep: bedtimeTime.value === "00:00" ? null : bedtimeTime.value,
+        sleep: sleep.value === "00:00" ? null : sleep.value,
       };
 
       // 활성화 → POST 요청
