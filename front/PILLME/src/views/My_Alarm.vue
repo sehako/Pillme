@@ -21,53 +21,13 @@
 
     <!-- 알림 설정 폼 -->
     <div class="space-y-4">
-      <!-- 아침 알림 -->
-      <div>
-        <label for="morning" class="block mb-1 font-medium">아침 알림 시간</label>
+      <div v-for="(label, key) in alarmLabels" :key="key">
+        <label :for="key" class="block mb-1 font-medium">{{ label }}</label>
         <input 
-          id="morning"
+          :id="key"
           type="time" 
-          v-model="morningTime" 
-          @change="updateTime('morning', morningTime)"
-          :disabled="!notificationSettings.enabled"
-          class="border rounded p-2 w-full"
-        />
-      </div>
-
-      <!-- 점심 알림 -->
-      <div>
-        <label for="lunch" class="block mb-1 font-medium">점심 알림 시간</label>
-        <input 
-          id="lunch"
-          type="time" 
-          v-model="lunchTime" 
-          @change="updateTime('lunch', lunchTime)"
-          :disabled="!notificationSettings.enabled"
-          class="border rounded p-2 w-full"
-        />
-      </div>
-
-      <!-- 저녁 알림 -->
-      <div>
-        <label for="dinner" class="block mb-1 font-medium">저녁 알림 시간</label>
-        <input 
-          id="dinner"
-          type="time" 
-          v-model="dinnerTime" 
-          @change="updateTime('dinner', dinnerTime)"
-          :disabled="!notificationSettings.enabled"
-          class="border rounded p-2 w-full"
-        />
-      </div>
-
-      <!-- 자기 전 알림 -->
-      <div>
-        <label for="bedtime" class="block mb-1 font-medium">자기 전 알림 시간</label>
-        <input 
-          id="bedtime"
-          type="time" 
-          v-model="bedtimeTime" 
-          @change="updateTime('bedtime', bedtimeTime)"
+          v-model="alarmTimes[key]" 
+          @change="updateTime(key, alarmTimes[key])"
           :disabled="!notificationSettings.enabled"
           class="border rounded p-2 w-full"
         />
@@ -87,110 +47,83 @@ import {
 } from '../api/setalarm';
 
 // ✅ 불필요한 자동 요청 방지용 플래그
-const isLoading = ref(true); // 최초에는 로딩 상태로 설정
+const isLoading = ref(true); // 로딩 중 여부
+const fetchFailed = ref(false); // fetch 실패 여부
 
-// 로컬 상태로 알림 설정 기본값 관리 (기본값은 null로 설정)
+// ✅ 알림 설정 상태
 const notificationSettings = reactive({
   enabled: false,     // 알림 활성화 여부
-  morning: null,      // 아침 알림 시간
-  lunch: null,        // 점심 알림 시간
-  dinner: null,       // 저녁 알림 시간
-  bedtime: null,      // 자기 전 알림 시간
-  settingsCreated: false
+  settingsCreated: false // 알림 설정이 생성된 상태인지
 });
+
+// ✅ 알람 시간 데이터 (computed 사용 X → reactive 사용)
+const alarmTimes = reactive({
+  morning: null, 
+  lunch: null, 
+  dinner: null, 
+  sleep: null
+});
+
+// ✅ 알람 시간 라벨 매핑
+const alarmLabels = {
+  morning: "아침 알림 시간",
+  lunch: "점심 알림 시간",
+  dinner: "저녁 알림 시간",
+  sleep: "자기 전 알림 시간"
+};
 
 // ✅ fetchNotificationSettings 실행
 const loadNotificationSettings = async () => {
   try {
     const data = await fetchNotificationSettings();
 
-    // ✅ 배열이면 "HH:MM" 형식으로 변환, 아니라면 그대로 사용
-    const formatTime = (value) => {
-      if (Array.isArray(value) && value.length === 2) {
-        // 시간이 1자리면 앞에 0 붙이기 (01:03 형식 유지)
-        const hours = String(value[0]).padStart(2, "0");
-        const minutes = String(value[1]).padStart(2, "0");
-        return `${hours}:${minutes}`;
-      }
-      return value ?? "00:00"; // null일 경우 "00:00" 설정
-    };
+    // ✅ 데이터 그대로 적용
+    alarmTimes.morning = data.morning;
+    alarmTimes.lunch = data.lunch;
+    alarmTimes.dinner = data.dinner;
+    alarmTimes.sleep = data.bedtime;
 
-    // ✅ 데이터 변환 적용
-    notificationSettings.morning = formatTime(data.morning);
-    notificationSettings.lunch = formatTime(data.lunch);
-    notificationSettings.dinner = formatTime(data.dinner);
-    notificationSettings.bedtime = formatTime(data.sleep);
     notificationSettings.settingsCreated = true;
-    notificationSettings.enabled = true; // ✅ 성공 시 알림 활성화
+
+    // ✅ null이 아닌 값이 하나라도 있으면 활성화 상태로 표시
+    const hasActiveAlarm = Object.values(alarmTimes).some(time => time !== null);
+    notificationSettings.enabled = hasActiveAlarm;
+    fetchFailed.value = false; // 성공 시 fetchFailed 초기화
+
   } catch (error) {
     console.error("🚨 알림 설정 로드 실패:", error);
-    notificationSettings.enabled = false; // ✅ 실패 시 비활성화
+    fetchFailed.value = true; // 실패 시 fetchFailed 설정
+    notificationSettings.enabled = false;
     notificationSettings.settingsCreated = false;
   } finally {
-    isLoading.value = false; // ✅ 설정 불러오기가 완료된 후, isLoading을 false로 설정
+    isLoading.value = false; // ✅ 로딩 완료
   }
 };
 
-
-// computed 프로퍼티를 사용하여 null일 때는 '00:00'으로 표시
-const morningTime = computed({
-  get() {
-    return notificationSettings.morning === null ? '00:00' : notificationSettings.morning;
-  },
-  set(value) {
-    notificationSettings.morning = value;
-  }
-});
-
-const lunchTime = computed({
-  get() {
-    return notificationSettings.lunch === null ? '00:00' : notificationSettings.lunch;
-  },
-  set(value) {
-    notificationSettings.lunch = value;
-  }
-});
-
-const dinnerTime = computed({
-  get() {
-    return notificationSettings.dinner === null ? '00:00' : notificationSettings.dinner;
-  },
-  set(value) {
-    notificationSettings.dinner = value;
-  }
-});
-
-const bedtimeTime = computed({
-  get() {
-    return notificationSettings.bedtime === null ? '00:00' : notificationSettings.bedtime;
-  },
-  set(value) {
-    notificationSettings.bedtime = value;
-  }
-});
-
-// ✅ 체크박스 변경 시 자동 요청 (불필요한 요청 방지)
-const toggleNotificationSetting = async () => {
+// ✅ 체크박스 클릭 시에만 자동 요청 실행 + 기본값 설정
+const toggleNotificationSetting = async (event) => {
   if (isLoading.value) {
     console.log('⏳ 알림 설정 로드 중, 자동 요청 방지');
-    return; // ✅ 설정이 로딩 중이면 실행하지 않음
+    return;
+  }
+
+  if (!event.isTrusted) {
+    // ✅ 불러온 데이터에 의해 변경된 경우에는 실행하지 않음
+    return;
   }
 
   try {
     if (notificationSettings.enabled) {
-      const requestData = {
-        morning: morningTime.value === "00:00" ? null : morningTime.value,
-        lunch: lunchTime.value === "00:00" ? null : lunchTime.value,
-        dinner: dinnerTime.value === "00:00" ? null : dinnerTime.value,
-        sleep: bedtimeTime.value === "00:00" ? null : bedtimeTime.value,
-      };
+      // ✅ 모든 값이 null이면 하나만 기본값 "00:00"으로 설정
+      if (Object.values(alarmTimes).every(time => time === null)) {
+        alarmTimes.morning = "00:00"; // 기본값 설정
+      }
 
-      // 활성화 → POST 요청
+      const requestData = { ...alarmTimes };
       await createNotificationSetting(requestData);
       notificationSettings.settingsCreated = true;
       console.log('✅ 알림 설정 활성화됨', requestData);
     } else {
-      // 비활성화 → DELETE 요청
       if (notificationSettings.settingsCreated) {
         await deleteNotificationSetting();
         notificationSettings.settingsCreated = false;
@@ -206,9 +139,7 @@ const toggleNotificationSetting = async () => {
 const updateTime = async (field, value) => {
   try {
     if (notificationSettings.settingsCreated) {
-      const requestData = { [field]: value === "00:00" ? null : value };
-
-      // PUT 요청으로 개별 시간 업데이트
+      const requestData = { [field]: value };
       await updateNotificationSetting(requestData);
       console.log(`⏰ ${field} 알림 시간이 ${value}로 업데이트됨`);
     }

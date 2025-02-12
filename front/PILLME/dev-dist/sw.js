@@ -67,7 +67,7 @@ if (!self.define) {
     });
   };
 }
-define(['./workbox-6e3ea3cf'], (function (workbox) { 'use strict';
+define(['./workbox-54d0af47'], (function (workbox) { 'use strict';
 
   self.skipWaiting();
   workbox.clientsClaim();
@@ -82,39 +82,11 @@ define(['./workbox-6e3ea3cf'], (function (workbox) { 'use strict';
     "revision": "3ca0b8505b4bec776b69afdba2768812"
   }, {
     "url": "index.html",
-    "revision": "0.qiqphfsi0g"
+    "revision": "0.m1979svdbvg"
   }], {});
   workbox.cleanupOutdatedCaches();
   workbox.registerRoute(new workbox.NavigationRoute(workbox.createHandlerBoundToURL("index.html"), {
     allowlist: [/^\/$/]
   }));
-  workbox.registerRoute(/^\/(calendar|home)$/, new workbox.StaleWhileRevalidate({
-    "cacheName": "allowed-pages",
-    plugins: [new workbox.ExpirationPlugin({
-      maxEntries: 10,
-      maxAgeSeconds: 2592000
-    })]
-  }), 'GET');
-  workbox.registerRoute(/\/api\/.*$/, new workbox.NetworkFirst({
-    "cacheName": "api-data",
-    "networkTimeoutSeconds": 5,
-    plugins: [new workbox.ExpirationPlugin({
-      maxEntries: 10,
-      maxAgeSeconds: 300
-    })]
-  }), 'GET');
-  workbox.registerRoute(/\.(?:js|css|html|png|svg)$/, new workbox.CacheFirst({
-    "cacheName": "static-resources",
-    plugins: [new workbox.ExpirationPlugin({
-      maxEntries: 30,
-      maxAgeSeconds: 604800
-    })]
-  }), 'GET');
-  workbox.registerRoute(({
-    url
-  }) => !/^\/(calendar|home)$/.test(url.pathname), new workbox.NetworkOnly({
-    "cacheName": "offline-pages",
-    plugins: []
-  }), 'GET');
 
 }));
