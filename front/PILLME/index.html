@@ -58,7 +58,7 @@
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
           navigator.serviceWorker
-            .register('/sw.js')  // 🔹 서비스 워커 파일이 sw.js인지 확인 필요!
+            .register('/registerSW.js')  // 🔹 서비스 워커 파일이 sw.js인지 확인 필요!
             .then((registration) => {
               console.log('[PWA] 서비스 워커 등록 완료:', registration);
             })
