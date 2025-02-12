@@ -31,20 +31,26 @@
     <main>
       <!-- 오늘의 복약 내역 카드 -->
       <YellowCard class="m-4 flex flex-col">
-        <div class="flex flex-row items-end">
-          <p class="text-sm font-bold">오늘의 복약 내역</p>
-          <span class="text-xs ml-2">
-            <!-- 백엔드에서 받아온 약물 리스트가 있으면 약물명을 표시 -->
-            {{ todaysMedications.length > 0 ? todaysMedications.map(med => med.name).join(', ') : "약정보 없음" }}
-          </span>
-        </div>
-        <div class="flex flex-row items-end">
-          <!-- store에서 가져온 알림시간을 기준으로 현재 시간대(예: 아침, 점심 등)를 동적으로 표시 -->
-          <p class="font-bold text-lg">{{ currentTimePeriod }} 약을 드셨나요?</p>
-          <!-- 체크 아이콘 클릭 시 복약 완료 처리 -->
-          <img src="../assets/CheckCircle.svg" alt="약물복용체크" @click="completeMedications" class="cursor-pointer">
-        </div>
-      </YellowCard>
+  <div class="flex flex-row items-end">
+    <p class="text-sm font-bold">오늘의 복약 내역</p>
+    <span class="text-xs ml-2">
+      <template v-if="fetchFailed">
+        마이페이지에서 알림 설정을 해야 오늘의 복약 알림을 받을 수 있습니다.
+      </template>
+      <template v-else>
+        {{ todaysMedications.length > 0 ? todaysMedications.map(med => med.name).join(', ') : "약정보 없음" }}
+      </template>
+    </span>
+  </div>
+  <div class="flex flex-row items-end">
+    <p class="font-bold text-lg">
+      {{ fetchFailed ? '' : `${currentTimePeriod} 약을 드셨나요?` }}
+    </p>
+    <img v-if="!fetchFailed" src="../assets/CheckCircle.svg" alt="약물복용체크" @click="completeMedications" class="cursor-pointer">
+  </div>
+</YellowCard>
+
+
 
       <!-- 복용 내역 카드 (예시) -->
       <div class="m-4 flex flex-col">
@@ -71,9 +77,10 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
-import { useNotificationSettingsStore } from '../stores/notificationSettingsStore';
-import { storeToRefs } from 'pinia';
+import { ref, computed, onMounted, reactive } from 'vue';
+// import { useNotificationSettingsStore } from '../stores/notificationSettingsStore';
+import { fetchNotificationSettings } from '../api/setalarm';
+// import { storeToRefs } from 'pinia';
 
 import BaseButton from '../components/BaseButton.vue';
 import YellowCard from '../layout/YellowCard.vue';
@@ -89,48 +96,81 @@ defineProps({
 const { getFCMToken } = useFCM();
 
 
+// 알림 설정 상태 (기본값은 null)
+const notificationSettings = reactive({
+  morning: null,
+  lunch: null,
+  dinner: null,
+  bedtime: null,
+  notificationId: null // 응답에 포함된 notificationId 저장
+});
+
+const fetchFailed = ref(false); // 알림 설정 불러오기 실패 여부
+
+// 서버에서 알림 설정 정보를 불러오는 함수
+const loadNotificationSettings = async () => {
+  try {
+    const data = await fetchNotificationSettings();
+    notificationSettings.morning = data.morning ?? '00:00'; // null일 경우 00:00 설정
+    notificationSettings.lunch = data.lunch ?? '00:00';
+    notificationSettings.dinner = data.dinner ?? '00:00';
+    notificationSettings.bedtime = data.sleep ?? '00:00';
+    notificationSettings.notificationId = data.notificationId ?? null;
+    fetchFailed.value = false; // 성공하면 false
+  } catch (error) {
+    console.error('🚨 알림 설정 로드 실패:', error);
+    fetchFailed.value = true; // 실패하면 true
+  }
+};
+
+
+
 // ✅ 모달 상태 관리
 const isFamilyModalOpen = ref(false);
 const openFamilyModal = () => {
   isFamilyModalOpen.value = true;
 };
 
-// Pinia 스토어에서 알림 설정 정보를 불러옴
-const notificationStore = useNotificationSettingsStore();
-const { notificationSettings } = storeToRefs(notificationStore);
-
+// ✅ 외부 클릭 감지 함수
+const handleClickOutside = (event) => {
+  // 예를 들어 특정 모달이 열려 있을 때, 모달 외부를 클릭하면 닫히도록 처리 가능
+  if (isFamilyModalOpen.value) {
+    const modal = document.querySelector('.modal-class'); // 모달 요소 선택 (클래스는 실제 모달 클래스에 맞게 변경)
+    if (modal && !modal.contains(event.target)) {
+      isFamilyModalOpen.value = false;
+    }
+  }
+};
 // 현재 시간대를 계산하는 computed 속성 (store의 알림 설정 값을 사용)
+// 현재 시간대를 계산하는 computed 속성 (알림 설정 값을 기준으로 구분)
 const currentTimePeriod = computed(() => {
   const now = new Date();
   const currentMinutes = now.getHours() * 60 + now.getMinutes();
 
-  // 문자열 "HH:MM"을 분으로 변환하는 함수
+  // 문자열 "HH:MM"을 분 단위로 변환하는 함수
   const parseTime = (timeStr) => {
+    if (!timeStr) return null;
     const [hour, minute] = timeStr.split(':').map(Number);
     return hour * 60 + minute;
   };
 
-  // store에서 불러온 알림 시간 (기본값 제공)
-  const morningTime = notificationSettings.value.morning || "07:00";
-  const lunchTime = notificationSettings.value.lunch || "12:00";
-  const dinnerTime = notificationSettings.value.dinner || "18:00";
-  const bedtimeTime = notificationSettings.value.bedtime || "22:00";
+  // 알림 설정에서 받아온 시간 (기본값 제공)
+  const morningMinutes = parseTime(notificationSettings.morning ?? "07:00");
+  const lunchMinutes = parseTime(notificationSettings.lunch ?? "12:00");
+  const dinnerMinutes = parseTime(notificationSettings.dinner ?? "18:00");
+  const bedtimeMinutes = parseTime(notificationSettings.bedtime ?? "22:00");
 
-  const morningMinutes = parseTime(morningTime);
-  const lunchMinutes = parseTime(lunchTime);
-  const dinnerMinutes = parseTime(dinnerTime);
-  const bedtimeMinutes = parseTime(bedtimeTime);
-
-  if (currentMinutes >= morningMinutes && currentMinutes < lunchMinutes) {
+  if (morningMinutes !== null && currentMinutes >= morningMinutes && currentMinutes < lunchMinutes) {
     return "아침";
-  } else if (currentMinutes >= lunchMinutes && currentMinutes < dinnerMinutes) {
+  } else if (lunchMinutes !== null && currentMinutes >= lunchMinutes && currentMinutes < dinnerMinutes) {
     return "점심";
-  } else if (currentMinutes >= dinnerMinutes && currentMinutes < bedtimeMinutes) {
+  } else if (dinnerMinutes !== null && currentMinutes >= dinnerMinutes && currentMinutes < bedtimeMinutes) {
     return "저녁";
   } else {
     return "자기전";
   }
 });
+
 // 실제로는 오늘의 날짜 까지 계산해서 그에 해당하는 약물만 백엔드에서 쏴줄거임.
 // 오늘의 날짜를 'YYYY-MM-DD' 형태로 구하는 함수
 const getTodayDate = () => {
@@ -181,18 +221,24 @@ const completeMedications = async () => {
   alert("복약 완료 처리가 완료되었습니다.");
 };
 
-// 컴포넌트가 마운트되면 오늘의 복약 내역과 알림 설정을 가져옵니다.
+// ✅ 컴포넌트가 마운트되면 데이터 및 이벤트 리스너 등록
 onMounted(async () => {
-  // 약 복용 정보와 알림 설정을 불러옵니다.
+  // ✅ 오늘의 복약 내역 불러오기
   fetchTodaysMedications();
-  notificationStore.fetchNotificationSettings();
 
-  // FCM 토큰을 가져오는 비동기 작업을 시도합니다.
+  // ✅ 알림 설정 불러오기
+  await loadNotificationSettings();
+
+  // ✅ 클릭 이벤트 리스너 등록
+  document.addEventListener("click", handleClickOutside);
+
+  // ✅ FCM 토큰 가져오기 (비동기 예외 처리)
   try {
     await getFCMToken();
   } catch (error) {
-    console.error('FCM 초기화 실패:', error);
+    console.error("FCM 초기화 실패:", error);
   }
 });
+
 
 </script>
