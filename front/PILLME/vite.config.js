@@ -3,9 +3,10 @@ import mkcert from 'vite-plugin-mkcert'
 import vue from '@vitejs/plugin-vue';
 import vueDevTools from 'vite-plugin-vue-devtools';
 import { VitePWA } from 'vite-plugin-pwa';
+import { writeFileSync } from 'fs';
 export default defineConfig({
   server: {
-    allowedHosts: "all"
+    allowedHosts: "all",
   },
   
   plugins: [
@@ -15,60 +16,34 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       devOptions: {
-        enabled: false, // 이 부분을 false로 함으로써 개발단계에서 pwa를 사용하지 않음.
-        type: 'module',
-        selfDestroying: true,
-      },
-      includeAssets: ['favicon.ico', 'robots.txt', 'apple-touch-icon.png', 'offline.html'], // ✅ 캐싱할 정적 파일 추가
-      manifest: {
-        name: 'PILLME',
-        short_name: 'PILLME',
-        start_url: '/',
-        display: 'standalone',
-        background_color: '#ffffff',
-        theme_color: '#42b883',
-      },
-      workbox: {
-        globPatterns: [
-          '**/*.{js,css,html,png,svg}', // ✅ 모든 정적 파일 자동 캐싱
-          'offline.html', // ✅ 오프라인 안내 페이지 캐싱
-        ],
-        runtimeCaching: [
-          {
-            urlPattern: /^\/(calendar|home)$/, // ✅ 오프라인에서도 접근 가능한 페이지
-            handler: 'StaleWhileRevalidate', // ✅ 캐시된 데이터 제공 후 최신 데이터 업데이트
-            options: {
-              cacheName: 'allowed-pages',
-              expiration: { maxEntries: 10, maxAgeSeconds: 60 * 60 * 24 * 30 },
-            },
-          },
-          {
-            urlPattern: /\/api\/.*$/, // ✅ API 요청은 항상 최신 데이터 우선
-            handler: 'NetworkFirst',
-            options: {
-              cacheName: 'api-data',
-              expiration: { maxEntries: 10, maxAgeSeconds: 60 * 5 },
-              networkTimeoutSeconds: 5, // ✅ 네트워크가 5초 안에 응답하지 않으면 캐시 사용
-            },
-          },
-          {
-            urlPattern: /\.(?:js|css|html|png|svg)$/, // ✅ 정적 리소스 캐싱
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'static-resources',
-              expiration: { maxEntries: 30, maxAgeSeconds: 60 * 60 * 24 * 7 },
-            },
-          },
-          {
-            urlPattern: ({ url }) => !/^\/(calendar|home)$/.test(url.pathname), // ❌ 허용되지 않은 페이지는 offline.html 제공
-            handler: 'NetworkOnly', // ✅ 인터넷 연결 없을 시 offline.html로 대체
-            options: {
-              cacheName: 'offline-pages',
-            },
-          },
-        ],
-      },
+        enabled: true
+      }
     }),
+
+    {
+      name: 'generate-service-worker',
+      buildStart() {
+        const swContent = `
+          const firebaseConfig = {
+            apiKey: "${process.env.VITE_FIREBASE_API_KEY}",
+            authDomain: "${process.env.VITE_FIREBASE_AUTH_DOMAIN}",
+            projectId: "${process.env.VITE_FIREBASE_PROJECT_ID}",
+            storageBucket: "${process.env.VITE_FIREBASE_STORAGE_BUCKET}",
+            messagingSenderId: "${process.env.VITE_FIREBASE_MESSAGING_SENDER_ID}",
+            appId: "${process.env.VITE_FIREBASE_APP_ID}"
+          };
+
+          importScripts('https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js');
+          importScripts('https://www.gstatic.com/firebasejs/9.0.0/firebase-messaging-compat.js');
+
+          firebase.initializeApp(firebaseConfig);
+          
+          const messaging = firebase.messaging();
+        `;
+
+        writeFileSync('public/firebase-messaging-sw.js', swContent);
+      }
+    },
   ],
   
 });

@@ -1,7 +1,8 @@
 <template>
   <div id="app" class="flex flex-row h-screen-custom">
     <!-- 왼쪽 (PC 전용) -->
-    <div class="hidden md:flex flex-col w-1/2 bg-white items-center justify-center">
+    <div class="hidden md:flex flex-col w-1/2 bg-white items-center justify-center border-r border-gray-300">
+
       <img :src="logo" alt="로고 이미지" class="w-1/2 h-auto" />
       <div>
         <p class="text-4xl">
@@ -62,7 +63,7 @@ const isRouteReady = ref(true);
 
 // 특정 라우트에서 스크롤 허용
 const isScrollAllowed = ref(false);
-const alwaysScrollablePages = ['/afteraccount', '/']; // 특정 경로 허용
+const alwaysScrollablePages = ['/afteraccount', '/','/notificationlist']; // 특정 경로 허용
 
 watch(() => route.path, async () => {
   isRouteReady.value = false;
