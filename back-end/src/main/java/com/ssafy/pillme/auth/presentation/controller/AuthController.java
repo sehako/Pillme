@@ -75,7 +75,6 @@ public class AuthController {
     /**
      * 비밀번호 유효성 검증
      */
-
     @PostMapping("/check/password")
     public ResponseEntity<JSONResponse<Boolean>> checkPasswordValid(
             @RequestParam String password) {
@@ -132,7 +131,7 @@ public class AuthController {
 
     @GetMapping("/check/phone")
     public ResponseEntity<JSONResponse<Boolean>> checkPhoneDuplicate(@RequestParam String phone) {
-        boolean isDuplicate = memberRepository.existsByPhone(phone);
+        boolean isDuplicate = memberRepository.existsByPhoneAndDeletedFalse(phone);
         return ResponseEntity.ok(JSONResponse.onSuccess(isDuplicate));
     }
 }
