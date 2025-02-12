@@ -1,23 +1,21 @@
 package com.ssafy.pillme.auth.presentation.controller;
 
-import com.ssafy.pillme.auth.application.response.MemberResponse;
 import com.ssafy.pillme.auth.application.response.OAuth2Response;
 import com.ssafy.pillme.auth.application.response.TokenResponse;
 import com.ssafy.pillme.auth.application.service.AuthService;
 import com.ssafy.pillme.auth.application.service.OAuth2Service;
-import com.ssafy.pillme.auth.presentation.request.OAuthAdditionalInfoRequest;
 import com.ssafy.pillme.auth.presentation.request.OAuthSignUpRequest;
 import com.ssafy.pillme.global.response.JSONResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 
 @RestController
 @RequestMapping("/api/v1/auth/oauth2")
@@ -30,7 +28,7 @@ public class OAuth2Controller {
      * 구글 OAuth2 로그인
      */
     @GetMapping("/google")
-    public ResponseEntity<?> googleCallback(@RequestParam String code) {
+    public ResponseEntity<?> googleCallback(@RequestParam String code, @RequestParam String state) {
         OAuth2Response response = oauth2Service.googleLogin(code);
 
         if (response.type() == OAuth2Response.ResponseType.REDIRECT) {
@@ -39,8 +37,19 @@ public class OAuth2Controller {
             headers.setLocation(URI.create(response.redirectUrl()));
             return new ResponseEntity<>(headers, HttpStatus.TEMPORARY_REDIRECT);
         } else {
-            // 토큰 응답이 필요한 경우 (기존 회원)
-            return ResponseEntity.ok(JSONResponse.onSuccess(response));
+            // state 파라미터를 디코딩하여 원래 URL 얻기
+            String originUrl = URLDecoder.decode(state, StandardCharsets.UTF_8);
+
+            // 토큰 정보를 쿼리 파라미터로 포함하여 리다이렉션
+            String redirectUrl = String.format("%s/login/success?accessToken=%s&refreshToken=%s",
+                    originUrl,
+                    response.tokenResponse().accessToken(),
+                    response.tokenResponse().refreshToken()
+            );
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setLocation(URI.create(redirectUrl));
+            return new ResponseEntity<>(headers, HttpStatus.TEMPORARY_REDIRECT);
         }
     }
 
