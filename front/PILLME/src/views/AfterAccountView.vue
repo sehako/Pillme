@@ -203,7 +203,7 @@ const sendVerificationCode = async () => {
   }
 };
 
-// 인증번호 확인 함수 (stores/auth 액션 활용)
+// 인증번호 확인 함수
 const verifyCode = async () => {
   isVerifying.value = true;
   authVerificationMessage.value = null;

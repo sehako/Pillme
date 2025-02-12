@@ -14,6 +14,7 @@
     <div class="w-full px-4 mt-2 space-y-2">
       <div v-for="(notification, index) in notifications" :key="notification.Id">
         <!-- 관리자 요청 알림 -->
+        <!-- 'DEPENDENCY_REQUEST'이외 다른 다이얼로그 생성필요 -->
         <AdminRequestItem 
   v-if="['DEPENDENCY_REQUEST', 'MEDICINE_REQUEST', 'DEPENDENCY_DELETE_REQUEST'].includes(notification.code)"
   :title="notification.content"
@@ -26,10 +27,16 @@
 
         <!-- 일반 알림 -->
         <NotificationItem
-          v-else
-          :title="notification.content"
-          class="w-full"
-        />
+    v-else
+    :title="notification.content"
+    :date="formatDate(notification.createdAt)"
+      :confirm="notification.confirm"
+        :notificationId="notification.notificationId"
+  @deleteNotification="handleDelete"
+  @markAsRead="handleMarkAsRead"
+    class="w-full"
+  />
+
       </div>
     </div>
 
@@ -59,7 +66,7 @@
  
 <script setup>
 import { ref, onMounted, onUnmounted, nextTick } from "vue";
-import { fetchNotifications, deleteNotification } from "../api/notify";
+import { fetchNotifications, deleteNotification, markNotificationAsRead, deleteAllNotifications } from "../api/notify";
 import NotificationItem from "../components/NotificationItem.vue";
 import AdminRequestItem from "../components/AdminRequestItem.vue";
 import AdminRequestDialog from "../components/AdminRequestDialog.vue";
@@ -86,11 +93,72 @@ const formatDate = (timestamp) => {
   }); 
 };
 // 전체 알림 삭제
-// const handleDeleteAll = async () => {
-//   if (await deleteAllNotifications()) {
-//     notifications.value = [];
-//   }
-// };
+const handleDeleteAll = async () => {
+  // 모든 알림의 notificationId를 숫자형 배열로 추출
+  const notificationIds = notifications.value.map(n => n.notificationId);
+  
+  // API 호출 후 성공 시 전체 알림 목록을 다시 불러옴
+  if (await deleteAllNotifications(notificationIds)) {
+    // 방법 1: 서버에서 최신 알림 목록 다시 불러오기
+    await loadNotifications();
+
+    // 방법 2: 삭제 성공 시 단순히 배열을 비워줌
+    // notifications.value = [];
+  }
+};
+
+
+// 알림 읽음(단일)
+const handleMarkAsRead = async (notificationId) => {
+  console.log(`📩 알림 읽음 처리 요청:`, notificationId);
+
+  // notificationId를 숫자로 변환
+  const parsedId = Number(notificationId);
+
+  if (isNaN(parsedId)) {
+    console.error("❌ 유효하지 않은 notificationId:", notificationId);
+    return;
+  }
+
+  // UI에서 confirm 상태 변경
+  const notification = notifications.value.find(n => n.notificationId === parsedId);
+  if (!notification) {
+    console.error("❌ 알림을 찾을 수 없음");
+    return;
+  }
+
+  // API 호출 - 숫자 그대로 전달 (내부에서 배열로 감쌀 예정)
+  const success = await markNotificationAsRead(parsedId);
+  
+  if (success) {
+    notification.confirm = true; // UI에서 읽음 처리 반영
+    console.log(`✅ 알림 ${parsedId} 읽음 처리 완료`);
+  } else {
+    console.error("❌ 알림 읽음 처리 실패");
+  }
+};
+
+
+
+//알림 삭제(단일)
+const handleDelete = async (notificationId) => {
+  if (!notificationId) {
+    console.error("❌ 유효하지 않은 notificationId");
+    return;
+  }
+
+  const success = await deleteNotification([notificationId]); // ✅ API 호출 (단일 ID만 포함)
+  
+  if (success) {
+    console.log(`🚀 알림 삭제 성공: ${notificationId}`);
+    notifications.value = notifications.value.filter(n => n.notificationId !== notificationId);
+    isDialogOpen.value = false; // ✅ 다이얼로그 닫기 (삭제해야할 부분인지 확인)
+  } else {
+    console.error("❌ 알림 삭제 실패");
+  }
+};
+
+
 const handleReject = async ({ id }) => {
   console.log("🚨 거절된 관리자 요청 senderId:", id);
 
