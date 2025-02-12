@@ -52,7 +52,6 @@ export const refreshAccessTokenAPI = async () => {
 
     const response = await apiClient.post(
       '/api/v1/auth/refresh',
-      {},
       {
         headers: {
           'Refresh-Token': refreshToken, // ✅ Refresh-Token 헤더 추가
@@ -160,7 +159,12 @@ export const oauthLogin = async (code) => {
     const response = await apiClient.get(`/api/v1/auth/oauth2/google`, {
       params: { code },
     });
-    return response.data.data;
+    
+    if (response.data.isSuccess) {
+      return response.data;
+    } else {
+      throw new Error(response.data.message || '로그인에 실패했습니다.')
+    }
   } catch (error) {
     throw new Error(error.response?.data?.message || '로그인 처리 중 오류가 발생했습니다.');
   }
@@ -169,14 +173,11 @@ export const oauthLogin = async (code) => {
 // ✅ OAuth 회원가입
 export const oauthSignUp = async (signUpData, provider) => {
   try {
-    console.log('요청 데이터:', signUpData, provider);
     const response = await apiClient.post(`/api/v1/auth/oauth2/signup`, signUpData, {
       params: { provider },
     });
-    console.log('서버 응답:', response);
     return response.data;
   } catch (error) {
-    console.error('API 에러:', error);
     throw new Error(error.response?.data?.message || '회원가입 처리 중 오류가 발생했습니다.');
   }
 };
