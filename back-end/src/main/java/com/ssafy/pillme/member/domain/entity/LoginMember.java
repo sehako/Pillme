@@ -63,12 +63,19 @@ public class LoginMember extends BaseEntity {
         this.oauth = oauth;
     }
 
-    // 회원 정보 수정
-    public void updateInformation(String email, String nickname, String phone) {
-        validateLocalUser(); // LOCAL 사용자 검증 추가
-        this.email = email;
-        this.nickname = nickname;
-        this.phone = phone;
+    // 전화번호 변경
+    public void updatePhoneNumber(String newPhoneNumber) {
+        this.phone = newPhoneNumber;
+    }
+
+    // 이메일 변경
+    public void updateEmailAddress(String newEmailAddress) {
+        this.email = newEmailAddress;
+    }
+
+    // 닉네임 변경
+    public void updateNickname(String newNickname) {
+        this.nickname = newNickname;
     }
 
     // 비밀번호 변경
@@ -81,6 +88,13 @@ public class LoginMember extends BaseEntity {
     private void validateLocalUser() {
         if (Role.LOCAL.equals(this.role)) {
             throw new IllegalStateException("LOCAL 사용자는 프로필을 수정할 수 없습니다.");
+        }
+    }
+
+    // OAuth 사용자 검증
+    private void validateOAuthUser() {
+        if (this.oauth) {
+            throw new IllegalStateException("OAuth 사용자는 이메일을 수정할 수 없습니다.");
         }
     }
 

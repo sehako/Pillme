@@ -1,7 +1,9 @@
 package com.ssafy.pillme.member.application.service;
 
+import com.ssafy.pillme.global.util.SecurityUtil;
 import com.ssafy.pillme.member.application.exception.*;
 import com.ssafy.pillme.member.domain.entity.LoginMember;
+import com.ssafy.pillme.member.domain.vo.EmailValidationResult;
 import com.ssafy.pillme.member.infrastructure.repository.LoginMemberRepository;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
@@ -31,13 +33,46 @@ public class ChangeEmailService {
     private static final long VERIFIED_EXPIRATION_TIME = 1800000; // 30분
 
     /**
+     * 이메일 유효성 검증
+     */
+    public EmailValidationResult validateEmail(String newEmail) {
+        Long currentMemberId = SecurityUtil.extractCurrentMemberId();
+        LoginMember member = loginMemberRepository.findById(currentMemberId)
+                .orElseThrow(NoMemberInfoException::new);
+
+        boolean isSameAsCurrent = member.getEmail().equals(newEmail);
+        boolean isAlreadyExists = loginMemberRepository.existsByEmailAndDeletedFalse(newEmail);
+
+        return new EmailValidationResult(isSameAsCurrent, isAlreadyExists);
+    }
+
+
+    /**
      * 이메일 변경 검증 및 인증번호 발송
      */
-    public void validateAndSendEmailVerification(Long memberId, String newEmail) {
+    public void validateAndSendEmailVerification(String newEmail) {
+        Long currentMemberId = SecurityUtil.extractCurrentMemberId();
         // 기존 이메일과 중복 검증
-        validateNewEmail(newEmail, memberId);
+        validateNewEmail(newEmail, currentMemberId);
         // 인증 메일 발송
         sendVerificationEmail(newEmail);
+    }
+
+    /**
+     * 이메일 변경
+     */
+    public void changeEmail(String newEmail) {
+        Long currentMemberId = SecurityUtil.extractCurrentMemberId();
+
+        if(!isVerified(newEmail)) {
+            throw new NotVerifiedEmailAddressException();
+        }
+
+        // 회원 조회 및 이메일 변경
+        LoginMember member = loginMemberRepository.findByIdAndDeletedFalse(currentMemberId).orElseThrow(NoMemberInfoException::new);
+
+        member.updateEmailAddress(newEmail);
+        loginMemberRepository.save(member);
     }
 
     /**
@@ -98,12 +133,11 @@ public class ChangeEmailService {
     /**
      * 이메일 인증 완료 상태 확인
      */
-    public boolean isVerified(String email) {
+    private boolean isVerified(String email) {
         String key = VERIFIED_PREFIX + email;
         return Boolean.TRUE.equals(redisTemplate.hasKey(key));
     }
 
-    // 기존의 private 메서드들은 그대로 유지
     private String generateVerificationCode() {
         Random random = new Random();
         return String.format("%06d", random.nextInt(1000000));

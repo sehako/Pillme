@@ -21,22 +21,6 @@ public class LoginMemberController {
         return ResponseEntity.ok(JSONResponse.onSuccess(profile));
     }
 
-    // 닉네임 중복 검증
-    @PostMapping("/me/nickname/verify")
-    public ResponseEntity<JSONResponse<Void>> verifyNickname(
-            @RequestBody ChangeNicknameVerifyRequest request) {
-        loginMemberService.validateNicknameChange(request.newNickname());
-        return ResponseEntity.ok(JSONResponse.onSuccess());
-    }
-
-    // 비밀번호 변경
-    @PostMapping("/me/password")
-    public ResponseEntity<JSONResponse<Void>> updatePassword(
-            @RequestBody UpdatePasswordRequest request) {
-        loginMemberService.updatePassword(request);
-        return ResponseEntity.ok(JSONResponse.onSuccess());
-    }
-
     // 회원 탈퇴
     @DeleteMapping("/me")
     public ResponseEntity<JSONResponse<Void>> deleteMember() {

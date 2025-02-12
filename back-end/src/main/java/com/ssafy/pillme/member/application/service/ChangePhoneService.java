@@ -1,5 +1,6 @@
 package com.ssafy.pillme.member.application.service;
 
+import com.ssafy.pillme.global.util.SecurityUtil;
 import com.ssafy.pillme.member.application.exception.*;
 import com.ssafy.pillme.member.domain.entity.LoginMember;
 import com.ssafy.pillme.member.infrastructure.repository.LoginMemberRepository;
@@ -49,8 +50,9 @@ public class ChangePhoneService {
     /**
      * 전화번호 변경 프로세스 시작
      */
-    public void validateAndSendPhoneVerification(Long memberId, String newPhoneNumber) {
-        validateNewPhone(newPhoneNumber, memberId);
+    public void validateAndSendPhoneVerification(String newPhoneNumber) {
+        Long currentMemberId = SecurityUtil.extractCurrentMemberId();
+        validateNewPhone(newPhoneNumber, currentMemberId);
         sendVerificationSms(newPhoneNumber);
     }
 
@@ -117,11 +119,28 @@ public class ChangePhoneService {
         saveVerifiedStatus(phoneNumber);
     }
 
+    /**
+     * 전화번호 변경
+     */
+    public void changePhone(String newPhoneNumber) {
+        Long currentMemberId = SecurityUtil.extractCurrentMemberId();
+
+        if (!isVerified(newPhoneNumber)) {
+            throw new NotVerifiedPhoneNumberException();
+        }
+
+        // 회원 조회 및 전화번호 변경
+        LoginMember member = loginMemberRepository.findByIdAndDeletedFalse(currentMemberId)
+                .orElseThrow(NoMemberInfoException::new);
+
+        member.updatePhoneNumber(newPhoneNumber);
+    }
+
     private boolean isValidPhoneNumber(String phoneNumber) {
         return phoneNumber != null && phoneNumber.matches("^01[0-9]{9}$");
     }
 
-    public boolean isVerified(String phoneNumber) {
+    private boolean isVerified(String phoneNumber) {
         String key = VERIFIED_PREFIX + phoneNumber;
         return Boolean.TRUE.equals(redisTemplate.hasKey(key));
     }
