@@ -46,20 +46,30 @@ public class ChatRoomService {
                 .collect(Collectors.toList());
     }
 
-    public ChatRoomResponse getOrCreateChatRoom(ChatRoomRequest chatRoomRequest){
-        Member careUser = authService.findById(chatRoomRequest.sendUserId());
-        Member user = authService.findById(chatRoomRequest.receiveUserId());
-        Optional<ChatRoom> chatRoom = chatRoomRepository.findByUsers(careUser, user);
+    public ChatRoomResponse getOrCreateChatRoom(ChatRoomRequest chatRoomRequest, Long myId){
+        Member sendUser = authService.findById(chatRoomRequest.sendUserId());
+        Member receiveUser = authService.findById(chatRoomRequest.receiveUserId());
+        Optional<ChatRoom> chatRoom = chatRoomRepository.findByUsers(sendUser, receiveUser);
         if(chatRoom.isPresent()){
-            chatRedisService.enterChatRoom(chatRoom.get().getId(), chatRoomRequest.sendUserId());   //myId로 바꿔야됨
+            chatRedisService.enterChatRoom(chatRoom.get().getId(), myId);   //myId로 바꿔야됨
             return ChatRoomResponse.from(chatRoom.get(),0);
         }
         ChatRoom newChatRoom = new ChatRoom();
 
-        newChatRoom.updateChatRoom(careUser, user);
+        newChatRoom.updateChatRoom(sendUser, receiveUser);
         newChatRoom= chatRoomRepository.save(newChatRoom);
-        chatRedisService.enterChatRoom(newChatRoom.getId(), chatRoomRequest.sendUserId());   //myId로 바꿔야됨
+        chatRedisService.enterChatRoom(newChatRoom.getId(), myId);   //myId로 바꿔야됨
         return ChatRoomResponse.from(newChatRoom,0);
+    }
+
+    public void createChatRoom(Member protector, Member dependent){
+        Optional<ChatRoom> chatRoom = chatRoomRepository.findByUsers(protector, dependent); //채팅방이 이전에 생성 되었는지 확인
+        if(chatRoom.isPresent()){   //있을 경우는 리턴
+            return;
+        }
+        ChatRoom newChatRoom = new ChatRoom();  //없을 경우 새롭게 채팅방 생성
+        newChatRoom.updateChatRoom(protector, dependent);
+        chatRoomRepository.save(newChatRoom);
     }
 
     public void deleteChatRoom(Long chatRoom){

@@ -25,8 +25,8 @@ public class ChatRoom {
     @JoinColumn(name="receive_user_id", nullable = false)
     private Member receiveUser;
 
-    public void updateChatRoom(Member sendUser, Member receiveuser){
+    public void updateChatRoom(Member sendUser, Member receiveUser){
         this.sendUser = sendUser;
-        this.receiveUser = receiveuser;
+        this.receiveUser = receiveUser;
     }
 }
