@@ -81,16 +81,6 @@ public class FCMNotificationServiceImpl implements FCMNotificationService {
             Message message = Message.builder()
                     .setToken(receiverFCMToken.getToken())
                     .putAllData(data) // 전체 데이터를 메시지에 포함
-                    // 웹 푸시 특화 설정 시작
-                    .setWebpushConfig(WebpushConfig.builder()
-                            .setNotification(WebpushNotification.builder()
-                                    .putCustomData(DataKey.CODE, data.get(DataKey.CODE))
-                                    .setTitle(data.get(DataKey.TITLE))
-                                    .setBody(data.get(DataKey.BODY))
-                                    // 발신자 정보 추가 (알림 처리 시 필요)
-                                    .putCustomData(DataKey.SENDER_ID, data.get(DataKey.SENDER_ID))
-                                    .build())
-                            .build())
                     .build();
             try {
                 firebaseMessaging.sendAsync(message);
@@ -163,9 +153,10 @@ public class FCMNotificationServiceImpl implements FCMNotificationService {
     private List<FCMToken> findValidTokens(Long memberId) {
         List<FCMToken> tokens = fcmTokenService.findAllByMemberId(memberId);
 
-        // 사용자가 알림을 허용한 토큰이 없을 경우 예외 처리
+        // 토큰이 없을 경우, 로그로 기록만 남기고 빈 리스트 반환
         if (tokens.isEmpty()) {
-            throw new FCMTokenNotFoundException(ErrorCode.FCM_TOKEN_NOT_FOUND);
+            log.error("FCM Token not found for member id: {}", memberId);
+            return List.of();
         }
 
         return tokens;

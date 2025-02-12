@@ -6,6 +6,7 @@ import com.ssafy.pillme.auth.presentation.request.CreateLocalMemberRequest;
 import com.ssafy.pillme.dependency.application.exception.DependencyNotFoundException;
 import com.ssafy.pillme.dependency.application.exception.DuplicateDependencyException;
 import com.ssafy.pillme.dependency.application.response.DependentListResponse;
+import com.ssafy.pillme.dependency.application.response.RelationShipListResponse;
 import com.ssafy.pillme.dependency.domain.entity.Dependency;
 import com.ssafy.pillme.dependency.infrastructure.repository.DependencyRepository;
 import com.ssafy.pillme.dependency.presentation.request.*;
@@ -76,17 +77,20 @@ public class DependencyService {
         *   관계가 존재하지 않으면 관계 정보 저장
         * 존재하지 않으면 로컬 회원 생성 후 관계 정보 저장
         * */
-        Member dependent = authService.findLocalMember(request.name(), request.gender(), request.birthday());
+//        Member dependent = authService.findLocalMember(request.name(), request.gender(), request.birthday());
+//
+//        if (dependent != null) {
+//            dependencyRepository.findByDependentIdAndProtectorIdAndDeletedIsFalse(dependent.getId(), protector.getId())
+//                    .ifPresent(dependency -> {
+//                        throw new DuplicateDependencyException(ErrorCode.DUPLICATE_DEPENDENCY);
+//                    });
+//        } else {
+//            // 로컬 회원 생성
+//            dependent = authService.createLocalMember(CreateLocalMemberRequest.from(request));
+//        }
 
-        if (dependent != null) {
-            dependencyRepository.findByDependentIdAndProtectorIdAndDeletedIsFalse(dependent.getId(), protector.getId())
-                    .ifPresent(dependency -> {
-                        throw new DuplicateDependencyException(ErrorCode.DUPLICATE_DEPENDENCY);
-                    });
-        } else {
-            // 로컬 회원 생성
-            dependent = authService.createLocalMember(CreateLocalMemberRequest.from(request));
-        }
+        // 로컬 회원은 중복을 허용하고 관계 정보 저장
+        Member dependent = authService.createLocalMember(CreateLocalMemberRequest.from(request));
 
         // 관계 정보 저장
         Dependency dependency = Dependency.createDependency(protector, dependent);
@@ -152,5 +156,13 @@ public class DependencyService {
 
         // 복용 알림 전송
         notificationService.sendProtectorToDependentNotification(dependency.getProtector(), dependency.getDependent());
+    }
+
+    @Transactional(readOnly = true)
+    public RelationShipListResponse getRelationships(Member loginMember) {
+        // 로그인되어있는 회원의 모든 관계 정보 조회
+        List<Dependency> dependencies = dependencyRepository.findAllByProtectorIdAndDeletedIsFalseOrDependentIdAndDeletedIsFalse(loginMember.getId());
+
+        return RelationShipListResponse.of(dependencies, loginMember.getId());
     }
 }

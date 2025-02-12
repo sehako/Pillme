@@ -33,21 +33,10 @@ public record OAuthAdditionalInfoRequest(
         return new OAuthAdditionalInfoRequest(
                 googleInfo.name(),
                 googleInfo.email(),
-                googleInfo.nickname(),
+                null,
                 null,
                 null,
                 null
-        );
-    }
-
-    public static OAuthAdditionalInfoRequest fromNaver(NaverOAuthInfo naverInfo) {
-        return new OAuthAdditionalInfoRequest(
-                naverInfo.name(),
-                naverInfo.email(),
-                naverInfo.nickname(),
-                naverInfo.gender(),
-                naverInfo.phone(),
-                naverInfo.birthday()
         );
     }
 }

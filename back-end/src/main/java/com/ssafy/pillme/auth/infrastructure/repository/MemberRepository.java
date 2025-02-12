@@ -16,11 +16,13 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
 
     Optional<Member> findByPhoneAndDeletedFalseAndRoleNot(String phone, Role role);
 
+    boolean existsByEmailAndDeletedFalse(String email);
+
     boolean existsByEmailAndRoleNot(String email, Role role);
 
-    boolean existsByNickname(String nickname);
+    boolean existsByNicknameAndDeletedFalse(String nickname);
 
-    boolean existsByPhone(String phone);
+    boolean existsByPhoneAndDeletedFalse(String phone);
 
     Optional<Member> findByEmailAndProviderAndDeletedFalse(String email, Provider provider);
 

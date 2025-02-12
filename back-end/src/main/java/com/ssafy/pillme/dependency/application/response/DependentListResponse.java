@@ -11,8 +11,6 @@ import java.util.stream.Collectors;
 @Getter
 @Builder
 public class DependentListResponse {
-    // 관계 ID
-    private Long dependencyId;
     // 피보호자 정보
     DependentInfo dependentInfo;
 
@@ -24,8 +22,7 @@ public class DependentListResponse {
 
     public static DependentListResponse of(Dependency dependency) {
         return DependentListResponse.builder()
-                .dependencyId(dependency.getId())
-                .dependentInfo(DependentInfo.of(dependency.getDependent()))
+                .dependentInfo(DependentInfo.of(dependency))
                 .build();
     }
 }
