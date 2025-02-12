@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import Cookies from 'js-cookie';
-
+import { decodeToken } from "../utils/jwt"; // ✅ JWT 디코딩 유틸 추가
 import { refreshAccessTokenAPI } from '../api/auth'; // 경로는 실제 위치에 맞게 수정
 
 // ✅ 라우트 목록
@@ -130,9 +130,21 @@ router.beforeEach(async (to, from, next) => {
 
   // accessToken 유효성 검사 (jwt-decode를 이용하여 만료 시간 체크)
   let isAccessTokenValid = false;
+  // if (accessToken) {
+  //   try {
+  //     const decodedToken = jwt_decode(accessToken);
+  //     const tokenExpiryMs = decodedToken.exp * 1000;
+  //     console.log("토큰 만료 시간 (ms):", tokenExpiryMs);
+  //     console.log("현재 시간 (ms):", Date.now());
+  //     isAccessTokenValid = tokenExpiryMs > Date.now();
+  //   } catch (error) {
+  //     console.error('❌ accessToken 디코딩 실패:', error);
+  //     isAccessTokenValid = false;
+  //   }
+  // }
   if (accessToken) {
     try {
-      const decodedToken = jwt_decode(accessToken);
+      const decodedToken = decodeToken(accessToken);
       // decodedToken.exp는 초 단위, Date.now()는 밀리초 단위이므로 변환 필요
       isAccessTokenValid = decodedToken.exp * 1000 > Date.now();
     } catch (error) {
