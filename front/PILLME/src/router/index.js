@@ -25,6 +25,7 @@ import OAuthCallback from '../views/OAuthCallback.vue';
 import LoginView from '../views/LoginView.vue';
 import LoginSelectionView from '../views/LoginSelectionView.vue';
 import SigninSelectionView from '../views/SigninSelectionView.vue';
+import LoginSucess from '../views/LoginSucess.vue';
 
 // ✅ 로그인 후 접근 가능 페이지
 import HomeView from '../views/HomeView.vue';
@@ -67,6 +68,11 @@ const routes = [
     name: 'OAuthAdditionalInfo',
     component: OAuthAdditionalInfo,
     meta: { requiresAuth: false },
+  },
+  {
+    path: '/login/success',
+    name: 'LoginSuccess',
+    component: LoginSucess,
   },
 
   // ✅ 로그인해야 접근 가능한 페이지 (requiresAuth: true)
@@ -144,6 +150,7 @@ router.beforeEach(async (to, from, next) => {
     '/memberregister',
     '/register',
     '/emailregist',
+    '/login/success',
     '/auth/callback/google',
     '/oauth/additional-info',
   ];
@@ -172,7 +179,7 @@ router.beforeEach(async (to, from, next) => {
       console.error('[Route Guard] 토큰 갱신 실패:', error);
       // 갱신 실패 시 토큰 제거 후 로그인 페이지로 이동
       localStorage.removeItem('accessToken');
-      // localStorage.removeItem('accessTokenExpiry');
+      localStorage.removeItem('accessTokenExpiry');
       Cookies.remove('refreshToken');
       return next('/start');
     }
