@@ -9,8 +9,8 @@ import axios from "axios";
 
 // ✅ 이메일 인증 관련 API
 export const requestEmailVerification = (email) => {
-  console.log("📨 이메일 인증 요청:", email);
-  return apiClient.post("/api/v1/auth/email/verification", { email });
+  console.log('📨 이메일 인증 요청:', email);
+  return apiClient.post('/api/v1/auth/email/verification', { email });
 };
 
 export const verifyEmailCode = (email, code) => {
@@ -33,27 +33,27 @@ export const isDuplicateEmail = async (email) => {
 
 // ✅ SMS 인증 관련 API
 export const requestSmsVerification = (phoneNumber) => {
-  console.log("📨 SMS 인증 요청 전 데이터:", phoneNumber);
-  return apiClient.post("/api/v1/auth/sms/verification", { phoneNumber });
+  console.log('📨 SMS 인증 요청 전 데이터:', phoneNumber);
+  return apiClient.post('/api/v1/auth/sms/verification', { phoneNumber });
 };
 
 export const verifySmsCode = (phoneNumber, code) => {
-  console.log("✅ SMS 인증번호 확인 요청:", { phoneNumber, code });
-  return apiClient.post("/api/v1/auth/sms/verify", { phoneNumber, code });
+  console.log('✅ SMS 인증번호 확인 요청:', { phoneNumber, code });
+  return apiClient.post('/api/v1/auth/sms/verify', { phoneNumber, code });
 };
 
 // ✅ 로그인 요청 (JWT 디코딩 추가)
 export const login = async (credentials) => {
   try {
-    const response = await apiClient.post("/api/v1/auth/login", credentials);
-    console.log("✅ 로그인 성공:", response.data);
+    const response = await apiClient.post('/api/v1/auth/login', credentials);
+    console.log('✅ 로그인 성공:', response.data);
 
     // ✅ Access Token & Refresh Token 저장
     handleLoginSuccess(response.data);
 
     return response.data;
   } catch (error) {
-    console.error("❌ 로그인 실패:", error);
+    console.error('❌ 로그인 실패:', error);
     throw error;
   }
 };
@@ -61,15 +61,18 @@ export const login = async (credentials) => {
 // ✅ 액세스 토큰 갱신 API (JWT 디코딩 포함)
 export const refreshAccessTokenAPI = async () => {
   try {
-    const refreshToken = Cookies.get("refreshToken"); // ✅ 쿠키에서 refreshToken 가져오기
+    const refreshToken = Cookies.get('refreshToken'); // ✅ 쿠키에서 refreshToken 가져오기
 
-    const response = await apiClient.post("/api/v1/auth/refresh", {}, {
-      headers: {
-        "Refresh-Token": refreshToken, // ✅ Refresh-Token 헤더 추가
-      },
-    });
-    
-    console.log("🔄 액세스 토큰 갱신 성공:", response.data);
+    const response = await apiClient.post(
+      '/api/v1/auth/refresh',
+      {
+        headers: {
+          'Refresh-Token': refreshToken, // ✅ Refresh-Token 헤더 추가
+        },
+      }
+    );
+
+    console.log('🔄 액세스 토큰 갱신 성공:', response.data);
     saveAccessToken(response.data.result.accessToken);
     saveRefreshToken(response.data.result.refreshToken); // ✅ refreshToken도 갱신
 
@@ -80,7 +83,7 @@ export const refreshAccessTokenAPI = async () => {
 
     return response.data;
   } catch (error) {
-    console.error("❌ 액세스 토큰 갱신 실패:", error);
+    console.error('❌ 액세스 토큰 갱신 실패:', error);
     handleLogout(); // ✅ 토큰 만료 시 자동 로그아웃
     throw error;
   }
@@ -89,10 +92,10 @@ export const refreshAccessTokenAPI = async () => {
 // ✅ 로그아웃 요청
 export const logoutAPI = async () => {
   try {
-    await apiClient.post("/api/v1/auth/logout");
+    await apiClient.post('/api/v1/auth/logout');
     handleLogout();
   } catch (error) {
-    console.error("❌ 로그아웃 실패:", error);
+    console.error('❌ 로그아웃 실패:', error);
     throw error;
   }
 };
@@ -114,28 +117,80 @@ export const handleLoginSuccess = (responseData) => {
 
 export const saveAccessToken = (accessToken) => {
   // const expiryTime = new Date().getTime() + 30 * 60 * 1000; // 30분 유효
-  localStorage.setItem("accessToken", accessToken);
+  localStorage.setItem('accessToken', accessToken);
   // localStorage.setItem("accessTokenExpiry", expiryTime);
   // localStorage.setItem("userInfo", JSON.stringify(decodeToken(accessToken)));
 };
 
 // ✅ 리프레시 토큰을 js-cookie로 저장 (자동 갱신 반영)
 export const saveRefreshToken = (refreshToken) => {
-  Cookies.set("refreshToken", refreshToken, { secure: true, sameSite: "Strict" });
+  Cookies.set('refreshToken', refreshToken, { secure: true, sameSite: 'Strict' });
 };
 
 // ✅ 로그아웃 처리 함수 (js-cookie 사용, 자동 로그아웃 포함)
 export const handleLogout = () => {
-  localStorage.removeItem("accessToken");
+  localStorage.removeItem('accessToken');
   // localStorage.removeItem("accessTokenExpiry");
-  Cookies.remove("refreshToken");
+  Cookies.remove('refreshToken');
 
   // ✅ 유저 정보 초기화
   const authStore = useUserStore();
   authStore.clearUser();
 
   // ✅ 로그인 페이지로 이동
-  window.location.href = "/start";
+  window.location.href = '/start';
   window.location.reload();
-  
+};
+
+// ✅ 닉네임 중복 검사
+export const isDuplicateNickname = async (nickname) => {
+  try {
+    const response = await apiClient.get('/api/v1/auth/check/nickname', {
+      params: { nickname },
+    });
+    return response.data.result;
+  } catch (error) {
+    throw new Error(error.response?.data?.message || '닉네임 중복 검사 중 오류가 발생했습니다.');
+  }
+};
+
+// ✅ 전화번호 중복 검사
+export const isDuplicatePhone = async (phone) => {
+  try {
+    const response = await apiClient.get('/api/v1/auth/check/phone', {
+      params: { phone },
+    });
+    return response.data.result;
+  } catch (error) {
+    throw new Error(error.response?.data?.message || '전화번호 중복 검사 중 오류가 발생했습니다.');
+  }
+};
+
+// ✅ OAuth 로그인 함수
+export const oauthLogin = async (code) => {
+  try {
+    const response = await apiClient.get(`/api/v1/auth/oauth2/google`, {
+      params: { code },
+    });
+    
+    if (response.data.isSuccess) {
+      return response.data;
+    } else {
+      throw new Error(response.data.message || '로그인에 실패했습니다.')
+    }
+  } catch (error) {
+    throw new Error(error.response?.data?.message || '로그인 처리 중 오류가 발생했습니다.');
+  }
+};
+
+// ✅ OAuth 회원가입
+export const oauthSignUp = async (signUpData, provider) => {
+  try {
+    const response = await apiClient.post(`/api/v1/auth/oauth2/signup`, signUpData, {
+      params: { provider },
+    });
+    return response.data;
+  } catch (error) {
+    throw new Error(error.response?.data?.message || '회원가입 처리 중 오류가 발생했습니다.');
+  }
 };
