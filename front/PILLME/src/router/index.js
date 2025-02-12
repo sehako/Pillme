@@ -124,65 +124,75 @@ router.beforeEach(async (to, from, next) => {
     return next();
   }
 
-  // localStorage에서 accessToken과 만료시간 가져오기
+  // localStorage에서 accessToken 가져오기
   const accessToken = localStorage.getItem('accessToken');
-  const accessTokenExpiry = localStorage.getItem('accessTokenExpiry');
   const refreshToken = Cookies.get('refreshToken');
-  const currentTime = new Date().getTime();
-  const isAccessTokenValid = accessToken && accessTokenExpiry && currentTime < Number(accessTokenExpiry);
 
-  // 3. 게스트 페이지 접근 시 처리 (비로그인 사용자 전용)
-  if (guestPages.includes(to.path)) {
-    // 만약 accessToken이 있다면 로그인 상태임 → 게스트 페이지 접근 차단
-    if (accessToken) {
-      // accessToken이 만료되었지만 refreshToken이 있다면 재발급 시도
-      if (!isAccessTokenValid && refreshToken) {
-        try {
-          await refreshAccessTokenAPI();
-          // 재발급에 성공했다면 로그인 상태이므로 홈 페이지로 리다이렉트
-          return next('/');
-        } catch (error) {
-          console.error('[Route Guard] 게스트 페이지 접근 시 토큰 재발급 실패:', error);
-          // 재발급 실패 시 토큰 삭제 후 비로그인 상태로 간주 → 게스트 페이지 접근 허용
-          localStorage.removeItem('accessToken');
-          Cookies.remove('refreshToken');
-          return next();
-        }
-      }
-      // accessToken이 유효하다면 → 이미 로그인된 상태이므로 홈 페이지로 리다이렉트
-      if (isAccessTokenValid) {
-        return next('/');
-      }
+  // accessToken 유효성 검사 (jwt-decode를 이용하여 만료 시간 체크)
+  let isAccessTokenValid = false;
+  if (accessToken) {
+    try {
+      const decodedToken = jwt_decode(accessToken);
+      // decodedToken.exp는 초 단위, Date.now()는 밀리초 단위이므로 변환 필요
+      isAccessTokenValid = decodedToken.exp * 1000 > Date.now();
+    } catch (error) {
+      console.error('❌ accessToken 디코딩 실패:', error);
+      isAccessTokenValid = false;
     }
-    // 로그인 토큰이 없으면 → 비로그인 상태이므로 게스트 페이지 접근 허용
-    return next();
   }
 
-  // 4. 보호된 페이지(로그인 필요 페이지)에 접근 시 처리
-  if (!guestPages.includes(to.path)) {
-    // 토큰이 없으면 바로 로그인 페이지로 이동
-    if (!accessToken) {
-      return next('/start');
-    }
-    // 토큰이 있으나 만료되었고, refreshToken이 있다면 토큰 재발급 시도
+ // 3. 게스트 페이지 접근 시 처리 (비로그인 사용자 전용)
+ if (guestPages.includes(to.path)) {
+  // accessToken이 있다면 로그인 상태임 → 게스트 페이지 접근 차단
+  if (accessToken) {
+    // accessToken이 만료되었지만 refreshToken이 있다면 재발급 시도
     if (!isAccessTokenValid && refreshToken) {
       try {
         await refreshAccessTokenAPI();
-        return next();
+        // 재발급에 성공하면 로그인 상태이므로 홈 페이지로 리다이렉트
+        return next('/');
       } catch (error) {
-        console.error('[Route Guard] 보호된 페이지 접근 시 토큰 재발급 실패:', error);
+        console.error('[Route Guard] 게스트 페이지 접근 시 토큰 재발급 실패:', error);
+        // 재발급 실패 시 토큰 삭제 후 비로그인 상태로 간주 → 게스트 페이지 접근 허용
         localStorage.removeItem('accessToken');
         Cookies.remove('refreshToken');
-        return next('/start');
+        return next();
       }
     }
-    // 토큰이 여전히 유효하지 않다면 → 로그인 페이지로 이동
-    if (!isAccessTokenValid) {
+    // accessToken이 유효하면 → 이미 로그인된 상태이므로 홈 페이지로 리다이렉트
+    if (isAccessTokenValid) {
+      return next('/');
+    }
+  }
+  // 로그인 토큰이 없으면 → 비로그인 상태이므로 게스트 페이지 접근 허용
+  return next();
+}
+
+ // 4. 보호된 페이지(로그인 필요 페이지)에 접근 시 처리
+ if (!guestPages.includes(to.path)) {
+  // 토큰이 없으면 바로 로그인 페이지로 이동
+  if (!accessToken) {
+    return next('/start');
+  }
+  // 토큰이 있으나 만료되었고, refreshToken이 있다면 토큰 재발급 시도
+  if (!isAccessTokenValid && refreshToken) {
+    try {
+      await refreshAccessTokenAPI();
+      return next();
+    } catch (error) {
+      console.error('[Route Guard] 보호된 페이지 접근 시 토큰 재발급 실패:', error);
+      localStorage.removeItem('accessToken');
+      Cookies.remove('refreshToken');
       return next('/start');
     }
-    // 모두 만족하면 정상 접근
-    return next();
   }
+  // 토큰이 여전히 유효하지 않다면 → 로그인 페이지로 이동
+  if (!isAccessTokenValid) {
+    return next('/start');
+  }
+  // 모두 만족하면 정상 접근
+  return next();
+}
 });
 
 export default router;
