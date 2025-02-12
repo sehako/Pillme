@@ -3,6 +3,7 @@ package com.ssafy.pillme.dependency.application.service;
 import com.ssafy.pillme.auth.application.service.AuthService;
 import com.ssafy.pillme.auth.domain.entity.Member;
 import com.ssafy.pillme.auth.presentation.request.CreateLocalMemberRequest;
+import com.ssafy.pillme.chat.application.service.ChatRoomService;
 import com.ssafy.pillme.dependency.application.exception.DependencyNotFoundException;
 import com.ssafy.pillme.dependency.application.exception.DuplicateDependencyException;
 import com.ssafy.pillme.dependency.application.response.DependentListResponse;
@@ -25,6 +26,7 @@ public class DependencyService {
     private final DependencyRepository dependencyRepository;
     private final NotificationService notificationService;
     private final AuthService authService;
+    private final ChatRoomService chatRoomService;
 
     public void requestDependency(DependentPhoneRequest request, Member protector) {
         // 피보호자 정보 조회
@@ -53,6 +55,9 @@ public class DependencyService {
         // 관계 정보 저장
         Dependency dependency = Dependency.createDependency(protector, dependent);
         dependencyRepository.save(dependency);
+
+        // 채팅방 생성
+        chatRoomService.createChatRoom(dependent, protector);
 
         // 피보호자가 보호자에게 관계 수락 알림 전송
         notificationService.sendDependencyAcceptNotification(dependent, protector);
@@ -128,6 +133,9 @@ public class DependencyService {
 
         // 관계 정보 삭제
         dependency.delete();
+
+        // 채팅방 삭제
+        chatRoomService.deleteChatRoom(dependency.getProtector(), dependency.getDependent());
 
         // 가족 관계 삭제 요청 수락 알림 전송
         notificationService.sendDependencyDeleteAcceptNotification(loginMember, dependency.getOtherMember(loginMember));
