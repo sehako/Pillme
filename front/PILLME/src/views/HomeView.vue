@@ -90,18 +90,19 @@ import NameDropdown from '../components/NameDropdown.vue';
 import FamilyAddModal from '../components/FamilyAddModal.vue';
 import { useFCM } from '../utils/usefcm';
 // 필요에 따라 VCalendar 컴포넌트도 import 합니다.
+
 defineProps({
   navbarHeight: Number, // ✅ props 정의
 });
-const { getFCMToken } = useFCM();
 
+const { getFCMToken } = useFCM();
 
 // 알림 설정 상태 (기본값은 null)
 const notificationSettings = reactive({
   morning: null,
   lunch: null,
   dinner: null,
-  bedtime: null,
+  sleep: null,
   notificationId: null // 응답에 포함된 notificationId 저장
 });
 
@@ -111,19 +112,22 @@ const fetchFailed = ref(false); // 알림 설정 불러오기 실패 여부
 const loadNotificationSettings = async () => {
   try {
     const data = await fetchNotificationSettings();
-    notificationSettings.morning = data.morning ?? '00:00'; // null일 경우 00:00 설정
-    notificationSettings.lunch = data.lunch ?? '00:00';
-    notificationSettings.dinner = data.dinner ?? '00:00';
-    notificationSettings.bedtime = data.sleep ?? '00:00';
+    
+    // 값이 null이면 그대로 유지
+    notificationSettings.morning = data.morning ?? null;
+    notificationSettings.lunch = data.lunch ?? null;
+    notificationSettings.dinner = data.dinner ?? null;
+    notificationSettings.sleep = data.sleep ?? null;
     notificationSettings.notificationId = data.notificationId ?? null;
-    fetchFailed.value = false; // 성공하면 false
+
+    // 모든 값이 null이면 실패로 간주
+    const allNull = [notificationSettings.morning, notificationSettings.lunch, notificationSettings.dinner, notificationSettings.sleep].every(v => v === null);
+    fetchFailed.value = allNull;
   } catch (error) {
     console.error('🚨 알림 설정 로드 실패:', error);
-    fetchFailed.value = true; // 실패하면 true
+    fetchFailed.value = true;
   }
 };
-
-
 
 // ✅ 모달 상태 관리
 const isFamilyModalOpen = ref(false);
@@ -135,14 +139,14 @@ const openFamilyModal = () => {
 const handleClickOutside = (event) => {
   // 예를 들어 특정 모달이 열려 있을 때, 모달 외부를 클릭하면 닫히도록 처리 가능
   if (isFamilyModalOpen.value) {
-    const modal = document.querySelector('.modal-class'); // 모달 요소 선택 (클래스는 실제 모달 클래스에 맞게 변경)
+    const modal = document.querySelector('.modal-class'); // 실제 모달 클래스에 맞게 변경
     if (modal && !modal.contains(event.target)) {
       isFamilyModalOpen.value = false;
     }
   }
 };
-// 현재 시간대를 계산하는 computed 속성 (store의 알림 설정 값을 사용)
-// 현재 시간대를 계산하는 computed 속성 (알림 설정 값을 기준으로 구분)
+
+// 현재 시간대를 계산하는 computed 속성 (설정된 알림 시간만 기준으로)
 const currentTimePeriod = computed(() => {
   const now = new Date();
   const currentMinutes = now.getHours() * 60 + now.getMinutes();
@@ -154,24 +158,52 @@ const currentTimePeriod = computed(() => {
     return hour * 60 + minute;
   };
 
-  // 알림 설정에서 받아온 시간 (기본값 제공)
-  const morningMinutes = parseTime(notificationSettings.morning ?? "07:00");
-  const lunchMinutes = parseTime(notificationSettings.lunch ?? "12:00");
-  const dinnerMinutes = parseTime(notificationSettings.dinner ?? "18:00");
-  const bedtimeMinutes = parseTime(notificationSettings.bedtime ?? "22:00");
-
-  if (morningMinutes !== null && currentMinutes >= morningMinutes && currentMinutes < lunchMinutes) {
-    return "아침";
-  } else if (lunchMinutes !== null && currentMinutes >= lunchMinutes && currentMinutes < dinnerMinutes) {
-    return "점심";
-  } else if (dinnerMinutes !== null && currentMinutes >= dinnerMinutes && currentMinutes < bedtimeMinutes) {
-    return "저녁";
-  } else {
-    return "자기전";
+  // 설정된 시간대만 객체 배열로 생성 (null인 값은 제외)
+  const periods = [];
+  const morning = parseTime(notificationSettings.morning);
+  if (morning !== null) {
+    periods.push({ label: "아침", minutes: morning });
   }
+  const lunch = parseTime(notificationSettings.lunch);
+  if (lunch !== null) {
+    periods.push({ label: "점심", minutes: lunch });
+  }
+  const dinner = parseTime(notificationSettings.dinner);
+  if (dinner !== null) {
+    periods.push({ label: "저녁", minutes: dinner });
+  }
+  const sleep = parseTime(notificationSettings.sleep);
+  if (sleep !== null) {
+    periods.push({ label: "자기전", minutes: sleep });
+  }
+
+  // 설정된 시간대가 하나도 없으면 빈 문자열 반환
+  if (periods.length === 0) return "";
+
+  // 시간 순서대로 정렬 (오름차순)
+  periods.sort((a, b) => a.minutes - b.minutes);
+
+  // 현재 시간이 첫 번째 설정된 시간보다 빠르면 첫 번째 시간대 반환
+  if (currentMinutes < periods[0].minutes) {
+    return periods[0].label;
+  }
+
+  // 설정된 시간대 중에서 현재 시간에 해당하는 시간대를 찾음
+  for (let i = 0; i < periods.length; i++) {
+    // 마지막 요소인 경우
+    if (i === periods.length - 1) {
+      return periods[i].label;
+    }
+    // 현재 시간이 두 시간대 사이에 있으면 앞쪽 시간대를 반환
+    if (currentMinutes >= periods[i].minutes && currentMinutes < periods[i + 1].minutes) {
+      return periods[i].label;
+    }
+  }
+
+  // 기본적으로 마지막 시간대를 반환 (이론상 도달하지 않음)
+  return periods[periods.length - 1].label;
 });
 
-// 실제로는 오늘의 날짜 까지 계산해서 그에 해당하는 약물만 백엔드에서 쏴줄거임.
 // 오늘의 날짜를 'YYYY-MM-DD' 형태로 구하는 함수
 const getTodayDate = () => {
   const today = new Date();
@@ -192,7 +224,7 @@ const fetchTodaysMedications = async () => {
   // 더미 데이터 예시:
   const response = [
     {
-      //처방전 = id, 개별약물 = prescriptionId, 약물명 = name, 시간대 = timePeriod, 복약여부 = taken
+      // 처방전 = id, 개별약물 = prescriptionId, 약물명 = name, 시간대 = timePeriod, 복약여부 = taken
       id: 1,
       prescriptionId: 101,
       name: "약물A",
@@ -223,22 +255,20 @@ const completeMedications = async () => {
 
 // ✅ 컴포넌트가 마운트되면 데이터 및 이벤트 리스너 등록
 onMounted(async () => {
-  // ✅ 오늘의 복약 내역 불러오기
+  // 오늘의 복약 내역 불러오기
   fetchTodaysMedications();
 
-  // ✅ 알림 설정 불러오기
+  // 알림 설정 불러오기
   await loadNotificationSettings();
 
-  // ✅ 클릭 이벤트 리스너 등록
+  // 클릭 이벤트 리스너 등록
   document.addEventListener("click", handleClickOutside);
 
-  // ✅ FCM 토큰 가져오기 (비동기 예외 처리)
+  // FCM 토큰 가져오기 (비동기 예외 처리)
   try {
     await getFCMToken();
   } catch (error) {
     console.error("FCM 초기화 실패:", error);
   }
 });
-
-
 </script>
