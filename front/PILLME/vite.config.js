@@ -14,10 +14,32 @@ export default defineConfig({
     vueDevTools(),
     mkcert(), // ✅ HTTPS 지원을 위한 mkcert 플러그인 추가
     VitePWA({
-      registerType: 'autoUpdate',
+      registerType: "autoUpdate",
       devOptions: {
-        enabled: true
-      }
+        enabled: true,
+      },
+      manifest: {
+        name: "PILLME",
+        short_name: "PILLME",
+        start_url: "/",
+        display: "standalone",
+        background_color: "#ffffff",
+        lang: "ko",
+        scope: "/",
+        theme_color: "#9DBB9F",
+        description: "💊복약 관리의 새로운 방법, PILLME",
+        icons: [
+          { src: "/icons/icon-48x48-android.png", sizes: "48x48", type: "image/png" },
+          { src: "/icons/icon-72x72-android.png", sizes: "72x72", type: "image/png" },
+          { src: "/icons/icon-96x96-android.png", sizes: "96x96", type: "image/png" },
+          { src: "/icons/icon-128x128-desktop.png", sizes: "128x128", type: "image/png" },
+          { src: "/icons/icon-144x144-windows.png", sizes: "144x144", type: "image/png" },
+          { src: "/icons/icon-152x152-ios.png", sizes: "152x152", type: "image/png" },
+          { src: "/icons/icon-192x192-chrome.png", sizes: "192x192", type: "image/png" },
+          { src: "/icons/icon-384x384-highres.png", sizes: "384x384", type: "image/png" },
+          { src: "/icons/icon-512x512-app.png", sizes: "512x512", type: "image/png" },
+        ],
+      },
     }),
 
     {

@@ -1,18 +1,20 @@
 <!doctype html>
 <html lang="ko">
   <head>
-    <!-- OpenCV.js cdn 로드 -->
-<!-- <script async src="https://docs.opencv.org/master/opencv.js"></script> -->
-
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>PILLME - PWA</title>
 
-    <!-- ✅ PWA 지원을 위한 메타 태그 추가 -->
-    <!-- <meta name="theme-color" content="#42b883" />
-    <link rel="manifest" href="/manifest.webmanifest" />
-    <link rel="icon" href="/pwa-icon-192.png" />
-    <link rel="apple-touch-icon" href="/pwa-icon-512.png" /> -->
+    <!-- ✅ PWA 매니페스트 -->
+    <link rel="manifest" href="/manifest.webmanifest">
+
+    <!-- ✅ PWA 메타 태그 -->
+    <meta name="theme-color" content="#42b883" />
+    <meta name="description" content="💊복약 관리의 새로운 방법, PILLME" />
+
+    <!-- ✅ 아이콘 설정 (PWA 및 애플용) -->
+    <link rel="icon" href="/icon-192x192-chrome.png" />
+    <link rel="apple-touch-icon" href="/icon-512x512-app.png" />
 
     <!-- ✅ 오프라인 시 기본 메시지 스타일 -->
     <style>
@@ -52,11 +54,11 @@
     <script type="module" src="/src/main.js"></script>
 
     <!-- ✅ PWA 서비스 워커 등록 -->
-    <!-- <script>
+    <script>
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
           navigator.serviceWorker
-            // .register('/registerServiceWorker.js')
+            .register('/sw.js')  // 🔹 서비스 워커 파일이 sw.js인지 확인 필요!
             .then((registration) => {
               console.log('[PWA] 서비스 워커 등록 완료:', registration);
             })
@@ -65,6 +67,6 @@
             });
         });
       }
-    </script> -->
+    </script>
   </body>
 </html>
