@@ -14,6 +14,7 @@
     <div class="w-full px-4 mt-2 space-y-2">
       <div v-for="(notification, index) in notifications" :key="notification.Id">
         <!-- 관리자 요청 알림 -->
+        <!-- 'DEPENDENCY_REQUEST'이외 다른 다이얼로그 생성필요 -->
         <AdminRequestItem 
   v-if="['DEPENDENCY_REQUEST', 'MEDICINE_REQUEST', 'DEPENDENCY_DELETE_REQUEST'].includes(notification.code)"
   :title="notification.content"
@@ -26,10 +27,15 @@
 
         <!-- 일반 알림 -->
         <NotificationItem
-          v-else
-          :title="notification.content"
-          class="w-full"
-        />
+    v-else
+    :title="notification.content"
+    :date="formatDate(notification.createdAt)"
+      :confirm="notification.confirm"
+        :notificationId="notification.notificationId"
+  @deleteNotification="handleDelete"
+    class="w-full"
+  />
+
       </div>
     </div>
 
@@ -91,6 +97,24 @@ const formatDate = (timestamp) => {
 //     notifications.value = [];
 //   }
 // };
+const handleDelete = async (notificationId) => {
+  if (!notificationId) {
+    console.error("❌ 유효하지 않은 notificationId");
+    return;
+  }
+
+  const success = await deleteNotification([notificationId]); // ✅ API 호출 (단일 ID만 포함)
+  
+  if (success) {
+    console.log(`🚀 알림 삭제 성공: ${notificationId}`);
+    notifications.value = notifications.value.filter(n => n.notificationId !== notificationId);
+    isDialogOpen.value = false; // ✅ 다이얼로그 닫기
+  } else {
+    console.error("❌ 알림 삭제 실패");
+  }
+};
+
+
 const handleReject = async ({ id }) => {
   console.log("🚨 거절된 관리자 요청 senderId:", id);
 
