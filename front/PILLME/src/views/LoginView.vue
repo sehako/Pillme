@@ -59,7 +59,7 @@ const handleLogin = async () => {
     // ✅ `response` 자체를 handleLoginSuccess()에 전달
     handleLoginSuccess(response);
     
-    alert("로그인 성공!");
+    // alert("로그인 성공!"); << 이 부분은 삭제
     window.location.replace("/");
   } catch (error) {
     console.error("❌ 로그인 오류:", error);
