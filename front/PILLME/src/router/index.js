@@ -58,13 +58,11 @@ const routes = [
   { path: '/mypage/pw-change', name: 'pw-change', component: MyPage_PwChange, meta: { requiresAuth: true } },
   { path: '/notificationlist', name: 'NotificationList', component: NotificationListView, meta: { requiresAuth: true } },
   { path: '/managememberlist', name: 'ManageMemberList', component: ManageMemberListView, meta: { requiresAuth: true } },
-
-  // ✅ 로그인 여부 상관없이 접근 가능 (예: 채팅)
   { path: '/chat', name: 'ChatView', component: ChatView, meta: { requiresAuth: true } },
   { path: '/chat/:id', name: 'ChatIndividualView', component: ChatIndividualView, props: true, meta: { requiresAuth: true } },
 
   // ✅ 404 페이지 처리
-  { path: '/:catchAll(.*)', name: 'NotFound', component: StartView }, // TODO: 404 페이지 구현 필요
+  // { path: '/:catchAll(.*)', name: 'NotFound', component: StartView }, // TODO: 404 페이지 구현 필요
 ];
 
 const router = createRouter({
