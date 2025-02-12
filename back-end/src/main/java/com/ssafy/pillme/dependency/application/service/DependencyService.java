@@ -2,6 +2,7 @@ package com.ssafy.pillme.dependency.application.service;
 
 import com.ssafy.pillme.auth.application.service.AuthService;
 import com.ssafy.pillme.auth.domain.entity.Member;
+import com.ssafy.pillme.auth.domain.vo.Role;
 import com.ssafy.pillme.auth.presentation.request.CreateLocalMemberRequest;
 import com.ssafy.pillme.chat.application.service.ChatRoomService;
 import com.ssafy.pillme.dependency.application.exception.DependencyNotFoundException;
@@ -14,6 +15,7 @@ import com.ssafy.pillme.dependency.presentation.request.*;
 import com.ssafy.pillme.global.code.ErrorCode;
 import com.ssafy.pillme.notification.application.service.NotificationService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,6 +24,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @Transactional
+@Slf4j
 public class DependencyService {
     private final DependencyRepository dependencyRepository;
     private final NotificationService notificationService;
@@ -77,11 +80,11 @@ public class DependencyService {
      * */
     public void createLocalMemberWithDependency(LocalMemberRequest request, Member protector) {
         /*
-        * 이름, 성별, 생년월일이 동일한 회원이 존재하면 해당 회원과 보호자의 관계가 존재하는지 확인
-        *   관계가 존재하면 예외 처리
-        *   관계가 존재하지 않으면 관계 정보 저장
-        * 존재하지 않으면 로컬 회원 생성 후 관계 정보 저장
-        * */
+         * 이름, 성별, 생년월일이 동일한 회원이 존재하면 해당 회원과 보호자의 관계가 존재하는지 확인
+         *   관계가 존재하면 예외 처리
+         *   관계가 존재하지 않으면 관계 정보 저장
+         * 존재하지 않으면 로컬 회원 생성 후 관계 정보 저장
+         * */
 //        Member dependent = authService.findLocalMember(request.name(), request.gender(), request.birthday());
 //
 //        if (dependent != null) {
@@ -117,6 +120,15 @@ public class DependencyService {
         // 관계 정보 조회
         Dependency dependency = dependencyRepository.findByIdAndDeletedIsFalse(dependencyId)
                 .orElseThrow(() -> new DependencyNotFoundException(ErrorCode.DEPENDENCY_NOT_FOUND));
+
+        /* 로컬 회원으로 등록된 피보호자인 경우
+         * 알림 없이 관계 정보 삭제 및 로컬 회원 삭제
+         * */
+        if (dependency.getDependent().getRole().equals(Role.LOCAL)) {
+            dependency.delete();
+            authService.deleteLocalMember(dependency.getDependent());
+            return;
+        }
 
         // 가족 관계 삭제 요청 알림을 수신하는 사람
         Member receiver = dependency.getOtherMember(loginMember);
