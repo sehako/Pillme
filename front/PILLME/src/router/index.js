@@ -39,6 +39,10 @@ import ChatIndividualView from '../views/ChatIndividualView.vue';
 import ManageMemberListView from '../views/ManageMemberListView.vue';
 import NotificationListView from '../views/NotificationListView.vue';
 
+// ocr
+import CameraCapture from '../components/CameraCapture.vue';
+import ImageAnalysis from '../components/ImageAnalysis.vue';
+
 const routes = [
   // ✅ 비로그인 사용자만 접근 가능한 페이지
   { path: '/start', name: 'StartView', component: StartView },
