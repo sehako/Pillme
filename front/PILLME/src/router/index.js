@@ -55,6 +55,9 @@ const routes = [
   { path: '/memberregister', name: 'memberregister', component: MemberRegisterView },
   { path: '/register', name: 'register', component: RegisterView },
   { path: '/emailregist', name: 'emailregist', component: EmailRegistView },
+  { path : '/oauth/additional-info', name: 'OAuthAdditionalInfo', component: OAuthAdditionalInfo },
+  { path: '/auth/callback/google', name: 'OAuthCallback', component: OAuthCallback },
+  { path: '/login/success', name: 'LoginSucess', component: LoginSucess },
 
   // ✅ 로그인해야 접근 가능한 페이지 (requiresAuth: true)
   { path: '/', name: 'Home', component: HomeView, meta: { requiresAuth: true } },

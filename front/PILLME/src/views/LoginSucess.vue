@@ -32,32 +32,73 @@ const goToLogin = () => {
 
 onMounted(async () => {
   try {
-    const urlParams = new URLSearchParams(window.location.search);
+    console.log('=== 로그인 성공 페이지 초기화 ===');
+    console.log('현재 URL:', window.location.href);
     
-    // accessToken과 refreshToken 직접 추출
+    const urlParams = new URLSearchParams(window.location.search);
     const accessToken = urlParams.get('accessToken');
     const refreshToken = urlParams.get('refreshToken');
+    
+    console.log('URL 파라미터 검사:', {
+      accessToken: accessToken ? '존재' : '없음',
+      refreshToken: refreshToken ? '존재' : '없음'
+    });
 
     if (!accessToken || !refreshToken) {
       throw new Error('토큰 정보가 없습니다.');
     }
 
-    // JWT 토큰에서 만료 시간 추출
-    const tokenPayload = JSON.parse(atob(accessToken.split('.')[1]));
-    const expiryTime = tokenPayload.exp * 1000;
+    // JWT 토큰 디코딩
+    try {
+      const tokenParts = accessToken.split('.');
+      const tokenPayload = JSON.parse(atob(tokenParts[1]));
+      const expiryTime = tokenPayload.exp * 1000;
+      const currentTime = Date.now();
+      
+      console.log('토큰 정보:', {
+        만료시간: new Date(expiryTime).toLocaleString(),
+        현재시간: new Date(currentTime).toLocaleString(),
+        유효여부: expiryTime > currentTime
+      });
 
-    // 토큰 저장
-    localStorage.setItem('accessToken', accessToken);
-    localStorage.setItem('accessTokenExpiry', expiryTime.toString());
-    Cookies.set('refreshToken', refreshToken);
+      // 토큰 저장
+      localStorage.clear(); // 기존 토큰 정보 초기화
+      localStorage.setItem('accessToken', accessToken);
+      localStorage.setItem('accessTokenExpiry', expiryTime.toString());
+      Cookies.remove('refreshToken'); // 기존 쿠키 제거
+      Cookies.set('refreshToken', refreshToken);
 
-    // URL 파라미터 제거 (보안을 위해)
-    window.history.replaceState({}, document.title, window.location.pathname);
+      // 저장된 값 확인
+      const savedAccessToken = localStorage.getItem('accessToken');
+      const savedExpiry = localStorage.getItem('accessTokenExpiry');
+      const savedRefreshToken = Cookies.get('refreshToken');
 
-    // 메인 페이지로 이동
-    await router.push('/');;
+      console.log('저장된 값 확인:', {
+        accessToken: savedAccessToken ? '저장됨' : '실패',
+        accessTokenExpiry: savedExpiry,
+        refreshToken: savedRefreshToken ? '저장됨' : '실패'
+      });
+
+      // URL 파라미터 제거
+      window.history.replaceState({}, document.title, window.location.pathname);
+      
+      // 홈으로 이동
+      console.log('홈으로 이동 시도');
+      setTimeout(() => {
+        router.push('/').then(() => {
+          console.log('홈 이동 성공');
+        }).catch((err) => {
+          console.error('홈 이동 실패:', err);
+        });
+      }, 500); // 지연 시간 증가
+
+    } catch (tokenError) {
+      console.error('토큰 처리 중 에러:', tokenError);
+      throw new Error('토큰 처리 중 오류가 발생했습니다.');
+    }
     
   } catch (e) {
+    console.error('로그인 처리 중 에러:', e);
     error.value = e.message || '로그인 처리 중 오류가 발생했습니다.';
   }
 });
