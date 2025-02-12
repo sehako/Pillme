@@ -101,7 +101,7 @@
           변경 요청
         </button>
       </div>
-    </div>    
+    </div>
 
     <!-- ✅ 변경/인증 모달 (이메일/전화번호) -->
 <div 
@@ -127,22 +127,29 @@
 
     <!-- 이메일과 전화번호는 동일한 인증 흐름을 사용 -->
     <div v-if="modalField === 'email' || modalField === 'phone'">
-      <input 
-        v-model="modalValue" 
-        :type="modalField === 'email' ? 'email' : 'phone'" 
-        :placeholder="modalField === 'email' ? '새 이메일 입력' : '새 전화번호 입력'" 
-        @blur="modalField === 'email' ? handleEmailBlur : handlePhoneBlur"
-        class="border p-2 w-full rounded outline-none focus:border-[#3D5A3F] text-sm md:text-base mb-2"
-      />
-      <!-- 인증번호 발송 전 -->
-      <div v-if="!isVerificationSent" class="flex flex-col items-center justify-center">
-        <BaseButton 
-          @click="modalField === 'email' ? sendEmailCode : sendPhoneVerification" 
-          class="!min-w-max px-3 py-1 bg-[#4E7351] text-white rounded hover:bg-[#3D5A3F] text-xs md:text-sm"
-        >
-          인증번호 발송
-        </BaseButton>
-      </div>
+  <input 
+    v-model="modalValue" 
+    :type="modalField === 'email' ? 'email' : 'phone'" 
+    :placeholder="modalField === 'email' ? '새 이메일 입력' : '새 전화번호 입력'" 
+    @blur="modalField === 'email' ? handleEmailBlur : handlePhoneBlur"
+    class="border p-2 w-full rounded outline-none focus:border-[#3D5A3F] text-sm md:text-base mb-2"
+  />
+  <!-- 이메일 유효성 메시지 추가 -->
+  <p v-if="modalField === 'email'" class="mb-2 text-xs" :class="isEmailValid ? 'text-green-500' : 'text-red-500'">
+    {{ emailMessage }}
+  </p>
+
+  <!-- 인증번호 발송 전 -->
+  <div v-if="!isVerificationSent" class="flex flex-col items-center justify-center">
+    <BaseButton 
+      @click="modalField === 'email' ? sendEmailCode : sendPhoneVerification" 
+      :disabled="modalField === 'email' && !isEmailValid"
+      class="!min-w-max px-3 py-1 bg-[#4E7351] text-white rounded hover:bg-[#3D5A3F] text-xs md:text-sm"
+      :class="{ 'opacity-50 cursor-not-allowed': modalField === 'email' && !isEmailValid }"
+    >
+      인증번호 발송
+    </BaseButton>
+  </div>
       <!-- 인증번호 발송 후 -->
       <div v-else class="flex flex-col items-center justify-center">
         <p class="mb-2 text-xs text-gray-600">인증번호가 발송되었습니다.</p>
