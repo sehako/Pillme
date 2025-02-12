@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 @Entity
-@Table(name="chat_room", uniqueConstraints = @UniqueConstraint(columnNames = {"care_user_id","user_id"}))
+@Table(name="chat_room", uniqueConstraints = @UniqueConstraint(columnNames = {"send_user_id","receive_user_id"}))
 @NoArgsConstructor
 @Getter
 public class ChatRoom {
@@ -25,8 +25,8 @@ public class ChatRoom {
     @JoinColumn(name="receive_user_id", nullable = false)
     private Member receiveUser;
 
-    public void updateChatRoom(Member sendUser, Member receiveuser){
+    public void updateChatRoom(Member sendUser, Member receiveUser){
         this.sendUser = sendUser;
-        this.receiveUser = receiveuser;
+        this.receiveUser = receiveUser;
     }
 }
