@@ -63,7 +63,7 @@ const routes = [
 
   // ✅ 로그인 여부와 상관없이 접근 가능한 페이지 (예: 채팅)
   { path: '/chat', name: 'ChatView', component: ChatView, meta: { requiresAuth: true } },
-  { path: '/chat/:info', name: 'ChatIndividualView', component: ChatIndividualView, props: true, meta: { requiresAuth: true } },
+  { path: '/chat/individual', name: 'ChatIndividualView', component: ChatIndividualView, props: (route) => ({ info: route.query.info }), meta: { requiresAuth: true } },
 
   // ✅ 404 페이지 처리
   { path: '/:catchAll(.*)', name: 'NotFound', component: StartView },

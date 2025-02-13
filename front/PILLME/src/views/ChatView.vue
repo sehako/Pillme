@@ -76,7 +76,7 @@
               </div>
               <div>
                 <div class="font-semibold">{{ room.opponentName }}</div>
-                <div class="text-sm text-gray-600 truncate w-32">마지막 메시지 내용...</div>
+                <div class="text-sm text-gray-600 truncate w-32">{{ room.lastMessage }}</div>
               </div>
             </div>
 
@@ -104,7 +104,8 @@ import GreenCard from '../layout/GreenCard.vue';
 import { useChatStore } from '../stores/chatStore';
 import { getChatRoomList, enterChatRoom } from '../api/chatRoom';
 import { decodeToken } from "../utils/jwt"; // ✅ JWT 디코딩 유틸 추가
-
+import SockJS from 'sockjs-client/dist/sockjs.min.js'
+import Stomp from "stompjs";
 const chatStore = useChatStore();
 const router = useRouter();
 
@@ -115,6 +116,41 @@ const myId = tokenId ? tokenId : null;
 const searchQuery = ref('');
 const chatRooms = ref([]);
 
+
+let stompClient = null;
+let headers = {Authorization : localStorage.getItem('accessToken')};
+// ✅ WebSocket 연결 (새 메시지 업데이트)
+const connectWebSocket = () => {
+  const socket = new SockJS("http://localhost:8080/ws-chat");
+  stompClient = Stomp.over(socket);
+
+  stompClient.connect(headers, () => {
+    console.log("✅ WebSocket 연결됨");
+
+    // ✅ 실시간 채팅방 목록 업데이트 구독
+    stompClient.subscribe(`/subscribe/chat/list/${myId}`, (message) => {
+      const updatedRoom = JSON.parse(message.body);
+      console.log(message)
+      // ✅ 기존 채팅방 목록에서 업데이트된 채팅방 찾기
+      const index = chatRooms.value.findIndex(room => room.chatRoomId === updatedRoom.chatRoomId);
+      if (index !== -1) {
+        // ✅ 기존 채팅방 업데이트
+        chatRooms.value[index].lastMessage = updatedRoom.lastMessage;
+        chatRooms.value[index].lastMessageTime = updatedRoom.lastMessageTime;
+        chatRooms.value[index].unreadMessageCount = updatedRoom.unreadCount;
+      } else {
+        // ✅ 새 채팅방 추가
+        chatRooms.value.push(updatedRoom);
+      }
+
+      // ✅ 최신 메시지 기준으로 정렬 (최근 메시지가 위로 오도록)
+      chatRooms.value.sort((a, b) => b.lastMessageTime - a.lastMessageTime);
+    });
+  });
+};
+
+
+
 // ✅ 채팅방 데이터 불러오기
 const loadChatRooms = async () => {
   try {
@@ -122,13 +158,18 @@ const loadChatRooms = async () => {
     chatRooms.value = rooms.map((room) => {
       // 내 ID와 일치하지 않는 ID를 상대방(opponent)으로 설정
       const isSender = room.sendUserId === myId;
+      console.log(room)
       return {
         chatRoomId: room.chatRoomId,
         opponentId: isSender ? room.receiveUserId : room.sendUserId,
         opponentName: isSender ? room.receiveUserName : room.sendUserName,
         unreadMessageCount: room.unreadMessageCount,
+        lastMessage: room.lastMessage || "대화 없음",
+        lastMessageTime: room.lastMessageTime || 0,
+        unreadMessageCount: room.unreadMessageCount || 0,
       };
     });
+    chatRooms.value.sort((a, b) => b.lastMessageTime - a.lastMessageTime);
   } catch (error) {
     console.error('채팅방 데이터를 불러오는 데 실패했습니다.', error);
   }
@@ -136,6 +177,7 @@ const loadChatRooms = async () => {
 
 onMounted(() => {
   loadChatRooms();
+  connectWebSocket();
 });
 
 // ✅ 검색어 필터링 (상대방 이름 기준)
@@ -147,7 +189,10 @@ const filteredChatRooms = computed(() => {
 const enterChat = async (receiverId) => {
   try {
     const chatRoomData = await enterChatRoom(myId, receiverId); // ✅ 모듈 사용
-    router.push(`/chat/${chatRoomData}`); // ✅ 여기서 router.push 실행
+    router.push({
+      name: "ChatIndividualView",
+      query: { info: JSON.stringify(chatRoomData)}
+});
   } catch (error) {
     alert("채팅방 입장에 실패했습니다.");
   }
