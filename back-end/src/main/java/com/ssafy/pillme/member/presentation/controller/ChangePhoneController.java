@@ -2,6 +2,7 @@ package com.ssafy.pillme.member.presentation.controller;
 
 import com.ssafy.pillme.global.response.JSONResponse;
 import com.ssafy.pillme.member.application.service.ChangePhoneService;
+import com.ssafy.pillme.member.domain.vo.PhoneValidationResult;
 import com.ssafy.pillme.member.presentation.request.ChangePhoneRequest;
 import com.ssafy.pillme.member.presentation.request.ChangePhoneVerifyRequest;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +14,16 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class ChangePhoneController {
     private final ChangePhoneService changePhoneService;
+
+    /**
+     * 전화번호 유효성 검증
+     */
+    @GetMapping("/check/phone")
+    public ResponseEntity<JSONResponse<PhoneValidationResult>> validatePhone(
+            @RequestParam String newPhoneNumber) {
+        PhoneValidationResult result = changePhoneService.validatePhone(newPhoneNumber);
+        return ResponseEntity.ok(JSONResponse.onSuccess(result));
+    }
 
     /**
      * 전화번호 변경을 위한 인증번호 발송
@@ -34,6 +45,9 @@ public class ChangePhoneController {
         return ResponseEntity.ok(JSONResponse.onSuccess());
     }
 
+    /**
+     * 전화번호 변경
+     */
     @PutMapping("/phone")
     public ResponseEntity<JSONResponse<Void>> changePhone(
             @RequestBody ChangePhoneRequest request) {
