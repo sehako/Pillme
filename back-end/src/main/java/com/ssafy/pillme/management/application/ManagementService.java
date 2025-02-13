@@ -149,16 +149,13 @@ public class ManagementService {
     }
 
     public void checkSingleMedicationTaking(
-            final Long infoId,
             final SingleTakingCheckRequest request,
             final Member member
     ) {
-        Information information = findInformationById(infoId);
-
-        checkMemberValidation(member, information);
-
-        Management management = managementRepository.findByIdAndInformationId(request.managementId(), infoId)
+        Management management = managementRepository.findById(request.managementId())
                 .orElseThrow(() -> new NoManagementException(MANAGEMENT_NOT_FOUND));
+
+        checkMemberValidation(member, management.getInformation());
 
         checkMedicationTaking(management, request.time());
     }

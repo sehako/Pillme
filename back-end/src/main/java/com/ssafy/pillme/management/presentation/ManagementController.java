@@ -98,13 +98,12 @@ public class ManagementController {
         );
     }
 
-    @PatchMapping("/check-taking/{info-id}")
+    @PatchMapping("/check-taking")
     public ResponseEntity<JSONResponse<Void>> checkSingleMedication(
-            @PathVariable(value = "info-id") final Long infoId,
             @RequestBody final SingleTakingCheckRequest request,
             @Auth Member member
     ) {
-        managementService.checkSingleMedicationTaking(infoId, request, member);
+        managementService.checkSingleMedicationTaking(request, member);
         return ResponseEntity.ok(
                 JSONResponse.onSuccess()
         );
