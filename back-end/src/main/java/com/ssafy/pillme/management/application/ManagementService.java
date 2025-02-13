@@ -105,7 +105,7 @@ public class ManagementService {
             final Long memberId,
             final Member member) {
         return managementRepository
-                .findByInformationByDateAndMember(
+                .findByInformationDateAndMember(
                         LocalDate.now(),
                         memberId == null ? member : authService.findById(memberId)
                 )
@@ -118,7 +118,7 @@ public class ManagementService {
     public List<TakingInformationItem> selectCurrentTakingInformationList(
             final Member member
     ) {
-        List<Management> managements = managementRepository.findByInformationByDateAndMember(LocalDate.now(), member);
+        List<Management> managements = managementRepository.findByInformationDateAndMember(LocalDate.now(), member);
 
         return managements.stream()
                 .map(TakingInformationItem::from)
@@ -180,7 +180,7 @@ public class ManagementService {
             final CheckCurrentTakingRequest request,
             final Member member
     ) {
-        List<Management> managements = managementRepository.findByInformationByDateAndMember(request.date(), member);
+        List<Management> managements = managementRepository.findByInformationDateAndMember(LocalDate.now(), member);
 
         for (Management management : managements) {
             checkMedicationTaking(management, request.time());

@@ -12,8 +12,7 @@ public record PrescriptionResponse(
         String hospital,
         String diseaseName,
         LocalDate startDate,
-        LocalDate endDate,
-        boolean isSupplement
+        LocalDate endDate
 ) {
     public static PrescriptionResponse of(
             final Information information,
@@ -26,8 +25,7 @@ public record PrescriptionResponse(
                 information.getHospital(),
                 information.getDiseaseName(),
                 information.getStartDate(),
-                information.getEndDate(),
-                information.isSupplement()
+                information.getEndDate()
         );
     }
 }

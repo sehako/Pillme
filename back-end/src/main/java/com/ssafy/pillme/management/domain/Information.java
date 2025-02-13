@@ -18,7 +18,6 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.ColumnDefault;
 
 @Entity
 @Table(name = "information")
@@ -41,15 +40,13 @@ public class Information extends BaseEntity {
     private LocalDate endDate;
     @Column(name = "disease_name")
     private String diseaseName;
-    @ColumnDefault(value = "false")
-    private boolean supplement = false;
 
     @OneToMany(mappedBy = "information")
     List<Management> managements;
 
     @Builder
     private Information(Long id, Member reader, Member writer, String hospital, LocalDate startDate, LocalDate endDate,
-                        String diseaseName, boolean supplement) {
+                        String diseaseName) {
         this.id = id;
         this.reader = reader;
         this.writer = writer;
@@ -57,6 +54,5 @@ public class Information extends BaseEntity {
         this.startDate = startDate;
         this.endDate = endDate;
         this.diseaseName = diseaseName;
-        this.supplement = supplement;
     }
 }
