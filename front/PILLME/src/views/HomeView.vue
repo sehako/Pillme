@@ -1,6 +1,6 @@
 <template>
   <div class="flex flex-col w-full">
-    <div class="bg-[#B5CCB7] rounded-bl-xl rounded-br-lg">
+    <div class="bg-[#B5CCB7] rounded-bl-xl rounded-br-lg top-0 sticky z-50">
       <div class="flex flex-row items-center justify-between px-4 py-1">
         <!-- 베이스탑바 바로 밑의 바임 -->
         <!--  햄버거 메뉴 컴포넌트 -->
