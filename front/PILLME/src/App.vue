@@ -28,7 +28,7 @@
     <!-- 오른쪽 (모바일 전체) -->
     <div class="flex flex-col w-full md:w-1/2 relative">
       <!-- 상단 바 -->
-      <div ref="topbarRef" class="relative z-10">
+      <div v-if="isLoggedIn" ref="topbarRef" class="relative z-10">
         <BaseTopbar />
       </div>
 
@@ -56,7 +56,7 @@
         <MedicationScheduleDialog v-if="ocrStore.showMedicationDialog" />
       </div>
       <!-- 하단 바 -->
-      <div ref="navbarRef" class="relative z-10 bg-white">
+      <div v-if="isLoggedIn" ref="navbarRef" class="relative z-10 bg-white">
         <BaseNavbar />
       </div>
     </div>
@@ -81,10 +81,17 @@ const route = useRoute();
 const ocrStore = useOcrStore();
 const contentRef = ref(null);
 const isRouteReady = ref(true);
+const isLoggedIn = ref(false);
 
 // 특정 라우트에서 스크롤 허용
 const isScrollAllowed = ref(false);
 const alwaysScrollablePages = ['/afteraccount', '/', '/notificationlist']; // 특정 경로 허용
+
+// ✅ 로그인 상태 확인 함수
+const checkLoginStatus = () => {
+  isLoggedIn.value = !!localStorage.getItem('accessToken');
+};
+
 
 watch(
   () => route.path,
