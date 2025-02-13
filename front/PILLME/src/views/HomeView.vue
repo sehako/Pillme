@@ -3,15 +3,15 @@
     <div class="bg-[#B5CCB7] rounded-bl-xl rounded-br-lg">
       <div class="flex flex-row items-center justify-between px-4 py-1">
         <!-- 베이스탑바 바로 밑의 바임 -->
-        <!-- ✅ 햄버거 메뉴 컴포넌트 -->
+        <!--  햄버거 메뉴 컴포넌트 -->
         <div class="flex-1 flex">
           <HamBugerMenu />
         </div>
 
-        <!-- ✅ 사용자 이름 드롭다운 (컴포넌트 사용) -->
+        <!--  사용자 이름 드롭다운 (컴포넌트 사용) -->
         <NameDropdown />
 
-        <!-- ✅ 공백 (햄버거 아이콘과 크기 맞춤) -->
+        <!--  공백 (햄버거 아이콘과 크기 맞춤) -->
         <div class="flex-1"></div>
       </div>
     </div>
@@ -23,9 +23,10 @@
       <BaseButton class="whitespace-nowrap text-lg font-base">
         약정보검색
       </BaseButton>
-      <BaseButton class="whitespace-nowrap text-lg font-base">
-        알림설정
-      </BaseButton>
+      <BaseButton class="whitespace-nowrap text-lg font-base" @click="openSetAlarmModal">
+  알림설정
+</BaseButton>
+
     </div>
 
     <main>
@@ -74,6 +75,18 @@
     </main>
   </div>
   <FamilyAddModal :isOpen="isFamilyModalOpen" @close="isFamilyModalOpen = false" />
+  <Teleport to="body">
+  <div v-if="isAlarmModalOpen" class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+    <div :class="`bg-white p-4 rounded-lg shadow-lg relative ${modalClass}`">
+      <button @click="closeSetAlarmModal" class="absolute top-2 right-2 text-gray-500 hover:text-gray-800">
+        ✕
+      </button>
+      <MyAlarmModal />
+    </div>
+  </div>
+</Teleport>
+
+
 </template>
 
 <script setup>
@@ -88,11 +101,14 @@ import NameDropdown from '../components/NameDropdown.vue';
 import FamilyAddModal from '../components/FamilyAddModal.vue';
 import { useFCM } from '../utils/usefcm';
 import BaseCalendar from '../components/BaseCalendar.vue';
+import { defineAsyncComponent } from 'vue';
 
-// 필요에 따라 VCalendar 컴포넌트도 import 합니다.
+//  My_Alarm.vue를 동적으로 import (모달에서만 로드)
+const MyAlarmModal = defineAsyncComponent(() => import('../views/My_Alarm.vue'));
+
 
 defineProps({
-  navbarHeight: Number, // ✅ props 정의
+  navbarHeight: Number, //  props 정의
 });
 
 const { getFCMToken } = useFCM();
@@ -129,13 +145,33 @@ const loadNotificationSettings = async () => {
   }
 };
 
-// ✅ 모달 상태 관리
+//  모달 상태 관리
 const isFamilyModalOpen = ref(false);
 const openFamilyModal = () => {
   isFamilyModalOpen.value = true;
 };
+const isAlarmModalOpen = ref(false);
+const openSetAlarmModal = () => {
+  isAlarmModalOpen.value = true;
+};
+const closeSetAlarmModal = () => {
+  isAlarmModalOpen.value = false;
+};
 
-// ✅ 외부 클릭 감지 함수
+
+//알림모달크기조절
+const modalSize = ref("md"); // "sm", "md", "lg"
+
+const modalClass = computed(() => {
+  return {
+    sm: "w-[300px] h-[400px]",
+    md: "w-[500px] h-[600px]",
+    lg: "w-[80%] max-w-lg"
+  }[modalSize.value];
+});
+
+
+//  외부 클릭 감지 함수
 const handleClickOutside = (event) => {
   // 예를 들어 특정 모달이 열려 있을 때, 모달 외부를 클릭하면 닫히도록 처리 가능
   if (isFamilyModalOpen.value) {
@@ -245,7 +281,7 @@ const fetchTodaysMedications = async () => {
 // 복약 완료 처리 함수 (사용자가 체크하면 호출)
 const completeMedications = async () => {
   try {
-    // ✅ 한글 시간대를 영어로 변환
+    //  한글 시간대를 영어로 변환
     const periodMap = {
       "아침": "morning",
       "점심": "lunch",
@@ -260,14 +296,14 @@ const completeMedications = async () => {
       return;
     }
 
-    // ✅ 디버그 로그 출력
+    //  디버그 로그 출력
     console.log("🔍 [completeMedications] 현재 시간대:", timePeriod);
     console.log("🔍 [completeMedications] 요청 바디:", { time: timePeriod });
 
-    // ✅ API 호출 (timePeriod만 전송)
-    await fetchAllDrugCheck(timePeriod);  // ✅ 올바른 형식으로 전달
+    //  API 호출 (timePeriod만 전송)
+    await fetchAllDrugCheck(timePeriod);  //  올바른 형식으로 전달
 
-    // ✅ 상태 업데이트
+    //  상태 업데이트
     todaysMedications.value.forEach((med) => (med.taken = true));
 
     alert("복약 완료 처리가 완료되었습니다.");
@@ -279,7 +315,7 @@ const completeMedications = async () => {
 
 
 
-// ✅ 컴포넌트가 마운트되면 데이터 및 이벤트 리스너 등록
+//  컴포넌트가 마운트되면 데이터 및 이벤트 리스너 등록
 onMounted(async () => {
   // 오늘의 복약 내역 불러오기
   fetchTodaysMedications();
