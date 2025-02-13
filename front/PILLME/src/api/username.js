@@ -12,7 +12,7 @@ export const fetchUsername = async () => {
     if (!token) {
       throw new Error("엑세스 토큰이 존재하지 않습니다.");
     }
-
+    console.log("Access token", token);
     // ✅ API 요청 시 `Authorization: Bearer {token}` 추가
     const response = await apiClient.get('/api/v1/members/me', {
 

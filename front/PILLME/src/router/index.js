@@ -79,14 +79,9 @@ const routes = [
   { path: '/notificationlist', name: 'NotificationList', component: NotificationListView, meta: { requiresAuth: true } },
   { path: '/managememberlist', name: 'ManageMemberList', component: ManageMemberListView, meta: { requiresAuth: true } },
   { path: '/chat', name: 'ChatView', component: ChatView, meta: { requiresAuth: true } },
-  {
-    path: '/chat/:id',
-    name: 'ChatIndividualView',
-    component: ChatIndividualView,
-    props: true,
-    meta: { requiresAuth: true },
-  },
-
+  { path: '/camera', name: 'CameraCapture', component: CameraCapture, meta: { requiresAuth: true } },
+  { path: '/imageanalysis', name: 'ImageAnalysis', component: ImageAnalysis, meta: { requiresAuth: true } },
+  { path: '/chat/individual', name: 'ChatIndividualView', component: ChatIndividualView, props: (route) => ({ info: route.query.info }), meta: { requiresAuth: true } },
   // ✅ 404 페이지 처리
   // { path: '/:catchAll(.*)', name: 'NotFound', component: StartView }, // TODO: 404 페이지 구현 필요
 ];
