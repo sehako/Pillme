@@ -44,7 +44,15 @@
       <!-- 생년월일 입력 -->
       <div class="flex flex-col w-full">
         <label for="birthdate" class="text-sm font-medium">생년월일</label>
-        <BaseInput id="birthdate" v-model="birthday" type="date" />
+        <Datepicker
+  v-model="birthday"
+  :locale="ko"
+  :format="formatDate"
+  placeholder="생년월일을 선택하세요"
+  :editable="false"
+  class="cursor-pointer"
+/>
+
       </div>
 
       <!-- 이메일 입력 (비활성화) -->
@@ -122,7 +130,7 @@
       <!-- 버튼들 가로 정렬 & 간격 추가 -->
       <div class="flex flex-row w-full justify-center mt-4 gap-4">
         <BaseButton
-          class="flex-1 !min-w-full"
+          class="flex-1 !min-w-fit"
           textColor="text-gray-700"
           size="md"
           @click="goBack"
@@ -132,7 +140,7 @@
         </BaseButton>
 
         <BaseButton
-          class="flex-1 !min-w-full"
+          class="flex-1 !min-w-fit"
           textColor="text-white"
           size="md"
           type="submit"
@@ -157,7 +165,8 @@ import BaseInput from "../components/BaseInput.vue";
 import BaseLogo from "../components/BaseLogo.vue";
 import BaseText from "../components/BaseText.vue";
 import logoSrc from "../assets/logi_nofont.svg";
-
+import Datepicker from "vue3-datepicker";
+import { ko } from "date-fns/locale";
 const router = useRouter();
 const route = useRoute();
 // const authStore = useAuthStore();
@@ -165,7 +174,7 @@ const route = useRoute();
 const name = ref("");
 const nickname = ref("");
 const gender = ref("");
-const birthday = ref("");
+const birthday = ref(null);   
 const email = ref(route.query.email || "");
 const password = ref(route.query.password || "");
 const phone = ref("");
@@ -224,12 +233,28 @@ const verifyCode = async () => {
     isVerifying.value = false;
   }
 };
-
+// 날짜 포맷 지정 함수 (선택사항)
+const formatDate = (date) => {
+  if (!date) return "";
+  // 원하는 포맷에 맞춰 변환 (YYYY-MM-DD 형태)
+  const yyyy = date.getFullYear();
+  const mm = String(date.getMonth() + 1).padStart(2, "0");
+  const dd = String(date.getDate()).padStart(2, "0");
+  return `${yyyy}-${mm}-${dd}`;
+};
 // 가입하기 버튼 클릭 시 실행 (가입 API 호출)
 const handleSubmit = async () => {
   try {
-    // 생년월일 변환: "YYYY-MM-DD" -> "YYYYMMDD"
-    const formattedBirthday = birthday.value ? birthday.value.replace(/-/g, "") : "";
+    // Datepicker로 선택된 birthday.value가 Date 객체라면,
+    // YYYYMMDD 형태로 변환
+    let formattedBirthday = "";
+    if (birthday.value instanceof Date) {
+      const year = birthday.value.getFullYear();
+      const month = String(birthday.value.getMonth() + 1).padStart(2, "0");
+      const day = String(birthday.value.getDate()).padStart(2, "0");
+      formattedBirthday = `${year}${month}${day}`;
+    }
+
     const requestData = {
       email: email.value,
       password: password.value,
@@ -239,7 +264,8 @@ const handleSubmit = async () => {
       phone: phone.value,
       birthday: formattedBirthday,
     };
-    console.log("📨 가입 요청 데이터:", requestData);
+
+    console.log("📨 가입 요청 데이터:", requestDat.value);
     const response = await apiClient.post("/api/v1/auth/signup", requestData, {
       headers: {
         "Content-Type": "application/json",
