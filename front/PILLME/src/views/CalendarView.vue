@@ -2,7 +2,7 @@
   <div class="flex flex-col w-full max-h-full !items-start !justify-start">
     <!-- 상단 (70%) -->
     <div class="w-full">
-      <VCalendar trim-weeks expanded/>
+      <BaseCalendar trim-weeks expanded/>
     </div>
 
     <div class="grid grid-cols-3 divide-x-0"></div>
@@ -25,6 +25,7 @@
 </template>
 
 <script setup>
+import BaseCalendar from '../components/BaseCalendar.vue';
 import WhiteCard from '../layout/WhiteCard.vue';
 </script>
 
