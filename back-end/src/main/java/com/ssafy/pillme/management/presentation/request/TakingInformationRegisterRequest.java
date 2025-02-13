@@ -16,7 +16,6 @@ public record TakingInformationRegisterRequest(
         LocalDate startDate,
         @DateTimeFormat(iso = DateTimeFormat.ISO.DATE, pattern = "yyyy-MM-dd")
         LocalDate endDate,
-        boolean isSupplement,
         List<TakingSettingItem> medications
 ) {
     public Information toInformation(Member writer, Member reader) {
