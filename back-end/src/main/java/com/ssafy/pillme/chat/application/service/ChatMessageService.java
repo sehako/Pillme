@@ -35,7 +35,6 @@ public class ChatMessageService {
 
         //채팅 상대가 채팅방에 있는지 확인
         Boolean isOnline = chatRedisService.checkMember(chatRoomId, receiverId);
-
         if(Boolean.TRUE.equals(isOnline)){
             chatMessage.markAsRead();
         }

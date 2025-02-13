@@ -29,7 +29,7 @@ public class ChatRoomController {
     //유저의 채팅방 정보 조회
     @GetMapping("/list")
     public ResponseEntity<JSONResponse<List<ChatRoomResponse>>> getUserChatRooms(@Auth Member member){
-        return ResponseEntity.ok(JSONResponse.onSuccess(chatRoomService.getUserChatRoom(member.getId())));
+        return ResponseEntity.ok(JSONResponse.onSuccess(chatRoomService.getUserChatRoom(member)));
     }
 
     //채팅방 없을 시 채팅방 생성 or 채팅방 존재할 경우 이전 채팅방 정보 불러오기(redis에 유저 정보 추가)

@@ -5,6 +5,7 @@ import com.ssafy.pillme.auth.domain.entity.Member;
 import com.ssafy.pillme.chat.application.exception.ChatRoomNotFoundException;
 import com.ssafy.pillme.chat.application.response.ChatMessageResponse;
 import com.ssafy.pillme.chat.application.response.ChatRoomResponse;
+import com.ssafy.pillme.chat.domain.entity.ChatMessage;
 import com.ssafy.pillme.chat.domain.entity.ChatRoom;
 import com.ssafy.pillme.chat.infrastructure.repository.ChatMessageRepository;
 import com.ssafy.pillme.chat.infrastructure.repository.ChatRoomRepository;
@@ -17,6 +18,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -32,17 +34,22 @@ public class ChatRoomService {
     private final ChatRedisService chatRedisService;
 
 
-    public List<ChatRoomResponse> getUserChatRoom(Long userId){
-        Member user = authService.findById(userId);
+    public List<ChatRoomResponse> getUserChatRoom(Member user){
         List<ChatRoom> chatRooms =  chatRoomRepository.findBySendUserOrReceiveUser(user, user);
         if(chatRooms.isEmpty()){
             throw new ChatRoomNotFoundException(ErrorCode.EMPTY_CHATROOM_ID);
         }
         return chatRooms.stream()
-                .map(chatRoom -> ChatRoomResponse.from(
-                        chatRoom,
-                        chatMessageRepository.countByChatRoomIdAndSenderIdNotAndReadFalse(chatRoom.getId(), userId)
-                ))
+                .map(chatRoom -> {
+                    Optional<ChatMessage> lastMessage = chatMessageRepository.findTopByChatRoomIdOrderByTimestampDesc(chatRoom.getId());
+
+                    return ChatRoomResponse.from(
+                            chatRoom,
+                            chatMessageRepository.countByChatRoomIdAndSenderIdNotAndReadFalse(chatRoom.getId(), user.getId()),
+                            lastMessage.map(ChatMessage::getMessage).orElse(""),
+                            lastMessage.map(ChatMessage::getTimestamp).orElse(System.currentTimeMillis())
+                    );
+                })
                 .collect(Collectors.toList());
     }
 
@@ -52,14 +59,14 @@ public class ChatRoomService {
         Optional<ChatRoom> chatRoom = chatRoomRepository.findByUsers(sendUser, receiveUser);
         if(chatRoom.isPresent()){
             chatRedisService.enterChatRoom(chatRoom.get().getId(), myId);   //myId로 바꿔야됨
-            return ChatRoomResponse.from(chatRoom.get(),0);
+            return ChatRoomResponse.from(chatRoom.get(),0,"", new Date().getTime());
         }
         ChatRoom newChatRoom = new ChatRoom();
 
         newChatRoom.updateChatRoom(sendUser, receiveUser);
         newChatRoom= chatRoomRepository.save(newChatRoom);
         chatRedisService.enterChatRoom(newChatRoom.getId(), myId);   //myId로 바꿔야됨
-        return ChatRoomResponse.from(newChatRoom,0);
+        return ChatRoomResponse.from(newChatRoom,0,"",new Date().getTime());
     }
 
     public void createChatRoom(Member protector, Member dependent){
@@ -72,10 +79,27 @@ public class ChatRoomService {
         chatRoomRepository.save(newChatRoom);
     }
 
+    public String getLastChatMessage(Long chatRoomId){
+        return chatMessageRepository.findTopByChatRoomIdOrderByTimestampDesc(chatRoomId).map(ChatMessage::getMessage).orElse("");
+    }
+
+    public int countNotReadMessages(Long chatRoomId, Long userId){
+        return chatMessageRepository.countByChatRoomIdAndReceiverIdAndReadFalse(chatRoomId, userId);
+    }
+
     public void deleteChatRoom(Long chatRoom){
         if(chatRoomRepository.existsById(chatRoom)){
             chatRoomRepository.deleteById(chatRoom);
         } else{
+            throw new ChatRoomNotFoundException(ErrorCode.EMPTY_CHATROOM_ID);
+        }
+    }
+
+    public void deleteChatRoom(Member sendUser, Member receiveUser) {
+        Optional<ChatRoom> chatRoom = chatRoomRepository.findByUsers(sendUser, receiveUser);
+        if (chatRoom.isPresent()) {
+            chatRoomRepository.delete(chatRoom.get());
+        } else {
             throw new ChatRoomNotFoundException(ErrorCode.EMPTY_CHATROOM_ID);
         }
     }
