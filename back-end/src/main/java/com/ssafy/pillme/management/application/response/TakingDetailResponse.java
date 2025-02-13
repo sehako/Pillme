@@ -10,7 +10,6 @@ public record TakingDetailResponse(
         String hospital,
         String diseaseName,
         Long reader,
-        boolean isSupplements,
         LocalDate startDate,
         LocalDate endDate,
         List<TakingInformationItem> medications
@@ -22,7 +21,6 @@ public record TakingDetailResponse(
                 information.getHospital(),
                 information.getDiseaseName(),
                 information.getReader().getId(),
-                information.isSupplement(),
                 information.getStartDate(),
                 information.getEndDate(),
                 medications

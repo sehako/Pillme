@@ -27,7 +27,6 @@ public record TakingInformationRegisterRequest(
                 .diseaseName(diseaseName)
                 .startDate(startDate)
                 .endDate(endDate)
-                .supplement(isSupplement)
                 .build();
     }
 }

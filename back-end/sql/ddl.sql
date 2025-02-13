@@ -22,7 +22,6 @@ CREATE TABLE `management`
     `id`              BIGINT    NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `information_id`  BIGINT    NOT NULL,
     `medication_name` BIGINT    NOT NULL,
-    `serving_size`    INT       NULL,
     `period`          INT       NULL,
     `morning`         TINYINT   NULL,
     `lunch`           TINYINT   NULL,
@@ -72,7 +71,6 @@ CREATE TABLE `information`
     `disease_name` VARCHAR(255) NULL,
     `created_at`   TIMESTAMP    NULL,
     `modified_at`  TIMESTAMP    NULL,
-    `supplement`   TINYINT      NULL,
     `deleted`      TINYINT      NULL
 );
 
