@@ -1,11 +1,10 @@
 package com.ssafy.pillme.member.application.service;
 
-import co.elastic.clients.elasticsearch.security.ChangePasswordRequest;
 import com.ssafy.pillme.global.util.SecurityUtil;
 import com.ssafy.pillme.member.application.exception.*;
 import com.ssafy.pillme.member.domain.entity.LoginMember;
+import com.ssafy.pillme.member.domain.vo.PasswordValidationResult;
 import com.ssafy.pillme.member.infrastructure.repository.LoginMemberRepository;
-import com.ssafy.pillme.member.presentation.request.UpdatePasswordRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -21,14 +20,20 @@ public class ChangePasswordService {
     /**
      * 비밀번호 변경
      */
-    public void updatePassword(UpdatePasswordRequest request) {
+    public void changePassword(String currentPassword, String newPassword) {
         Long currentMemberId = SecurityUtil.extractCurrentMemberId();
-        LoginMember member = loginMemberRepository.findByIdAndDeletedFalse(currentMemberId).orElseThrow(NoMemberInfoException::new);
+        LoginMember member = loginMemberRepository.findByIdAndDeletedFalse(currentMemberId)
+                .orElseThrow(NoMemberInfoException::new);
 
-        validateCurrentPassword(request.currentPassword(), currentMemberId);
-        validateNewPassword(request.newPassword());
+        if (!passwordEncoder.matches(currentPassword, member.getPassword())) {
+            throw new InvalidPasswordException();
+        }
 
-        String encodedPassword = passwordEncoder.encode(request.newPassword());
+        if (!validateNewPasswordFormat(newPassword)) {
+            throw new InvalidNewPasswordFormatException();
+        }
+
+        String encodedPassword = passwordEncoder.encode(newPassword);
         member.updatePassword(encodedPassword);
         loginMemberRepository.save(member);
     }
@@ -36,16 +41,21 @@ public class ChangePasswordService {
     /**
      * 비밀번호 검증
      */
-    public void validatePasswordChange(ChangePasswordRequest request) {
+    public PasswordValidationResult validatePasswordChange(String currentPassword, String newPassword) {
         Long currentMemberId = SecurityUtil.extractCurrentMemberId();
-        validateCurrentPassword(request.password(), currentMemberId);
-        validateNewPassword(request.password());
+        LoginMember member = loginMemberRepository.findByIdAndDeletedFalse(currentMemberId)
+                .orElseThrow(NoMemberInfoException::new);
+
+        boolean isCurrentPasswordValid = passwordEncoder.matches(currentPassword, member.getPassword());
+        boolean isNewPasswordValid = validateNewPasswordFormat(newPassword);
+
+        return new PasswordValidationResult(isCurrentPasswordValid, isNewPasswordValid);
     }
 
     /**
      * 현재 비밀번호 검증
      */
-    private void validateCurrentPassword(String currentPassword, Long memberId) {
+    private void validateNewPasswordFormat(String currentPassword, Long memberId) {
         LoginMember member = loginMemberRepository.findByIdAndDeletedFalse(memberId)
                 .orElseThrow(NoMemberInfoException::new);
 
@@ -57,16 +67,8 @@ public class ChangePasswordService {
     /**
      * 새 비밀번호 유효성 검증
      */
-    private void validateNewPassword(String newPassword) {
-        // 비밀번호 정규식 패턴 - 대문자, 소문자, 숫자, 특수문자 포함, 정확히 12자
+    private boolean validateNewPasswordFormat(String newPassword) {
         String passwordRegex = "^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[~`!@#$%^&*()\\-_=+\\[{\\]}\\\\|;:'\",<.>/?])[A-Za-z\\d~`!@#$%^&*()\\-_=+\\[{\\]}\\\\|;:'\",<.>/?]{12}$";
-
-        try {
-            if (!Pattern.matches(passwordRegex, newPassword)) {
-                throw new InvalidNewPasswordFormatException();
-            }
-        } catch (Exception e) {
-            throw new InvalidNewPasswordFormatException();
-        }
+        return Pattern.matches(passwordRegex, newPassword);
     }
 }

@@ -40,20 +40,27 @@ public class ChangeEmailService {
         LoginMember member = loginMemberRepository.findById(currentMemberId)
                 .orElseThrow(NoMemberInfoException::new);
 
+        if(member.isOauth()){
+            throw new OAuthUserException();
+        }
+
         boolean isSameAsCurrent = member.getEmail().equals(newEmail);
         boolean isAlreadyExists = loginMemberRepository.existsByEmailAndDeletedFalse(newEmail);
 
         return new EmailValidationResult(isSameAsCurrent, isAlreadyExists);
     }
 
-
     /**
      * 이메일 변경 검증 및 인증번호 발송
      */
     public void validateAndSendEmailVerification(String newEmail) {
         Long currentMemberId = SecurityUtil.extractCurrentMemberId();
+
+        isOAuthUser(currentMemberId);
+
         // 기존 이메일과 중복 검증
         validateNewEmail(newEmail, currentMemberId);
+
         // 인증 메일 발송
         sendVerificationEmail(newEmail);
     }
@@ -64,15 +71,24 @@ public class ChangeEmailService {
     public void changeEmail(String newEmail) {
         Long currentMemberId = SecurityUtil.extractCurrentMemberId();
 
-        if(!isVerified(newEmail)) {
-            throw new NotVerifiedEmailAddressException();
-        }
+        isOAuthUser(currentMemberId);
 
         // 회원 조회 및 이메일 변경
         LoginMember member = loginMemberRepository.findByIdAndDeletedFalse(currentMemberId).orElseThrow(NoMemberInfoException::new);
 
         member.updateEmailAddress(newEmail);
         loginMemberRepository.save(member);
+    }
+
+    /**
+     * OAuth 회원 인증
+     */
+
+    private void isOAuthUser(Long memberId) {
+        LoginMember member = loginMemberRepository.findByIdAndDeletedFalse(memberId).orElseThrow(NoMemberInfoException::new);
+        if(member.isOauth()){
+            throw new OAuthUserException();
+        }
     }
 
     /**
