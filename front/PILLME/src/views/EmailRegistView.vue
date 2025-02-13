@@ -91,7 +91,7 @@
 import { ref, computed } from "vue";
 import { useRouter } from "vue-router";
 // import { requestSmsVerification } from "../api/auth";
-import { requestEmailVerification,verifyEmailCode } from "../api/auth";
+import { requestEmailVerification, verifyEmailCode, isDuplicateEmail } from "../api/auth";
 import BaseButton from "../components/BaseButton.vue";
 import BaseInput from "../components/BaseInput.vue";
 import BaseLogo from "../components/BaseLogo.vue";
@@ -100,7 +100,6 @@ import logoSrc from "../assets/logi_nofont.svg";
 
 const router = useRouter();
 // import { addLocalMember } from '../api/addlocalmember';
-
 
 const email = ref("");
 const emailAuthCode = ref("");
@@ -156,8 +155,24 @@ const sendVerificationCode = async () => {
 
   isSending.value = true;
   emailError.value = null;
-  
+
   try {
+    console.log("🔍 이메일 중복 검사 요청:", email.value.trim());
+    const response = await isDuplicateEmail(email.value.trim());
+
+    if (!response.isSuccess) {
+      console.error("🚨 이메일 중복 확인 실패:", message);
+      emailError.value = "이메일 중복 확인 중 오류가 발생했습니다.";
+      return;
+    }
+
+    if (response.result) {
+      emailError.value = "이미 가입된 이메일입니다.";
+      return;
+    } else{
+      emailError.value = "사용 가능한 이메일입니다.";
+    }
+
     console.log("📨 이메일 인증 요청:", email.value.trim());
     await requestEmailVerification(email.value.trim());
     emailSent.value = true;
@@ -168,6 +183,7 @@ const sendVerificationCode = async () => {
     isSending.value = false;
   }
 };
+
 
 const verifyCode = async () => {
   if (!email.value.trim() || !emailAuthCode.value.trim()) {

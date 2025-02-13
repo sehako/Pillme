@@ -3,9 +3,10 @@ import mkcert from 'vite-plugin-mkcert'
 import vue from '@vitejs/plugin-vue';
 import vueDevTools from 'vite-plugin-vue-devtools';
 import { VitePWA } from 'vite-plugin-pwa';
+import { writeFileSync } from 'fs';
 export default defineConfig({
   server: {
-    allowedHosts: "all"
+    allowedHosts: "all",
   },
   
   plugins: [
@@ -13,62 +14,106 @@ export default defineConfig({
     vueDevTools(),
     // mkcert(), // ✅ HTTPS 지원을 위한 mkcert 플러그인 추가
     VitePWA({
-      registerType: 'autoUpdate',
+      registerType: "autoUpdate",
       devOptions: {
-        enabled: false, // 이 부분을 false로 함으로써 개발단계에서 pwa를 사용하지 않음.
-        type: 'module',
-        selfDestroying: true,
+        enabled: true,
       },
-      includeAssets: ['favicon.ico', 'robots.txt', 'apple-touch-icon.png', 'offline.html'], // ✅ 캐싱할 정적 파일 추가
       manifest: {
-        name: 'PILLME',
-        short_name: 'PILLME',
-        start_url: '/',
-        display: 'standalone',
-        background_color: '#ffffff',
-        theme_color: '#42b883',
-      },
-      workbox: {
-        globPatterns: [
-          '**/*.{js,css,html,png,svg}', // ✅ 모든 정적 파일 자동 캐싱
-          'offline.html', // ✅ 오프라인 안내 페이지 캐싱
-        ],
-        runtimeCaching: [
-          {
-            urlPattern: /^\/(calendar|home)$/, // ✅ 오프라인에서도 접근 가능한 페이지
-            handler: 'StaleWhileRevalidate', // ✅ 캐시된 데이터 제공 후 최신 데이터 업데이트
-            options: {
-              cacheName: 'allowed-pages',
-              expiration: { maxEntries: 10, maxAgeSeconds: 60 * 60 * 24 * 30 },
-            },
-          },
-          {
-            urlPattern: /\/api\/.*$/, // ✅ API 요청은 항상 최신 데이터 우선
-            handler: 'NetworkFirst',
-            options: {
-              cacheName: 'api-data',
-              expiration: { maxEntries: 10, maxAgeSeconds: 60 * 5 },
-              networkTimeoutSeconds: 5, // ✅ 네트워크가 5초 안에 응답하지 않으면 캐시 사용
-            },
-          },
-          {
-            urlPattern: /\.(?:js|css|html|png|svg)$/, // ✅ 정적 리소스 캐싱
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'static-resources',
-              expiration: { maxEntries: 30, maxAgeSeconds: 60 * 60 * 24 * 7 },
-            },
-          },
-          {
-            urlPattern: ({ url }) => !/^\/(calendar|home)$/.test(url.pathname), // ❌ 허용되지 않은 페이지는 offline.html 제공
-            handler: 'NetworkOnly', // ✅ 인터넷 연결 없을 시 offline.html로 대체
-            options: {
-              cacheName: 'offline-pages',
-            },
-          },
+        name: "PILLME",
+        short_name: "PILLME",
+        start_url: "/",
+        display: "standalone",
+        background_color: "#ffffff",
+        lang: "ko",
+        scope: "/",
+        theme_color: "#9DBB9F",
+        description: "💊복약 관리의 새로운 방법, PILLME",
+        icons: [
+          // Android Icons
+          { src: "/icons/android/android-launchericon-512-512.png", sizes: "512x512", type: "image/png" },
+          { src: "/icons/android/android-launchericon-192-192.png", sizes: "192x192", type: "image/png" },
+          { src: "/icons/android/android-launchericon-144-144.png", sizes: "144x144", type: "image/png" },
+          { src: "/icons/android/android-launchericon-96-96.png", sizes: "96x96", type: "image/png" },
+          { src: "/icons/android/android-launchericon-72-72.png", sizes: "72x72", type: "image/png" },
+          { src: "/icons/android/android-launchericon-48-48.png", sizes: "48x48", type: "image/png" },
+    
+          // iOS Icons
+          { src: "/icons/ios/16.png", sizes: "16x16", type: "image/png" },
+          { src: "/icons/ios/20.png", sizes: "20x20", type: "image/png" },
+          { src: "/icons/ios/29.png", sizes: "29x29", type: "image/png" },
+          { src: "/icons/ios/32.png", sizes: "32x32", type: "image/png" },
+          { src: "/icons/ios/40.png", sizes: "40x40", type: "image/png" },
+          { src: "/icons/ios/50.png", sizes: "50x50", type: "image/png" },
+          { src: "/icons/ios/57.png", sizes: "57x57", type: "image/png" },
+          { src: "/icons/ios/58.png", sizes: "58x58", type: "image/png" },
+          { src: "/icons/ios/60.png", sizes: "60x60", type: "image/png" },
+          { src: "/icons/ios/64.png", sizes: "64x64", type: "image/png" },
+          { src: "/icons/ios/72.png", sizes: "72x72", type: "image/png" },
+          { src: "/icons/ios/76.png", sizes: "76x76", type: "image/png" },
+          { src: "/icons/ios/80.png", sizes: "80x80", type: "image/png" },
+          { src: "/icons/ios/87.png", sizes: "87x87", type: "image/png" },
+          { src: "/icons/ios/100.png", sizes: "100x100", type: "image/png" },
+          { src: "/icons/ios/114.png", sizes: "114x114", type: "image/png" },
+          { src: "/icons/ios/120.png", sizes: "120x120", type: "image/png" },
+          { src: "/icons/ios/128.png", sizes: "128x128", type: "image/png" },
+          { src: "/icons/ios/144.png", sizes: "144x144", type: "image/png" },
+          { src: "/icons/ios/152.png", sizes: "152x152", type: "image/png" },
+          { src: "/icons/ios/167.png", sizes: "167x167", type: "image/png" },
+          { src: "/icons/ios/180.png", sizes: "180x180", type: "image/png" },
+          { src: "/icons/ios/192.png", sizes: "192x192", type: "image/png" },
+          { src: "/icons/ios/256.png", sizes: "256x256", type: "image/png" },
+          { src: "/icons/ios/512.png", sizes: "512x512", type: "image/png" },
+          { src: "/icons/ios/1024.png", sizes: "1024x1024", type: "image/png" },
+    
+          // Windows Icons
+          { src: "/icons/windows11/SmallTile.scale-100.png", sizes: "71x71", type: "image/png" },
+          { src: "/icons/windows11/SmallTile.scale-125.png", sizes: "89x89", type: "image/png" },
+          { src: "/icons/windows11/SmallTile.scale-150.png", sizes: "107x107", type: "image/png" },
+          { src: "/icons/windows11/SmallTile.scale-200.png", sizes: "142x142", type: "image/png" },
+          { src: "/icons/windows11/SmallTile.scale-400.png", sizes: "284x284", type: "image/png" },
+          { src: "/icons/windows11/Square150x150Logo.scale-100.png", sizes: "150x150", type: "image/png" },
+          { src: "/icons/windows11/Square150x150Logo.scale-125.png", sizes: "188x188", type: "image/png" },
+          { src: "/icons/windows11/Square150x150Logo.scale-150.png", sizes: "225x225", type: "image/png" },
+          { src: "/icons/windows11/Square150x150Logo.scale-200.png", sizes: "300x300", type: "image/png" },
+          { src: "/icons/windows11/Square150x150Logo.scale-400.png", sizes: "600x600", type: "image/png" },
+          { src: "/icons/windows11/Wide310x150Logo.scale-100.png", sizes: "310x150", type: "image/png" },
+          { src: "/icons/windows11/Wide310x150Logo.scale-125.png", sizes: "388x188", type: "image/png" },
+          { src: "/icons/windows11/Wide310x150Logo.scale-150.png", sizes: "465x225", type: "image/png" },
+          { src: "/icons/windows11/Wide310x150Logo.scale-200.png", sizes: "620x300", type: "image/png" },
+          { src: "/icons/windows11/Wide310x150Logo.scale-400.png", sizes: "1240x600", type: "image/png" },
+          { src: "/icons/windows11/LargeTile.scale-100.png", sizes: "310x310", type: "image/png" },
+          { src: "/icons/windows11/LargeTile.scale-125.png", sizes: "388x388", type: "image/png" },
+          { src: "/icons/windows11/LargeTile.scale-150.png", sizes: "465x465", type: "image/png" },
+          { src: "/icons/windows11/LargeTile.scale-200.png", sizes: "620x620", type: "image/png" },
+          { src: "/icons/windows11/LargeTile.scale-400.png", sizes: "1240x1240", type: "image/png" }
         ],
       },
     }),
+
+    {
+      name: 'generate-service-worker',
+      buildStart() {
+        const swContent = `
+          const firebaseConfig = {
+            apiKey: "${process.env.VITE_FIREBASE_API_KEY}",
+            authDomain: "${process.env.VITE_FIREBASE_AUTH_DOMAIN}",
+            projectId: "${process.env.VITE_FIREBASE_PROJECT_ID}",
+            storageBucket: "${process.env.VITE_FIREBASE_STORAGE_BUCKET}",
+            messagingSenderId: "${process.env.VITE_FIREBASE_MESSAGING_SENDER_ID}",
+            appId: "${process.env.VITE_FIREBASE_APP_ID}"
+          };
+
+          importScripts('https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js');
+          importScripts('https://www.gstatic.com/firebasejs/9.0.0/firebase-messaging-compat.js');
+
+          firebase.initializeApp(firebaseConfig);
+          
+          const messaging = firebase.messaging();
+        `;
+
+        writeFileSync('public/firebase-messaging-sw.js', swContent);
+      }
+    },
   ],
   
 });
