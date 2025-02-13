@@ -1,19 +1,28 @@
 <template>
   <div id="app" class="flex flex-row h-screen-custom">
     <!-- 왼쪽 (PC 전용) -->
-<div class="hidden md:flex flex-col w-1/2 bg-white items-center justify-center border-r border-gray-200 shadow-md p-6">
-  <img :src="logo" alt="로고 이미지" class="w-1/2 h-auto" />
-  
-  <h1 class="text-xl sm:text-2xl font-bold text-gray-800 mt-6 text-center">
-    모바일에서 <span class="text-[#4E7351]">PILLME</span>를 만나보세요!
-  </h1>
+    <div class="hidden md:flex flex-col w-1/2 bg-white items-center justify-center border-r border-gray-300">
 
-  <div class="w-40 h-auto mt-6">
-    <img src="./assets/fillmeqr.svg" alt="QR 코드 이미지">
-  </div>
-</div>
-
-
+      <img :src="logo" alt="로고 이미지" class="w-1/2 h-auto" />
+      <div>
+        <p class="text-4xl">
+          <br><br>
+          PILLME 소개 및 QR 코드 제공
+          <br>
+          PILLME 소개 및 QR 코드 제공
+          <br>
+          PILLME 소개 및 QR 코드 제공
+          <br>
+          PILLME 소개 및 QR 코드 제공
+          <br>
+          PILLME 소개 및 QR 코드 제공
+          <br>
+          PILLME 소개 및 QR 코드 제공
+          <br>
+          <br><br><br>
+        </p>
+      </div>
+    </div>
 
     <!-- 오른쪽 (모바일 전체) -->
     <div class="flex flex-col w-full md:w-1/2 relative">
@@ -133,18 +142,23 @@ const setRealVH = () => {
 
 // ✅ OCR 분석 감지 및 다이얼로그 표시
 onMounted(() => {
+  checkLoginStatus(); // ✅ 로그인 상태 확인
+
+  // ✅ localStorage 변경 감지 (다른 탭에서 로그인/로그아웃해도 반영됨)
+  window.addEventListener("storage", checkLoginStatus);
+
   isScrollAllowed.value =
-    alwaysScrollablePages.includes(route.path) || route.path.startsWith('/mypage');
+    alwaysScrollablePages.includes(route.path) || route.path.startsWith("/mypage");
 
   if (isMobile) {
     setRealVH();
-    window.addEventListener('resize', setRealVH);
+    window.addEventListener("resize", setRealVH);
   }
 
-  // ✅ 저장된 OCR 상태 불러오기 (다이얼로그 상태 제외)
+  // ✅ 저장된 OCR 상태 불러오기
   ocrStore.loadFromLocalStorage();
 
-  // ✅ OCR 분석이 진행 중이면 로딩 상태 유지, 분석이 끝난 경우 다이얼로그 자동 닫기
+  // ✅ OCR 분석이 진행 중이면 다이얼로그 닫기
   watch(
     () => ocrStore.isLoading,
     (newVal) => {
@@ -156,7 +170,7 @@ onMounted(() => {
     }
   );
 
-  // ✅ 네비바 높이 감지 (실시간 감지)
+  // ✅ 네비바 높이 감지
   const observer = new ResizeObserver(() => {
     updateNavbarHeight();
   });
@@ -174,10 +188,12 @@ onMounted(() => {
   onUnmounted(() => {
     observer.disconnect();
     if (isMobile) {
-      window.removeEventListener('resize', setRealVH);
+      window.removeEventListener("resize", setRealVH);
     }
+    window.removeEventListener("storage", checkLoginStatus);
   });
 });
+
 </script>
 
 <style>
