@@ -31,6 +31,7 @@ public class WebSocketChatController {
     private final SimpMessagingTemplate messagingTemplate;
     private final JwtUtil jwtUtil;
 
+    //실시간 메세지 저장 및 마지막 메세지 조회, 안 읽은 메세지 조회를 통해 상대방의 채팅 리스트 실시간 업데이트
     @MessageMapping("/chat.{chatRoomId}")
     @SendTo("/subscribe/chat.{chatRoomId}")
     public ChatMessage sendMessage(ChatMessage message, @Header("Authorization") String accessToken){

@@ -29,9 +29,6 @@ public class ChatRoomController {
     //유저의 채팅방 정보 조회
     @GetMapping("/list")
     public ResponseEntity<JSONResponse<List<ChatRoomResponse>>> getUserChatRooms(@Auth Member member){
-        for(ChatRoomResponse r : chatRoomService.getUserChatRoom(member)){
-            System.out.println(r.lastMessage() + " : " + r.timestamp());
-        }
         return ResponseEntity.ok(JSONResponse.onSuccess(chatRoomService.getUserChatRoom(member)));
     }
 

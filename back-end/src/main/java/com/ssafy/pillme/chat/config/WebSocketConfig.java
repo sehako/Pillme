@@ -42,7 +42,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         registry.enableSimpleBroker("/subscribe");  //메시지 브로커 설정
         registry.setApplicationDestinationPrefixes("/publish");
     }
-
+    //channelInterceptor 등록
     @Override
     public void configureClientInboundChannel(ChannelRegistration registration) {
         registration.interceptors(stompHandler);
