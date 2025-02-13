@@ -61,22 +61,23 @@ export const login = async (credentials) => {
 // ✅ 액세스 토큰 갱신 API (JWT 디코딩 포함)
 export const refreshAccessTokenAPI = async () => {
   try {
-    const refreshToken = Cookies.get('refreshToken'); // ✅ 쿠키에서 refreshToken 가져오기
+    const refreshToken = Cookies.get('refreshToken'); // 쿠키에서 refreshToken 가져오기
 
     const response = await apiClient.post(
       '/api/v1/auth/refresh',
+      {}, // 빈 요청 본문
       {
         headers: {
-          'Refresh-Token': refreshToken, // ✅ Refresh-Token 헤더 추가
+          'Refresh-Token': refreshToken, // Refresh-Token 헤더 추가
         },
       }
     );
 
     console.log('🔄 액세스 토큰 갱신 성공:', response.data);
     saveAccessToken(response.data.result.accessToken);
-    saveRefreshToken(response.data.result.refreshToken); // ✅ refreshToken도 갱신
+    saveRefreshToken(response.data.result.refreshToken); // refreshToken도 갱신
 
-    // ✅ Access Token 디코딩 → 유저 정보 업데이트
+    // Access Token 디코딩 → 유저 정보 업데이트
     const authStore = useUserStore();
     const userInfo = decodeToken(response.data.result.accessToken);
     authStore.setUser(userInfo);
@@ -84,7 +85,7 @@ export const refreshAccessTokenAPI = async () => {
     return response.data;
   } catch (error) {
     console.error('❌ 액세스 토큰 갱신 실패:', error);
-    handleLogout(); // ✅ 토큰 만료 시 자동 로그아웃
+    handleLogout(); // 토큰 만료 시 자동 로그아웃
     throw error;
   }
 };

@@ -12,6 +12,7 @@
         <input 
           type="checkbox" 
           v-model="notificationSettings.enabled" 
+          @change="toggleNotificationSetting"
           class="form-checkbox h-5 w-5 text-green-600"
         />
         <span class="ml-2">알림 활성화</span>
@@ -19,87 +20,134 @@
     </div>
 
     <!-- 알림 설정 폼 -->
-    <form @submit.prevent="updateNotificationSettings" class="space-y-4">
-      <!-- 아침 알림 -->
-      <div>
-        <label for="morning" class="block mb-1 font-medium">아침 알림 시간</label>
+    <div class="space-y-4">
+      <div v-for="(label, key) in alarmLabels" :key="key">
+        <label :for="key" class="block mb-1 font-medium">{{ label }}</label>
         <input 
-          id="morning"
+          :id="key"
           type="time" 
-          v-model="notificationSettings.morning" 
+          v-model="alarmTimes[key]" 
+          @change="updateTime(key, alarmTimes[key])"
           :disabled="!notificationSettings.enabled"
           class="border rounded p-2 w-full"
         />
       </div>
-
-      <!-- 점심 알림 -->
-      <div>
-        <label for="lunch" class="block mb-1 font-medium">점심 알림 시간</label>
-        <input 
-          id="lunch"
-          type="time" 
-          v-model="notificationSettings.lunch" 
-          :disabled="!notificationSettings.enabled"
-          class="border rounded p-2 w-full"
-        />
-      </div>
-
-      <!-- 저녁 알림 -->
-      <div>
-        <label for="dinner" class="block mb-1 font-medium">저녁 알림 시간</label>
-        <input 
-          id="dinner"
-          type="time" 
-          v-model="notificationSettings.dinner" 
-          :disabled="!notificationSettings.enabled"
-          class="border rounded p-2 w-full"
-        />
-      </div>
-
-      <!-- 자기 전 알림 -->
-      <div>
-        <label for="bedtime" class="block mb-1 font-medium">자기 전 알림 시간</label>
-        <input 
-          id="bedtime"
-          type="time" 
-          v-model="notificationSettings.bedtime" 
-          :disabled="!notificationSettings.enabled"
-          class="border rounded p-2 w-full"
-        />
-      </div>
-
-      <!-- 저장 버튼 -->
-      <BaseButton 
-        type="submit" 
-        class="w-full bg-[#4E7351] text-white rounded hover:bg-[#3D5A3F]"
-      >
-        저장
-      </BaseButton>
-    </form>
+    </div>
   </div>
 </template>
 
 <script setup>
-import { onMounted } from 'vue';
-import { useNotificationSettingsStore } from '../stores/notificationSettingsStore';
-import { storeToRefs } from 'pinia';
+import { reactive, computed, onMounted, ref } from 'vue';
 import BackButton from '../components/BackButton.vue';
-import BaseButton from '../components/BaseButton.vue';
+import { 
+  createNotificationSetting, 
+  updateNotificationSetting, 
+  deleteNotificationSetting,
+  fetchNotificationSettings,
+} from '../api/setalarm';
 
-// Pinia 스토어 불러오기
-const notificationStore = useNotificationSettingsStore();
-// storeToRefs를 사용하여 상태를 반응형으로 바인딩 (템플릿에서 편리하게 사용)
-const { notificationSettings } = storeToRefs(notificationStore);
+// ✅ 불필요한 자동 요청 방지용 플래그
+const isLoading = ref(true); // 로딩 중 여부
+const fetchFailed = ref(false); // fetch 실패 여부
 
-// 알림 설정 저장 함수 (Pinia 스토어를 통해 업데이트)
-const updateNotificationSettings = async () => {
-  console.log("업데이트할 알림 설정:", notificationSettings.value);
-  await notificationStore.updateNotificationSettings(notificationSettings.value);
-  alert("알림 설정이 저장되었습니다.");
+// ✅ 알림 설정 상태
+const notificationSettings = reactive({
+  enabled: false,     // 알림 활성화 여부
+  settingsCreated: false // 알림 설정이 생성된 상태인지
+});
+
+// ✅ 알람 시간 데이터 (computed 사용 X → reactive 사용)
+const alarmTimes = reactive({
+  morning: null, 
+  lunch: null, 
+  dinner: null, 
+  sleep: null
+});
+
+// ✅ 알람 시간 라벨 매핑
+const alarmLabels = {
+  morning: "아침 알림 시간",
+  lunch: "점심 알림 시간",
+  dinner: "저녁 알림 시간",
+  sleep: "자기 전 알림 시간"
 };
 
-// 컴포넌트 마운트 시 스토어에서 현재 알림 설정 정보를 불러옴
-onMounted(() => {
-  notificationStore.fetchNotificationSettings();
-});
+// ✅ fetchNotificationSettings 실행
+const loadNotificationSettings = async () => {
+  try {
+    const data = await fetchNotificationSettings();
+
+    // ✅ 데이터 그대로 적용
+    alarmTimes.morning = data.morning;
+    alarmTimes.lunch = data.lunch;
+    alarmTimes.dinner = data.dinner;
+    alarmTimes.sleep = data.bedtime;
+
+    notificationSettings.settingsCreated = true;
+
+    // ✅ null이 아닌 값이 하나라도 있으면 활성화 상태로 표시
+    const hasActiveAlarm = Object.values(alarmTimes).some(time => time !== null);
+    notificationSettings.enabled = hasActiveAlarm;
+    fetchFailed.value = false; // 성공 시 fetchFailed 초기화
+
+  } catch (error) {
+    console.error("🚨 알림 설정 로드 실패:", error);
+    fetchFailed.value = true; // 실패 시 fetchFailed 설정
+    notificationSettings.enabled = false;
+    notificationSettings.settingsCreated = false;
+  } finally {
+    isLoading.value = false; // ✅ 로딩 완료
+  }
+};
+
+// ✅ 체크박스 클릭 시에만 자동 요청 실행 + 기본값 설정
+const toggleNotificationSetting = async (event) => {
+  if (isLoading.value) {
+    console.log('⏳ 알림 설정 로드 중, 자동 요청 방지');
+    return;
+  }
+
+  if (!event.isTrusted) {
+    // ✅ 불러온 데이터에 의해 변경된 경우에는 실행하지 않음
+    return;
+  }
+
+  try {
+    if (notificationSettings.enabled) {
+      // ✅ 모든 값이 null이면 하나만 기본값 "00:00"으로 설정
+      if (Object.values(alarmTimes).every(time => time === null)) {
+        alarmTimes.morning = "00:00"; // 기본값 설정
+      }
+
+      const requestData = { ...alarmTimes };
+      await createNotificationSetting(requestData);
+      notificationSettings.settingsCreated = true;
+      console.log('✅ 알림 설정 활성화됨', requestData);
+    } else {
+      if (notificationSettings.settingsCreated) {
+        await deleteNotificationSetting();
+        notificationSettings.settingsCreated = false;
+        console.log('❌ 알림 설정 비활성화됨');
+      }
+    }
+  } catch (error) {
+    console.error('🚨 알림 설정 변경 실패:', error);
+  }
+};
+
+// ✅ 개별 시간 변경 시 자동 요청
+const updateTime = async (field, value) => {
+  try {
+    if (notificationSettings.settingsCreated) {
+      const requestData = { [field]: value };
+      await updateNotificationSetting(requestData);
+      console.log(`⏰ ${field} 알림 시간이 ${value}로 업데이트됨`);
+    }
+  } catch (error) {
+    console.error(`🚨 ${field} 알림 시간 업데이트 실패:`, error);
+  }
+};
+
+// ✅ 컴포넌트 마운트 시 실행
+onMounted(loadNotificationSettings);
 </script>

@@ -26,11 +26,7 @@ onMounted(() => {
 
 // 로고 클릭 시 로그인 상태에 따라 이동 경로를 다르게 지정
 const gohome = () => {
-  if (isLoggedIn.value) {
     router.push("/");
-  } else {
-    router.push("/start");
-  }
 };
 </script>
 
