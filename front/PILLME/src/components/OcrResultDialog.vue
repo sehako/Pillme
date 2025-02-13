@@ -57,10 +57,7 @@ const addDrug = () => {
 <style scoped>
 .dialog-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  inset: 0;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -70,12 +67,13 @@ const addDrug = () => {
 
 .dialog-box {
   background: white;
-  padding: 24px;
-  border-radius: 10px;
+  padding: 20px;
+  border-radius: 12px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  width: 90%;
   max-width: 500px;
-  width: 100%;
-  text-align: center;
+  max-height: 75vh;
+  overflow-y: auto;
 }
 
 .medication-list {
@@ -90,12 +88,26 @@ const addDrug = () => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px 0;
+  padding: 8px 0;
   border-bottom: 1px solid #ddd;
+}
+
+.input-field {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
 }
 
 .med-name {
   font-weight: bold;
+}
+
+.button-group {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 16px;
 }
 
 .primary-btn {
@@ -104,7 +116,7 @@ const addDrug = () => {
   padding: 10px 16px;
   border-radius: 8px;
   font-size: 16px;
-  width: 100px;
+  width: auto;
 }
 
 .delete-btn {

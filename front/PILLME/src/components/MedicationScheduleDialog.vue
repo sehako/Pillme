@@ -1,7 +1,6 @@
 <template>
   <div v-if="ocrStore.showMedicationDialog" class="dialog-overlay">
     <div class="dialog-box">
-      <button class="close-btn" @click="ocrStore.showMedicationDialog = false">✖</button>
       <h2 class="text-lg font-semibold text-center text-pink-500">⏰ 복약 시간 설정</h2>
 
       <div class="medication-container">
@@ -36,7 +35,10 @@
 
       <div class="button-group">
         <button @click="ocrStore.goBackToNextDialog" class="secondary-btn">이전</button>
-        <button @click="ocrStore.closeDialog" class="primary-btn">완료</button>
+        <button @click="ocrStore.saveOcrDataToDB" class="primary-btn" :disabled="ocrStore.isLoading">
+          {{ ocrStore.isLoading ? '저장 중...' : '저장' }}
+        </button>
+
       </div>
     </div>
   </div>
@@ -126,6 +128,14 @@ onMounted(() => {
   overflow: hidden;
   width: 100%;
   padding: 10px;
+}
+
+/* ✅ 반응형 버튼 그룹 */
+.button-group {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 16px;
 }
 
 .medication-list {
