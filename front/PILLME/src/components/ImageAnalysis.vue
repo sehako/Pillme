@@ -22,7 +22,7 @@
 
       <!-- ✅ 분석 결과 다시 보기 버튼 -->
       <button
-        v-if="ocrStore.results.length > 0"
+        v-if="ocrStore.results.length > 0 && !ocrStore.isLoading"
         @click="ocrStore.showResultsDialog = true"
         class="mt-2 p-2 border rounded bg-blue-500 text-white hover:bg-blue-600 transition"
       >
@@ -87,7 +87,7 @@ const analyzeImage = async () => {
     const formData = new FormData();
     formData.append('file', selectedFile.value);
 
-    const response = await fetch('http://localhost:8000/analyze-image/', {
+    const response = await fetch('https://i12a606.p.ssafy.io/prescription', {
       method: 'POST',
       body: formData,
     });

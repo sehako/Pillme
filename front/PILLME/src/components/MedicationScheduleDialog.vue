@@ -35,6 +35,7 @@
       </div>
 
       <div class="button-group">
+        <button @click="ocrStore.goBackToNextDialog" class="secondary-btn">이전</button>
         <button @click="ocrStore.closeDialog" class="primary-btn">완료</button>
       </div>
     </div>
@@ -43,35 +44,34 @@
 
 <script setup>
 import { useOcrStore } from '../stores/ocrStore';
-import { reactive, onMounted, computed } from 'vue';
+import { reactive, onMounted } from 'vue';
 
 const ocrStore = useOcrStore();
 
-// ✅ 개별 약 정보 (computed를 사용하여 `ocrStore.results` 기반으로 생성)
-const medications = computed(() => 
-  ocrStore.results.map(med => ({
-    matched_drug: med.matched_drug,
-    breakfast: med.breakfast ?? false,
-    lunch: med.lunch ?? false,
-    dinner: med.dinner ?? false,
-    bedtime: med.bedtime ?? false
-  }))
-);
-
-// ✅ 컴포넌트가 마운트될 때 한 번만 실행하여 undefined 속성 방지
-onMounted(() => {
-  ocrStore.results = medications.value;
-  updateOverallCheck(); // ✅ 전체 선택 체크박스 상태 업데이트
-});
-
-
-// ✅ 전체 체크박스 상태 관리
+// ✅ 전체 체크박스 상태 저장
 const overallCheck = reactive({
   breakfast: false,
   lunch: false,
   dinner: false,
   bedtime: false
 });
+
+// ✅ 데이터 초기화 함수
+const initializeMedicationData = () => {
+  if (!ocrStore.results || !Array.isArray(ocrStore.results)) {
+    ocrStore.results = [];
+  }
+
+  ocrStore.results = ocrStore.results.map(med => ({
+    matched_drug: med.matched_drug || '',
+    breakfast: med.breakfast ?? false,
+    lunch: med.lunch ?? false,
+    dinner: med.dinner ?? false,
+    bedtime: med.bedtime ?? false
+  }));
+
+  updateOverallCheck(); // 전체 선택 체크박스 상태 업데이트
+};
 
 // ✅ 전체 선택 토글
 const toggleAll = (time, checked) => {
@@ -81,15 +81,124 @@ const toggleAll = (time, checked) => {
   updateOverallCheck();
 };
 
-// ✅ 개별 선택 시 전체 선택 체크박스 동기화
+// ✅ 개별 체크 시 전체 체크박스 상태 업데이트
 const updateOverallCheck = () => {
   overallCheck.breakfast = ocrStore.results.every(med => med.breakfast);
   overallCheck.lunch = ocrStore.results.every(med => med.lunch);
   overallCheck.dinner = ocrStore.results.every(med => med.dinner);
   overallCheck.bedtime = ocrStore.results.every(med => med.bedtime);
 };
+
+// ✅ 컴포넌트 마운트 시 데이터 초기화 실행
+onMounted(() => {
+  initializeMedicationData();
+});
 </script>
 
 <style scoped>
-@import '../styles/dialog.css';
+.dialog-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 9999;
+}
+
+.dialog-box {
+  background: white;
+  padding: 24px;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  max-width: 500px;
+  width: 100%;
+  text-align: center;
+}
+
+.medication-container {
+  display: flex;
+  flex-direction: column;
+  max-height: 400px;
+  overflow: hidden;
+  width: 100%;
+  padding: 10px;
+}
+
+.medication-list {
+  max-height: 300px;
+  overflow-y: auto;
+  padding-right: 8px;
+}
+
+.medication-header {
+  display: grid;
+  grid-template-columns: 1.5fr repeat(4, 1fr);
+  font-weight: bold;
+  color: #ff4081;
+  text-align: center;
+  padding-top: 10px;
+  padding-bottom: 5px;
+  align-items: center;
+}
+
+.medication-row {
+  display: grid;
+  grid-template-columns: 1.5fr repeat(4, 1fr);
+  align-items: center;
+  text-align: center;
+  padding: 10px 0;
+  border-bottom: 1px solid #ddd;
+}
+
+.med-name {
+  font-weight: bold;
+  text-align: left;
+  padding-left: 10px;
+  display: flex;
+  align-items: center;
+}
+
+.primary-btn {
+  background-color: #f48fb1;
+  color: white;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 16px;
+  width: 100px;
+}
+
+.secondary-btn {
+  background-color: #eeeeee;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 16px;
+  width: 100px;
+}
+
+.medication-row input[type="checkbox"] {
+  transform: scale(1.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: auto;
+}
+
+.close-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  color: #aaa;
+}
+
+.close-btn:hover {
+  color: #999;
+}
 </style>
