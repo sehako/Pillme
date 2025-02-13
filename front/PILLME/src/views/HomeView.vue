@@ -70,7 +70,7 @@
 
       <!-- 캘린더 (예시) -->
       <div class="m-4 flex flex-col">
-        <BaseCalendar  :options="calendarOptions" />
+        <BaseCalendar />
       </div>
     </main>
   </div>
