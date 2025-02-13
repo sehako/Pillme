@@ -69,7 +69,7 @@
 
       <!-- 캘린더 (예시) -->
       <div class="m-4 flex flex-col">
-        <BaseCalendar class="min-w-fit min-h-full"/>
+        <BaseCalendar  :options="calendarOptions" />
       </div>
     </main>
   </div>
