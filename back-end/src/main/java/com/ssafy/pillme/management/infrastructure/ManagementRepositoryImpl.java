@@ -15,7 +15,7 @@ public class ManagementRepositoryImpl implements ManagementRepositoryCustom {
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public List<Management> findByInformationByDateAndMember(LocalDate date, Member member) {
+    public List<Management> findByInformationDateAndMember(LocalDate date, Member member) {
         QInformation information = QInformation.information;
         return queryFactory.selectFrom(management)
                 .leftJoin(management.information, information).fetchJoin()
