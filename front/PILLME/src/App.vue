@@ -1,28 +1,19 @@
 <template>
   <div id="app" class="flex flex-row h-screen-custom">
     <!-- 왼쪽 (PC 전용) -->
-    <div class="hidden md:flex flex-col w-1/2 bg-white items-center justify-center border-r border-gray-300">
+<div class="hidden md:flex flex-col w-1/2 bg-white items-center justify-center border-r border-gray-200 shadow-md p-6">
+  <img :src="logo" alt="로고 이미지" class="w-1/2 h-auto" />
+  
+  <h1 class="text-xl sm:text-2xl font-bold text-gray-800 mt-6 text-center">
+    모바일에서 <span class="text-[#4E7351]">PILLME</span>를 만나보세요!
+  </h1>
 
-      <img :src="logo" alt="로고 이미지" class="w-1/2 h-auto" />
-      <div>
-        <p class="text-4xl">
-          <br><br>
-PILLME 소개 및 QR 코드 제공
-<br>
-PILLME 소개 및 QR 코드 제공
-<br>
-PILLME 소개 및 QR 코드 제공
-<br>
-PILLME 소개 및 QR 코드 제공
-<br>
-PILLME 소개 및 QR 코드 제공
-<br>
-PILLME 소개 및 QR 코드 제공
-<br>
-<br><br><br>
-      </p>
-    </div>
-    </div>
+  <div class="w-40 h-auto mt-6">
+    <img src="./assets/fillmeqr.svg" alt="QR 코드 이미지">
+  </div>
+</div>
+
+
 
     <!-- 오른쪽 (모바일 전체) -->
     <div class="flex flex-col w-full md:w-1/2">
