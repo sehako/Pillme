@@ -170,18 +170,23 @@ const handleReject = async ({ id }) => {
   // ✅ senderId를 기반으로 notificationId 찾기
   const notificationIds = notifications.value
     .filter(n => n.senderId === id)
-    .map(n => n.notificationId); // ✅ Array(Number) 형식으로 변환
+    .map(n => n.notificationId);
 
   if (notificationIds.length === 0) {
     console.error("❌ 해당 senderId와 일치하는 notificationId를 찾을 수 없음.");
     return;
   }
 
-  const success = await deleteNotification(notificationIds); // ✅ API 호출
+  const success = await deleteNotification(notificationIds);
   if (success) {
     console.log("🚀 관리자 요청 거절 후 알림 삭제 성공:", notificationIds);
     notifications.value = notifications.value.filter(n => !notificationIds.includes(n.notificationId));
-    isDialogOpen.value = false; // ✅ 다이얼로그 닫기
+
+    // ✅ 토큰 유지 및 유저 정보 복구
+    restoreUserSession();
+
+    // ✅ 모달 닫기
+    isDialogOpen.value = false;
   } else {
     console.error("❌ 알림 삭제 실패");
   }
@@ -198,21 +203,39 @@ const handleAccept = async ({ id }) => {
   // ✅ senderId를 기반으로 notificationId 찾기
   const notificationIds = notifications.value
     .filter(n => n.senderId === id)
-    .map(n => n.notificationId); // ✅ Array(Number) 형식으로 변환
+    .map(n => n.notificationId);
 
   if (notificationIds.length === 0) {
     console.error("❌ 해당 senderId와 일치하는 notificationId를 찾을 수 없음.");
     return;
   }
 
-  const success = await deleteNotification(notificationIds); // ✅ API 호출
+  const success = await deleteNotification(notificationIds);
   if (success) {
     console.log("🚀 관리자 요청 승인 후 알림 삭제 성공:", notificationIds);
     notifications.value = notifications.value.filter(n => !notificationIds.includes(n.notificationId));
-    isDialogOpen.value = false; // ✅ 다이얼로그 닫기
+
+    // ✅ 토큰 유지 및 유저 정보 복구
+    restoreUserSession();
+
+    // ✅ 모달 닫기
+    isDialogOpen.value = false;
   } else {
     console.error("❌ 알림 삭제 실패");
   }
+};
+
+// ✅ 유저 세션 복구 함수 (토큰 유지 & 유저 정보 복구)
+const restoreUserSession = () => {
+  setTimeout(() => {
+    const userInfo = decodeAccessToken();
+    if (userInfo) {
+      useUserStore().setUser(userInfo);
+      console.log("🔄 유저 정보 업데이트 성공:", userInfo);
+    } else {
+      console.warn("⚠️ 토큰 디코딩 실패, 로그아웃 가능성 있음");
+    }
+  }, 500); // 🔄 API 응답 후 지연 체크
 };
 
 
