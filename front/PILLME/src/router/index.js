@@ -91,56 +91,22 @@ const router = createRouter({
   routes,
 });
 
-// ─────────────────────────────────────────────
-// 라우트 가드
-// ─────────────────────────────────────────────
 router.beforeEach(async (to, from, next) => {
-  // 1. 게스트 페이지 목록 (비로그인 사용자 전용)
   const guestPages = [
-    '/start',
-    '/login',
-    '/signinselection',
-    '/loginselection',
-    '/accountsearchselection',
-    '/afteraccount',
-    '/idsearch',
-    '/idfound',
-    '/pwsearch',
-    '/memberregister',
-    '/register',
-    '/emailregist',
-    '/login/success',
-    '/auth/callback/google',
+    '/start', '/login', '/signinselection', '/loginselection',
+    '/accountsearchselection', '/afteraccount', '/idsearch',
+    '/idfound', '/pwsearch', '/memberregister', '/register',
+    '/emailregist', '/login/success', '/auth/callback/google',
     '/oauth/additional-info',
   ];
 
-  // 보호된 페이지가 아니라면 그냥 이동
-  if (guestPages.includes(to.path) || to.meta.requiresAuth === false) {
-    return next();
-  }
-
-  // localStorage에서 accessToken 가져오기
   const accessToken = localStorage.getItem('accessToken');
   const refreshToken = Cookies.get('refreshToken');
-
-  // accessToken 유효성 검사 (jwt-decode를 이용하여 만료 시간 체크)
   let isAccessTokenValid = false;
-  // if (accessToken) {
-  //   try {
-  //     const decodedToken = jwt_decode(accessToken);
-  //     const tokenExpiryMs = decodedToken.exp * 1000;
-  //     console.log("토큰 만료 시간 (ms):", tokenExpiryMs);
-  //     console.log("현재 시간 (ms):", Date.now());
-  //     isAccessTokenValid = tokenExpiryMs > Date.now();
-  //   } catch (error) {
-  //     console.error('❌ accessToken 디코딩 실패:', error);
-  //     isAccessTokenValid = false;
-  //   }
-  // }
+
   if (accessToken) {
     try {
       const decodedToken = decodeToken(accessToken);
-      // decodedToken.exp는 초 단위, Date.now()는 밀리초 단위이므로 변환 필요
       isAccessTokenValid = decodedToken.exp * 1000 > Date.now();
     } catch (error) {
       console.error('❌ accessToken 디코딩 실패:', error);
@@ -148,43 +114,35 @@ router.beforeEach(async (to, from, next) => {
     }
   }
 
- // 3. 게스트 페이지 접근 시 처리 (비로그인 사용자 전용)
- if (guestPages.includes(to.path)) {
-  // accessToken이 있다면 로그인 상태임 → 게스트 페이지 접근 차단
-  if (accessToken) {
-    // accessToken이 만료되었지만 refreshToken이 있다면 재발급 시도
-    if (!isAccessTokenValid && refreshToken) {
-      try {
-        await refreshAccessTokenAPI();
-        // 재발급에 성공하면 로그인 상태이므로 홈 페이지로 리다이렉트
-        return next('/');
-      } catch (error) {
-        console.error('[Route Guard] 게스트 페이지 접근 시 토큰 재발급 실패:', error);
-        // 재발급 실패 시 토큰 삭제 후 비로그인 상태로 간주 → 게스트 페이지 접근 허용
-        localStorage.removeItem('accessToken');
-        Cookies.remove('refreshToken');
-        return next();
+  // ✅ 1. 게스트 페이지 접근 처리
+  if (guestPages.includes(to.path)) {
+    if (accessToken) {
+      if (!isAccessTokenValid && refreshToken) {
+        try {
+          await refreshAccessTokenAPI();
+          return next('/');
+        } catch (error) {
+          console.error('[Route Guard] 게스트 페이지 접근 시 토큰 재발급 실패:', error);
+          localStorage.removeItem('accessToken');
+          Cookies.remove('refreshToken');
+        }
       }
+      if (isAccessTokenValid) return next('/');
     }
-    // accessToken이 유효하면 → 이미 로그인된 상태이므로 홈 페이지로 리다이렉트
-    if (isAccessTokenValid) {
-      return next('/');
-    }
+    return next();
   }
-  // 로그인 토큰이 없으면 → 비로그인 상태이므로 게스트 페이지 접근 허용
-  return next();
-}
 
- // 4. 보호된 페이지(로그인 필요 페이지)에 접근 시 처리
- if (!guestPages.includes(to.path)) {
-  // 토큰이 없으면 바로 로그인 페이지로 이동
-  if (!accessToken) {
-    return next('/start');
-  }
-  // 토큰이 있으나 만료되었고, refreshToken이 있다면 토큰 재발급 시도
+  // ✅ 2. 보호된 페이지 접근 처리
+  if (!accessToken) return next('/start');
+
   if (!isAccessTokenValid && refreshToken) {
     try {
       await refreshAccessTokenAPI();
+
+      // ✅ 토큰 갱신 후 유저 정보 업데이트
+      const userInfo = decodeAccessToken();
+      if (userInfo) useUserStore().setUser(userInfo);
+
       return next();
     } catch (error) {
       console.error('[Route Guard] 보호된 페이지 접근 시 토큰 재발급 실패:', error);
@@ -193,13 +151,11 @@ router.beforeEach(async (to, from, next) => {
       return next('/start');
     }
   }
-  // 토큰이 여전히 유효하지 않다면 → 로그인 페이지로 이동
-  if (!isAccessTokenValid) {
-    return next('/start');
-  }
-  // 모두 만족하면 정상 접근
+
+  if (!isAccessTokenValid) return next('/start');
+
   return next();
-}
 });
 
 export default router;
+
