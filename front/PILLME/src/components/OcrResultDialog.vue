@@ -131,4 +131,8 @@ const addDrug = () => {
 .add-btn:hover {
   background-color: #45a049;
 }
+
+.drug-name {
+  text-align: left;
+}
 </style>
