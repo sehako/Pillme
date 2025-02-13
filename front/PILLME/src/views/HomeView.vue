@@ -69,7 +69,7 @@
 
       <!-- 캘린더 (예시) -->
       <div class="m-4 flex flex-col">
-        <VCalendar class="w-full"/>
+        <BaseCalendar class="w-full"/>
       </div>
     </main>
   </div>
@@ -87,6 +87,8 @@ import HamBugerMenu from '../components/HamBugerMenu.vue';
 import NameDropdown from '../components/NameDropdown.vue';
 import FamilyAddModal from '../components/FamilyAddModal.vue';
 import { useFCM } from '../utils/usefcm';
+import BaseCalendar from '../components/BaseCalendar.vue';
+
 // 필요에 따라 VCalendar 컴포넌트도 import 합니다.
 
 defineProps({
