@@ -1,5 +1,44 @@
 <template>
   <div id="app" class="flex flex-row h-screen-custom">
+    <!-- FCM 알림 컨테이너 -->
+    <div class="notifications-container">
+      <div 
+        v-for="notification in notifications" 
+        :key="notification.id"
+        class="notification"
+        :class="{ show: notification.show }"
+      >
+        <div class="notification-header">
+          <h4>{{ notification.title }}</h4>
+          <button 
+            class="close-button"
+            @click="removeNotification(notification.id)"
+          >
+            ×
+          </button>
+        </div>
+        <p>{{ notification.body }}</p>
+        <div 
+          v-if="notification.data.code && ['DEPENDENCY_REQUEST', 'MEDICINE_REQUEST', 'DEPENDENCY_DELETE_REQUEST'].includes(notification.data.code)" 
+          class="actions"
+        >
+          <button 
+            class="accept-button"
+            @click="() => handleAccept(notification)"
+          >
+            동의
+          </button>
+          <button 
+            class="reject-button"
+            @click="() => handleReject(notification)"
+          >
+            거절
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 왼쪽 (PC 전용) -->
     <div class="hidden md:flex flex-col w-1/2 bg-white items-center justify-center border-r border-gray-200 shadow-md p-6">
       <img :src="logo" alt="로고" class="w-1/2 h-auto" />
       <h1 class="text-xl sm:text-2xl font-bold text-gray-800 mt-6 text-center">
@@ -10,6 +49,7 @@
       </div>
     </div>
 
+    <!-- 오른쪽 (모바일 전체) -->
     <div class="flex flex-col w-full md:w-1/2 relative">
       <div v-if="isLoggedIn" ref="topbarRef" class="relative z-10 items-start">
         <BaseTopbar />
@@ -59,17 +99,24 @@ import { useAuth } from './composables/useAuth';
 import { useRealVH } from './composables/useRealVH';
 import { useScrollControl } from './composables/useScrollControl';
 import { useNavbarHeight } from './composables/useNavbarHeight';
+import { useFCM } from './utils/useFCM';
 
 const contentRef = ref(null);
 const navbarRef = ref(null);
 const ocrStore = useOcrStore();
+const isRouteReady = ref(true);
 
 const { isLoggedIn, initAuth, cleanUpAuth } = useAuth();
 const { initRealVH, cleanUpRealVH } = useRealVH();
 const { isScrollAllowed } = useScrollControl(['/afteraccount', '/', '/notificationlist']);
 const { navbarHeight } = useNavbarHeight(navbarRef);
-
-const isRouteReady = ref(true);
+const { 
+  notifications, 
+  removeNotification,
+  handleAccept,
+  handleReject,
+  initializeFCM
+} = useFCM();
 
 watch(
   () => ocrStore.isLoading,
@@ -89,6 +136,7 @@ onMounted(() => {
   ocrStore.showResultsDialog = false;
   ocrStore.showNextDialog = false;
   ocrStore.showMedicationDialog = false;
+  initializeFCM();
 });
 
 onUnmounted(() => {
@@ -135,6 +183,91 @@ onUnmounted(() => {
 @keyframes spin {
   to {
     transform: rotate(360deg);
+  }
+}
+
+/* FCM 알림 관련 스타일 */
+.notifications-container {
+  position: fixed;
+  right: 20px;
+  top: 20px;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.notification {
+  width: 300px;
+  padding: 15px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  transform: translateX(120%);
+  transition: transform 0.3s ease;
+}
+
+.notification.show {
+  transform: translateX(0);
+}
+
+.notification-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.notification-header h4 {
+  margin: 0;
+  font-weight: 600;
+}
+
+.close-button {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 0 5px;
+}
+
+.actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.accept-button, .reject-button {
+  flex: 1;
+  padding: 8px;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+  font-weight: 500;
+  transition: opacity 0.2s;
+}
+
+.accept-button {
+  background-color: #4E7351;
+  color: white;
+}
+
+.reject-button {
+  background-color: #DC2626;
+  color: white;
+}
+
+.accept-button:hover, .reject-button:hover {
+  opacity: 0.9;
+}
+
+@media (max-width: 768px) {
+  .notifications-container {
+    width: calc(100% - 40px);
+  }
+
+  .notification {
+    width: 100%;
   }
 }
 </style>
