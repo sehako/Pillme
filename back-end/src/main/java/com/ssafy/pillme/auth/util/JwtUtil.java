@@ -80,6 +80,23 @@ public class JwtUtil {
     }
 
     /**
+     * 토큰에서 memberId 추출
+     */
+    public Long getUserIdFromToken(String token) {
+        if (!validateToken(token)) {
+            return null;
+        }
+
+        try {
+            Claims claims = extractClaims(token);
+            return claims.get("memberId", Long.class);
+        } catch (Exception e) {
+            log.error("Failed to extract userId from token: {}", e.getMessage());
+            return null;
+        }
+    }
+
+    /**
      * 토큰 생성
      */
     private String createToken(Long memberId, String role, long validityTime) {
