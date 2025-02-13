@@ -22,7 +22,6 @@ CREATE TABLE `management`
     `id`              BIGINT    NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `information_id`  BIGINT    NOT NULL,
     `medication_name` BIGINT    NOT NULL,
-    `serving_size`    INT       NULL,
     `period`          INT       NULL,
     `morning`         TINYINT   NULL,
     `lunch`           TINYINT   NULL,
@@ -72,7 +71,6 @@ CREATE TABLE `information`
     `disease_name` VARCHAR(255) NULL,
     `created_at`   TIMESTAMP    NULL,
     `modified_at`  TIMESTAMP    NULL,
-    `supplement`   TINYINT      NULL,
     `deleted`      TINYINT      NULL
 );
 
@@ -80,14 +78,14 @@ DROP TABLE IF EXISTS `fcm_log`;
 
 CREATE TABLE `fcm_log`
 (
-    `id`        BIGINT       NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    `member_id` BIGINT       NOT NULL,
-    `title`     VARCHAR(20) NULL,
-    `content`    VARCHAR(255) NULL,
-    `status`    VARCHAR(50)  NULL,
-    `retry_count` BIGINT NULL,
-    `initial_send_at`   TIMESTAMP    NULL,
-    `send_at`    TIMESTAMP NULL
+    `id`              BIGINT       NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    `member_id`       BIGINT       NOT NULL,
+    `title`           VARCHAR(20)  NULL,
+    `content`         VARCHAR(255) NULL,
+    `status`          VARCHAR(50)  NULL,
+    `retry_count`     BIGINT       NULL,
+    `initial_send_at` TIMESTAMP    NULL,
+    `send_at`         TIMESTAMP    NULL
 );
 
 DROP TABLE IF EXISTS `community`;
@@ -153,12 +151,12 @@ DROP TABLE IF EXISTS `dependency`;
 
 CREATE TABLE `dependency`
 (
-    `id`            BIGINT    NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    `protector_id`  BIGINT    NOT NULL,
-    `dependent_id`  BIGINT    NOT NULL,
-    `created_at`    TIMESTAMP NULL,
-    `modified_at`   TIMESTAMP NULL,
-    `deleted`       TINYINT   NULL
+    `id`           BIGINT    NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    `protector_id` BIGINT    NOT NULL,
+    `dependent_id` BIGINT    NOT NULL,
+    `created_at`   TIMESTAMP NULL,
+    `modified_at`  TIMESTAMP NULL,
+    `deleted`      TINYINT   NULL
 );
 
 DROP TABLE IF EXISTS `image`;
@@ -186,7 +184,8 @@ CREATE TABLE `member`
     `modified_at` TIMESTAMP    NULL,
     `deleted`     TINYINT      NULL,
     `oauth`       TINYINT      NULL,
-    `birthday`    VARCHAR(10)  NULL
+    `birthday`    VARCHAR(10)  NULL,
+    `provider`    VARCHAR(50)  NULL
 );
 
 DROP TABLE IF EXISTS `history`;

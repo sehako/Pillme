@@ -2,16 +2,20 @@ package com.ssafy.pillme.dependency.application.service;
 
 import com.ssafy.pillme.auth.application.service.AuthService;
 import com.ssafy.pillme.auth.domain.entity.Member;
+import com.ssafy.pillme.auth.domain.vo.Role;
 import com.ssafy.pillme.auth.presentation.request.CreateLocalMemberRequest;
+import com.ssafy.pillme.chat.application.service.ChatRoomService;
 import com.ssafy.pillme.dependency.application.exception.DependencyNotFoundException;
 import com.ssafy.pillme.dependency.application.exception.DuplicateDependencyException;
 import com.ssafy.pillme.dependency.application.response.DependentListResponse;
+import com.ssafy.pillme.dependency.application.response.RelationShipListResponse;
 import com.ssafy.pillme.dependency.domain.entity.Dependency;
 import com.ssafy.pillme.dependency.infrastructure.repository.DependencyRepository;
 import com.ssafy.pillme.dependency.presentation.request.*;
 import com.ssafy.pillme.global.code.ErrorCode;
 import com.ssafy.pillme.notification.application.service.NotificationService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,10 +24,12 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @Transactional
+@Slf4j
 public class DependencyService {
     private final DependencyRepository dependencyRepository;
     private final NotificationService notificationService;
     private final AuthService authService;
+    private final ChatRoomService chatRoomService;
 
     public void requestDependency(DependentPhoneRequest request, Member protector) {
         // 피보호자 정보 조회
@@ -53,6 +59,9 @@ public class DependencyService {
         Dependency dependency = Dependency.createDependency(protector, dependent);
         dependencyRepository.save(dependency);
 
+        // 채팅방 생성
+        chatRoomService.createChatRoom(dependent, protector);
+
         // 피보호자가 보호자에게 관계 수락 알림 전송
         notificationService.sendDependencyAcceptNotification(dependent, protector);
     }
@@ -71,22 +80,25 @@ public class DependencyService {
      * */
     public void createLocalMemberWithDependency(LocalMemberRequest request, Member protector) {
         /*
-        * 이름, 성별, 생년월일이 동일한 회원이 존재하면 해당 회원과 보호자의 관계가 존재하는지 확인
-        *   관계가 존재하면 예외 처리
-        *   관계가 존재하지 않으면 관계 정보 저장
-        * 존재하지 않으면 로컬 회원 생성 후 관계 정보 저장
-        * */
-        Member dependent = authService.findLocalMember(request.name(), request.gender(), request.birthday());
+         * 이름, 성별, 생년월일이 동일한 회원이 존재하면 해당 회원과 보호자의 관계가 존재하는지 확인
+         *   관계가 존재하면 예외 처리
+         *   관계가 존재하지 않으면 관계 정보 저장
+         * 존재하지 않으면 로컬 회원 생성 후 관계 정보 저장
+         * */
+//        Member dependent = authService.findLocalMember(request.name(), request.gender(), request.birthday());
+//
+//        if (dependent != null) {
+//            dependencyRepository.findByDependentIdAndProtectorIdAndDeletedIsFalse(dependent.getId(), protector.getId())
+//                    .ifPresent(dependency -> {
+//                        throw new DuplicateDependencyException(ErrorCode.DUPLICATE_DEPENDENCY);
+//                    });
+//        } else {
+//            // 로컬 회원 생성
+//            dependent = authService.createLocalMember(CreateLocalMemberRequest.from(request));
+//        }
 
-        if (dependent != null) {
-            dependencyRepository.findByDependentIdAndProtectorIdAndDeletedIsFalse(dependent.getId(), protector.getId())
-                    .ifPresent(dependency -> {
-                        throw new DuplicateDependencyException(ErrorCode.DUPLICATE_DEPENDENCY);
-                    });
-        } else {
-            // 로컬 회원 생성
-            dependent = authService.createLocalMember(CreateLocalMemberRequest.from(request));
-        }
+        // 로컬 회원은 중복을 허용하고 관계 정보 저장
+        Member dependent = authService.createLocalMember(CreateLocalMemberRequest.from(request));
 
         // 관계 정보 저장
         Dependency dependency = Dependency.createDependency(protector, dependent);
@@ -109,6 +121,15 @@ public class DependencyService {
         Dependency dependency = dependencyRepository.findByIdAndDeletedIsFalse(dependencyId)
                 .orElseThrow(() -> new DependencyNotFoundException(ErrorCode.DEPENDENCY_NOT_FOUND));
 
+        /* 로컬 회원으로 등록된 피보호자인 경우
+         * 알림 없이 관계 정보 삭제 및 로컬 회원 삭제
+         * */
+        if (dependency.getDependent().getRole().equals(Role.LOCAL)) {
+            dependency.delete();
+            authService.deleteLocalMember(dependency.getDependent());
+            return;
+        }
+
         // 가족 관계 삭제 요청 알림을 수신하는 사람
         Member receiver = dependency.getOtherMember(loginMember);
 
@@ -124,6 +145,9 @@ public class DependencyService {
 
         // 관계 정보 삭제
         dependency.delete();
+
+        // 채팅방 삭제
+        chatRoomService.deleteChatRoom(dependency.getProtector(), dependency.getDependent());
 
         // 가족 관계 삭제 요청 수락 알림 전송
         notificationService.sendDependencyDeleteAcceptNotification(loginMember, dependency.getOtherMember(loginMember));
@@ -152,5 +176,13 @@ public class DependencyService {
 
         // 복용 알림 전송
         notificationService.sendProtectorToDependentNotification(dependency.getProtector(), dependency.getDependent());
+    }
+
+    @Transactional(readOnly = true)
+    public RelationShipListResponse getRelationships(Member loginMember) {
+        // 로그인되어있는 회원의 모든 관계 정보 조회
+        List<Dependency> dependencies = dependencyRepository.findAllByProtectorIdAndDeletedIsFalseOrDependentIdAndDeletedIsFalse(loginMember.getId());
+
+        return RelationShipListResponse.of(dependencies, loginMember.getId());
     }
 }

@@ -9,6 +9,7 @@ import com.ssafy.pillme.chat.presentation.request.ChatRoomRequest;
 import com.ssafy.pillme.global.code.SuccessCode;
 import com.ssafy.pillme.global.response.JSONResponse;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -19,21 +20,22 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1/chat/rooms")
 @AllArgsConstructor
+@Slf4j
 public class ChatRoomController {
 
     private final ChatRoomService chatRoomService;
     private final ChatRedisService chatRedisService;
 
     //유저의 채팅방 정보 조회
-    @GetMapping("/{userId}")
-    public ResponseEntity<JSONResponse<List<ChatRoomResponse>>> getUserChatRooms(@PathVariable Long userId){
-        return ResponseEntity.ok(JSONResponse.onSuccess(chatRoomService.getUserChatRoom(userId)));
+    @GetMapping("/list")
+    public ResponseEntity<JSONResponse<List<ChatRoomResponse>>> getUserChatRooms(@Auth Member member){
+        return ResponseEntity.ok(JSONResponse.onSuccess(chatRoomService.getUserChatRoom(member)));
     }
 
     //채팅방 없을 시 채팅방 생성 or 채팅방 존재할 경우 이전 채팅방 정보 불러오기(redis에 유저 정보 추가)
     @PostMapping
-    public ResponseEntity<JSONResponse<ChatRoomResponse>> getOrCreateChatRoom(@RequestBody ChatRoomRequest chatRoomRequest){
-        return ResponseEntity.ok(JSONResponse.onSuccess(chatRoomService.getOrCreateChatRoom(chatRoomRequest)));
+    public ResponseEntity<JSONResponse<ChatRoomResponse>> getOrCreateChatRoom(@RequestBody ChatRoomRequest chatRoomRequest, @Auth Member member){
+        return ResponseEntity.ok(JSONResponse.onSuccess(chatRoomService.getOrCreateChatRoom(chatRoomRequest, member.getId())));
     }
 
     //채팅방 지우기
@@ -43,10 +45,9 @@ public class ChatRoomController {
         return ResponseEntity.ok(JSONResponse.of(SuccessCode.CHATROOM_DELETE_SUCCESS));
     }
     //채팅방을 나갈 시 redis에서 유저 정보 삭제
-    @PostMapping("leave/{chatRoomId}/{userId}")
-    public ResponseEntity<JSONResponse<Void>> leaveChatRoom(@PathVariable Long chatRoomId, @PathVariable Long userId){
-        chatRedisService.leaveChatRoom(chatRoomId, userId);
+    @PostMapping("leave/{chatRoomId}")
+    public ResponseEntity<JSONResponse<Void>> leaveChatRoom(@PathVariable Long chatRoomId, @Auth Member member){
+        chatRedisService.leaveChatRoom(chatRoomId, member.getId());
         return ResponseEntity.ok(JSONResponse.of(SuccessCode.CHATROOM_LEAVE_SUCCESS));
     }
-
 }

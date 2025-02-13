@@ -29,9 +29,9 @@ public class ChatController {
         return ResponseEntity.ok(JSONResponse.onSuccess(chatMessageService.getChatMessages(chatRoomId)));
     }
     //채팅방에 유저가 들어올 시 본인에게 온 메세지 중 안 읽은 메세지 읽음으로 처리
-    @PostMapping("/read")
-    public ResponseEntity<JSONResponse<Void>> readChatRoom(@ModelAttribute ChatReadRequest chatReadRequest){
-        chatMessageService.markMessageAsRead(chatReadRequest.chatRoomId(), chatReadRequest.userId());
+    @PostMapping("/read/{chatRoomId}")
+    public ResponseEntity<JSONResponse<Void>> readChatRoom(@PathVariable Long chatRoomId, @Auth Member member){
+        chatMessageService.markMessageAsRead(chatRoomId, member.getId());
         return ResponseEntity.ok(JSONResponse.of(SuccessCode.REQUEST_SUCCESS));
     }
 }
