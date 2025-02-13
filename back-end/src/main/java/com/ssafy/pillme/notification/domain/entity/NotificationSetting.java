@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalTime;
+import java.util.Optional;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED) // 생성자를 protected로 제한 -> 생성 메소드로 객체 생성하도록 유도(무분별한 객체 생성 방지)
@@ -27,10 +28,21 @@ public class NotificationSetting {
     private LocalTime dinner; // 확장성을 고려한다면 ZonedDateTime을 사용하는 것이 좋음
     private LocalTime sleep;
 
+    /*
+    * 알림 시간이 변경될 경우 엔티티의 값을 변경하는 메소드
+    * 알림 시간이 변경되지 않은 경우 null이 들어올 수 있으므로 Optional로 감싸서 값이 있는 경우에만 변경
+    * */
     public void update(NotificationSettingRequest notificationSettingRequest) {
-        this.morning = notificationSettingRequest.morning() == null ? null : LocalTime.parse(notificationSettingRequest.morning());
-        this.lunch = notificationSettingRequest.lunch() == null ? null : LocalTime.parse(notificationSettingRequest.lunch());
-        this.dinner = notificationSettingRequest.dinner() == null ? null : LocalTime.parse(notificationSettingRequest.dinner());
-        this.sleep = notificationSettingRequest.sleep() == null ? null : LocalTime.parse(notificationSettingRequest.sleep());
+        Optional.ofNullable(notificationSettingRequest.morning())
+                .ifPresent(morning -> this.morning = LocalTime.parse(morning));
+
+        Optional.ofNullable(notificationSettingRequest.lunch())
+                .ifPresent(lunch -> this.lunch = LocalTime.parse(lunch));
+
+        Optional.ofNullable(notificationSettingRequest.dinner())
+                .ifPresent(dinner -> this.dinner = LocalTime.parse(dinner));
+
+        Optional.ofNullable(notificationSettingRequest.sleep())
+                .ifPresent(sleep -> this.sleep = LocalTime.parse(sleep));
     }
 }

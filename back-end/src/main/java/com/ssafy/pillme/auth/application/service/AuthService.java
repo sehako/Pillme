@@ -19,6 +19,7 @@ import java.util.UUID;
 import java.util.regex.Pattern;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,6 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
+@Slf4j
 public class AuthService {
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
@@ -292,5 +294,13 @@ public class AuthService {
     public Member findLocalMember(String name, Gender gender, String birthday) {
         return memberRepository.findByNameAndGenderAndBirthdayAndDeletedFalse(name, gender, birthday)
                 .orElse(null);
+    }
+
+    /**
+     * 로컬 회원 삭제
+     */
+    @Transactional
+    public void deleteLocalMember(Member member) {
+        member.delete();
     }
 }
