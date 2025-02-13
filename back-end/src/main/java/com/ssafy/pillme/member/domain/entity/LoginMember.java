@@ -3,6 +3,7 @@ package com.ssafy.pillme.member.domain.entity;
 import com.ssafy.pillme.auth.domain.vo.Gender;
 import com.ssafy.pillme.auth.domain.vo.Role;
 import com.ssafy.pillme.global.entity.BaseEntity;
+import com.ssafy.pillme.member.application.exception.OAuthUserException;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -88,13 +89,6 @@ public class LoginMember extends BaseEntity {
     private void validateLocalUser() {
         if (Role.LOCAL.equals(this.role)) {
             throw new IllegalStateException("LOCAL 사용자는 프로필을 수정할 수 없습니다.");
-        }
-    }
-
-    // OAuth 사용자 검증
-    private void validateOAuthUser() {
-        if (this.oauth) {
-            throw new IllegalStateException("OAuth 사용자는 이메일을 수정할 수 없습니다.");
         }
     }
 
