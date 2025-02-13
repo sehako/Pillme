@@ -1,25 +1,26 @@
 <template>
   <div id="app" class="flex flex-row h-screen-custom">
     <!-- 왼쪽 (PC 전용) -->
-    <div class="hidden md:flex flex-col w-1/2 bg-white items-center justify-center border-r border-gray-300">
-
+    <div
+      class="hidden md:flex flex-col w-1/2 bg-white items-center justify-center border-r border-gray-300"
+    >
       <img :src="logo" alt="로고 이미지" class="w-1/2 h-auto" />
       <div>
         <p class="text-4xl">
-          <br><br>
+          <br /><br />
           PILLME 소개 및 QR 코드 제공
-          <br>
+          <br />
           PILLME 소개 및 QR 코드 제공
-          <br>
+          <br />
           PILLME 소개 및 QR 코드 제공
-          <br>
+          <br />
           PILLME 소개 및 QR 코드 제공
-          <br>
+          <br />
           PILLME 소개 및 QR 코드 제공
-          <br>
+          <br />
           PILLME 소개 및 QR 코드 제공
-          <br>
-          <br><br><br>
+          <br />
+          <br /><br /><br />
         </p>
       </div>
     </div>
@@ -36,28 +37,29 @@
         ref="contentRef"
         :class="[
           'h-screen-custom',
-          isScrollAllowed ? 'overflow-y-auto overflow-x-hidden' : 'flex items-center justify-center overflow-hidden'
+          isScrollAllowed
+            ? 'overflow-y-auto overflow-x-hidden'
+            : 'flex items-center justify-center overflow-hidden',
         ]"
       >
         <router-view v-if="isRouteReady" :navbarHeight="navbarHeight" />
-        
       </div>
 
       <!-- ✅ OCR 분석 중 로딩 표시 -->
       <div v-if="ocrStore.isLoading" class="loading-overlay">
         <div class="loading-spinner"></div>
       </div>
-
+      <!-- ✅ OCR 관련 다이얼로그 (모든 페이지에서 표시 가능) -->
+      <div class="dialog-container">
+        <OcrResultDialog v-if="ocrStore.showResultsDialog" />
+        <AdditionalInfoDialog v-if="ocrStore.showNextDialog" />
+        <MedicationScheduleDialog v-if="ocrStore.showMedicationDialog" />
+      </div>
       <!-- 하단 바 -->
       <div ref="navbarRef" class="relative z-10 bg-white">
         <BaseNavbar />
       </div>
     </div>
-
-    <!-- ✅ OCR 관련 다이얼로그 (모든 페이지에서 표시 가능) -->
-    <OcrResultDialog v-if="ocrStore.showResultsDialog" />
-    <AdditionalInfoDialog v-if="ocrStore.showNextDialog" />
-    <MedicationScheduleDialog v-if="ocrStore.showMedicationDialog" />
   </div>
 </template>
 
@@ -84,27 +86,31 @@ const isRouteReady = ref(true);
 const isScrollAllowed = ref(false);
 const alwaysScrollablePages = ['/afteraccount', '/', '/notificationlist']; // 특정 경로 허용
 
-watch(() => route.path, async () => {
-  isRouteReady.value = false;
-  await nextTick(); // 레이아웃 업데이트 후 반영
-  
-  // ✅ "/mypage"로 시작하는 모든 경로를 포함하여 스크롤 허용
-  isScrollAllowed.value = alwaysScrollablePages.includes(route.path) || route.path.startsWith('/mypage');
+watch(
+  () => route.path,
+  async () => {
+    isRouteReady.value = false;
+    await nextTick(); // 레이아웃 업데이트 후 반영
 
-  // ✅ 스크롤 허용 안된 페이지일 때 강제로 스크롤 최상단 이동 및 차단
-  if (!isScrollAllowed.value) {
-    document.documentElement.style.overflow = "hidden";
-    document.body.style.overflow = "hidden";
-    setTimeout(() => {
-      contentRef.value?.scrollTo({ top: 0, behavior: 'instant' });
-    }, 50);
-  } else {
-    document.documentElement.style.overflow = "";
-    document.body.style.overflow = "";
+    // ✅ "/mypage"로 시작하는 모든 경로를 포함하여 스크롤 허용
+    isScrollAllowed.value =
+      alwaysScrollablePages.includes(route.path) || route.path.startsWith('/mypage');
+
+    // ✅ 스크롤 허용 안된 페이지일 때 강제로 스크롤 최상단 이동 및 차단
+    if (!isScrollAllowed.value) {
+      document.documentElement.style.overflow = 'hidden';
+      document.body.style.overflow = 'hidden';
+      setTimeout(() => {
+        contentRef.value?.scrollTo({ top: 0, behavior: 'instant' });
+      }, 50);
+    } else {
+      document.documentElement.style.overflow = '';
+      document.body.style.overflow = '';
+    }
+
+    isRouteReady.value = true;
   }
-
-  isRouteReady.value = true;
-});
+);
 
 // 네비바 높이 감지 및 업데이트
 const navbarRef = ref(null);
@@ -117,7 +123,9 @@ const updateNavbarHeight = () => {
 };
 
 // ✅ 모바일 환경 감지
-const isMobile = window.matchMedia("(pointer:coarse)").matches || /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+const isMobile =
+  window.matchMedia('(pointer:coarse)').matches ||
+  /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
 // ✅ 모바일에서만 vh 값을 조정하는 함수
 const setRealVH = () => {
@@ -128,22 +136,28 @@ const setRealVH = () => {
 
 // ✅ OCR 분석 감지 및 다이얼로그 표시
 onMounted(() => {
-  isScrollAllowed.value = alwaysScrollablePages.includes(route.path) || route.path.startsWith('/mypage');
+  isScrollAllowed.value =
+    alwaysScrollablePages.includes(route.path) || route.path.startsWith('/mypage');
 
   if (isMobile) {
     setRealVH();
     window.addEventListener('resize', setRealVH);
   }
 
-  // ✅ 저장된 OCR 상태 불러오기
+  // ✅ 저장된 OCR 상태 불러오기 (다이얼로그 상태 제외)
   ocrStore.loadFromLocalStorage();
 
-  // ✅ OCR 분석이 진행 중이면 로딩 상태 유지
-  watch(() => ocrStore.isLoading, (newVal) => {
-    if (!newVal && ocrStore.results.length > 0 && !ocrStore.showNextDialog && !ocrStore.showMedicationDialog) {
-      ocrStore.showResultsDialog = true;
+  // ✅ OCR 분석이 진행 중이면 로딩 상태 유지, 분석이 끝난 경우 다이얼로그 자동 닫기
+  watch(
+    () => ocrStore.isLoading,
+    (newVal) => {
+      if (newVal) {
+        ocrStore.showResultsDialog = false;
+        ocrStore.showNextDialog = false;
+        ocrStore.showMedicationDialog = false;
+      }
     }
-  });
+  );
 
   // ✅ 네비바 높이 감지 (실시간 감지)
   const observer = new ResizeObserver(() => {
@@ -152,8 +166,13 @@ onMounted(() => {
 
   if (navbarRef.value) {
     observer.observe(navbarRef.value);
-    updateNavbarHeight(); // 초기 값 설정
+    updateNavbarHeight();
   }
+
+  // ✅ 초기 다이얼로그 상태 강제 초기화 (새로고침 시 자동으로 열리는 문제 해결)
+  ocrStore.showResultsDialog = false;
+  ocrStore.showNextDialog = false;
+  ocrStore.showMedicationDialog = false;
 
   onUnmounted(() => {
     observer.disconnect();
@@ -175,6 +194,7 @@ onMounted(() => {
     height: calc(var(--vh, 1vh) * 100);
   }
 }
+
 
 /* ✅ OCR 분석 중 로딩 오버레이 */
 .loading-overlay {
@@ -202,7 +222,11 @@ onMounted(() => {
 }
 
 @keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 </style>
