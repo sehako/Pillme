@@ -1,23 +1,22 @@
 <template>
-  <VCalendar 
-    v-model="selectedDate"
-    :attributes="calendarAttributes"
-    class="w-full rounded-lg shadow-md border border-gray-200 bg-white p-4"
+  <FullCalendar 
+    :options="calendarOptions"
+    class="w-full border border-gray-300 shadow-md bg-white p-4 rounded-lg"
   />
 </template>
 
 <script setup>
 import { ref, computed, onMounted } from "vue";
-
-// ✅ 선택한 날짜
-const selectedDate = ref(new Date());
+import FullCalendar from "@fullcalendar/vue3";
+import dayGridPlugin from "@fullcalendar/daygrid";
+import interactionPlugin from "@fullcalendar/interaction";
 
 // ✅ 테스트용 `results` 배열 (복수의 처방전 데이터)
 const results = ref([
   {
     medicineList: ["타이레놀", "아스피린"],
-    startDate: "20250210",
-    endDate: "20250214",
+    startDate: "2025-02-10",
+    endDate: "2025-02-14",
     morningMeds: ["타이레놀"],
     lunchMeds: ["아스피린"],
     dinnerMeds: ["타이레놀", "아스피린"],
@@ -27,8 +26,8 @@ const results = ref([
   },
   {
     medicineList: ["항생제"],
-    startDate: "20250212",
-    endDate: "20250216",
+    startDate: "2025-02-12",
+    endDate: "2025-02-16",
     morningMeds: ["항생제"],
     lunchMeds: [],
     dinnerMeds: ["항생제"],
@@ -40,85 +39,74 @@ const results = ref([
 
 // ✅ 복용 시간대별 색상 설정
 const timePeriodColors = {
-  morning: "red",    // 아침 (🔴 빨강)
-  lunch: "blue",     // 점심 (🔵 파랑)
-  dinner: "green",   // 저녁 (🟢 초록)
-  bedtime: "purple"  // 자기 전 (🟣 보라)
+  morning: "#FF5733",    // 아침 (🔴 주황)
+  lunch: "#3498db",      // 점심 (🔵 파랑)
+  dinner: "#2ecc71",     // 저녁 (🟢 초록)
+  bedtime: "#9b59b6"     // 자기 전 (🟣 보라)
 };
 
-// ✅ 날짜 변환 함수 (YYYYMMDD → Date 객체)
+// ✅ 날짜 변환 함수 (YYYY-MM-DD 형식)
 const parseDate = (dateString) => {
-  const year = parseInt(dateString.substring(0, 4), 10);
-  const month = parseInt(dateString.substring(4, 6), 10) - 1;
-  const day = parseInt(dateString.substring(6, 8), 10);
-  return new Date(year, month, day);
+  const year = dateString.substring(0, 4);
+  const month = dateString.substring(5, 7);
+  const day = dateString.substring(8, 10);
+  return `${year}-${month}-${day}`;
 };
 
-// ✅ `results` 배열을 기반으로 `VCalendar`의 attributes 생성
-const calendarAttributes = computed(() => {
-  const attributes = [];
-  const dateEvents = {}; // 같은 날짜에 있는 처방을 그룹화하기 위한 객체
+// ✅ FullCalendar에서 사용할 이벤트 데이터 변환
+const calendarEvents = computed(() => {
+  const events = [];
 
-  // 모든 처방전(result) 확인
   results.value.forEach((result, index) => {
     const startDate = parseDate(result.startDate);
     const endDate = parseDate(result.endDate);
 
-    // ✅ 같은 날짜에 있는 처방을 그룹화
-    let currentDate = new Date(startDate);
-    while (currentDate <= endDate) {
-      const dateKey = currentDate.toISOString().split("T")[0]; // "YYYY-MM-DD" 형태로 변환
-      if (!dateEvents[dateKey]) {
-        dateEvents[dateKey] = [];
-      }
-      dateEvents[dateKey].push(result);
-      currentDate.setDate(currentDate.getDate() + 1);
-    }
-
-    // ✅ 연속된 기간을 가로로 정렬하면서 하나의 블록으로 연결
-    attributes.push({
-      key: `med-period-${index}`,
-      dates: { start: startDate, end: endDate }, // ✅ 연속된 기간 적용
-      highlight: {
-        color: "",
-        fillMode: "", // ✅ 연속된 기간을 하나로 연결
-        opacity: 0.2, // ✅ 배경 색상 투명하게 (복용 기간 강조)
-        isRange: false, // ✅ 범위를 하나의 줄로 연결
-      },
-      bar: {
-        color: "gray",
-        position: "row", // ✅ 가로로 정렬
-        order: index, // ✅ 여러 개가 겹칠 경우 옆으로 정렬
-      },
+    // ✅ 기본적인 일정 블록 (복용 기간)
+    events.push({
+      id: `med-period-${index}`,
+      title: `${result.hospitalName} - ${result.diseaseName}`,
+      start: startDate,
+      end: endDate,
+      backgroundColor: "#95a5a6",
+      borderColor: "#7f8c8d",
+      display: "block",
     });
 
-    // 📌 복용 시간대별로 색상 적용 (아침/점심/저녁/자기전)
+    // 📌 복용 시간대별 개별 일정 추가
     Object.keys(timePeriodColors).forEach((timePeriod) => {
       if (result[`${timePeriod}Meds`].length > 0) {
-        attributes.push({
-          key: `med-${index}-${timePeriod}`,
-          dates: { start: startDate, end: endDate }, // ✅ 연속된 기간 유지
-          highlight: {
-            color: timePeriodColors[timePeriod],
-            fillMode: "outline", // ✅ 개별 복용 시간대는 색상 채우기
-            isRange: false, // ✅ 연속된 기간을 하나로 연결
-          },
-          bar: {
-            color: timePeriodColors[timePeriod],
-            position: "bottom", // ✅ 가로 정렬
-            order: index, // ✅ 처방전이 많을 경우 가로 정렬
-          }
+        events.push({
+          id: `med-${index}-${timePeriod}`,
+          title: result[`${timePeriod}Meds`].join(", "),
+          start: startDate,
+          end: endDate,
+          backgroundColor: timePeriodColors[timePeriod],
+          borderColor: "#ffffff",
+          display: "block",
         });
       }
     });
   });
 
-  return attributes;
+  return events;
 });
 
-// ✅ 마운트 시 더미 데이터 로드 (테스트용)
+// ✅ FullCalendar 설정
+const calendarOptions = computed(() => ({
+  plugins: [dayGridPlugin, interactionPlugin],
+  initialView: "dayGridMonth",
+  headerToolbar: {
+    left: "prev,next today",
+    center: "title",
+    right: "dayGridMonth,dayGridWeek,dayGridDay",
+  },
+  events: calendarEvents.value, // ✅ 동적으로 이벤트 바인딩
+  editable: false, // ✅ 사용자가 직접 일정 수정 불가
+  eventDisplay: "block", // ✅ 모든 이벤트 개별적으로 표시 (겹쳐 보이지 않도록)
+}));
+
+// ✅ 마운트 시 로그 출력
 onMounted(() => {
-  console.log("🔍 테스트용 results 객체:", results.value);
-  console.log("📅 변환된 attributes:", calendarAttributes.value);
+  console.log("📅 FullCalendar 이벤트 데이터:", calendarEvents.value);
 });
 </script>
