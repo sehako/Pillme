@@ -78,10 +78,8 @@
 
 <script setup>
 import { ref, computed, onMounted, reactive } from 'vue';
-// import { useNotificationSettingsStore } from '../stores/notificationSettingsStore';
 import { fetchNotificationSettings } from '../api/setalarm';
-// import { storeToRefs } from 'pinia';
-
+import { fetchAllDrugCheck } from '../api/drugcheck';
 import BaseButton from '../components/BaseButton.vue';
 import YellowCard from '../layout/YellowCard.vue';
 import WhiteCard from '../layout/WhiteCard.vue';
@@ -244,14 +242,40 @@ const fetchTodaysMedications = async () => {
 
 // 복약 완료 처리 함수 (사용자가 체크하면 호출)
 const completeMedications = async () => {
-  // 각 약물에 대해 완료 처리를 진행 (여기서는 로컬 상태 업데이트 후 백엔드 API 호출 예시)
-  todaysMedications.value.forEach(async (med) => {
-    med.taken = true;
-    // 실제 API 호출 예시:
-    // await axios.post('/api/medications/complete', { prescriptionId: med.prescriptionId, timePeriod: med.timePeriod });
-  });
-  alert("복약 완료 처리가 완료되었습니다.");
+  try {
+    // ✅ 한글 시간대를 영어로 변환
+    const periodMap = {
+      "아침": "morning",
+      "점심": "lunch",
+      "저녁": "dinner",
+      "자기전": "sleep",
+    };
+    
+    const timePeriod = periodMap[currentTimePeriod.value] || "";
+    
+    if (!timePeriod) {
+      alert("현재 시간대를 인식할 수 없습니다.");
+      return;
+    }
+
+    // ✅ 디버그 로그 출력
+    console.log("🔍 [completeMedications] 현재 시간대:", timePeriod);
+    console.log("🔍 [completeMedications] 요청 바디:", { time: timePeriod });
+
+    // ✅ API 호출 (timePeriod만 전송)
+    await fetchAllDrugCheck(timePeriod);  // ✅ 올바른 형식으로 전달
+
+    // ✅ 상태 업데이트
+    todaysMedications.value.forEach((med) => (med.taken = true));
+
+    alert("복약 완료 처리가 완료되었습니다.");
+  } catch (error) {
+    console.error("❌ [completeMedications] 복약 완료 처리 중 오류 발생:", error);
+    alert("복약 완료 처리에 실패했습니다.");
+  }
 };
+
+
 
 // ✅ 컴포넌트가 마운트되면 데이터 및 이벤트 리스너 등록
 onMounted(async () => {
