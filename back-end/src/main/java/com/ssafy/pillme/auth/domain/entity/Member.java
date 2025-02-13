@@ -98,4 +98,11 @@ public class Member extends BaseEntity {
         this.phone = phone;
         this.birthday = birthday;
     }
+
+    // 회원 삭제
+    @Override
+    public void delete() {
+        super.delete();
+        this.deleted = true;
+    }
 }
