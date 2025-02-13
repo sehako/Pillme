@@ -36,7 +36,7 @@
     <p class="text-sm font-bold">오늘의 복약 내역</p>
     <span class="text-xs ml-2">
       <template v-if="fetchFailed">
-        마이페이지에서 알림 설정을 해야 오늘의 복약 알림을 받을 수 있습니다.
+        알림 설정을 활성화해야 오늘의 복약 알림을 받을 수 있습니다.
       </template>
       <template v-else>
         {{ todaysMedications.length > 0 ? todaysMedications.map(med => med.name).join(', ') : "약정보 없음" }}
