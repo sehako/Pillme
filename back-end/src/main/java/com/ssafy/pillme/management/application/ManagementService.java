@@ -103,7 +103,7 @@ public class ManagementService {
         return managementRepository
                 .findByInformationDateAndMember(
                         LocalDate.now(),
-                        memberId == null ? member : authService.findById(memberId)
+                        memberId == null ? member.getId() : authService.findById(memberId).getId()
                 )
                 .stream()
                 .map(CurrentTakingResponse::from)
@@ -126,7 +126,8 @@ public class ManagementService {
     public List<TakingInformationItem> selectCurrentTakingInformationList(
             final Member member
     ) {
-        List<Management> managements = managementRepository.findByInformationDateAndMember(LocalDate.now(), member);
+        List<Management> managements = managementRepository.findByInformationDateAndMember(LocalDate.now(),
+                member.getId());
 
         return managements.stream()
                 .map(TakingInformationItem::from)
@@ -196,7 +197,8 @@ public class ManagementService {
             final CheckCurrentTakingRequest request,
             final Member member
     ) {
-        List<Management> managements = managementRepository.findByInformationDateAndMember(LocalDate.now(), member);
+        List<Management> managements = managementRepository.findByInformationDateAndMember(LocalDate.now(),
+                member.getId());
 
         for (Management management : managements) {
             checkMedicationTaking(management, request.time());
@@ -239,9 +241,7 @@ public class ManagementService {
                 member.getId());
 
         information.delete();
-        for (Management management : managements) {
-            management.delete();
-        }
+        managements.forEach(Management::delete);
     }
 
     private void checkMemberValidation(
@@ -254,7 +254,7 @@ public class ManagementService {
     }
 
     private Information findInformationById(final Long infoId) {
-        return informationRepository.findByIdAndDeletedIsFalse(infoId)
+        return informationRepository.findByIdMemberFetchJoin(infoId)
                 .orElseThrow(() -> new NoInformationException(INFORMATION_NOT_FOUND));
     }
 }
