@@ -1,8 +1,8 @@
-import apiClient from "./index";
-import { useUserStore } from "../stores/user"; // ✅ Pinia 유저 스토어 추가
-import { decodeToken } from "../utils/jwt"; // ✅ JWT 디코딩 유틸 추가
-import Cookies from "js-cookie"; // ✅ js-cookie 라이브러리 추가
-import axios from "axios";
+import apiClient from './index';
+import { useUserStore } from '../stores/user'; // ✅ Pinia 유저 스토어 추가
+import { decodeToken } from '../utils/jwt'; // ✅ JWT 디코딩 유틸 추가
+import Cookies from 'js-cookie'; // ✅ js-cookie 라이브러리 추가
+import axios from 'axios';
 // ===========================
 // 인증 관련 API 함수들
 // ===========================
@@ -14,14 +14,14 @@ export const requestEmailVerification = (email) => {
 };
 
 export const verifyEmailCode = (email, code) => {
-  console.log("✅ 인증번호 확인 요청:", { email, code });
-  return apiClient.post("/api/v1/auth/email/verify", { email, code });
+  console.log('✅ 인증번호 확인 요청:', { email, code });
+  return apiClient.post('/api/v1/auth/email/verify', { email, code });
 };
 
 // ✅ 이메일 중복 검사
 export const isDuplicateEmail = async (email) => {
   try {
-    console.log("🔍 이메일 중복 검사 요청:", typeof(email), email);
+    console.log('🔍 이메일 중복 검사 요청:', typeof email, email);
     const response = await apiClient.get('/api/v1/auth/check/email', {
       params: { email },
     });
@@ -173,11 +173,11 @@ export const oauthLogin = async (code) => {
     const response = await apiClient.get(`/api/v1/auth/oauth2/google`, {
       params: { code },
     });
-    
+
     if (response.data.isSuccess) {
       return response.data;
     } else {
-      throw new Error(response.data.message || '로그인에 실패했습니다.')
+      throw new Error(response.data.message || '로그인에 실패했습니다.');
     }
   } catch (error) {
     throw new Error(error.response?.data?.message || '로그인 처리 중 오류가 발생했습니다.');
@@ -193,5 +193,17 @@ export const oauthSignUp = async (signUpData, provider) => {
     return response.data;
   } catch (error) {
     throw new Error(error.response?.data?.message || '회원가입 처리 중 오류가 발생했습니다.');
+  }
+};
+
+// ✅ 이메일 찾기
+export const findEmail = async (phone) => {
+  try {
+    const response = await apiClient.get('/api/v1/auth/find-email', {
+      params: { phone },
+    });
+    return response.data;
+  } catch (error) {
+    throw new Error(error.response?.data?.message || '이메일 찾기 중 오류가 발생했습니다.');
   }
 };
