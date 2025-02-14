@@ -8,7 +8,6 @@ import java.util.List;
 import org.springframework.format.annotation.DateTimeFormat;
 
 public record TakingInformationRegisterRequest(
-//        @NotBlank(message = "병원 이름은 빈 값이 올 수 없습니다")
         String hospital,
         String diseaseName,
         Long reader,

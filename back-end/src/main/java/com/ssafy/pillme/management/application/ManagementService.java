@@ -71,7 +71,7 @@ public class ManagementService {
     ) {
         Information information = findInformationById(infoId);
         checkMemberValidation(member, information);
-        saveManagement(request.management(), information);
+        saveManagement(request.toItem(), information);
         return information;
     }
 

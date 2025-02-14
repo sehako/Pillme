@@ -43,7 +43,8 @@ public class CommonExceptionHandler {
     // 그 외 CommonException 상속받은 모든 예외를 이 메소드에서 처리
     @ExceptionHandler(CommonException.class)
     public ResponseEntity<JSONResponse<Object>> handlerCommonException(final CommonException e) {
-        log.error("Exception = {}, code = {}", e.getClass(), e.getErrorCode());
+        log.error("Exception = {}, code = {}, message = {}", e.getClass(), e.getErrorCode(),
+                e.getErrorCode().getMessage());
         return ResponseEntity
                 .status(e.getErrorCode().getHttpStatus())
                 .body(JSONResponse.onFailure(e.getErrorCode()));

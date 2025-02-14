@@ -5,7 +5,6 @@ import com.ssafy.pillme.management.domain.Management;
 
 public record TakingSettingItem(
         String medicationName,
-        Integer period,
         boolean morning,
         boolean lunch,
         boolean dinner,
@@ -15,7 +14,6 @@ public record TakingSettingItem(
         return Management.builder()
                 .medicationName(medicationName)
                 .information(information)
-                .period(period)
                 .morning(morning)
                 .lunch(lunch)
                 .dinner(dinner)

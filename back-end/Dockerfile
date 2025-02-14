@@ -8,4 +8,4 @@ ARG JAR_FILE=./build/libs/app.jar
 COPY ${JAR_FILE} app.jar
 
 # 앱 실행 명령어 추가 (필요시)
-ENTRYPOINT ["java", "-jar", "/app.jar"]
+ENTRYPOINT ["java", "-jar", "-Duser.timezone=Asia/Seoul", "/app.jar"]

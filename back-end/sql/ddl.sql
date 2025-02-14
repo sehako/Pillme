@@ -19,21 +19,20 @@ DROP TABLE IF EXISTS `management`;
 
 CREATE TABLE `management`
 (
-    `id`              BIGINT    NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    `information_id`  BIGINT    NOT NULL,
-    `medication_name` BIGINT    NOT NULL,
-    `period`          INT       NULL,
-    `morning`         TINYINT   NULL,
-    `lunch`           TINYINT   NULL,
-    `dinner`          TINYINT   NULL,
-    `sleep`           TINYINT   NULL,
-    `morning_taking`  TINYINT   NULL,
-    `lunch_taking`    TINYINT   NULL,
-    `dinner_taking`   TINYINT   NULL,
-    `sleep_taking`    TINYINT   NULL,
-    `created_at`      TIMESTAMP NULL,
-    `modified_at`     TIMESTAMP NULL,
-    `deleted`         TIMESTAMP NULL
+    `id`              BIGINT       NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    `information_id`  BIGINT       NULL,
+    `medication_name` VARCHAR(255) NULL,
+    `morning`         TINYINT      NULL,
+    `lunch`           TINYINT      NULL,
+    `dinner`          TINYINT      NULL,
+    `sleep`           TINYINT      NULL,
+    `morning_taking`  TINYINT      NULL,
+    `lunch_taking`    TINYINT      NULL,
+    `dinner_taking`   TINYINT      NULL,
+    `sleep_taking`    TINYINT      NULL,
+    `created_at`      TIMESTAMP    NULL,
+    `modified_at`     TIMESTAMP    NULL,
+    `deleted`         TINYINT      NULL
 );
 
 DROP TABLE IF EXISTS `comment`;
@@ -41,8 +40,8 @@ DROP TABLE IF EXISTS `comment`;
 CREATE TABLE `comment`
 (
     `id`           BIGINT       NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    `community_id` BIGINT       NOT NULL,
-    `member_id`    BIGINT       NOT NULL,
+    `community_id` BIGINT       NULL,
+    `member_id`    BIGINT       NULL,
     `content`      VARCHAR(500) NULL
 );
 
