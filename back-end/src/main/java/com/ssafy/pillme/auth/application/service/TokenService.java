@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 @Service
@@ -53,6 +54,16 @@ public class TokenService {
     public boolean isTokenDenylisted(String token) {
         String key = DENYLIST_PREFIX + token;
         return Boolean.TRUE.equals(redisTemplate.hasKey(key));
+    }
+
+    /**
+     * 비밀번호 재설정 토큰 생성
+     */
+    public String generateResetToken(String email) {
+        String token = UUID.randomUUID().toString();
+        // 5분 유효기간 설정 (300000 milliseconds)
+        savePasswordResetToken(email, token, 300000);
+        return token;
     }
 
     /**

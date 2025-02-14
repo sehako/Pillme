@@ -116,7 +116,7 @@ public class AuthController {
 
     @GetMapping("/check/email")
     public ResponseEntity<JSONResponse<Boolean>> checkEmailDuplicate(@RequestParam String email) {
-        boolean isDuplicate = memberRepository.existsByEmailAndRoleNot(email, Role.LOCAL);
+        boolean isDuplicate = memberRepository.existsByEmailAndRoleNotAndDeletedFalse(email, Role.LOCAL);
         return ResponseEntity.ok(JSONResponse.onSuccess(isDuplicate));
     }
 
