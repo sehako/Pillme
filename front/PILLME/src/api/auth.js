@@ -73,7 +73,7 @@ export const refreshAccessTokenAPI = async () => {
       }
     );
 
-    console.log('🔄 액세스 토큰 갱신 성공:', response.data);
+    // console.log('🔄 액세스 토큰 갱신 성공:', response.data);
     saveAccessToken(response.data.result.accessToken);
     saveRefreshToken(response.data.result.refreshToken); // refreshToken도 갱신
 

@@ -28,7 +28,7 @@ export const useUserStore = defineStore("user", {
         const newTokenData = await refreshAccessTokenAPI();
 
         if (newTokenData?.result?.accessToken) {
-          console.log("🔄 [DEBUG] 새 토큰으로 유저 정보 갱신 완료:", this.user);
+          // console.log("🔄 [DEBUG] 새 토큰으로 유저 정보 갱신 완료:", this.user);
           return this.user?.memberId || null; // ✅ 새로 업데이트된 memberId 반환
         } else {
           console.error("❌ [DEBUG] 액세스 토큰 갱신 실패. 로그인 필요.");

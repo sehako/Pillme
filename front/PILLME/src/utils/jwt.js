@@ -8,7 +8,7 @@ export const decodeToken = (token) => {
     }
 
     const decoded = jwtDecode(token);
-    console.log("🔑 디코딩된 JWT 정보:", decoded);
+    // console.log("🔑 디코딩된 JWT 정보:", decoded);
     return decoded;
   } catch (error) {
     console.error("❌ JWT 디코딩 실패:", error);

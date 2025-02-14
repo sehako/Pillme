@@ -123,26 +123,11 @@ onMounted(() => {
   initRealVH();
   ocrStore.loadFromLocalStorage();
 
-<<<<<<< HEAD
-  // FCM 토큰 가져오기 (비동기 예외 처리)
-  try {
-      await getFCMToken();
-    } catch (error) {
-      console.error("FCM 초기화 실패:", error);
-    }
-
-  // ✅ OCR 분석이 진행 중이 아닐 경우 로딩 제거
-  if (!ocrStore.showResultsDialog && !ocrStore.showNextDialog && !ocrStore.showMedicationDialog) {
-    ocrStore.isLoading = false;
-    localStorage.setItem('ocrIsLoading', JSON.stringify(false)); // ✅ localStorage에서도 초기화
-  }
-=======
   // // ✅ OCR 분석이 진행 중이 아닐 경우 로딩 제거
   // if (!ocrStore.showResultsDialog && !ocrStore.showNextDialog && !ocrStore.showMedicationDialog) {
   //   ocrStore.isLoading = false;
   //   localStorage.setItem('ocrIsLoading', JSON.stringify(false)); // ✅ localStorage에서도 초기화
   // }
->>>>>>> 69eb2b77e293d8373ccb86f8c788bc50b8873e81
   
     // ✅ OCR 분석이 진행 중이면 로딩 상태 유지, 분석이 끝난 경우 다이얼로그 자동 닫기
     watch(

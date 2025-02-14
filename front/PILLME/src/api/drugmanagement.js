@@ -14,7 +14,7 @@ export const fetchManagementData = async () => {
 
   // ✅ 유효한 memberId로 API 요청 실행
   try {
-    console.log("📡 [DEBUG] Management 데이터 요청: memberId =", memberId);
+    // console.log("📡 [DEBUG] Management 데이터 요청: memberId =", memberId);
     const response = await apiClient.get('/api/v1/management', {
       params: { target: memberId }
     });
@@ -44,7 +44,7 @@ export const fetchFormattedManagementInfo = async () => {
       params: { target: memberId }
     });
 
-    console.log("📦 [DEBUG] 받은 처방전 응답 데이터:", infoResponse.data);
+    // console.log("📦 [DEBUG] 받은 처방전 응답 데이터:", infoResponse.data);
 
     if (!infoResponse.data || !Array.isArray(infoResponse.data.result) || infoResponse.data.result.length === 0) {
       console.error("🚨 [DEBUG] 처방전 데이터가 유효하지 않음. 응답 데이터:", infoResponse.data);
