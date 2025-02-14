@@ -53,11 +53,11 @@ public class Management extends BaseEntity {
     private boolean sleepTaking = false;
 
     @Builder
-    public Management(Long id, String medicationName, Information information, Integer period,
-                      boolean morning, boolean lunch, boolean dinner, boolean sleep, boolean morningTaking,
-                      boolean lunchTaking, boolean dinnerTaking, boolean sleepTaking) {
-        this.id = id;
+    public Management(String medicationName, Long id, Information information, Integer period, boolean morning,
+                      boolean lunch, boolean dinner, boolean sleep, boolean morningTaking, boolean lunchTaking,
+                      boolean dinnerTaking, boolean sleepTaking) {
         this.medicationName = medicationName;
+        this.id = id;
         this.information = information;
         this.period = period;
         this.morning = morning;
@@ -72,8 +72,8 @@ public class Management extends BaseEntity {
 
 
     public void changeTakingInformation(final ChangeManagementItem item) {
-        this.period = item.period();
         this.morning = item.morning();
+        this.lunch = item.lunch();
         this.dinner = item.dinner();
         this.sleep = item.sleep();
     }

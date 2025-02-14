@@ -8,6 +8,7 @@ import com.ssafy.pillme.auth.annotation.Auth;
 import com.ssafy.pillme.auth.domain.entity.Member;
 import com.ssafy.pillme.global.response.JSONResponse;
 import com.ssafy.pillme.management.application.ManagementService;
+import com.ssafy.pillme.management.application.response.CurrentTakingPrescriptionResponse;
 import com.ssafy.pillme.management.application.response.CurrentTakingResponse;
 import com.ssafy.pillme.management.application.response.TakingDetailResponse;
 import com.ssafy.pillme.management.domain.Information;
@@ -74,6 +75,15 @@ public class ManagementController {
         );
     }
 
+    @GetMapping("/prescription")
+    public ResponseEntity<JSONResponse<List<CurrentTakingPrescriptionResponse>>> currentTakingPrescription(
+            @RequestParam("target") final Long targetId
+    ) {
+        return ResponseEntity.ok(
+                JSONResponse.onSuccess(managementService.selectCurrentTakingPrescription(targetId))
+        );
+    }
+
     @GetMapping("/{info-id}")
     public ResponseEntity<JSONResponse<TakingDetailResponse>> takingDetail(
             @PathVariable(value = "info-id") final Long infoId,
@@ -98,13 +108,12 @@ public class ManagementController {
         );
     }
 
-    @PatchMapping("/check-taking/{info-id}")
+    @PatchMapping("/check-taking")
     public ResponseEntity<JSONResponse<Void>> checkSingleMedication(
-            @PathVariable(value = "info-id") final Long infoId,
             @RequestBody final SingleTakingCheckRequest request,
             @Auth Member member
     ) {
-        managementService.checkSingleMedicationTaking(infoId, request, member);
+        managementService.checkSingleMedicationTaking(request, member);
         return ResponseEntity.ok(
                 JSONResponse.onSuccess()
         );
@@ -132,10 +141,10 @@ public class ManagementController {
     @DeleteMapping("/{info-id}")
     public ResponseEntity<Void> deleteManagement(
             @PathVariable(value = "info-id") final Long infoId,
-            @RequestBody final DeleteManagementRequest request
+            @RequestBody final DeleteManagementRequest request,
+            @Auth Member member
     ) {
-        managementService.deleteManagement(infoId, request);
-
+        managementService.deleteManagement(infoId, request, member);
         return ResponseEntity.noContent().build();
     }
 }

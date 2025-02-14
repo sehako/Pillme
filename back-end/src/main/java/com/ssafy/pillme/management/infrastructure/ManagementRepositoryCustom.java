@@ -9,4 +9,8 @@ public interface ManagementRepositoryCustom {
     List<Management> findByInformationDateAndMember(final LocalDate date, final Member member);
 
     List<Management> findByInformationDate(final LocalDate date);
+
+    List<Management> findManagementsByInformationIdAndWriterId(final Long informationId, final Long writerId);
+
+    List<Management> findManagementsByInformationIdAndReaderId(final Long informationId, final Long readerId);
 }
