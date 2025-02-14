@@ -1,4 +1,5 @@
 import {initializeApp} from 'firebase/app'
+import { getMessaging } from 'firebase/messaging';
 
 const firebaseConfig = {
   apiKey: "AIzaSyCKU41WUvCo9DU7GWOuWqVJ-SURbeyl0Es",        // 웹 클라이언트용 API 키 - Firebase에서 공개용으로 설계됨
@@ -11,4 +12,5 @@ const firebaseConfig = {
 
 console.log("FCM", firebaseConfig);
 
-export const app = initializeApp(firebaseConfig)
+export const app = initializeApp(firebaseConfig);
+export const messaging = getMessaging(app);
