@@ -1,6 +1,8 @@
 // import './assets/main.css'
-import VCalendar from 'v-calendar';
-import 'v-calendar/style.css';
+import FullCalendar from "@fullcalendar/vue3";  // ✅ FullCalendar 컴포넌트 사용
+import "@fullcalendar/core";  // ✅ Core 모듈 자동 로드
+
+
 import { createApp } from 'vue';
 import { createPinia } from 'pinia';
 import "./style.css";
@@ -13,7 +15,7 @@ const app = createApp(App);
 
 app.use(createPinia());
 app.use(router);
-app.use(VCalendar, {});
+app.component("FullCalendar", FullCalendar);
 
 app.mount('#app');
 

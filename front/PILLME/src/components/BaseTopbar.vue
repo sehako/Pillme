@@ -1,7 +1,7 @@
 <template>
   <div class="w-full flex justify-between items-center bg-[#A3BFA5] px-4 h-16">
     <!-- ✅ PILLME 로고 (임시 텍스트) -->
-    <span @click="gohome" class="text-xl font-bold text-[#385B38]">PILLME</span>
+    <span @click="gohome" class="text-xl font-bold cursor-pointer text-[#385B38]">PILLME</span>
 
     <!-- ✅ 알림 아이콘 -->
     <BaseNotificationIcon />

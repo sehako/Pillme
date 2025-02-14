@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col w-full h-full !items-start !justify-start">
+  <div class="flex flex-col w-full !min-h-full !items-start !justify-start">
     <div class="flex flex-col w-full">
       <!-- 상단 안내 메시지 -->
       <div

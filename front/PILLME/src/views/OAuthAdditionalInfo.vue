@@ -47,9 +47,7 @@
         <div class="flex w-full gap-2">
           <BaseButton
             class="!min-w-28"
-            :overrideClass="
-              formData.gender === 'M' ? '!bg-[#EF7C8E] text-white' : 'bg-gray-300 text-gray-700'
-            "
+            :overrideClass="formData.gender === 'M' ? '!bg-[#EF7C8E] text-white' : 'bg-gray-300 text-gray-700'"
             type="button"
             @click="formData.gender = 'M'"
           >
@@ -57,9 +55,7 @@
           </BaseButton>
           <BaseButton
             class="!min-w-28"
-            :overrideClass="
-              formData.gender === 'F' ? '!bg-[#EF7C8E] text-white' : 'bg-gray-300 text-gray-700'
-            "
+            :overrideClass="formData.gender === 'F' ? '!bg-[#EF7C8E] text-white' : 'bg-gray-300 text-gray-700'"
             type="button"
             @click="formData.gender = 'F'"
           >
@@ -68,10 +64,18 @@
         </div>
       </div>
 
-      <!-- 생년월일 입력 -->
+      <!-- 생년월일 입력 (Datepicker 플러그인 사용, 필수 파라미터 체크) -->
       <div class="flex flex-col w-full">
         <label for="birthdate" class="text-sm font-medium">생년월일</label>
-        <BaseInput id="birthdate" v-model="formData.birthday" type="date" />
+        <Datepicker
+          id="birthdate"
+          v-model="formData.birthday"
+          :locale="ko"
+          :format="formatDate"
+          placeholder="생년월일을 선택하세요"
+          :editable="false"
+          class="cursor-pointer"
+        />
       </div>
 
       <!-- 전화번호 입력 -->
@@ -175,12 +179,14 @@ import BaseText from '../components/BaseText.vue';
 import BaseInput from '../components/BaseInput.vue';
 import BaseButton from '../components/BaseButton.vue';
 import logoSrc from '../assets/logi_nofont.svg';
+import Datepicker from "vue3-datepicker";
+import { ko } from "date-fns/locale";
 import { isDuplicateNickname, isDuplicatePhone } from '../api/auth';
 
 const router = useRouter();
 const route = useRoute();
 
-// 상태 관리
+// 상태 관리 (생년월일은 formData.birthday에 저장)
 const formData = ref({
   name: '',
   nickname: '',
@@ -320,7 +326,7 @@ const handlePhoneBlur = () => {
   }
 };
 
-// 폼 유효성 검사
+// 폼 유효성 검사 (생년월일(birthday) 필드도 필수)
 const isFormValid = computed(() => {
   return (
     formData.value.name &&
@@ -332,6 +338,15 @@ const isFormValid = computed(() => {
     authVerificationSuccess.value
   );
 });
+
+// 날짜 포맷 지정 함수 (Datepicker에서 사용)
+const formatDate = (date) => {
+  if (!date) return "";
+  const yyyy = date.getFullYear();
+  const mm = String(date.getMonth() + 1).padStart(2, "0");
+  const dd = String(date.getDate()).padStart(2, "0");
+  return `${yyyy}-${mm}-${dd}`;
+};
 
 // 전화번호 인증번호 발송
 const sendVerificationCode = async () => {
@@ -371,13 +386,19 @@ const goBack = () => {
 
 const isSubmitting = ref(false);
 
-// 폼 제출 처리
+// 폼 제출 처리 (생년월일이 선택되었는지 체크)
 const handleSubmit = async () => {
   if (isSubmitting.value) return;
+  // isFormValid에서 birthday가 필수임을 체크하므로,
+  // 생년월일이 없는 경우 제출이 되지 않음
   isSubmitting.value = true;
 
   try {
-    const formattedBirthday = formData.value.birthday.replace(/-/g, '');
+    // Datepicker가 Date 객체를 반환하는 경우 formatDate를 이용하여 문자열로 변환
+    const formattedBirthday = typeof formData.value.birthday === "object"
+      ? formatDate(formData.value.birthday).replace(/-/g, '')
+      : formData.value.birthday.replace(/-/g, '');
+      
     const response = await oauthSignUp(
       {
         email: formData.value.email,

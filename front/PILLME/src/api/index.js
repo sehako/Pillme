@@ -3,12 +3,11 @@ import router from '../router';
 import Cookies from 'js-cookie';
 
 const apiClient = axios.create({
-  baseURL: import.meta.env.VITE_API_URL,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-  withCredentials: true, // ✅ refreshToken이 쿠키에 저장되므로 credentials 설정 유지
+  baseURL: import.meta.env.VITE_API_URL.replace(/\/$/, ""), // ✅ 끝에 '/' 제거
+  headers: { 'Content-Type': 'application/json' },
+  withCredentials: true,
 });
+
 
 // ✅ 요청 인터셉터: accessToken을 자동으로 헤더에 추가
 apiClient.interceptors.request.use(
