@@ -13,12 +13,14 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class ChangeEmailService {
     private final JavaMailSender mailSender;
     private final RedisTemplate<String, String> redisTemplate;
@@ -68,6 +70,7 @@ public class ChangeEmailService {
     /**
      * 이메일 변경
      */
+    @Transactional
     public void changeEmail(String newEmail) {
         Long currentMemberId = SecurityUtil.extractCurrentMemberId();
 
@@ -77,7 +80,6 @@ public class ChangeEmailService {
         LoginMember member = loginMemberRepository.findByIdAndDeletedFalse(currentMemberId).orElseThrow(NoMemberInfoException::new);
 
         member.updateEmailAddress(newEmail);
-        loginMemberRepository.save(member);
     }
 
     /**

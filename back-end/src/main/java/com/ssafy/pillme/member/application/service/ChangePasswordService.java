@@ -8,11 +8,13 @@ import com.ssafy.pillme.member.infrastructure.repository.LoginMemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.regex.Pattern;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class ChangePasswordService {
     private final LoginMemberRepository loginMemberRepository;
     private final PasswordEncoder passwordEncoder;
@@ -20,6 +22,7 @@ public class ChangePasswordService {
     /**
      * 비밀번호 변경
      */
+    @Transactional
     public void changePassword(String currentPassword, String newPassword) {
         Long currentMemberId = SecurityUtil.extractCurrentMemberId();
         LoginMember member = loginMemberRepository.findByIdAndDeletedFalse(currentMemberId)
@@ -35,7 +38,6 @@ public class ChangePasswordService {
 
         String encodedPassword = passwordEncoder.encode(newPassword);
         member.updatePassword(encodedPassword);
-        loginMemberRepository.save(member);
     }
 
     /**

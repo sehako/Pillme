@@ -1,34 +1,25 @@
 package com.ssafy.pillme.auth.presentation.controller;
 
-import com.ssafy.pillme.auth.application.response.TokenResponse;
+import com.ssafy.pillme.auth.application.response.FindEmailResponse;
 import com.ssafy.pillme.auth.application.response.MemberResponse;
+import com.ssafy.pillme.auth.application.response.TokenResponse;
 import com.ssafy.pillme.auth.application.service.AuthService;
 import com.ssafy.pillme.auth.domain.vo.Role;
 import com.ssafy.pillme.auth.infrastructure.repository.MemberRepository;
-import com.ssafy.pillme.auth.application.service.OAuth2Service;
-import com.ssafy.pillme.auth.presentation.request.*;
-import com.ssafy.pillme.auth.application.response.FindEmailResponse;
-import com.ssafy.pillme.auth.application.response.OAuth2Response;
+import com.ssafy.pillme.auth.presentation.request.LoginRequest;
+import com.ssafy.pillme.auth.presentation.request.PasswordResetRequest;
+import com.ssafy.pillme.auth.presentation.request.SignUpRequest;
 import com.ssafy.pillme.global.response.JSONResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/auth")
 @RequiredArgsConstructor
 public class AuthController {
     private final AuthService authService;
-    private final OAuth2Service oauth2Service;
     private final MemberRepository memberRepository;
 
     /**
@@ -56,7 +47,7 @@ public class AuthController {
      */
     @PostMapping("/refresh")
     public ResponseEntity<JSONResponse<TokenResponse>> refreshToken(
-            @RequestHeader("Refresh-Token") String refreshToken) {
+            @RequestHeader("refreshToken") String refreshToken) {
         TokenResponse response = authService.refreshToken(refreshToken);
         return ResponseEntity.ok(JSONResponse.onSuccess(response));
     }

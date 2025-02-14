@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-@Transactional
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class LoginMemberService {
     private final LoginMemberRepository loginMemberRepository;
@@ -39,12 +39,12 @@ public class LoginMemberService {
     }
 
     // 회원 탈퇴
+    @Transactional
     public void deleteMember() {
         Long currentMemberId = SecurityUtil.extractCurrentMemberId();
         LoginMember member = loginMemberRepository.findByIdAndDeletedFalse(currentMemberId)
                 .orElseThrow(NoMemberInfoException::new);
 
         member.delete();
-        loginMemberRepository.save(member);
     }
 }
