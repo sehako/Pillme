@@ -99,7 +99,7 @@ import { useAuth } from './composables/useAuth';
 import { useRealVH } from './composables/useRealVH';
 import { useScrollControl } from './composables/useScrollControl';
 import { useNavbarHeight } from './composables/useNavbarHeight';
-import { useFCM } from './utils/useFCM';
+import { useFCM } from './utils/usefcm';
 
 const contentRef = ref(null);
 const navbarRef = ref(null);
