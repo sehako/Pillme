@@ -19,15 +19,15 @@
     </div>
     
     <!-- 📌 버튼 오버레이 -->
-    <div class="absolute bottom-20 z-50 flex gap-4">
+    <div v-if="!capturedImage" class="absolute bottom-20 z-50 flex gap-4">
       <button @click="closeCamera" class="control-btn bg-gray-500">✖ 닫기</button>
       <button @click="takePhoto" class="capture-btn">📸 촬영</button>
     </div>
 
     <!-- 📌 캡처된 이미지 미리보기 -->
-    <div v-if="capturedImage" class="absolute inset-0 flex flex-col items-center justify-center bg-black bg-opacity-80">
-      <div class="bg-white p-6 rounded-lg flex flex-col items-center max-w-sm w-full">
-        <img :src="capturedImage" alt="Captured Prescription" class="captured-photo" />
+    <div v-if="capturedImage" class="preview-container">
+      <div class="preview-box">
+        <img :src="capturedImage" alt="Captured Prescription" class="captured-photo z-9999" />
         <div class="preview-buttons flex gap-4 mt-4">
           <button @click="confirmPhoto" class="confirm-btn">✔ 확인</button>
           <button @click="closeCapturedImage" class="cancel-btn">❌ 다시 찍기</button>
@@ -176,6 +176,73 @@ onBeforeUnmount(() => {
 
 
 <style scoped>
+.preview-container {
+  position: fixed; /* 화면 전체 덮기 */
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.8);
+  z-index: 9999;
+}
+
+.preview-box {
+  background: white;
+  padding: 24px;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 500px; /* PC에서는 500px */
+  width: 80%;
+  max-height: 70vh; /* PC에서는 높이 최대 70vh */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+
+/* 📌 캡처된 이미지 크기 조절 (반응형) */
+.captured-photo {
+  max-width: 80%;  /* 기본 크기를 더 크게 설정 */
+  max-height: 60vh; /* 화면 높이의 70%까지 확장 */
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  border-radius: 10px;
+}
+
+/* 📌 버튼 정렬 */
+.preview-buttons {
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+/* 📌 반응형 조절 (모바일에서는 크기 줄이기) */
+@media (max-width: 600px) {
+  .preview-box {
+    max-width: 90%;  /* 모바일에서는 90% 너비 */
+    max-height: 60vh; /* 높이 최대 60vh */
+  }
+
+  .captured-photo {
+    max-width: 100%; /* 모바일에서는 전체 너비 */
+    max-height: 50vh; /* 높이 50vh */
+  }
+
+  .preview-buttons {
+    flex-direction: column; /* 버튼을 세로 정렬 */
+    width: 100%;
+  }
+
+  .preview-buttons button {
+    width: 100%;
+  }
+}
+
 /* 📢 사용자 안내 메시지 */
 .text-white {
   font-size: 16px;

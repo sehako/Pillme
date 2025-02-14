@@ -119,6 +119,8 @@ export const useOcrStore = defineStore('ocr', {
       this.dateRange = JSON.parse(localStorage.getItem('ocrDateRange')) ?? [];
       this.isLoading = JSON.parse(localStorage.getItem('ocrIsLoading')) ?? false;
 
+      this.isLoading = false;
+
       // ✅ 다이얼로그 상태는 새로고침 시 항상 닫히도록 설정
       this.showResultsDialog = false;
       this.showNextDialog = false;
