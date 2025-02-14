@@ -21,7 +21,7 @@ apiClient.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// ✅ 응답 인터셉터: 401(Unauthorized) 에러 발생 시 refreshToken으로 accessToken & refreshToken 갱신 시도
+// ✅ 응답 인터셉터: 401 발생 시 refreshAccessTokenAPI() 호출
 apiClient.interceptors.response.use(
   (response) => response,
   async (error) => {
@@ -31,32 +31,14 @@ apiClient.interceptors.response.use(
     if (error.response && error.response.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
       try {
-        console.log('[Interceptor] 401 Unauthorized → refreshToken으로 갱신 시도');
+        console.log('[Interceptor] 401 Unauthorized → refreshAccessTokenAPI() 호출');
 
-        // ✅ 쿠키에서 refreshToken 가져오기
-        const refreshToken = Cookies.get('refreshToken');
-        if (refreshToken) {
-          // ✅ refreshToken을 이용해 새로운 accessToken & refreshToken 요청
-          const refreshResponse = await axios.post(
-            `${import.meta.env.VITE_API_URL}/api/v1/auth/refresh`,
-            { refreshToken },
-            { headers: { 'Content-Type': 'application/json' } }
-          );
+        // ✅ auth.js의 refreshAccessTokenAPI() 호출
+        const newAccessToken = await refreshAccessTokenAPI();
 
-          // ✅ 새 accessToken & refreshToken 저장
-          const newAccessToken = refreshResponse.data.accessToken;
-          const newRefreshToken = refreshResponse.data.refreshToken; // ✅ 새로운 refreshToken
-
-          localStorage.setItem('accessToken', newAccessToken);
-          Cookies.set('refreshToken', newRefreshToken, { path: '/', secure: true, sameSite: 'Strict' }); // ✅ 쿠키 갱신
-
-          // ✅ 원래 요청의 헤더 갱신 후 재요청
-          originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
-          return apiClient(originalRequest);
-        } else {
-          console.warn('[Interceptor] refreshToken 없음 → 로그인 페이지로 이동');
-          router.push('/start');
-        }
+        // ✅ 원래 요청의 헤더 갱신 후 재요청
+        originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+        return apiClient(originalRequest);
       } catch (refreshError) {
         console.error('[Interceptor] refreshToken 갱신 실패:', refreshError);
         localStorage.removeItem('accessToken');

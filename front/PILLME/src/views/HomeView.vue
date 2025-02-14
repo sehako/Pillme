@@ -281,42 +281,39 @@ const getTodayDate = () => {
 };
 
 // 오늘의 복약 내역(약물 리스트)을 담는 ref
-const todaysMedications = ref("");
+const todaysMedications = ref([]);
+
 
 // ✅ 백엔드에서 오늘의 복약 내역 가져오기
 const fetchTodaysMedications = async () => {
   try {
-    // ✅ 백엔드 API 호출 (memberId 자동 적용, 날짜 필터링은 백엔드에서 처리됨)
     const data = await fetchManagementData();
-
-    // ✅ medicationName만 추출하여 하나의 문자열로 변환 (반점 구분)
     todaysMedications.value = data.result
-      .map(med => med.medicationName) // 약물 이름만 추출
-      .join(", "); // 문자열로 변환 (반점 구분)
-
-    console.log("💊 [DEBUG] 오늘 복약해야 할 약 리스트:", todaysMedications.value);
+      ? data.result.map(med => med.medicationName).join(", ")
+      : "약 정보 없음";
   } catch (error) {
     console.error("❌ [DEBUG] 복약 리스트 가져오기 실패:", error);
+    todaysMedications.value = "데이터 불러오기 실패";
   }
 };
+
 // ✅ `managementInfoList` 추가 (처방전 데이터 저장)
 const managementInfoList = ref([]);
 
 // ✅ API에서 `managementInfoList` 가져오는 함수
 const fetchData = async () => {
   try {
-    console.log("📡 [DEBUG] 처방전 데이터 불러오는 중...");
-    managementInfoList.value = await fetchFormattedManagementInfo();
-    console.log("📋 [DEBUG] 불러온 처방전 데이터:", managementInfoList.value);
+    const data = await fetchFormattedManagementInfo();
+    managementInfoList.value = data.length > 0 ? data : [{ diseaseName: "복용 내역 없음", medicationPeriod: "", medications: "", hospital: "" }];
   } catch (error) {
     console.error("❌ [DEBUG] Management 정보 로드 실패:", error);
+    managementInfoList.value = [{ diseaseName: "데이터 불러오기 실패", medicationPeriod: "", medications: "", hospital: "" }];
   }
 };
 
 // 복약 완료 처리 함수 (사용자가 체크하면 호출)
 const completeMedications = async () => {
   try {
-    //  한글 시간대를 영어로 변환
     const periodMap = {
       "아침": "morning",
       "점심": "lunch",
@@ -331,30 +328,25 @@ const completeMedications = async () => {
       return;
     }
 
-    //  디버그 로그 출력
-    console.log("🔍 [completeMedications] 현재 시간대:", timePeriod);
-    console.log("🔍 [completeMedications] 요청 바디:", { time: timePeriod });
+    await fetchAllDrugCheck(timePeriod);
 
-    //  API 호출 (timePeriod만 전송)
-    await fetchAllDrugCheck(timePeriod);  //  올바른 형식으로 전달
+    todaysMedications.value.forEach((med) => (med.taken = true));  // ❗ 여기가 문제
 
-    //  상태 업데이트
-    todaysMedications.value.forEach((med) => (med.taken = true));
-
-    alert("복약 완료 처리가 완료되었습니다.");
+    alert("복약 완료 처리에 성공했습니다.");
   } catch (error) {
-    console.error("❌ [completeMedications] 복약 완료 처리 중 오류 발생:", error);
+    console.error("❌ 복약 완료 처리 실패:", error);
     alert("복약 완료 처리에 실패했습니다.");
   }
 };
 
 
 
+
 //  컴포넌트가 마운트되면 데이터 및 이벤트 리스너 등록
 onMounted(async () => {
   // 오늘의 복약 내역 불러오기
-  fetchTodaysMedications();
-  fetchData();
+  await fetchTodaysMedications();
+  await fetchData();
   // 알림 설정 불러오기
   await loadNotificationSettings();
 

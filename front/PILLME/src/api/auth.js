@@ -62,16 +62,19 @@ export const login = async (credentials) => {
 export const refreshAccessTokenAPI = async () => {
   try {
     const refreshToken = Cookies.get('refreshToken'); // 쿠키에서 refreshToken 가져오기
-
-    const response = await apiClient.post(
-      '/api/v1/auth/refresh',
-      {}, // 빈 요청 본문
+    const accessToken = localStorage.getItem('accessToken'); // localStorage에서 accessToken 가져오기
+    const response = await axios.post( // ✅ apiClient가 아니라 axios 인스턴스 직접 사용
+      `${import.meta.env.VITE_API_URL}/api/v1/auth/refresh`,
+      {},
       {
         headers: {
+          'Authorization': `Bearer ${accessToken}`,
           'refreshToken': refreshToken,
-        },
+          'Content-Type': 'application/json'
+        }
       }
     );
+    
 
     // console.log('🔄 액세스 토큰 갱신 성공:', response.data);
     saveAccessToken(response.data.result.accessToken);
@@ -85,7 +88,7 @@ export const refreshAccessTokenAPI = async () => {
     return response.data;
   } catch (error) {
     console.error('❌ 액세스 토큰 갱신 실패:', error);
-    handleLogout(); // 토큰 만료 시 자동 로그아웃
+    // handleLogout(); // 토큰 만료 시 자동 로그아웃
     throw error;
   }
 };

@@ -1,5 +1,7 @@
 import { defineStore } from "pinia";
 import { refreshAccessTokenAPI } from "../api/auth";
+import { decodeToken } from "../utils/jwt";
+import Cookies from "js-cookie";
 
 export const useUserStore = defineStore("user", {
   state: () => ({
@@ -7,29 +9,35 @@ export const useUserStore = defineStore("user", {
   }),
   actions: {
     setUser(userData) {
+      if (!userData?.memberId) {
+        console.warn("⚠️ [DEBUG] 유저 데이터에 memberId 없음:", userData);
+      }
       console.log("✅ [DEBUG] Pinia에 유저 정보 저장됨:", userData);
       this.user = userData;
     },
     clearUser() {
       console.log("🚫 [DEBUG] 유저 정보 초기화");
       this.user = null;
+      localStorage.removeItem("accessToken"); // ✅ 추가
+      Cookies.remove("refreshToken"); // ✅ 추가
     },
     async getMemberId() {
-      // ✅ 이미 memberId가 있으면 반환
       if (this.user?.memberId) {
         console.log("🔍 [DEBUG] 기존 memberId 반환:", this.user.memberId);
         return this.user.memberId;
       }
 
       console.warn("⚠️ [DEBUG] memberId 없음. 액세스 토큰 갱신 시도...");
-      
+
       try {
-        // ✅ 액세스 토큰 갱신 (auth.js의 refreshAccessTokenAPI() 호출)
         const newTokenData = await refreshAccessTokenAPI();
 
         if (newTokenData?.result?.accessToken) {
-          // console.log("🔄 [DEBUG] 새 토큰으로 유저 정보 갱신 완료:", this.user);
-          return this.user?.memberId || null; // ✅ 새로 업데이트된 memberId 반환
+          // ✅ 새로 발급된 토큰을 이용해 유저 정보 갱신
+          const newUserInfo = decodeToken(newTokenData.result.accessToken);
+          this.setUser(newUserInfo); // ✅ 추가
+
+          return newUserInfo.memberId; // ✅ 개선된 반환 방식
         } else {
           console.error("❌ [DEBUG] 액세스 토큰 갱신 실패. 로그인 필요.");
           return null;

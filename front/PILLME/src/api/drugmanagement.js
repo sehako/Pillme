@@ -4,21 +4,24 @@ import { useUserStore } from '../stores/user';
 export const fetchManagementData = async () => {
   const userStore = useUserStore();
 
-  // ✅ 자동으로 memberId 가져오기 (없으면 토큰 재발급 후 반환)
-  const memberId = await userStore.getMemberId();
-
-  if (!memberId) {
-    console.error("❌ [DEBUG] memberId를 가져올 수 없음. 요청 중단.");
-    throw new Error("멤버 ID 없음. 다시 로그인 필요.");
-  }
-
-  // ✅ 유효한 memberId로 API 요청 실행
   try {
-    // console.log("📡 [DEBUG] Management 데이터 요청: memberId =", memberId);
+    // ✅ 멤버 ID 가져오는 요청이 무조건 선행되도록 `await` 처리
+    console.log("🔍 [DEBUG] 요청 memberId 가져오는 중...");
+    const memberId = await userStore.getMemberId();
+
+    if (!memberId) {
+      console.error("❌ [DEBUG] memberId를 가져올 수 없음. 요청 중단.");
+      throw new Error("멤버 ID 없음. 다시 로그인 필요.");
+    }
+    console.log("✅ [DEBUG] memberId 확인:", memberId);
+
+    // ✅ 유효한 memberId로 API 요청 실행
+    console.log("📡 [DEBUG] Management 데이터 요청: memberId =", memberId);
     const response = await apiClient.get('/api/v1/management', {
       params: { target: memberId }
     });
-    console.log(response.data)
+
+    console.log("📦 [DEBUG] 받은 API 응답:", response.data);
     return response.data; // 응답 데이터 반환
   } catch (error) {
     console.error("❌ [DEBUG] Management 데이터 요청 실패:", error);
@@ -26,25 +29,28 @@ export const fetchManagementData = async () => {
   }
 };
 
+
+
 // 복약 상세정보
 export const fetchFormattedManagementInfo = async () => {
   const userStore = useUserStore();
-  const memberId = await userStore.getMemberId();
-
-  console.log("🔍 [DEBUG] 요청 memberId:", memberId);
-  if (!memberId) {
-    console.error("❌ [DEBUG] memberId를 가져올 수 없음. 요청 중단.");
-    return [];
-  }
 
   try {
-    // ✅ 1단계: 모든 처방전 목록 가져오기
+    // ✅ 멤버 ID 가져오는 요청이 무조건 선행되도록 `await` 처리
+    console.log("🔍 [DEBUG] 요청 memberId 가져오는 중...");
+    const memberId = await userStore.getMemberId();
+
+    if (!memberId) {
+      console.error("❌ [DEBUG] memberId를 가져올 수 없음. 요청 중단.");
+      return [];
+    }
+    console.log("✅ [DEBUG] memberId 확인:", memberId);
+
+    // ✅ 1단계: 처방전 목록 가져오기
     console.log("📡 [DEBUG] 처방전 목록 요청: URL = /api/v1/management/prescription");
     const infoResponse = await apiClient.get(`/api/v1/management/prescription`, {
       params: { target: memberId }
     });
-
-    // console.log("📦 [DEBUG] 받은 처방전 응답 데이터:", infoResponse.data);
 
     if (!infoResponse.data || !Array.isArray(infoResponse.data.result) || infoResponse.data.result.length === 0) {
       console.error("🚨 [DEBUG] 처방전 데이터가 유효하지 않음. 응답 데이터:", infoResponse.data);
@@ -73,22 +79,28 @@ export const fetchFormattedManagementInfo = async () => {
             return null;
           }
 
-          // ✅ 3단계: 날짜 변환 함수 (배열 → YYYY-MM-DD)
-          const formatDateArray = (dateArray) => {
-            if (!Array.isArray(dateArray) || dateArray.length !== 3) return null;
-            const [year, month, day] = dateArray;
-            return `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+          // ✅ 3단계: 날짜 변환 함수
+          const formatDate = (dateValue) => {
+            if (Array.isArray(dateValue) && dateValue.length === 3) {
+              const [year, month, day] = dateValue;
+              return `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+            }
+            if (typeof dateValue === "string") {
+              return dateValue; // 이미 문자열이면 그대로 사용
+            }
+            return null;
           };
 
           // ✅ 4단계: `startDate`, `endDate`를 우선 사용, 없으면 `medicationPeriod`에서 추출
-          let startDate = formatDateArray(response.data.result.startDate);
-          let endDate = formatDateArray(response.data.result.endDate);
+          let startDate = formatDate(response.data.result.startDate);
+          let endDate = formatDate(response.data.result.endDate);
 
           if (!startDate || !endDate) {
             console.warn(`⚠️ [DEBUG] startDate 또는 endDate가 없음. medicationPeriod에서 추출 시도.`);
             const periodMatch = response.data.result.medicationPeriod?.match(/(\d{4}-\d{2}-\d{2})/g);
-            if (periodMatch && periodMatch.length === 2) {
-              [startDate, endDate] = periodMatch;
+            if (periodMatch && periodMatch.length >= 1) {
+              startDate = periodMatch[0]; // 첫 번째 날짜
+              endDate = periodMatch.length > 1 ? periodMatch[1] : "날짜 없음"; // 두 번째 날짜 없으면 기본값
             } else {
               console.error("🚨 [DEBUG] medicationPeriod에서 날짜 추출 실패:", response.data.result.medicationPeriod);
               startDate = "날짜 없음";
@@ -122,3 +134,4 @@ export const fetchFormattedManagementInfo = async () => {
     return [];
   }
 };
+
