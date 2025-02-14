@@ -137,8 +137,8 @@ public class ManagementService {
             final Long infoId,
             final ChangeTakingInformationRequest request,
             final Member member) {
-        List<Management> managements = managementRepository.findManagementsByInformationIdAndWriterId(infoId,
-                member.getId());
+        List<Management> managements = managementRepository
+                .findManagementsByInformationIdAndWriterId(infoId, member.getId());
 
         if (managements.isEmpty()) {
             return null;
@@ -173,7 +173,6 @@ public class ManagementService {
                 .orElseThrow(() -> new NoManagementException(MANAGEMENT_NOT_FOUND));
 
         checkMemberValidation(member, management.getInformation());
-
         checkMedicationTaking(management, request.time());
     }
 

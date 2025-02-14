@@ -3,6 +3,7 @@ package com.ssafy.pillme.management.presentation;
 import static com.ssafy.pillme.global.code.SuccessCode.INFORMATION_ADD_SUCCESS;
 import static com.ssafy.pillme.global.code.SuccessCode.INFORMATION_SAVE_SUCCESS;
 import static com.ssafy.pillme.global.code.SuccessCode.MANAGEMENT_CHANGE_SUCCESS;
+import static com.ssafy.pillme.global.code.SuccessCode.MEDICATION_CHECK_SUCCESS;
 
 import com.ssafy.pillme.auth.annotation.Auth;
 import com.ssafy.pillme.auth.domain.entity.Member;
@@ -115,11 +116,11 @@ public class ManagementController {
     ) {
         managementService.checkSingleMedicationTaking(request, member);
         return ResponseEntity.ok(
-                JSONResponse.onSuccess()
+                JSONResponse.of(MEDICATION_CHECK_SUCCESS)
         );
     }
 
-    @PatchMapping("/check-taking/all/{info-id}")
+    @PatchMapping("/check-taking/{info-id}")
     public ResponseEntity<JSONResponse<Void>> checkAllMedication(
             @PathVariable(value = "info-id") final Long infoId,
             @RequestBody final AllTakingCheckRequest request,
