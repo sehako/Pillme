@@ -1,19 +1,17 @@
 package com.ssafy.pillme.management.application;
 
 import static com.ssafy.pillme.global.code.ErrorCode.INFORMATION_NOT_FOUND;
-import static com.ssafy.pillme.global.code.ErrorCode.INVALID_MEMBER_INFO;
 import static com.ssafy.pillme.global.code.ErrorCode.INVALID_MEMBER_REQUEST;
 import static com.ssafy.pillme.global.code.ErrorCode.INVALID_TIME_REQUEST;
 import static com.ssafy.pillme.global.code.ErrorCode.MANAGEMENT_NOT_FOUND;
 
 import com.ssafy.pillme.auth.application.service.AuthService;
 import com.ssafy.pillme.auth.domain.entity.Member;
-import com.ssafy.pillme.auth.infrastructure.repository.MemberRepository;
-import com.ssafy.pillme.global.exception.CommonException;
 import com.ssafy.pillme.management.application.exception.InvalidMemberException;
 import com.ssafy.pillme.management.application.exception.InvalidTimeSelectException;
 import com.ssafy.pillme.management.application.exception.NoInformationException;
 import com.ssafy.pillme.management.application.exception.NoManagementException;
+import com.ssafy.pillme.management.application.response.CurrentTakingPrescriptionResponse;
 import com.ssafy.pillme.management.application.response.CurrentTakingResponse;
 import com.ssafy.pillme.management.application.response.TakingDetailResponse;
 import com.ssafy.pillme.management.domain.Information;
@@ -46,15 +44,13 @@ import org.springframework.transaction.annotation.Transactional;
 public class ManagementService {
     private final ManagementRepository managementRepository;
     private final InformationRepository informationRepository;
-    private final MemberRepository memberRepository;
     private final AuthService authService;
 
     public Information saveTakingInformation(
             final TakingInformationRegisterRequest request,
             final Member writer
     ) {
-        Member reader = memberRepository.findById(request.reader())
-                .orElseThrow(() -> new CommonException(INVALID_MEMBER_INFO));
+        Member reader = authService.findById(request.reader());
         Information savedInformation = informationRepository.save(request.toInformation(writer, reader));
 
         for (TakingSettingItem medication : request.medications()) {
@@ -115,6 +111,18 @@ public class ManagementService {
     }
 
     @Transactional(readOnly = true)
+    public List<CurrentTakingPrescriptionResponse> selectCurrentTakingPrescription(
+            final Long targetId
+    ) {
+        List<Information> currentInformation = informationRepository.findAllByDateAndMemberId(LocalDate.now(),
+                targetId);
+
+        return currentInformation
+                .stream().map(CurrentTakingPrescriptionResponse::of)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
     public List<TakingInformationItem> selectCurrentTakingInformationList(
             final Member member
     ) {
@@ -129,23 +137,27 @@ public class ManagementService {
             final Long infoId,
             final ChangeTakingInformationRequest request,
             final Member member) {
-        Information information = findInformationById(infoId);
+        List<Management> managements = managementRepository.findManagementsByInformationIdAndMemberId(infoId,
+                member.getId());
 
-        checkMemberValidation(member, information);
+        if (managements.isEmpty()) {
+            return null;
+        }
+        checkMemberValidation(member, managements.get(0).getInformation());
 
         List<TakingInformationItem> items = new ArrayList<>();
 
-        request.managementList().forEach(managementInfo -> {
+        managements.forEach(managementInfo -> {
             Management management = managementRepository
-                    .findByIdAndInformationId(managementInfo.managementId(), infoId)
+                    .findByIdAndInformationId(managementInfo.getId(), infoId)
                     .orElseThrow(() -> new NoManagementException(INFORMATION_NOT_FOUND));
 
-            management.changeTakingInformation(managementInfo);
+//            management.changeTakingInformation();
 
             items.add(TakingInformationItem.from(management));
         });
 
-        return TakingDetailResponse.of(information, items);
+        return null;
     }
 
     public void checkSingleMedicationTaking(

@@ -30,6 +30,7 @@ public class Management extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "information_id")
     private Information information;
+    private Integer period;
     @ColumnDefault(value = "false")
     private boolean morning = false;
     @ColumnDefault(value = "false")
@@ -52,12 +53,13 @@ public class Management extends BaseEntity {
     private boolean sleepTaking = false;
 
     @Builder
-    public Management(Long id, String medicationName, Information information,
-                      boolean morning, boolean lunch, boolean dinner, boolean sleep, boolean morningTaking,
-                      boolean lunchTaking, boolean dinnerTaking, boolean sleepTaking) {
-        this.id = id;
+    public Management(String medicationName, Long id, Information information, Integer period, boolean morning,
+                      boolean lunch, boolean dinner, boolean sleep, boolean morningTaking, boolean lunchTaking,
+                      boolean dinnerTaking, boolean sleepTaking) {
         this.medicationName = medicationName;
+        this.id = id;
         this.information = information;
+        this.period = period;
         this.morning = morning;
         this.lunch = lunch;
         this.dinner = dinner;

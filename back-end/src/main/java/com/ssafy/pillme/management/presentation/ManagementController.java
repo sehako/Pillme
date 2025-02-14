@@ -8,6 +8,7 @@ import com.ssafy.pillme.auth.annotation.Auth;
 import com.ssafy.pillme.auth.domain.entity.Member;
 import com.ssafy.pillme.global.response.JSONResponse;
 import com.ssafy.pillme.management.application.ManagementService;
+import com.ssafy.pillme.management.application.response.CurrentTakingPrescriptionResponse;
 import com.ssafy.pillme.management.application.response.CurrentTakingResponse;
 import com.ssafy.pillme.management.application.response.TakingDetailResponse;
 import com.ssafy.pillme.management.domain.Information;
@@ -71,6 +72,15 @@ public class ManagementController {
                 JSONResponse.onSuccess(
                         managementService.selectManagementByDate(memberId, member)
                 )
+        );
+    }
+
+    @GetMapping("/prescription")
+    public ResponseEntity<JSONResponse<List<CurrentTakingPrescriptionResponse>>> currentTakingPrescription(
+            @RequestParam("target") final Long targetId
+    ) {
+        return ResponseEntity.ok(
+                JSONResponse.onSuccess(managementService.selectCurrentTakingPrescription(targetId))
         );
     }
 
