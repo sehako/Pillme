@@ -133,6 +133,17 @@ onMounted(() => {
   initAuth();
   initRealVH();
   ocrStore.loadFromLocalStorage();
+    // ✅ OCR 분석이 진행 중이면 로딩 상태 유지, 분석이 끝난 경우 다이얼로그 자동 닫기
+    watch(
+    () => ocrStore.isLoading,
+    (newVal) => {
+      if (newVal) {
+        ocrStore.showResultsDialog = false;
+        ocrStore.showNextDialog = false;
+        ocrStore.showMedicationDialog = false;
+      }
+    }
+  );
   ocrStore.showResultsDialog = false;
   ocrStore.showNextDialog = false;
   ocrStore.showMedicationDialog = false;

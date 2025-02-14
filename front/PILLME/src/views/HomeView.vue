@@ -1,6 +1,6 @@
 <template>
   <div class="flex flex-col w-full">
-    <div class="bg-[#B5CCB7] rounded-bl-xl rounded-br-lg">
+    <div class="bg-[#B5CCB7] rounded-bl-xl rounded-br-lg top-0 sticky z-50">
       <div class="flex flex-row items-center justify-between px-4 py-1">
         <!-- 베이스탑바 바로 밑의 바임 -->
         <!--  햄버거 메뉴 컴포넌트 -->
@@ -36,7 +36,7 @@
     <p class="text-sm font-bold">오늘의 복약 내역</p>
     <span class="text-xs ml-2">
       <template v-if="fetchFailed">
-        마이페이지에서 알림 설정을 해야 오늘의 복약 알림을 받을 수 있습니다.
+        알림 설정을 활성화해야 오늘의 복약 알림을 받을 수 있습니다.
       </template>
       <template v-else>
         {{ todaysMedications.length > 0 ? todaysMedications.map(med => med.name).join(', ') : "약정보 없음" }}

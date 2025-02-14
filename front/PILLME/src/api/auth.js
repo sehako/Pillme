@@ -68,7 +68,7 @@ export const refreshAccessTokenAPI = async () => {
       {}, // 빈 요청 본문
       {
         headers: {
-          'Refresh-Token': refreshToken, // Refresh-Token 헤더 추가
+          'refreshToken': refreshToken, // Refresh-Token 헤더 추가
         },
       }
     );
