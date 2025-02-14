@@ -18,8 +18,8 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
 
 @Entity
-@Table(name = "management")
 @Getter
+@Table(name = "management")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Management extends BaseEntity {
     @Id
@@ -53,11 +53,10 @@ public class Management extends BaseEntity {
     private boolean sleepTaking = false;
 
     @Builder
-    public Management(String medicationName, Long id, Information information, Integer period, boolean morning,
+    public Management(String medicationName, Information information, Integer period, boolean morning,
                       boolean lunch, boolean dinner, boolean sleep, boolean morningTaking, boolean lunchTaking,
                       boolean dinnerTaking, boolean sleepTaking) {
         this.medicationName = medicationName;
-        this.id = id;
         this.information = information;
         this.period = period;
         this.morning = morning;
