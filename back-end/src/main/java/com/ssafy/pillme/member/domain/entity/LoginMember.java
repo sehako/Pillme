@@ -3,6 +3,7 @@ package com.ssafy.pillme.member.domain.entity;
 import com.ssafy.pillme.auth.domain.vo.Gender;
 import com.ssafy.pillme.auth.domain.vo.Role;
 import com.ssafy.pillme.global.entity.BaseEntity;
+import com.ssafy.pillme.member.application.exception.OAuthUserException;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -63,12 +64,19 @@ public class LoginMember extends BaseEntity {
         this.oauth = oauth;
     }
 
-    // 회원 정보 수정
-    public void updateInformation(String email, String nickname, String phone) {
-        validateLocalUser(); // LOCAL 사용자 검증 추가
-        this.email = email;
-        this.nickname = nickname;
-        this.phone = phone;
+    // 전화번호 변경
+    public void updatePhoneNumber(String newPhoneNumber) {
+        this.phone = newPhoneNumber;
+    }
+
+    // 이메일 변경
+    public void updateEmailAddress(String newEmailAddress) {
+        this.email = newEmailAddress;
+    }
+
+    // 닉네임 변경
+    public void updateNickname(String newNickname) {
+        this.nickname = newNickname;
     }
 
     // 비밀번호 변경

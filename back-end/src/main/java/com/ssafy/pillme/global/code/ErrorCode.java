@@ -49,6 +49,7 @@ public enum ErrorCode {
     INVALID_LOGIN_CREDENTIALS(4133, BAD_REQUEST, "이메일 또는 비밀번호가 틀렸습니다"),
     UNVERIFIED_EMAIL_ADDRESS(4134, BAD_REQUEST, "이메일 인증이 필요합니다"),
     UNVERIFIED_PHONE_NUMBER(4135, BAD_REQUEST, "전화번호 인증이 필요합니다"),
+    OAUTH_USER_CANT_CHANGE_EMAIL(4136, BAD_REQUEST, "오어스 회원 가입자는 이메일을 변경할 수 없습니다"),
 
     // 비밀번호 정책 관련 에러
     INVALID_PASSWORD_FORMAT(4141, BAD_REQUEST, "비밀번호는 12자 이상이며 영문 대/소문자, 숫자, 특수문자를 각각 1개 이상 포함해야 합니다"),
