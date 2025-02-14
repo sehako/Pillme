@@ -30,17 +30,17 @@
     </div>
 
     <main>
-      <!-- 오늘의 복약 내역 카드 -->
-      <YellowCard class="m-4 flex flex-col">
+<!-- 오늘의 복약 내역 카드 -->
+<YellowCard class="m-4 flex flex-col">
   <div class="flex flex-row items-end">
     <p class="text-sm font-bold">오늘의 복약 내역</p>
     <span class="text-xs ml-2">
-      <template v-if="fetchFailed">
+      <div v-if="fetchFailed">
         알림 설정을 활성화해야 오늘의 복약 알림을 받을 수 있습니다.
-      </template>
-      <template v-else>
-        {{ todaysMedications.length > 0 ? todaysMedications.map(med => med.name).join(', ') : "약정보 없음" }}
-      </template>
+      </div>
+      <div v-else>
+        {{ todaysMedications ? todaysMedications : "약정보 없음" }}
+      </div>
     </span>
   </div>
   <div class="flex flex-row items-end">
@@ -50,6 +50,7 @@
     <img v-if="!fetchFailed" src="../assets/CheckCircle.svg" alt="약물복용체크" @click="completeMedications" class="cursor-pointer">
   </div>
 </YellowCard>
+
 
 
 
@@ -102,6 +103,11 @@ import FamilyAddModal from '../components/FamilyAddModal.vue';
 import { useFCM } from '../utils/usefcm';
 import BaseCalendar from '../components/BaseCalendar.vue';
 import { defineAsyncComponent } from 'vue';
+import { fetchManagementData } from '../api/drugmanagement';
+import { useUserStore } from '../stores/user';
+
+const userStore = useUserStore();
+const memberId = ref(null);
 
 //  My_Alarm.vue를 동적으로 import (모달에서만 로드)
 const MyAlarmModal = defineAsyncComponent(() => import('../views/My_Alarm.vue'));
@@ -250,33 +256,25 @@ const getTodayDate = () => {
 };
 
 // 오늘의 복약 내역(약물 리스트)을 담는 ref
-const todaysMedications = ref([]);
+const todaysMedications = ref("");
 
-// 백엔드와 소통하는 것처럼 오늘의 복약 내역 데이터를 가져오는 함수 (더미 데이터 사용)
+// ✅ 백엔드에서 오늘의 복약 내역 가져오기
 const fetchTodaysMedications = async () => {
-  const todayDate = getTodayDate();
-  // 실제 API 호출 예시:
-  // const response = await axios.get(`/api/medications?date=${todayDate}&timePeriod=${currentTimePeriod.value}`);
-  // 더미 데이터 예시:
-  const response = [
-    {
-      // 처방전 = id, 개별약물 = prescriptionId, 약물명 = name, 시간대 = timePeriod, 복약여부 = taken
-      id: 1,
-      prescriptionId: 101,
-      name: "약물A",
-      timePeriod: currentTimePeriod.value,
-      taken: false
-    },
-    {
-      id: 2,
-      prescriptionId: 102,
-      name: "약물B",
-      timePeriod: currentTimePeriod.value,
-      taken: false
-    }
-  ];
-  todaysMedications.value = response;
+  try {
+    // ✅ 백엔드 API 호출 (memberId 자동 적용, 날짜 필터링은 백엔드에서 처리됨)
+    const data = await fetchManagementData();
+
+    // ✅ medicationName만 추출하여 하나의 문자열로 변환 (반점 구분)
+    todaysMedications.value = data.result
+      .map(med => med.medicationName) // 약물 이름만 추출
+      .join(", "); // 문자열로 변환 (반점 구분)
+
+    console.log("💊 [DEBUG] 오늘 복약해야 할 약 리스트:", todaysMedications.value);
+  } catch (error) {
+    console.error("❌ [DEBUG] 복약 리스트 가져오기 실패:", error);
+  }
 };
+
 
 // 복약 완료 처리 함수 (사용자가 체크하면 호출)
 const completeMedications = async () => {

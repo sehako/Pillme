@@ -3,6 +3,7 @@ import { ref } from "vue";
 
 export const usePrescriptionStore = defineStore("prescription", () => {
   // 예시 처방전 데이터
+  // period 뺼 거임임
   const prescriptions = ref([
     {
       hospital: "서울대병원",
