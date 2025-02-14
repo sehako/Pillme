@@ -15,12 +15,14 @@ import net.nurigo.sdk.message.service.DefaultMessageService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class ChangePhoneService {
     @Value("${COOLSMS_API_KEY}")
     private String apiKey;
@@ -79,6 +81,7 @@ public class ChangePhoneService {
     /**
      * 전화번호 변경
      */
+    @Transactional
     public void changePhone(String newPhone) {
         Long currentMemberId = SecurityUtil.extractCurrentMemberId();
 
@@ -90,7 +93,6 @@ public class ChangePhoneService {
                 .orElseThrow(NoMemberInfoException::new);
 
         member.updatePhoneNumber(newPhone);
-        loginMemberRepository.save(member);
     }
 
     /**
