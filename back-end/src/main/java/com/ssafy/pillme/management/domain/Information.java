@@ -10,10 +10,8 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.time.LocalDate;
-import java.util.List;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -40,9 +38,6 @@ public class Information extends BaseEntity {
     private LocalDate endDate;
     @Column(name = "disease_name")
     private String diseaseName;
-
-    @OneToMany(mappedBy = "information")
-    List<Management> managements;
 
     @Builder
     private Information(Long id, Member reader, Member writer, String hospital, LocalDate startDate, LocalDate endDate,

@@ -4,6 +4,7 @@ import com.ssafy.pillme.management.domain.item.TakingSettingItem;
 
 public record AddTakingInformationRequest(
         String medicationName,
+        Integer period,
         boolean morning,
         boolean lunch,
         boolean dinner,
@@ -12,6 +13,7 @@ public record AddTakingInformationRequest(
     public TakingSettingItem toItem() {
         return new TakingSettingItem(
                 medicationName,
+                period,
                 morning,
                 lunch,
                 dinner,

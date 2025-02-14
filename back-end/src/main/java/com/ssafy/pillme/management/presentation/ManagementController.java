@@ -141,10 +141,10 @@ public class ManagementController {
     @DeleteMapping("/{info-id}")
     public ResponseEntity<Void> deleteManagement(
             @PathVariable(value = "info-id") final Long infoId,
-            @RequestBody final DeleteManagementRequest request
+            @RequestBody final DeleteManagementRequest request,
+            @Auth Member member
     ) {
-        managementService.deleteManagement(infoId, request);
-
+        managementService.deleteManagement(infoId, request, member);
         return ResponseEntity.noContent().build();
     }
 }

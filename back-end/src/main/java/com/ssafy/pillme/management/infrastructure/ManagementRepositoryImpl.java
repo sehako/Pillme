@@ -39,15 +39,26 @@ public class ManagementRepositoryImpl implements ManagementRepositoryCustom {
     }
 
     @Override
-    public List<Management> findManagementsByInformationIdAndMemberId(Long informationId, Long memberId) {
+    public List<Management> findManagementsByInformationIdAndWriterId(Long informationId, Long memberId) {
         QInformation information = QInformation.information;
         QMember member = QMember.member;
         return queryFactory
-                .select(management)
-                .from(information)
+                .selectFrom(management)
                 .leftJoin(management.information, information).fetchJoin()
                 .leftJoin(information.writer, member).fetchJoin()
                 .where(information.writer.id.eq(memberId).and(information.id.eq(informationId)))
+                .fetch();
+    }
+
+    @Override
+    public List<Management> findManagementsByInformationIdAndReaderId(Long informationId, Long readerId) {
+        QInformation information = QInformation.information;
+        QMember member = QMember.member;
+        return queryFactory
+                .selectFrom(management)
+                .leftJoin(management.information, information).fetchJoin()
+                .leftJoin(information.reader, member).fetchJoin()
+                .where(information.reader.id.eq(readerId).and(information.id.eq(informationId)))
                 .fetch();
     }
 }

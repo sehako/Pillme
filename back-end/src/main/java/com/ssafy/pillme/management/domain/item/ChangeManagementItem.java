@@ -2,6 +2,7 @@ package com.ssafy.pillme.management.domain.item;
 
 public record ChangeManagementItem(
         Long managementId,
+        Integer period,
         boolean morning,
         boolean lunch,
         boolean dinner,
