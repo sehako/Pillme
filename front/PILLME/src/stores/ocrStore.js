@@ -39,6 +39,7 @@ export const useOcrStore = defineStore('ocr', {
     stopLoading() {
       this.isLoading = false;
       this.saveToLocalStorage();
+      localStorage.removeItem('ocrIsLoading');
     },
 
     /** ✅ 다이얼로그 닫기 */
@@ -119,6 +120,9 @@ export const useOcrStore = defineStore('ocr', {
       this.dateRange = JSON.parse(localStorage.getItem('ocrDateRange')) ?? [];
       this.isLoading = JSON.parse(localStorage.getItem('ocrIsLoading')) ?? false;
 
+      const storedIsLoading = JSON.parse(localStorage.getItem('ocrIsLoading')) ?? false;
+      this.isLoading = storedIsLoading && this.results.length === 0; // 결과가 있으면 자동으로 false 처리
+    
       // ✅ 다이얼로그 상태는 새로고침 시 항상 닫히도록 설정
       this.showResultsDialog = false;
       this.showNextDialog = false;
