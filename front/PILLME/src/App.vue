@@ -105,7 +105,7 @@ const contentRef = ref(null);
 const navbarRef = ref(null);
 const ocrStore = useOcrStore();
 const isRouteReady = ref(true);
-
+const { getFCMToken } = useFCM();
 const { isLoggedIn, initAuth, cleanUpAuth } = useAuth();
 const { initRealVH, cleanUpRealVH } = useRealVH();
 const { isScrollAllowed } = useScrollControl(['/afteraccount', '/', '/notificationlist']);
@@ -122,6 +122,13 @@ onMounted(() => {
   initAuth();
   initRealVH();
   ocrStore.loadFromLocalStorage();
+
+  // FCM 토큰 가져오기 (비동기 예외 처리)
+  try {
+      await getFCMToken();
+    } catch (error) {
+      console.error("FCM 초기화 실패:", error);
+    }
 
   // ✅ OCR 분석이 진행 중이 아닐 경우 로딩 제거
   if (!ocrStore.showResultsDialog && !ocrStore.showNextDialog && !ocrStore.showMedicationDialog) {

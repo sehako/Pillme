@@ -326,11 +326,11 @@ onMounted(async () => {
   // 클릭 이벤트 리스너 등록
   document.addEventListener("click", handleClickOutside);
 
-  // FCM 토큰 가져오기 (비동기 예외 처리)
-  try {
-    await getFCMToken();
-  } catch (error) {
-    console.error("FCM 초기화 실패:", error);
-  }
+  // // FCM 토큰 가져오기 (비동기 예외 처리)
+  // try {
+  //   await getFCMToken();
+  // } catch (error) {
+  //   console.error("FCM 초기화 실패:", error);
+  // }
 });
 </script>
