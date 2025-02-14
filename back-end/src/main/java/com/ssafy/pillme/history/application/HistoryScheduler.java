@@ -15,8 +15,7 @@ public class HistoryScheduler {
     private final HistoryRepository historyRepository;
     private final ManagementRepository managementRepository;
 
-    //    @Scheduled(cron = "0 0 2 * * *")
-    @Scheduled(cron = "0 * * * * *")
+    @Scheduled(cron = "0 0 2 * * *")
     public void creatHistory() {
         LocalDate validInformationDate = LocalDate.now().minusDays(1);
 
