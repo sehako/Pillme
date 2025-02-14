@@ -189,6 +189,6 @@ public class ChangePhoneService {
     }
 
     private String createVerificationSmsContent(String code) {
-        return String.format("[Pillme]\n인증번호: %s\n인증번호는 5분간 유효합니다.", code);
+        return String.format("[Pillme] 인증번호: %s\n인증번호는 5분간 유효합니다.", code);
     }
 }
