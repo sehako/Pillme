@@ -155,7 +155,7 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { requestSmsVerification,verifySmsCode } from "../api/auth";
 // import { useAuthStore } from "../stores/auth"; // store에서 인증 관련 액션 사용
@@ -175,8 +175,8 @@ const name = ref("");
 const nickname = ref("");
 const gender = ref("");
 const birthday = ref(null);   
-const email = ref(route.query.email || "");
-const password = ref(route.query.password || "");
+const email = ref("");
+const password = ref("");
 const phone = ref("");
 const authCode = ref("");
 const isSending = ref(false);
@@ -190,6 +190,11 @@ const authVerificationSuccess = ref(false);
 const goBack = () => {
   router.back();
 };
+
+onMounted(() => {
+  email.value = sessionStorage.getItem("signupEmail") || "";
+  password.value = sessionStorage.getItem("signupPassword") || "";
+});
 
 const sendVerificationCode = async () => {
   isSending.value = true;
