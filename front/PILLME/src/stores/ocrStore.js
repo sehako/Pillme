@@ -39,24 +39,24 @@ export const useOcrStore = defineStore('ocr', {
     stopLoading() {
       this.isLoading = false;
       this.saveToLocalStorage();
-      localStorage.removeItem('ocrIsLoading');
     },
 
     /** ✅ 다이얼로그 닫기 */
     async closeDialog() {
+    
       // ✅ 일시적으로 true 값을 넣었다가 다시 false로 변경하여 Vue의 반응형 감지 유도
       this.showResultsDialog = true;
       this.showNextDialog = true;
       this.showMedicationDialog = true;
-
+    
       await nextTick(); // UI 업데이트 보장
-
+    
       this.showResultsDialog = false;
       this.showNextDialog = false;
       this.showMedicationDialog = false;
-
+    
       await nextTick(); // UI 업데이트 반영
-
+    
       this.saveToLocalStorage(); // ✅ localStorage 저장
     },
 
@@ -119,12 +119,6 @@ export const useOcrStore = defineStore('ocr', {
       this.dateRange = JSON.parse(localStorage.getItem('ocrDateRange')) ?? [];
       this.isLoading = JSON.parse(localStorage.getItem('ocrIsLoading')) ?? false;
 
-      // ✅ OCR 진행 중이 아니면 로딩 상태 해제
-      if (this.results.length === 0) {
-        this.isLoading = false;
-        localStorage.setItem('ocrIsLoading', JSON.stringify(false));
-      }
-      
       // ✅ 다이얼로그 상태는 새로고침 시 항상 닫히도록 설정
       this.showResultsDialog = false;
       this.showNextDialog = false;
@@ -218,9 +212,6 @@ export const useOcrStore = defineStore('ocr', {
         console.log('✅ OCR 데이터 저장 성공:', response.data);
 
         // ✅ 성공 시 다이얼로그 닫기
-        this.isLoading = false;
-        localStorage.setItem('ocrIsLoading', JSON.stringify(false));
-
         await this.closeDialog();
         await nextTick();
       } catch (error) {
@@ -231,7 +222,6 @@ export const useOcrStore = defineStore('ocr', {
         }
       } finally {
         this.isLoading = false;
-        localStorage.setItem('ocrIsLoading', JSON.stringify(false));
       }
     },
   },
