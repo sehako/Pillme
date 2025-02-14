@@ -105,7 +105,7 @@ const contentRef = ref(null);
 const navbarRef = ref(null);
 const ocrStore = useOcrStore();
 const isRouteReady = ref(true);
-
+const { getFCMToken } = useFCM();
 const { isLoggedIn, initAuth, cleanUpAuth } = useAuth();
 const { initRealVH, cleanUpRealVH } = useRealVH();
 const { isScrollAllowed } = useScrollControl(['/afteraccount', '/', '/notificationlist']);

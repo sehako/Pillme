@@ -67,6 +67,7 @@
 <script setup>
 import { ref, onMounted, onUnmounted, nextTick } from "vue";
 import { fetchNotifications, deleteNotification, markNotificationAsRead, deleteAllNotifications } from "../api/notify";
+import { refreshAccessTokenAPI } from "../api/auth";
 import NotificationItem from "../components/NotificationItem.vue";
 import AdminRequestItem from "../components/AdminRequestItem.vue";
 import AdminRequestDialog from "../components/AdminRequestDialog.vue";
@@ -225,17 +226,30 @@ const handleAccept = async ({ id }) => {
   }
 };
 
-// ✅ 유저 세션 복구 함수 (토큰 유지 & 유저 정보 복구)
-const restoreUserSession = () => {
-  setTimeout(() => {
-    const userInfo = decodeAccessToken();
-    if (userInfo) {
-      useUserStore().setUser(userInfo);
-      console.log("🔄 유저 정보 업데이트 성공:", userInfo);
+const restoreUserSession = async () => {
+  setTimeout(async () => {
+    let userInfo = decodeAccessToken();
+
+    if (!userInfo) {
+      console.warn("⚠️ 토큰 디코딩 실패, 액세스 토큰 갱신 시도...");
+      try {
+        const newAccessTokenData = await refreshAccessTokenAPI(); // ✅ 자동 갱신 시도
+
+        if (newAccessTokenData?.result?.accessToken) {
+          userInfo = decodeToken(newAccessTokenData.result.accessToken);
+          useUserStore().setUser(userInfo);
+          console.log("🔄 [DEBUG] 새 액세스 토큰으로 유저 정보 업데이트 성공:", userInfo);
+        } else {
+          console.error("❌ [DEBUG] 새 액세스 토큰 발급 실패, 로그아웃 필요");
+        }
+      } catch (error) {
+        console.error("❌ [DEBUG] 토큰 갱신 중 오류 발생:", error);
+      }
     } else {
-      console.warn("⚠️ 토큰 디코딩 실패, 로그아웃 가능성 있음");
+      useUserStore().setUser(userInfo);
+      console.log("🔄 [DEBUG] 기존 액세스 토큰으로 유저 정보 업데이트 성공:", userInfo);
     }
-  }, 500); // 🔄 API 응답 후 지연 체크
+  }, 500);
 };
 
 

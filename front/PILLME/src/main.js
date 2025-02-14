@@ -1,7 +1,7 @@
 // import './assets/main.css'
 import FullCalendar from "@fullcalendar/vue3";  // ✅ FullCalendar 컴포넌트 사용
 import "@fullcalendar/core";  // ✅ Core 모듈 자동 로드
-
+import './utils/fcminit'
 
 import { createApp } from 'vue';
 import { createPinia } from 'pinia';
