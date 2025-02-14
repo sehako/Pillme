@@ -265,7 +265,7 @@ const handleSubmit = async () => {
       birthday: formattedBirthday,
     };
 
-    console.log("📨 가입 요청 데이터:", requestDat.value);
+    console.log("📨 가입 요청 데이터:", requestData.value);
     const response = await apiClient.post("/api/v1/auth/signup", requestData, {
       headers: {
         "Content-Type": "application/json",
