@@ -19,7 +19,7 @@ public class HistoryScheduler {
     public void creatHistory() {
         LocalDate validInformationDate = LocalDate.now().minusDays(1);
 
-        log.info("{} 복약 내역 스케줄러 동작", validInformationDate);
+//        log.info("{} 복약 내역 스케줄러 동작", validInformationDate);
 //        List<Management> validManagements = managementRepository.findByInformationDate(validInformationDate);
 //
 //        List<History> histories = validManagements.stream()
