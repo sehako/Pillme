@@ -19,11 +19,8 @@ console.log("fcm 서비스워커 등록");
 messaging.onBackgroundMessage((payload) => {
   console.log('백그라운드 메시지 수신:', payload);
   
-<<<<<<< HEAD
-=======
   // 브라우저가 포커스되어 있지 않거나 document가 hidden 상태일 때만 알림 표시
   if (document.visibilityState !== 'visible') {
->>>>>>> 3585503 (feat: 백그라운드/포그라운드 알림 수신)
     // data 메시지 처리
     if (payload.data) {
       const notificationOptions = {
@@ -68,10 +65,7 @@ messaging.onBackgroundMessage((payload) => {
 
       self.registration.showNotification(payload.notification.title, notificationOptions);
     }
-<<<<<<< HEAD
-=======
   }
->>>>>>> 3585503 (feat: 백그라운드/포그라운드 알림 수신)
 });
 
 self.addEventListener('notificationclick', async (event) => {
