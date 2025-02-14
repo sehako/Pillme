@@ -1,7 +1,6 @@
 package com.ssafy.pillme.management.application.response;
 
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.ssafy.pillme.management.domain.Information;
 import com.ssafy.pillme.management.domain.item.TakingInformationItem;
 import java.time.LocalDate;
@@ -11,9 +10,7 @@ public record TakingDetailResponse(
         String hospital,
         String diseaseName,
         Long reader,
-        @JsonFormat(pattern = "yyyy-MM-dd")
         LocalDate startDate,
-        @JsonFormat(pattern = "yyyy-MM-dd")
         LocalDate endDate,
         List<TakingInformationItem> medications
 ) {
