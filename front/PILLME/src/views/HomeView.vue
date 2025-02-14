@@ -352,9 +352,10 @@ const completeMedications = async () => {
 
 //  컴포넌트가 마운트되면 데이터 및 이벤트 리스너 등록
 onMounted(async () => {
+  
   // 오늘의 복약 내역 불러오기
-  fetchTodaysMedications();
-  fetchData();
+  await fetchTodaysMedications();
+  await fetchData();
   // 알림 설정 불러오기
   await loadNotificationSettings();
 
