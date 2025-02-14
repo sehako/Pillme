@@ -68,12 +68,12 @@ export const refreshAccessTokenAPI = async () => {
       {}, // 빈 요청 본문
       {
         headers: {
-          'refreshToken': refreshToken, // Refresh-Token 헤더 추가
+          'refreshToken': refreshToken,
         },
       }
     );
 
-    console.log('🔄 액세스 토큰 갱신 성공:', response.data);
+    // console.log('🔄 액세스 토큰 갱신 성공:', response.data);
     saveAccessToken(response.data.result.accessToken);
     saveRefreshToken(response.data.result.refreshToken); // refreshToken도 갱신
 

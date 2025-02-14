@@ -30,17 +30,17 @@
     </div>
 
     <main>
-      <!-- 오늘의 복약 내역 카드 -->
-      <YellowCard class="m-4 flex flex-col">
+<!-- 오늘의 복약 내역 카드 -->
+<YellowCard class="m-4 flex flex-col">
   <div class="flex flex-row items-end">
     <p class="text-sm font-bold">오늘의 복약 내역</p>
     <span class="text-xs ml-2">
-      <template v-if="fetchFailed">
+      <div v-if="fetchFailed">
         알림 설정을 활성화해야 오늘의 복약 알림을 받을 수 있습니다.
-      </template>
-      <template v-else>
-        {{ todaysMedications.length > 0 ? todaysMedications.map(med => med.name).join(', ') : "약정보 없음" }}
-      </template>
+      </div>
+      <div v-else>
+        {{ todaysMedications ? todaysMedications : "약정보 없음" }}
+      </div>
     </span>
   </div>
   <div class="flex flex-row items-end">
@@ -52,28 +52,54 @@
 </YellowCard>
 
 
+<!-- 복용 내역 카드 -->
+<div class="m-4 flex flex-col">
+  <p class="text-xl font-bold">복용 내역</p>
 
-      <!-- 복용 내역 카드 (예시) -->
-      <div class="m-4 flex flex-col">
-        <p class="text-xl font-bold">복용 내역</p>
-        <WhiteCard overrideClass="bg-white">
-          <div class="flex flex-row items-center">
-            <img src="../assets/logi_nofont.svg" alt="알약이미지" class="w-16 h-16">
-            <div class="flex flex-col">
-              <p>병명</p>
-              <p>기간</p>
-              <p>약이름</p>
-            </div>
-          </div>
-        </WhiteCard>
+  <!-- ✅ 가로 스크롤 가능하게 설정 -->
+  <div class="scroll-container flex overflow-x-auto space-x-4 p-2">
+    <WhiteCard 
+      v-for="(info, index) in managementInfoList" 
+      :key="index"
+      overrideClass="bg-white min-w-[300px] max-w-[300px] flex-shrink-0 relative p-4 overflow-hidden"
+    >
+      <!-- ✅ 병원 정보 (오른쪽 상단, 회색 & 작은 글씨) -->
+      <p class="absolute top-2 right-3 text-xs text-gray-400 truncate max-w-[150px]">
+        {{ info.hospital || "병원 정보 없음" }}
+      </p>
+
+      <div class="flex flex-row items-center">
+        <img src="../assets/logi_nofont.svg" alt="알약이미지" class="w-16 h-16">
+        <div class="flex flex-col ml-4 max-w-[200px]">
+          <!-- ✅ 병명이 없으면 "병명 미등록" -->
+          <p class="font-bold text-lg truncate max-w-[200px]">{{ info.diseaseName || "병명 미등록" }}</p>
+
+          <!-- ✅ 날짜 (회색 & 작은 글씨) -->
+          <p class="text-xs text-gray-500 truncate max-w-[200px]">{{ info.medicationPeriod }}</p>
+
+          <!-- ✅ 약 이름 (회색 & 작은 글씨) -->
+          <p class="text-xs text-gray-500 mt-1 truncate max-w-[200px]">
+            {{ info.medications || "약 정보 없음" }}
+          </p>
+        </div>
       </div>
+    </WhiteCard>
+  </div>
+</div>
+
+
 
       <!-- 캘린더 (예시) -->
       <div class="m-4 flex flex-col">
-        <BaseCalendar />
+        <BaseCalendar :prescriptions="managementInfoList" />
+
       </div>
     </main>
   </div>
+
+
+
+  
   <FamilyAddModal :isOpen="isFamilyModalOpen" @close="isFamilyModalOpen = false" />
   <Teleport to="body">
   <div v-if="isAlarmModalOpen" class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
@@ -102,6 +128,11 @@ import FamilyAddModal from '../components/FamilyAddModal.vue';
 import { useFCM } from '../utils/usefcm';
 import BaseCalendar from '../components/BaseCalendar.vue';
 import { defineAsyncComponent } from 'vue';
+import { fetchManagementData, fetchFormattedManagementInfo  } from '../api/drugmanagement';
+import { useUserStore } from '../stores/user';
+
+const userStore = useUserStore();
+const memberId = ref(null);
 
 //  My_Alarm.vue를 동적으로 import (모달에서만 로드)
 const MyAlarmModal = defineAsyncComponent(() => import('../views/My_Alarm.vue'));
@@ -250,32 +281,36 @@ const getTodayDate = () => {
 };
 
 // 오늘의 복약 내역(약물 리스트)을 담는 ref
-const todaysMedications = ref([]);
+const todaysMedications = ref("");
 
-// 백엔드와 소통하는 것처럼 오늘의 복약 내역 데이터를 가져오는 함수 (더미 데이터 사용)
+// ✅ 백엔드에서 오늘의 복약 내역 가져오기
 const fetchTodaysMedications = async () => {
-  const todayDate = getTodayDate();
-  // 실제 API 호출 예시:
-  // const response = await axios.get(`/api/medications?date=${todayDate}&timePeriod=${currentTimePeriod.value}`);
-  // 더미 데이터 예시:
-  const response = [
-    {
-      // 처방전 = id, 개별약물 = prescriptionId, 약물명 = name, 시간대 = timePeriod, 복약여부 = taken
-      id: 1,
-      prescriptionId: 101,
-      name: "약물A",
-      timePeriod: currentTimePeriod.value,
-      taken: false
-    },
-    {
-      id: 2,
-      prescriptionId: 102,
-      name: "약물B",
-      timePeriod: currentTimePeriod.value,
-      taken: false
-    }
-  ];
-  todaysMedications.value = response;
+  try {
+    // ✅ 백엔드 API 호출 (memberId 자동 적용, 날짜 필터링은 백엔드에서 처리됨)
+    const data = await fetchManagementData();
+
+    // ✅ medicationName만 추출하여 하나의 문자열로 변환 (반점 구분)
+    todaysMedications.value = data.result
+      .map(med => med.medicationName) // 약물 이름만 추출
+      .join(", "); // 문자열로 변환 (반점 구분)
+
+    console.log("💊 [DEBUG] 오늘 복약해야 할 약 리스트:", todaysMedications.value);
+  } catch (error) {
+    console.error("❌ [DEBUG] 복약 리스트 가져오기 실패:", error);
+  }
+};
+// ✅ `managementInfoList` 추가 (처방전 데이터 저장)
+const managementInfoList = ref([]);
+
+// ✅ API에서 `managementInfoList` 가져오는 함수
+const fetchData = async () => {
+  try {
+    console.log("📡 [DEBUG] 처방전 데이터 불러오는 중...");
+    managementInfoList.value = await fetchFormattedManagementInfo();
+    console.log("📋 [DEBUG] 불러온 처방전 데이터:", managementInfoList.value);
+  } catch (error) {
+    console.error("❌ [DEBUG] Management 정보 로드 실패:", error);
+  }
 };
 
 // 복약 완료 처리 함수 (사용자가 체크하면 호출)
@@ -317,9 +352,10 @@ const completeMedications = async () => {
 
 //  컴포넌트가 마운트되면 데이터 및 이벤트 리스너 등록
 onMounted(async () => {
+  
   // 오늘의 복약 내역 불러오기
-  fetchTodaysMedications();
-
+  await fetchTodaysMedications();
+  await fetchData();
   // 알림 설정 불러오기
   await loadNotificationSettings();
 
@@ -334,3 +370,31 @@ onMounted(async () => {
   }
 });
 </script>
+<style scoped>
+.scroll-container {
+  scrollbar-width: thin;
+  scrollbar-color: #ccc transparent;
+}
+
+/* ✅ Chrome, Edge, Safari용 */
+.scroll-container {
+  scrollbar-width: thin;
+  scrollbar-color: #ccc transparent;
+}
+
+/* ✅ Chrome, Edge, Safari용 */
+.scroll-container::-webkit-scrollbar {
+  height: 8px;
+}
+
+.scroll-container::-webkit-scrollbar-thumb {
+  background-color: #ccc;
+  border-radius: 4px;
+}
+
+.scroll-container::-webkit-scrollbar-track {
+  background-color: transparent;
+}
+
+
+</style>
