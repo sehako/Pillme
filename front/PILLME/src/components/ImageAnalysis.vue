@@ -1,7 +1,7 @@
 <template>
   <div class="image-analysis-container flex flex-col w-full max-h-full items-center justify-center h-screen-custom bg-gray-100 p-4">
     
-    <!-- 📌 파일 업로드 (OCR 분석 전) -->
+    <!-- 📌 파일 업로드 (OCR 분석 전)
     <input
       type="file"
       @change="handleFileChange"
@@ -9,7 +9,7 @@
       class="mb-4 p-2 border rounded w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl"
       v-if="!imagePreview"
       :disabled="ocrStore.isLoading"
-    />
+    /> -->
 
     <!-- 📌 이미지 미리보기 -->
     <div v-if="imagePreview" class="mb-4 text-center w-full flex flex-col items-center">
@@ -29,15 +29,6 @@
         📄 분석 결과 다시 보기
       </button>
     </div>
-
-    <!-- 📌 OCR 분석 버튼 -->
-    <button
-      @click="analyzeImage"
-      :disabled="!selectedFile || ocrStore.isLoading"
-      class="analyze-btn w-full sm:w-auto"
-    >
-      {{ ocrStore.isLoading ? '분석 중...' : '🔎 이미지 분석' }}
-    </button>
 
     <!-- 📌 OCR 분석 중 로딩 메시지 -->
     <div v-if="ocrStore.isLoading" class="text-center text-gray-600 mt-4">📡 분석 중입니다...</div>
@@ -62,24 +53,38 @@ const error = ref(null);
 
 // ✅ 파일 선택 이벤트 (파일 업로드 시 자동 OCR 실행)
 const handleFileChange = (event) => {
-  selectedFile.value = event.target.files[0];
+  if (ocrStore.isLoading) return; // ✅ OCR 분석 중이면 중복 요청 방지
 
-  if (selectedFile.value) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  // ✅ input[type="file"]을 리셋해서 동일한 파일을 다시 선택해도 `change` 이벤트 발생하도록 설정
+  event.target.value = '';
+
+  // ✅ OCR 상태 초기화 (기존 데이터 삭제)
+  ocrStore.resetOcrState();
+
+  // ✅ 기존 파일 및 미리보기 강제 초기화 → Vue의 변경 감지
+  selectedFile.value = null;
+  imagePreview.value = null;
+
+  setTimeout(() => {
+    selectedFile.value = file;
+
     const reader = new FileReader();
     reader.onload = (e) => {
-      imagePreview.value = e.target.result;
-      analyzeImage();
+      imagePreview.value = e.target.result; // ✅ 미리보기 업데이트
+      nextTick(() => analyzeImage()); // ✅ OCR 분석 실행
     };
-    reader.readAsDataURL(selectedFile.value);
-  }
+    reader.readAsDataURL(file);
+  }, 50); // ✅ Vue가 변경을 감지할 수 있도록 짧은 지연 추가
 };
 
 // ✅ OCR 분석 실행
 const analyzeImage = async () => {
-  if (!selectedFile.value) {
-    ocrStore.error = '❌ 분석할 이미지가 없습니다.';
-    return;
-  }
+  if (!selectedFile.value || ocrStore.isLoading) return; // ✅ 중복 요청 방지
+
+  ocrStore.error = null;
 
   ocrStore.startLoading(); // ✅ 로딩 시작
 
@@ -106,6 +111,8 @@ const analyzeImage = async () => {
 
 // ✅ 🚀 페이지 로드 시 query에서 이미지 자동 로드 & OCR 분석
 onMounted(() => {
+  if(ocrStore.isLoading) return;
+
   if (route.query.image) {
     try {
       const base64Data = decodeURIComponent(route.query.image);
@@ -132,11 +139,6 @@ onMounted(() => {
       console.error('❌ Base64 데이터 변환 오류:', err);
       error.value = err.message;
     }
-  }
-
-  // ✅ OCR이 진행 중이었다면 자동으로 분석을 재시작
-  if (ocrStore.isLoading) {
-    analyzeImage();
   }
 });
 </script>
