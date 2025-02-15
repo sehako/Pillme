@@ -214,7 +214,9 @@ const verifyCode = async () => {
 };
 
 const handleSubmit = () => {
-  console.log("🚀 회원가입 진행 중, 데이터:", { email: email.value, password: password.value });
-  router.push({ path: "/afteraccount", query: { email: email.value, password: password.value } });
+  sessionStorage.setItem("signupEmail", email.value);
+  sessionStorage.setItem("signupPassword", password.value);
+
+  router.push("/afteraccount");
 };
 </script>

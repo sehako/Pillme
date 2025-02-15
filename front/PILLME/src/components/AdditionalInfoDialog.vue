@@ -14,7 +14,7 @@
       </div>
 
       <div class="mb-4">
-        <label class="text-gray-700 font-semibold">📅 복용 기간 설정</label>
+        <label class="text-gray-700 font-semibold">📅 복용 기간 설정(필수)</label>
         <VueDatePicker
           v-model="ocrStore.dateRange"
           range
@@ -24,22 +24,25 @@
           class="w-full"
         />
         <p class="text-gray-600 mt-2">총 복용 일수: {{ ocrStore.totalDays }}일</p>
+        <p v-if="showErrorMessage" class="text-red-500 mt-2">❗ 복용 기간은 필수 입력 사항입니다.</p>
       </div>
 
       <div class="button-group">
         <button @click="ocrStore.goBackToResultDialog" class="secondary-btn">이전</button>
-        <button @click="ocrStore.openMedicationDialog" class="primary-btn">다음</button>
+        <button @click="ocrStore.openMedicationDialog" class="primary-btn" :disabled="!isDateRangeValid">다음</button>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
+import { ref, computed } from 'vue';
 import { useOcrStore } from '../stores/ocrStore';
 import VueDatePicker from '@vuepic/vue-datepicker';
 import '@vuepic/vue-datepicker/dist/main.css';
 
 const ocrStore = useOcrStore();
+const showErrorMessage = ref(false);
 
 // ✅ 📅 복용 기간 변경 시 총 복용 일수 계산
 const calculateTotalDays = () => {
@@ -49,10 +52,26 @@ const calculateTotalDays = () => {
 
     // 날짜 차이 계산 (밀리초 → 일 변환)
     ocrStore.totalDays = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24)) + 1;
+    showErrorMessage.value = false;
   } else {
     ocrStore.totalDays = 0;
   }
 };
+
+// ✅ 사용자가 복용 기간을 입력하지 않았을 때 경고 메시지 표시
+const validateDateRange = () => {
+  if (!isDateRangeValid.value) {
+    showErrorMessage.value = true;
+  } else {
+    ocrStore.openMedicationDialog(); // ✅ 정상 입력 시 다음 단계로 이동
+  }
+};
+
+// ✅ 복용 기간이 입력되었는지 확인하는 computed 속성
+const isDateRangeValid = computed(() => {
+  return ocrStore.dateRange && ocrStore.dateRange.length === 2;
+});
+
 </script>
 
 <style scoped>
