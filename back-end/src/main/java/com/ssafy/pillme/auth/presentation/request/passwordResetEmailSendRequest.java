@@ -1,4 +1,4 @@
 package com.ssafy.pillme.auth.presentation.request;
 
-public record passwordResetEmailSendRequest() {
+public record PasswordResetEmailSendRequest(String email, String phone) {
 }
