@@ -190,3 +190,15 @@ export const findEmail = async (phone) => {
     throw new Error(error.response?.data?.message || '이메일 찾기 중 오류가 발생했습니다.');
   }
 };
+
+// ✅ 비밀번호 재설정
+export const requestPasswordResetVerification = (email) => {
+  return apiClient.post('/api/v1/auth/temporary-password/verify-email', { email });
+};
+
+export const requestTemporaryPassword = (email, phone) => {
+  return apiClient.post('/api/v1/auth/temporary-password/request', {
+    email,
+    phone,
+  });
+};
