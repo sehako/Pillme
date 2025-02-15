@@ -4,7 +4,7 @@ import com.ssafy.pillme.auth.domain.entity.Member;
 import com.ssafy.pillme.management.domain.Information;
 import com.ssafy.pillme.management.domain.type.RegistrationType;
 
-public class StatusCalculator {
+public class RegistrationStatusCalculator {
     public static RegistrationType calculateStatus(
             final Information information,
             final Member member
@@ -17,7 +17,7 @@ public class StatusCalculator {
         } else if (member.getId().equals(reader.getId())) {
             registrationType = RegistrationType.ADDED;
         } else {
-            registrationType = RegistrationType.PUT;
+            registrationType = RegistrationType.ADD;
         }
 
         return registrationType;

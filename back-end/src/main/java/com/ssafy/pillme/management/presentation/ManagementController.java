@@ -3,11 +3,13 @@ package com.ssafy.pillme.management.presentation;
 import static com.ssafy.pillme.global.code.SuccessCode.INFORMATION_ADD_SUCCESS;
 import static com.ssafy.pillme.global.code.SuccessCode.INFORMATION_SAVE_SUCCESS;
 import static com.ssafy.pillme.global.code.SuccessCode.MANAGEMENT_CHANGE_SUCCESS;
+import static com.ssafy.pillme.global.code.SuccessCode.MEDICATION_CHECK_SUCCESS;
 
 import com.ssafy.pillme.auth.annotation.Auth;
 import com.ssafy.pillme.auth.domain.entity.Member;
 import com.ssafy.pillme.global.response.JSONResponse;
 import com.ssafy.pillme.management.application.ManagementService;
+import com.ssafy.pillme.management.application.response.CurrentTakingPrescriptionResponse;
 import com.ssafy.pillme.management.application.response.CurrentTakingResponse;
 import com.ssafy.pillme.management.application.response.TakingDetailResponse;
 import com.ssafy.pillme.management.domain.Information;
@@ -63,14 +65,22 @@ public class ManagementController {
     }
 
     @GetMapping
-    public ResponseEntity<JSONResponse<List<CurrentTakingResponse>>> currentTakingAll(
-            @RequestParam(value = "target") Long memberId,
-            @Auth Member member
+    public ResponseEntity<JSONResponse<List<CurrentTakingResponse>>> getCurrentTakingAll(
+            @RequestParam(value = "target") Long memberId
     ) {
         return ResponseEntity.ok(
                 JSONResponse.onSuccess(
-                        managementService.selectManagementByDate(memberId, member)
+                        managementService.selectManagementByDate(memberId)
                 )
+        );
+    }
+
+    @GetMapping("/prescription")
+    public ResponseEntity<JSONResponse<List<CurrentTakingPrescriptionResponse>>> currentTakingPrescription(
+            @RequestParam("target") final Long targetId
+    ) {
+        return ResponseEntity.ok(
+                JSONResponse.onSuccess(managementService.selectCurrentTakingPrescription(targetId))
         );
     }
 
@@ -98,19 +108,18 @@ public class ManagementController {
         );
     }
 
-    @PatchMapping("/check-taking/{info-id}")
+    @PatchMapping("/check-taking")
     public ResponseEntity<JSONResponse<Void>> checkSingleMedication(
-            @PathVariable(value = "info-id") final Long infoId,
             @RequestBody final SingleTakingCheckRequest request,
             @Auth Member member
     ) {
-        managementService.checkSingleMedicationTaking(infoId, request, member);
+        managementService.checkSingleMedicationTaking(request, member);
         return ResponseEntity.ok(
-                JSONResponse.onSuccess()
+                JSONResponse.of(MEDICATION_CHECK_SUCCESS)
         );
     }
 
-    @PatchMapping("/check-taking/all/{info-id}")
+    @PatchMapping("/check-taking/{info-id}")
     public ResponseEntity<JSONResponse<Void>> checkAllMedication(
             @PathVariable(value = "info-id") final Long infoId,
             @RequestBody final AllTakingCheckRequest request,
@@ -132,10 +141,10 @@ public class ManagementController {
     @DeleteMapping("/{info-id}")
     public ResponseEntity<Void> deleteManagement(
             @PathVariable(value = "info-id") final Long infoId,
-            @RequestBody final DeleteManagementRequest request
+            @RequestBody final DeleteManagementRequest request,
+            @Auth Member member
     ) {
-        managementService.deleteManagement(infoId, request);
-
+        managementService.deleteManagement(infoId, request, member);
         return ResponseEntity.noContent().build();
     }
 }

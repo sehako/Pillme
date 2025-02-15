@@ -7,7 +7,7 @@ import lombok.RequiredArgsConstructor;
 public enum RegistrationType {
     MY_SELF("myself"),
     ADDED("added"),
-    PUT("put");
+    ADD("add");
 
     private final String value;
 

@@ -3,8 +3,8 @@ package com.ssafy.pillme.management.application.exception;
 import com.ssafy.pillme.global.code.ErrorCode;
 import com.ssafy.pillme.global.exception.CommonException;
 
-public class InvalidMemberException extends CommonException {
-    public InvalidMemberException(ErrorCode errorCode) {
+public class MemberIsNotReaderException extends CommonException {
+    public MemberIsNotReaderException(ErrorCode errorCode) {
         super(errorCode);
     }
 }

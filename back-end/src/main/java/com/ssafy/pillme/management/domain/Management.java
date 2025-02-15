@@ -18,8 +18,8 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
 
 @Entity
-@Table(name = "management")
 @Getter
+@Table(name = "management")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Management extends BaseEntity {
     @Id
@@ -53,10 +53,9 @@ public class Management extends BaseEntity {
     private boolean sleepTaking = false;
 
     @Builder
-    public Management(Long id, String medicationName, Information information, Integer period,
-                      boolean morning, boolean lunch, boolean dinner, boolean sleep, boolean morningTaking,
-                      boolean lunchTaking, boolean dinnerTaking, boolean sleepTaking) {
-        this.id = id;
+    public Management(String medicationName, Information information, Integer period, boolean morning,
+                      boolean lunch, boolean dinner, boolean sleep, boolean morningTaking, boolean lunchTaking,
+                      boolean dinnerTaking, boolean sleepTaking) {
         this.medicationName = medicationName;
         this.information = information;
         this.period = period;
@@ -72,26 +71,34 @@ public class Management extends BaseEntity {
 
 
     public void changeTakingInformation(final ChangeManagementItem item) {
-        this.period = item.period();
         this.morning = item.morning();
+        this.lunch = item.lunch();
         this.dinner = item.dinner();
         this.sleep = item.sleep();
     }
 
     public void checkMorningTaking() {
-        this.morningTaking = true;
+        if (this.morning) {
+            this.morningTaking = true;
+        }
     }
 
     public void checkLunchTaking() {
-        this.lunchTaking = true;
+        if (this.lunch) {
+            this.lunchTaking = true;
+        }
     }
 
     public void checkDinnerTaking() {
-        this.dinnerTaking = true;
+        if (this.dinner) {
+            this.dinnerTaking = true;
+        }
     }
 
     public void checkSleepTaking() {
-        this.sleepTaking = true;
+        if (this.sleep) {
+            this.sleepTaking = true;
+        }
     }
 
     public void resetTakingInformation() {

@@ -5,7 +5,6 @@ import com.ssafy.pillme.management.domain.Management;
 public record CurrentTakingResponse(
         Long managementId,
         String medicationName,
-        Integer period,
         boolean morning,
         boolean lunch,
         boolean dinner,
@@ -19,7 +18,6 @@ public record CurrentTakingResponse(
         return new CurrentTakingResponse(
                 management.getId(),
                 management.getMedicationName(),
-                management.getPeriod(),
                 management.isMorning(),
                 management.isLunch(),
                 management.isDinner(),

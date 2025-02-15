@@ -1,29 +1,29 @@
 package com.ssafy.pillme.management.application.response;
 
-import com.ssafy.pillme.auth.domain.entity.Member;
-import com.ssafy.pillme.management.application.util.StatusCalculator;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.ssafy.pillme.management.domain.Information;
 import com.ssafy.pillme.management.domain.type.RegistrationType;
 import java.time.LocalDate;
 
-public record PrescriptionResponse(
-        Long infoId,
+public record CurrentTakingPrescriptionResponse(
+        Long informationId,
         RegistrationType registrationType,
-        String hospital,
         String diseaseName,
+        String hospital,
+        @JsonFormat(pattern = "yyyy-MM-dd")
         LocalDate startDate,
+        @JsonFormat(pattern = "yyyy-MM-dd")
         LocalDate endDate
 ) {
-    public static PrescriptionResponse of(
+    public static CurrentTakingPrescriptionResponse of(
             final Information information,
-            final Member member
+            final RegistrationType registrationType
     ) {
-
-        return new PrescriptionResponse(
+        return new CurrentTakingPrescriptionResponse(
                 information.getId(),
-                StatusCalculator.calculateStatus(information, member),
-                information.getHospital(),
+                registrationType,
                 information.getDiseaseName(),
+                information.getHospital(),
                 information.getStartDate(),
                 information.getEndDate()
         );

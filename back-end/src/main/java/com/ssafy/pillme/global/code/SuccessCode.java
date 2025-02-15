@@ -14,9 +14,13 @@ public enum SuccessCode {
 
 
     // 복약 관리
-    INFORMATION_SAVE_SUCCESS(2100, CREATED, "복약 정보가 성공적으로 등록되었습니다"),
-    MANAGEMENT_CHANGE_SUCCESS(2101, OK, "복약 정보 갱신이 성공적으로 처리되었습니다"),
-    INFORMATION_ADD_SUCCESS(2102, OK, "복약 정보 추가가 성공적으로 처리되었습니다"),
+    INFORMATION_SAVE_SUCCESS(2100, CREATED, "복약 정보가 성공적으로 등록되었습니다."),
+    MANAGEMENT_CHANGE_SUCCESS(2101, OK, "복약 정보 갱신이 성공적으로 처리되었습니다."),
+    INFORMATION_ADD_SUCCESS(2102, OK, "복약 정보 추가가 성공적으로 처리되었습니다."),
+    MEDICATION_CHECK_SUCCESS(2103, OK, "복약 정보 단일 체크가 성공적으로 처리되었습니다."),
+
+    // 약물 검색
+    MEDICATION_SEARCH_SUCCESS(2200, OK, "약물 검색이 성공적으로 완료되었습니다"),
 
     //채팅
     CHATROOM_DELETE_SUCCESS(2200, OK, "요청하신 채팅방이 삭제되었습니다."),

@@ -1,23 +1,25 @@
 package com.ssafy.pillme.management.application;
 
 import static com.ssafy.pillme.global.code.ErrorCode.INFORMATION_NOT_FOUND;
-import static com.ssafy.pillme.global.code.ErrorCode.INVALID_MEMBER_INFO;
-import static com.ssafy.pillme.global.code.ErrorCode.INVALID_MEMBER_REQUEST;
 import static com.ssafy.pillme.global.code.ErrorCode.INVALID_TIME_REQUEST;
 import static com.ssafy.pillme.global.code.ErrorCode.MANAGEMENT_NOT_FOUND;
+import static com.ssafy.pillme.global.code.ErrorCode.MEMBER_NOT_READER;
+import static com.ssafy.pillme.global.code.ErrorCode.MEMBER_NOT_WRITER;
 
 import com.ssafy.pillme.auth.application.service.AuthService;
 import com.ssafy.pillme.auth.domain.entity.Member;
-import com.ssafy.pillme.auth.infrastructure.repository.MemberRepository;
-import com.ssafy.pillme.global.exception.CommonException;
-import com.ssafy.pillme.management.application.exception.InvalidMemberException;
 import com.ssafy.pillme.management.application.exception.InvalidTimeSelectException;
+import com.ssafy.pillme.management.application.exception.MemberIsNotReaderException;
+import com.ssafy.pillme.management.application.exception.MemberIsNotWriterException;
 import com.ssafy.pillme.management.application.exception.NoInformationException;
 import com.ssafy.pillme.management.application.exception.NoManagementException;
+import com.ssafy.pillme.management.application.response.CurrentTakingPrescriptionResponse;
 import com.ssafy.pillme.management.application.response.CurrentTakingResponse;
 import com.ssafy.pillme.management.application.response.TakingDetailResponse;
+import com.ssafy.pillme.management.application.util.RegistrationStatusCalculator;
 import com.ssafy.pillme.management.domain.Information;
 import com.ssafy.pillme.management.domain.Management;
+import com.ssafy.pillme.management.domain.item.ChangeManagementItem;
 import com.ssafy.pillme.management.domain.item.TakingInformationItem;
 import com.ssafy.pillme.management.domain.item.TakingSettingItem;
 import com.ssafy.pillme.management.domain.type.TakingType;
@@ -30,9 +32,9 @@ import com.ssafy.pillme.management.presentation.request.CheckCurrentTakingReques
 import com.ssafy.pillme.management.presentation.request.DeleteManagementRequest;
 import com.ssafy.pillme.management.presentation.request.SingleTakingCheckRequest;
 import com.ssafy.pillme.management.presentation.request.TakingInformationRegisterRequest;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -46,15 +48,15 @@ import org.springframework.transaction.annotation.Transactional;
 public class ManagementService {
     private final ManagementRepository managementRepository;
     private final InformationRepository informationRepository;
-    private final MemberRepository memberRepository;
     private final AuthService authService;
 
+
+    // 새로운 복약 정보 저장
     public Information saveTakingInformation(
             final TakingInformationRegisterRequest request,
             final Member writer
     ) {
-        Member reader = memberRepository.findById(request.reader())
-                .orElseThrow(() -> new CommonException(INVALID_MEMBER_INFO));
+        Member reader = authService.findById(request.reader());
         Information savedInformation = informationRepository.save(request.toInformation(writer, reader));
 
         for (TakingSettingItem medication : request.medications()) {
@@ -64,14 +66,17 @@ public class ManagementService {
         return savedInformation;
     }
 
+    // 기존 처방전에 새로운 복약 정보 저장
     public Information addTakingInformation(
             final Long infoId,
             final AddTakingInformationRequest request,
             final Member member
     ) {
-        Information information = findInformationById(infoId);
-        checkMemberValidation(member, information);
-        saveManagement(request.management(), information);
+        Information information = informationRepository.findByIdMemberFetchJoin(infoId)
+                .orElseThrow(() -> new NoInformationException(INFORMATION_NOT_FOUND));
+        // 이 부분 조금 더 고민해봐야 함 (요구사항 명세서에 약물 삭제 요청이 있는데 고려를 안함)
+//        checkMemberValidation(member, information);
+        saveManagement(request.toItem(), information);
         return information;
     }
 
@@ -85,32 +90,42 @@ public class ManagementService {
 
     @Transactional(readOnly = true)
     public TakingDetailResponse selectInformation(
-            final Long id,
+            final Long infoId,
             final Long readerId
     ) {
-        Information information = informationRepository.findByIdAndReaderIdAndDeletedIsFalse(id, readerId)
+        Information information = informationRepository.findByIdAndReaderIdAndDeletedIsFalse(infoId, readerId)
                 .orElseThrow(() -> new NoInformationException(INFORMATION_NOT_FOUND));
+        List<Management> managements = managementRepository
+                .findByInformationIdAndInformationReaderIdAndDeletedIsFalse(infoId, readerId);
 
         return TakingDetailResponse.of(
                 information,
-                information.getManagements()
-                        .stream()
-                        .map(TakingInformationItem::from)
-                        .collect(Collectors.toList())
+                managements.stream().map(TakingInformationItem::from)
+                        .toList()
         );
     }
 
     @Transactional(readOnly = true)
     public List<CurrentTakingResponse> selectManagementByDate(
-            final Long memberId,
-            final Member member) {
-        return managementRepository
-                .findByInformationDateAndMember(
-                        LocalDate.now(),
-                        memberId == null ? member : authService.findById(memberId)
-                )
+            final Long memberId) {
+        return managementRepository.findManagementsByInformationDateAndReaderIdFetch(memberId)
                 .stream()
                 .map(CurrentTakingResponse::from)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public List<CurrentTakingPrescriptionResponse> selectCurrentTakingPrescription(
+            final Long targetId
+    ) {
+        List<Information> currentInformation = informationRepository
+                .findCurrentDateAndReaderId(targetId);
+        Member targetMember = authService.findById(targetId);
+
+        return currentInformation
+                .stream()
+                .map(information -> CurrentTakingPrescriptionResponse
+                        .of(information, RegistrationStatusCalculator.calculateStatus(information, targetMember)))
                 .collect(Collectors.toList());
     }
 
@@ -118,7 +133,8 @@ public class ManagementService {
     public List<TakingInformationItem> selectCurrentTakingInformationList(
             final Member member
     ) {
-        List<Management> managements = managementRepository.findByInformationDateAndMember(LocalDate.now(), member);
+        List<Management> managements = managementRepository
+                .findManagementsByInformationDateAndReaderIdFetch(member.getId());
 
         return managements.stream()
                 .map(TakingInformationItem::from)
@@ -131,35 +147,52 @@ public class ManagementService {
             final Member member) {
         Information information = findInformationById(infoId);
 
-        checkMemberValidation(member, information);
+        if (!information.getWriter().getId().equals(member.getId())) {
+            throw new MemberIsNotWriterException(INFORMATION_NOT_FOUND);
+        }
 
+        List<Management> managements = managementRepository
+                .findByInformationIdAndInformationWriterIdAndDeletedIsFalse(infoId, member.getId());
+
+        Map<Long, Management> managementMap = getManagementMap(managements);
+
+        checkWriterValidation(member, managements.get(0).getInformation());
+
+        return TakingDetailResponse.of(
+                information,
+                changeInformation(managementMap, request.medications()));
+    }
+
+    private Map<Long, Management> getManagementMap(List<Management> managements) {
+        return managements.stream()
+                .collect(Collectors.toMap(
+                        Management::getId,
+                        management -> management
+                ));
+    }
+
+    private List<TakingInformationItem> changeInformation(
+            Map<Long, Management> managementMap,
+            List<ChangeManagementItem> changeManagementItems) {
         List<TakingInformationItem> items = new ArrayList<>();
 
-        request.managementList().forEach(managementInfo -> {
-            Management management = managementRepository
-                    .findByIdAndInformationId(managementInfo.managementId(), infoId)
-                    .orElseThrow(() -> new NoManagementException(INFORMATION_NOT_FOUND));
-
-            management.changeTakingInformation(managementInfo);
-
+        changeManagementItems.forEach(changeManagementItem -> {
+            Management management = managementMap.get(changeManagementItem.managementId());
+            management.changeTakingInformation(changeManagementItem);
             items.add(TakingInformationItem.from(management));
         });
 
-        return TakingDetailResponse.of(information, items);
+        return items;
     }
 
     public void checkSingleMedicationTaking(
-            final Long infoId,
             final SingleTakingCheckRequest request,
             final Member member
     ) {
-        Information information = findInformationById(infoId);
-
-        checkMemberValidation(member, information);
-
-        Management management = managementRepository.findByIdAndInformationId(request.managementId(), infoId)
+        Management management = managementRepository.findById(request.managementId())
                 .orElseThrow(() -> new NoManagementException(MANAGEMENT_NOT_FOUND));
 
+        checkReaderValidation(member, management.getInformation());
         checkMedicationTaking(management, request.time());
     }
 
@@ -168,19 +201,24 @@ public class ManagementService {
             final AllTakingCheckRequest request,
             final Member member
     ) {
-        Information information = findInformationById(infoId);
-        checkMemberValidation(member, information);
+        List<Management> managements = managementRepository.
+                findManagementsByInformationIdAndReaderIdFetch(infoId, member.getId());
 
-        for (Management management : information.getManagements()) {
-            checkMedicationTaking(management, request.time());
+        if (managements.isEmpty()) {
+            throw new NoManagementException(MANAGEMENT_NOT_FOUND);
         }
+
+        checkReaderValidation(member, managements.get(0).getInformation());
+
+        managements.forEach(management -> checkMedicationTaking(management, request.time()));
     }
 
     public void checkCurrentTakingAll(
             final CheckCurrentTakingRequest request,
             final Member member
     ) {
-        List<Management> managements = managementRepository.findByInformationDateAndMember(LocalDate.now(), member);
+        List<Management> managements = managementRepository
+                .findManagementsByInformationDateAndReaderIdFetch(member.getId());
 
         for (Management management : managements) {
             checkMedicationTaking(management, request.time());
@@ -197,40 +235,46 @@ public class ManagementService {
         }
     }
 
-    public void deleteManagement(final Long infoId, final DeleteManagementRequest request) {
-        if (request.managementList().isEmpty()) {
-            deleteInformation(infoId);
-            return;
-        }
-
-        for (Long managementId : request.managementList()) {
-            Management management = managementRepository.findByIdAndInformationId(managementId, infoId)
-                    .orElseThrow(() -> new NoManagementException(INFORMATION_NOT_FOUND));
-
-            management.delete();
-        }
-    }
-
-    private void deleteInformation(final Long infoId) {
+    public void deleteManagement(
+            final Long infoId,
+            final DeleteManagementRequest request,
+            final Member member) {
         Information information = findInformationById(infoId);
-        information.delete();
 
-        for (Management management : information.getManagements()) {
-            management.delete();
+        if (!information.getWriter().getId().equals(member.getId())) {
+            throw new MemberIsNotWriterException(MEMBER_NOT_WRITER);
+        }
+
+        List<Long> managementList = request.managementList();
+        List<Management> managements = managementRepository.findManagementList(managementList, infoId);
+
+        managements.forEach(Management::delete);
+
+        if (managements.size() == managementList.size()) {
+            information.delete();
         }
     }
 
-    private void checkMemberValidation(
+    private void checkWriterValidation(
+            final Member member,
+            final Information information
+    ) {
+        if (!information.getWriter().getId().equals(member.getId())) {
+            throw new MemberIsNotWriterException(MEMBER_NOT_WRITER);
+        }
+    }
+
+    private void checkReaderValidation(
             final Member member,
             final Information information
     ) {
         if (!information.getReader().getId().equals(member.getId())) {
-            throw new InvalidMemberException(INVALID_MEMBER_REQUEST);
+            throw new MemberIsNotReaderException(MEMBER_NOT_READER);
         }
     }
 
     private Information findInformationById(final Long infoId) {
-        return informationRepository.findByIdAndDeletedIsFalse(infoId)
+        return informationRepository.findByIdMemberFetchJoin(infoId)
                 .orElseThrow(() -> new NoInformationException(INFORMATION_NOT_FOUND));
     }
 }
