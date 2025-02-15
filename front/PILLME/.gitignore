@@ -33,3 +33,4 @@ coverage
 #firebase
 public/firebase-messaging-sw.js
 sw.js
+dev-dist/sw.js
