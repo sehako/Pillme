@@ -143,7 +143,7 @@ export const useOcrStore = defineStore('ocr', {
         this.userId = decoded.memberId;
         this.username = decoded.name ?? '';
 
-        console.log('✅ 사용자 정보 불러오기 성공:', decoded);
+        // console.log('✅ 사용자 정보 불러오기 성공:', decoded);
       } catch (error) {
         console.error('❌ 사용자 정보 가져오기 실패:', error);
       }
@@ -181,7 +181,7 @@ export const useOcrStore = defineStore('ocr', {
         }
 
         this.userId = decodedToken.memberId; // ✅ 현재 로그인된 사용자 ID 저장
-        console.log('✅ 로그인된 사용자 ID:', this.userId);
+        // console.log('✅ 로그인된 사용자 ID:', this.userId);
 
         // ✅ 날짜를 "yyyy-MM-dd" 형식으로 변환하는 함수
         const formatDate = (date) => {

@@ -35,7 +35,7 @@ const password = ref("");
 const isLoading = ref(false);
 
 const handleLogin = async () => {
-  console.log('handleLogin 함수 실행됨'); 
+  // console.log('handleLogin 함수 실행됨'); 
 
   if (!email.value || !password.value) {
     alert("이메일과 비밀번호를 입력해주세요.");
@@ -49,8 +49,8 @@ const handleLogin = async () => {
       password: password.value,
     });
 
-    console.log("🔍 로그인 API 응답:", response); // ✅ API 응답 구조 확인
-    console.log("🔍 response.result:", response.result);
+    // console.log("🔍 로그인 API 응답:", response); // ✅ API 응답 구조 확인
+    // console.log("🔍 response.result:", response.result);
 
     if (!response || !response.result) {
       throw new Error("서버에서 예상치 못한 응답을 받았습니다.");

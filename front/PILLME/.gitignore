@@ -31,5 +31,6 @@ coverage
 *.tsbuildinfo
 
 #firebase
-public/firebase-messaging-sw.js
+# public/firebase-messaging-sw.js
 sw.js
+dev-dist\*

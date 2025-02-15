@@ -9,8 +9,8 @@
 <script setup>
 import { onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import { oauthLogin, saveAccessToken, saveRefreshToken } from '../api/auth';
-
+import { oauthLogin } from '../api/auth';
+import Cookies from "js-cookie"; // ✅ js-cookie 라이브러리 추가
 const router = useRouter();
 
 onMounted(async () => {
@@ -28,8 +28,8 @@ onMounted(async () => {
       window.location.href = `/oauth/additional-info?email=${encodeURIComponent(response.email)}&name=${encodeURIComponent(response.name)}&provider=GOOGLE`;
     } else {
       // 로그인 성공 처리
-      saveAccessToken(response.tokenResponse.accessToken);
-      saveRefreshToken(response.tokenResponse.refreshToken);
+      localStorage.setItem('accessToken', response.tokenResponse.accessToken);
+      Cookies.set('refreshToken', response.tokenResponse.refreshToken, { secure: true, sameSite: 'Strict' });
       router.push('/');
     }
   } catch (error) {
