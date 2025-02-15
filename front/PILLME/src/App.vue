@@ -6,7 +6,10 @@
         v-for="notification in notifications" 
         :key="notification.id"
         class="notification"
-        :class="{ show: notification.show }"
+        :class="{ 
+          show: notification.show,
+          toast: notification.isToast 
+        }"
       >
         <div class="notification-header">
           <h4>{{ notification.title }}</h4>
@@ -19,7 +22,7 @@
         </div>
         <p>{{ notification.body }}</p>
         <div 
-          v-if="notification.data.code && ['DEPENDENCY_REQUEST', 'MEDICINE_REQUEST', 'DEPENDENCY_DELETE_REQUEST'].includes(notification.data.code)" 
+          v-if="notification.data?.code && ['DEPENDENCY_REQUEST', 'MEDICINE_REQUEST', 'DEPENDENCY_DELETE_REQUEST'].includes(notification.data.code)" 
           class="actions"
         >
           <button 
@@ -94,7 +97,7 @@ import MedicationScheduleDialog from './components/MedicationScheduleDialog.vue'
 
 import logo from './assets/Logo_font.svg';
 
-// 너무 길어서 각 로직을 composable로 분리
+// 컴포저블 import
 import { useAuth } from './composables/useAuth';
 import { useRealVH } from './composables/useRealVH';
 import { useScrollControl } from './composables/useScrollControl';
@@ -105,7 +108,8 @@ const contentRef = ref(null);
 const navbarRef = ref(null);
 const ocrStore = useOcrStore();
 const isRouteReady = ref(true);
-const { getFCMToken } = useFCM();
+
+// 컴포저블 설정
 const { isLoggedIn, initAuth, cleanUpAuth } = useAuth();
 const { initRealVH, cleanUpRealVH } = useRealVH();
 const { isScrollAllowed } = useScrollControl(['/afteraccount', '/', '/notificationlist']);
@@ -122,31 +126,25 @@ onMounted(() => {
   initAuth();
   initRealVH();
   ocrStore.loadFromLocalStorage();
-
-  // // ✅ OCR 분석이 진행 중이 아닐 경우 로딩 제거
-  // if (!ocrStore.showResultsDialog && !ocrStore.showNextDialog && !ocrStore.showMedicationDialog) {
-  //   ocrStore.isLoading = false;
-  //   localStorage.setItem('ocrIsLoading', JSON.stringify(false)); // ✅ localStorage에서도 초기화
-  // }
   
-    // ✅ OCR 분석이 진행 중이면 로딩 상태 유지, 분석이 끝난 경우 다이얼로그 자동 닫기
-    watch(
+  // OCR 관련 상태 초기화
+  watch(
     () => ocrStore.isLoading,
     (newVal) => {
       if (newVal) {
         ocrStore.showResultsDialog = false;
         ocrStore.showNextDialog = false;
         ocrStore.showMedicationDialog = false;
-        // ocrStore.isLoading = false;
-        // localStorage.setItem('ocrIsLoading', JSON.stringify(false));
       }
     }
   );
+  
   ocrStore.showResultsDialog = false;
   ocrStore.showNextDialog = false;
   ocrStore.showMedicationDialog = false;
   ocrStore.isLoading = false;
-  // localStorage.setItem('ocrIsLoading', JSON.stringify(false));
+  
+  // FCM 초기화
   initializeFCM();
 });
 
@@ -222,6 +220,11 @@ onUnmounted(() => {
   transform: translateX(0);
 }
 
+.notification.toast {
+  background-color: rgba(0, 0, 0, 0.8);
+  color: white;
+}
+
 .notification-header {
   display: flex;
   justify-content: space-between;
@@ -234,12 +237,20 @@ onUnmounted(() => {
   font-weight: 600;
 }
 
+.notification.toast .notification-header h4 {
+  color: white;
+}
+
 .close-button {
   background: none;
   border: none;
   font-size: 20px;
   cursor: pointer;
   padding: 0 5px;
+}
+
+.notification.toast .close-button {
+  color: white;
 }
 
 .actions {
@@ -279,6 +290,10 @@ onUnmounted(() => {
 
   .notification {
     width: 100%;
+  }
+  
+  .notification.toast {
+    bottom: 80px;
   }
 }
 </style>

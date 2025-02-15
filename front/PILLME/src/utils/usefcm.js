@@ -8,7 +8,7 @@ export function useFCM() {
   const fcmToken = ref(null)
   const notifications = ref([])
 
-  // useFCM.js의 initializeFCM 함수
+  // FCM 초기화
   const initializeFCM = async () => {
     try {
       // Service Worker 등록 상태 확인
@@ -26,110 +26,18 @@ export function useFCM() {
     }
   };
 
-  // 포그라운드 메시지 핸들러
-  const handleForegroundMessage = (payload) => {
-    console.log('포그라운드 메시지 수신 전체:', payload);
-    console.log('data:', payload.data);
-    console.log('notification:', payload.notification);
-
-    // 브라우저가 포커스되어 있고, document가 visible 상태일 때만 인앱 알림 표시
-    if (document.visibilityState === 'visible') {
-      let notificationData;
-
-      // data 메시지 처리
-      if (payload.data) {
-        notificationData = {
-          id: Date.now(),
-          title: payload.data.title,
-          body: payload.data.body,
-          data: {
-            code: payload.data.code,
-            senderId: payload.data.senderId,
-            url: '/'
-          }
-        };
-
-        // URL 설정
-        switch (payload.data.code) {
-          // 관계 관련
-          case 'DEPENDENCY_REQUEST':
-          case 'DEPENDENCY_DELETE_REQUEST':
-            notificationData.data.url = '/dependency/requests';
-            break;
-          case 'DEPENDENCY_ACCEPT':
-          case 'DEPENDENCY_REJECT':
-          case 'DEPENDENCY_DELETE_ACCEPT':
-          case 'DEPENDENCY_DELETE_REJECT':
-            notificationData.data.url = '/dependency/status';
-            break;
-
-          // 약 관련
-          case 'MEDICINE_REQUEST':
-            notificationData.data.url = '/medicine/requests';
-            break;
-          case 'MEDICINE_ACCEPT':
-          case 'MEDICINE_REJECT':
-            notificationData.data.url = '/medicine/status';
-            break;
-          case 'MEDICINE_TAKE_REMINDER':
-            notificationData.data.url = '/medicine/schedule';
-            break;
-        }
-      }
-      // notification 메시지 처리
-      else if (payload.notification) {
-        notificationData = {
-          id: Date.now(),
-          title: payload.notification.title,
-          body: payload.notification.body,
-          data: {
-            url: '/'
-          }
-        };
-      }
-
-      // 인앱 알림 추가
-      const notification = {
-        ...notificationData,
-        show: true
-      };
-      notifications.value.push(notification);
-
-      // REQUEST 타입이 아닌 경우 5초 후 자동으로 제거
-      if (!payload.data?.code ||
-        !['DEPENDENCY_REQUEST', 'MEDICINE_REQUEST', 'DEPENDENCY_DELETE_REQUEST'].includes(payload.data.code)) {
-        setTimeout(() => {
-          const index = notifications.value.findIndex(n => n.id === notification.id);
-          if (index !== -1) {
-            notifications.value[index].show = false;
-            setTimeout(() => {
-              removeNotification(notification.id);
-            }, 300);
-          }
-        }, 5000);
-      }
-
-      // 소리 재생
-      try {
-        const audio = new Audio('/notification-sound.mp3');
-        audio.play();
-      } catch (error) {
-        console.log('소리 재생 실패:', error);
-      }
-    }
-  }
-
-
+  // FCM 토큰 발급
   const getFCMToken = async () => {
     try {
-      console.log('현재 알림 권한:', Notification.permission);  // 추가
+      console.log('현재 알림 권한:', Notification.permission);
       const permission = await Notification.requestPermission()
-      console.log('요청 후 알림 권한:', permission);  // 추가
+      console.log('요청 후 알림 권한:', permission);
+
       if (permission === 'granted') {
         const token = await getToken(messaging, {
           vapidKey: import.meta.env.VITE_FIREBASE_VAPID_KEY
         })
-        console.log('FCM 토큰:', token);  // 추가
+        console.log('FCM 토큰:', token);
 
         fcmToken.value = token
         await registerTokenToServer(token)
@@ -144,11 +52,13 @@ export function useFCM() {
     }
   }
 
+  // 토큰 서버 등록
   const registerTokenToServer = async (token) => {
     try {
       console.log('서버 URL:', import.meta.env.VITE_API_URL);
       console.log('토큰:', token);
       console.log('accessToken:', localStorage.getItem('accessToken'));
+
       const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/fcm`, {
         method: 'POST',
         headers: {
@@ -169,61 +79,165 @@ export function useFCM() {
     }
   }
 
+  // API 요청 처리 함수
+  const handleApiRequest = async (code, action, senderId) => {
+    let endpoint = '';
+    let apiPath = '';
+    let bodyData = {};
+
+    // API 엔드포인트와 요청 데이터 설정
+    switch (code) {
+      case 'DEPENDENCY_REQUEST':
+        apiPath = 'dependency';
+        bodyData = {
+          protectorId: senderId
+        };
+        break;
+      case 'MEDICINE_REQUEST':
+        apiPath = 'medicine';
+        bodyData = {
+          protectorId: senderId
+        };
+        break;
+      case 'DEPENDENCY_DELETE_REQUEST':
+        apiPath = 'dependency/delete';
+        bodyData = {
+          senderId: senderId
+        };
+        break;
+    }
+
+    endpoint = action === 'accept' ? 'accept' : 'reject';
+    const url = `${import.meta.env.VITE_API_URL}/api/v1/${apiPath}/${endpoint}`;
+
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+      },
+      body: JSON.stringify(bodyData)
+    });
+
+    if (!response.ok) {
+      throw new Error(`${action} 처리 실패`);
+    }
+
+    return response;
+  };
+
+  // 알림 동의 처리
+  const handleAccept = async (notification) => {
+    try {
+      await handleApiRequest(notification.data.code, 'accept', notification.data.senderId);
+      removeNotification(notification.id);
+      showToast('요청이 수락되었습니다.');
+    } catch (error) {
+      console.error('동의 처리 중 오류:', error);
+      showToast('처리 중 오류가 발생했습니다.');
+    }
+  };
+
+  // 알림 거절 처리
+  const handleReject = async (notification) => {
+    try {
+      await handleApiRequest(notification.data.code, 'reject', notification.data.senderId);
+      removeNotification(notification.id);
+      showToast('요청이 거절되었습니다.');
+    } catch (error) {
+      console.error('거절 처리 중 오류:', error);
+      showToast('처리 중 오류가 발생했습니다.');
+    }
+  };
+
+  // 포그라운드 메시지 핸들러
+  const handleForegroundMessage = (payload) => {
+    console.log('포그라운드 메시지 수신:', payload);
+
+    if (document.visibilityState === 'visible') {
+      let notificationData;
+
+      // data 메시지 처리
+      if (payload.data) {
+        notificationData = {
+          id: Date.now(),
+          title: payload.data.title,
+          body: payload.data.body,
+          data: {
+            code: payload.data.code,
+            senderId: payload.data.senderId
+          }
+        };
+      }
+      // notification 메시지 처리
+      else if (payload.notification) {
+        notificationData = {
+          id: Date.now(),
+          title: payload.notification.title || 'PILLME 알림',
+          body: payload.notification.body || '',
+          data: {}
+        };
+      }
+
+      // 알림 표시
+      const notification = {
+        ...notificationData,
+        show: true
+      };
+      notifications.value.push(notification);
+
+      // REQUEST 타입이 아닌 경우 자동 제거
+      if (!payload.data?.code ||
+        !['DEPENDENCY_REQUEST', 'MEDICINE_REQUEST', 'DEPENDENCY_DELETE_REQUEST'].includes(payload.data.code)) {
+        setTimeout(() => {
+          const index = notifications.value.findIndex(n => n.id === notification.id);
+          if (index !== -1) {
+            notifications.value[index].show = false;
+            setTimeout(() => {
+              removeNotification(notification.id);
+            }, 300);
+          }
+        }, 5000);
+      }
+    }
+  };
+
+  // 알림 제거
   const removeNotification = (notificationId) => {
-    notifications.value = notifications.value.filter(n => n.id !== notificationId)
-  }
+    notifications.value = notifications.value.filter(n => n.id !== notificationId);
+  };
 
-  const acceptDependency = async (senderId) => {
-    try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/dependency/accept`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
-        },
-        body: JSON.stringify({ senderId })
-      })
+  // 토스트 메시지 표시
+  const showToast = (message) => {
+    const toastNotification = {
+      id: Date.now(),
+      title: '알림',
+      body: message,
+      show: true,
+      isToast: true
+    };
 
-      if (!response.ok) {
-        throw new Error('의존성 수락 실패')
+    notifications.value.push(toastNotification);
+
+    // 3초 후 토스트 메시지 제거
+    setTimeout(() => {
+      const index = notifications.value.findIndex(n => n.id === toastNotification.id);
+      if (index !== -1) {
+        notifications.value[index].show = false;
+        setTimeout(() => {
+          removeNotification(toastNotification.id);
+        }, 300);
       }
-
-      return true
-    } catch (error) {
-      console.error('의존성 수락 중 오류:', error)
-      return false
-    }
-  }
-
-  const rejectDependency = async (senderId) => {
-    try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/dependency/reject`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
-        },
-        body: JSON.stringify({ senderId })
-      })
-
-      if (!response.ok) {
-        throw new Error('의존성 거절 실패')
-      }
-
-      return true
-    } catch (error) {
-      console.error('의존성 거절 중 오류:', error)
-      return false
-    }
-  }
+    }, 3000);
+  };
 
   return {
     fcmToken,
     notifications,
     getFCMToken,
     removeNotification,
-    acceptDependency,
-    rejectDependency,
+    handleAccept,
+    handleReject,
     initializeFCM
   }
 }
