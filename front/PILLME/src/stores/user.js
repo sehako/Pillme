@@ -27,7 +27,7 @@ export const useUserStore = defineStore("user", {
         return this.user.memberId;
       }
 
-      console.warn("⚠️ [DEBUG] memberId 없음. 액세스 토큰 갱신 시도...");
+      // console.warn("⚠️ [DEBUG] memberId 없음. 액세스 토큰 갱신 시도...");
 
       try {
         const newTokenData = await refreshAccessTokenAPI();

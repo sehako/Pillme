@@ -71,7 +71,7 @@
   });
   
   const submitForm = () => {
-    console.log("✅ 비회원 정보 제출:", form.value);
+    // console.log("✅ 비회원 정보 제출:", form.value);
   };
   
   </script>

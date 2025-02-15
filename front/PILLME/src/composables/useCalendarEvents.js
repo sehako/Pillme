@@ -20,7 +20,7 @@ export function transformPrescriptionsToEvents(prescriptions, options = {}) {
     let endDate = p.endDate;
 
     if (!startDate || !endDate) {
-      console.warn(`⚠️ [DEBUG] startDate 또는 endDate가 없음. medicationPeriod에서 추출 시도.`);
+      // console.warn(`⚠️ [DEBUG] startDate 또는 endDate가 없음. medicationPeriod에서 추출 시도.`);
       const periodMatch = p.medicationPeriod?.match(/(\d{4}-\d{2}-\d{2})/g);
       if (periodMatch && periodMatch.length === 2) {
         [startDate, endDate] = periodMatch;

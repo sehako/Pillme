@@ -64,7 +64,6 @@ const handleClickOutside = (event) => {
 
 // 로그아웃 이벤트
 const handleLogoutEvent = async () => {
-  console.log("🚀 로그아웃 실행");
   isLoading.value = true; // ✅ 로딩 상태 활성화
 
   try {
