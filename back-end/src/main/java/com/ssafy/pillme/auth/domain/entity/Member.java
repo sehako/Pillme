@@ -16,14 +16,14 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import org.springframework.security.crypto.password.PasswordEncoder;
-
-import java.util.UUID;
 
 @Entity
 @Table(name = "member")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@ToString
 public class Member extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -48,7 +48,7 @@ public class Member extends BaseEntity {
     @Enumerated(EnumType.STRING)
     @Column(length = 1)
     private Gender gender;
-    
+
     @Column(length = 30)
     private String phone;
 
@@ -65,7 +65,8 @@ public class Member extends BaseEntity {
 
     @Builder
     private Member(String email, String password, String name, String nickname,
-                   Gender gender, String phone, String birthday, Provider provider, boolean deleted, boolean oauth, Role role) {
+                   Gender gender, String phone, String birthday, Provider provider, boolean deleted, boolean oauth,
+                   Role role) {
         this.email = email;
         this.password = password;
         this.name = name;
@@ -90,7 +91,8 @@ public class Member extends BaseEntity {
     }
 
     // OAuth2 사용자 추가 정보 업데이트
-    public void updateAdditionalInformation(String email, String name, String nickname, Gender gender, String phone, String birthday) {
+    public void updateAdditionalInformation(String email, String name, String nickname, Gender gender, String phone,
+                                            String birthday) {
         this.email = email;
         this.name = name;
         this.nickname = nickname;

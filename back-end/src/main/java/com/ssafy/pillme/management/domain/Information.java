@@ -18,8 +18,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "information")
 @Getter
+@Table(name = "information")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Information extends BaseEntity {
     @Id
@@ -40,9 +40,8 @@ public class Information extends BaseEntity {
     private String diseaseName;
 
     @Builder
-    private Information(Long id, Member reader, Member writer, String hospital, LocalDate startDate, LocalDate endDate,
+    private Information(Member reader, Member writer, String hospital, LocalDate startDate, LocalDate endDate,
                         String diseaseName) {
-        this.id = id;
         this.reader = reader;
         this.writer = writer;
         this.hospital = hospital;

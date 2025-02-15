@@ -22,8 +22,8 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
 
 @Entity
-@Table(name = "history")
 @Getter
+@Table(name = "history")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class History extends BaseEntity {
     @Id
@@ -62,10 +62,9 @@ public class History extends BaseEntity {
     private boolean sleepTaking = false;
 
     @Builder
-    private History(Long id, Management management, Member member, Information information, LocalDate takingDate,
+    private History(Management management, Member member, Information information, LocalDate takingDate,
                     boolean morning, boolean lunch, boolean dinner, boolean sleep, boolean morningTaking,
                     boolean lunchTaking, boolean dinnerTaking, boolean sleepTaking) {
-        this.id = id;
         this.management = management;
         this.member = member;
         this.information = information;
