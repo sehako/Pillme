@@ -11,6 +11,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
@@ -52,25 +53,6 @@ public class EmailService {
     }
 
     /**
-     * 비밀번호 재설정 이메일 발송
-     */
-    public void sendPasswordResetEmail(String to, String token) {
-        try {
-            MimeMessage message = mailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(message, true);
-
-            helper.setFrom(sender);
-            helper.setTo(to);
-            helper.setSubject("[Pillme] 비밀번호 재설정");
-            helper.setText(createPasswordResetEmailContent(token), true);
-
-            mailSender.send(message);
-        } catch (MessagingException e) {
-            throw new FailedEmailDeliveryException();
-        }
-    }
-
-    /**
      * 이메일 인증번호 확인
      */
     public void verifyEmailCode(String email, String code) {
@@ -85,6 +67,26 @@ public class EmailService {
         // 인증번호 삭제 및 인증 완료 상태 저장
         deleteVerificationCode(email);
         saveVerifiedStatus(email);
+    }
+
+    /**
+     * 임시 비밀번호 생성 및 이메일 발송
+     */
+    public String sendTemporaryPassword(String email, String temporaryPassword) {
+        try {
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true);
+
+            helper.setFrom(sender);
+            helper.setTo(email);
+            helper.setSubject("[Pillme] 임시 비밀번호 안내");
+            helper.setText(createTemporaryPasswordEmailContent(temporaryPassword), true);
+
+            mailSender.send(message);
+            return temporaryPassword;
+        } catch (MessagingException e) {
+            throw new FailedEmailDeliveryException();
+        }
     }
 
     /**
@@ -131,14 +133,14 @@ public class EmailService {
             """, code);
     }
 
-    private String createPasswordResetEmailContent(String token) {
+    private String createTemporaryPasswordEmailContent(String password) {
         return String.format("""
             <div style='margin:100px;'>
-                <h1>비밀번호 재설정</h1>
-                <p>아래 링크를 클릭하여 비밀번호를 재설정해주세요:</p>
-                <div><a href='https://pillme.com/reset-password?token=%s'>비밀번호 재설정</a></div>
-                <p>이 링크는 5분 후에 만료됩니다.</p>
+                <h1>임시 비밀번호 안내</h1>
+                <p>회원님의 임시 비밀번호가 발급되었습니다.</p>
+                <div style='font-size:130%%'>임시 비밀번호: <strong>%s</strong></div>
+                <p>보안을 위해 로그인 후 반드시 비밀번호를 변경해주세요.</p>
             </div>
-            """, token);
+            """, password);
     }
 }
