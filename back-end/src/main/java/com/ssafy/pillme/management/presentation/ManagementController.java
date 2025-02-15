@@ -65,13 +65,12 @@ public class ManagementController {
     }
 
     @GetMapping
-    public ResponseEntity<JSONResponse<List<CurrentTakingResponse>>> currentTakingAll(
-            @RequestParam(value = "target") Long memberId,
-            @Auth Member member
+    public ResponseEntity<JSONResponse<List<CurrentTakingResponse>>> getCurrentTakingAll(
+            @RequestParam(value = "target") Long memberId
     ) {
         return ResponseEntity.ok(
                 JSONResponse.onSuccess(
-                        managementService.selectManagementByDate(memberId, member)
+                        managementService.selectManagementByDate(memberId)
                 )
         );
     }
