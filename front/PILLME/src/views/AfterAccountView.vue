@@ -155,7 +155,7 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { requestSmsVerification,verifySmsCode } from "../api/auth";
 // import { useAuthStore } from "../stores/auth"; // store에서 인증 관련 액션 사용
@@ -175,8 +175,8 @@ const name = ref("");
 const nickname = ref("");
 const gender = ref("");
 const birthday = ref(null);   
-const email = ref(route.query.email || "");
-const password = ref(route.query.password || "");
+const email = ref("");
+const password = ref("");
 const phone = ref("");
 const authCode = ref("");
 const isSending = ref(false);
@@ -191,11 +191,16 @@ const goBack = () => {
   router.back();
 };
 
+onMounted(() => {
+  email.value = sessionStorage.getItem("signupEmail") || "";
+  password.value = sessionStorage.getItem("signupPassword") || "";
+});
+
 const sendVerificationCode = async () => {
   isSending.value = true;
   verificationMessage.value = null;
   try {
-    console.log("📨 SMS 인증번호 요청 데이터:", { phoneNumber: phone.value });
+    // console.log("📨 SMS 인증번호 요청 데이터:", { phoneNumber: phone.value });
     const success = await requestSmsVerification(phone.value);
     if (success) {
       verificationMessage.value = "SMS 인증번호 발송 성공";
@@ -217,7 +222,7 @@ const verifyCode = async () => {
   isVerifying.value = true;
   authVerificationMessage.value = null;
   try {
-    console.log("📨 인증번호 확인 요청 데이터:", { phoneNumber: phone.value, code: authCode.value });
+    // console.log("📨 인증번호 확인 요청 데이터:", { phoneNumber: phone.value, code: authCode.value });
     const success = await verifySmsCode(phone.value, authCode.value);
     if (success) {
       authVerificationSuccess.value = true;
@@ -265,13 +270,13 @@ const handleSubmit = async () => {
       birthday: formattedBirthday,
     };
 
-    console.log("📨 가입 요청 데이터:", requestDat.value);
+    // console.log("📨 가입 요청 데이터:", requestData.value);
     const response = await apiClient.post("/api/v1/auth/signup", requestData, {
       headers: {
         "Content-Type": "application/json",
       },
     });
-    console.log("✅ 가입 요청 응답:", response.data);
+    // console.log("✅ 가입 요청 응답:", response.data);
     if (response.data.code === 2000) {
       alert("가입이 완료되었습니다.");
       router.push("/success");

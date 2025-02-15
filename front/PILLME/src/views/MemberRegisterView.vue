@@ -70,7 +70,7 @@
   
   // ✅ 인증 완료 버튼 클릭
   const completeVerification = () => {
-    console.log("✅ 인증 완료");
+    // console.log("✅ 인증 완료");
   };
   
   </script>

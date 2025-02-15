@@ -106,10 +106,18 @@ router.beforeEach(async (to, from, next) => {
 
   if (accessToken) {
     try {
-      const decodedToken = decodeToken(accessToken);
-      isAccessTokenValid = decodedToken.exp * 1000 > Date.now();
+      // ✅ decodeToken이 비동기 함수일 경우 `await` 사용
+      const decodedToken = await decodeToken(accessToken);
+  
+      // ✅ exp 필드가 존재하고, 유효한 숫자인지 확인
+      if (decodedToken?.exp && typeof decodedToken.exp === "number") {
+        isAccessTokenValid = decodedToken.exp * 1000 > Date.now();
+      } else {
+        console.warn("⚠️ accessToken의 exp 값이 유효하지 않음:", decodedToken);
+        isAccessTokenValid = false;
+      }
     } catch (error) {
-      console.error('❌ accessToken 디코딩 실패:', error);
+      console.error("❌ accessToken 디코딩 실패:", error);
       isAccessTokenValid = false;
     }
   }
@@ -133,7 +141,10 @@ router.beforeEach(async (to, from, next) => {
   }
 
   // ✅ 2. 보호된 페이지 접근 처리
-  if (!accessToken) return next('/start');
+  if (!accessToken) {
+    console.warn('[Route Guard] 보호된 페이지 접근 시 토큰 없음 → /start로 이동');
+    return next('/start');
+  }
 
   if (!isAccessTokenValid && refreshToken) {
     try {
@@ -143,6 +154,7 @@ router.beforeEach(async (to, from, next) => {
       const userInfo = decodeAccessToken();
       if (userInfo) useUserStore().setUser(userInfo);
 
+      console.info('[Route Guard] 토큰 갱신 성공');
       return next();
     } catch (error) {
       console.error('[Route Guard] 보호된 페이지 접근 시 토큰 재발급 실패:', error);
@@ -152,10 +164,12 @@ router.beforeEach(async (to, from, next) => {
     }
   }
 
-  if (!isAccessTokenValid) return next('/start');
+  if (!isAccessTokenValid) {
+    console.warn('[Route Guard] 유효하지 않은 토큰 → /start로 이동');
+    return next('/start');
+  }
 
   return next();
 });
 
 export default router;
-

@@ -36,9 +36,7 @@
 
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue';
-import { logoutAPI, handleLogout as clearTokens } from "../api/auth";
-import { useRouter } from 'vue-router';
-const router = useRouter();
+import { logoutAPI, handleLogout } from "../api/auth";
 const isOpen = ref(false);
 const isLoading = ref(false); // ✅ isLoading 추가
 
@@ -66,36 +64,26 @@ const handleClickOutside = (event) => {
 
 // 로그아웃 이벤트
 const handleLogoutEvent = async () => {
-  console.log("로그아웃 실행");
-  isLoading.value = true;
+  isLoading.value = true; // ✅ 로딩 상태 활성화
 
   try {
-    // ✅ 로그아웃 API 요청 (api/auth의 logoutAPI 사용)
+    // ✅ 로그아웃 API 요청
     await logoutAPI();
 
-    // ✅ 토큰 삭제 (api/auth의 handleLogout 함수 호출)
-    clearTokens();
+    // ✅ 토큰 삭제
+    handleLogout();
 
-    // ✅ 세션 스토리지 삭제
-    sessionStorage.clear();
+    alert("✅ 로그아웃 성공!");
 
-    // ✅ 브라우저 히스토리 초기화 (뒤로 가기 방지)
-    history.pushState(null, "", "/");
-    window.addEventListener("popstate", () => {
-      history.pushState(null, "", "/");
-    });
-
-    alert("로그아웃 성공!");
-
-    // ✅ 로그인 페이지로 이동 + 히스토리 덮어쓰기 (뒤로 가기 차단)
-    router.replace("/start");
+    // 로그아웃하면 라우트가드에 막혀 로그인 페이지로 이동됩니다. 그래서 이전 코드는 필요 없습니다.
   } catch (error) {
-    console.error("로그아웃 오류:", error);
-    alert("로그아웃 실패. 다시 시도해주세요.");
+    console.error("❌ 로그아웃 오류:", error);
+    alert("❌ 로그아웃 실패. 다시 시도해주세요.");
   } finally {
-    isLoading.value = false;
+    isLoading.value = false; // ✅ UI 업데이트
   }
 };
+
 
 
 // 마운트 시 이벤트 리스너 추가

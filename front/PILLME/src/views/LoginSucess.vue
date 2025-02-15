@@ -62,10 +62,10 @@ onMounted(async () => {
       });
 
       // 토큰 저장
-      localStorage.clear(); // 기존 토큰 정보 초기화
+      // localStorage.clear(); // 기존 토큰 정보 초기화
       localStorage.setItem('accessToken', accessToken);
-      localStorage.setItem('accessTokenExpiry', expiryTime.toString());
-      Cookies.remove('refreshToken'); // 기존 쿠키 제거
+      // localStorage.setItem('accessTokenExpiry', expiryTime.toString());
+      // Cookies.remove('refreshToken'); // 기존 쿠키 제거
       Cookies.set('refreshToken', refreshToken);
 
       // 저장된 값 확인

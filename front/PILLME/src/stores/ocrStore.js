@@ -43,20 +43,19 @@ export const useOcrStore = defineStore('ocr', {
 
     /** ✅ 다이얼로그 닫기 */
     async closeDialog() {
-    
       // ✅ 일시적으로 true 값을 넣었다가 다시 false로 변경하여 Vue의 반응형 감지 유도
       this.showResultsDialog = true;
       this.showNextDialog = true;
       this.showMedicationDialog = true;
-    
+
       await nextTick(); // UI 업데이트 보장
-    
+
       this.showResultsDialog = false;
       this.showNextDialog = false;
       this.showMedicationDialog = false;
-    
+
       await nextTick(); // UI 업데이트 반영
-    
+
       this.saveToLocalStorage(); // ✅ localStorage 저장
     },
 
@@ -144,10 +143,24 @@ export const useOcrStore = defineStore('ocr', {
         this.userId = decoded.memberId;
         this.username = decoded.name ?? '';
 
-        console.log('✅ 사용자 정보 불러오기 성공:', decoded);
+        // console.log('✅ 사용자 정보 불러오기 성공:', decoded);
       } catch (error) {
         console.error('❌ 사용자 정보 가져오기 실패:', error);
       }
+    },
+
+    /** ✅ OCR 분석 상태 초기화 */
+    resetOcrState() {
+      this.results = [];
+      this.showResultsDialog = false;
+      this.showNextDialog = false;
+      this.showMedicationDialog = false;
+      this.isLoading = false;
+      this.hospitalName = '';
+      this.diseaseName = '';
+      this.dateRange = [];
+      this.totalDays = 0;
+      this.saveToLocalStorage();
     },
 
     async saveOcrDataToDB() {
@@ -168,7 +181,7 @@ export const useOcrStore = defineStore('ocr', {
         }
 
         this.userId = decodedToken.memberId; // ✅ 현재 로그인된 사용자 ID 저장
-        console.log('✅ 로그인된 사용자 ID:', this.userId);
+        // console.log('✅ 로그인된 사용자 ID:', this.userId);
 
         // ✅ 날짜를 "yyyy-MM-dd" 형식으로 변환하는 함수
         const formatDate = (date) => {

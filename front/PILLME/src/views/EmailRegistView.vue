@@ -157,7 +157,7 @@ const sendVerificationCode = async () => {
   emailError.value = null;
 
   try {
-    console.log("🔍 이메일 중복 검사 요청:", email.value.trim());
+    // console.log("🔍 이메일 중복 검사 요청:", email.value.trim());
     const response = await isDuplicateEmail(email.value.trim());
 
     if (!response.isSuccess) {
@@ -173,7 +173,7 @@ const sendVerificationCode = async () => {
       emailError.value = "사용 가능한 이메일입니다.";
     }
 
-    console.log("📨 이메일 인증 요청:", email.value.trim());
+    // console.log("📨 이메일 인증 요청:", email.value.trim());
     await requestEmailVerification(email.value.trim());
     emailSent.value = true;
   } catch (error) {
@@ -194,14 +194,14 @@ const verifyCode = async () => {
   isVerifying.value = true;
   verificationError.value = null;
 
-  console.log("📩 인증번호 검증 시작:", { email: email.value.trim(), code: emailAuthCode.value.trim() });
+  // console.log("📩 인증번호 검증 시작:", { email: email.value.trim(), code: emailAuthCode.value.trim() });
 
   try {
     const success = await verifyEmailCode(email.value.trim(), emailAuthCode.value.trim());
 
     if (success) {
       verificationSuccess.value = true;
-      console.log("✅ 이메일 인증 성공!");
+      // console.log("✅ 이메일 인증 성공!");
     } else {
       verificationError.value = "인증번호가 올바르지 않습니다.";
     }
@@ -214,7 +214,9 @@ const verifyCode = async () => {
 };
 
 const handleSubmit = () => {
-  console.log("🚀 회원가입 진행 중, 데이터:", { email: email.value, password: password.value });
-  router.push({ path: "/afteraccount", query: { email: email.value, password: password.value } });
+  sessionStorage.setItem("signupEmail", email.value);
+  sessionStorage.setItem("signupPassword", password.value);
+
+  router.push("/afteraccount");
 };
 </script>
