@@ -148,7 +148,7 @@ public class ManagementService {
         Map<Long, Management> managementMap = managements.stream()
                 .collect(Collectors.toMap(
                         Management::getId,
-                        Management -> Management
+                        management -> management
                 ));
 
         Information returnInformation = findInformationById(infoId);
@@ -170,7 +170,7 @@ public class ManagementService {
             final SingleTakingCheckRequest request,
             final Member member
     ) {
-        Management management = managementRepository.findById(request.managementId())
+        Management management = managementRepository.findByIdFetch(request.managementId())
                 .orElseThrow(() -> new NoManagementException(MANAGEMENT_NOT_FOUND));
 
         checkMemberValidation(member, management.getInformation());
@@ -197,8 +197,8 @@ public class ManagementService {
             final CheckCurrentTakingRequest request,
             final Member member
     ) {
-        List<Management> managements = managementRepository.findByInformationDateAndMember(LocalDate.now(),
-                member.getId());
+        List<Management> managements = managementRepository
+                .findByInformationDateAndMember(LocalDate.now(), member.getId());
 
         for (Management management : managements) {
             checkMedicationTaking(management, request.time());
