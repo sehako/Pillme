@@ -1,5 +1,6 @@
 package com.ssafy.pillme.history.application.response;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.ssafy.pillme.history.domain.History;
 import com.ssafy.pillme.management.domain.Information;
 import com.ssafy.pillme.management.domain.Management;
@@ -9,6 +10,7 @@ public record HistorySearchResponse(
         Long informationId,
         String diseaseName,
         String hospital,
+        @JsonFormat(pattern = "yyyy-MM-dd")
         LocalDate takingDate
 ) {
     public static HistorySearchResponse of(final History history) {

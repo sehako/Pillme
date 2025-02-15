@@ -35,4 +35,11 @@ public interface ManagementRepository extends JpaRepository<Management, Long> {
     List<Management> findByInformationIdAndInformationWriterIdAndDeletedIsFalse(Long informationId, Long writerId);
 
     List<Management> findByInformationIdAndInformationReaderIdAndDeletedIsFalse(Long informationId, Long readerId);
+
+    @Query("SELECT m FROM Management m "
+            + "JOIN FETCH m.information i "
+            + "JOIN FETCH i.reader "
+            + "JOIN FETCH i.writer "
+            + "WHERE CURRENT_DATE - 1 DAY BETWEEN i.startDate AND i.endDate")
+    List<Management> findYesterdayManagements();
 }

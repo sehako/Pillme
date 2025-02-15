@@ -1,7 +1,5 @@
 package com.ssafy.pillme.management.infrastructure;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 import com.ssafy.pillme.management.domain.Management;
 import java.util.ArrayList;
 import java.util.List;
@@ -33,11 +31,20 @@ class ManagementRepositoryTest {
 
     @Test
     void getDeleteTarget() {
-        List<Management> managements = managementRepository.findByInformationIdAndInformationReaderIdAndDeletedIsFalse(4L, 1L);
+        List<Management> managements = managementRepository.findByInformationIdAndInformationReaderIdAndDeletedIsFalse(
+                4L, 1L);
 
         for (Management management : managements) {
             System.out.println(management.getMedicationName());
         }
     }
 
+    @Test
+    void 어제복약내역테스트() {
+        List<Management> managements = managementRepository.findYesterdayManagements();
+
+        for (Management management : managements) {
+            System.out.println(management.getMedicationName());
+        }
+    }
 }

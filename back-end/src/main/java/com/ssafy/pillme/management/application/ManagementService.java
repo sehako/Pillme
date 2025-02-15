@@ -141,6 +141,11 @@ public class ManagementService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
+    public List<Management> selectYesterdayManagementList() {
+        return managementRepository.findYesterdayManagements();
+    }
+
     public TakingDetailResponse changeTakingInformation(
             final Long infoId,
             final ChangeTakingInformationRequest request,
