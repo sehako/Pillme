@@ -15,6 +15,16 @@ CREATE TABLE `hospital`
     `address` VARCHAR(255) NOT NULL
 );
 
+DROP TABLE IF EXISTS `medication`;
+
+CREATE TABLE `medication`
+(
+    `id`      BIGINT       NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    `name`    VARCHAR(255) NULL,
+    `company`  VARCHAR(100)  NULL,
+    `image`    VARCHAR(255)   NULL
+);
+
 DROP TABLE IF EXISTS `management`;
 
 CREATE TABLE `management`
