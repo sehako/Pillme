@@ -54,14 +54,28 @@
   const fetchMedications = debounce(async () => {
     if (!searchQuery.value.trim()) {
       medications.value = [];
+      console.log("🟡 검색어가 비어있음, 검색 중단");
       return;
     }
   
+    console.log(`🔎 검색 실행: ${searchQuery.value}`);
+    
     try {
-      const response = await axios.get(`/api/v1/search?keyword=${encodeURIComponent(searchQuery.value)}`);
+      const requestUrl = `/api/v1/search?keyword=${encodeURIComponent(searchQuery.value)}`;
+      console.log(`📡 API 요청 URL: ${requestUrl}`);
+  
+      const response = await axios.get(requestUrl);
+      console.log("✅ API 응답 데이터:", response.data);
+  
       medications.value = response.data?.data || [];
+  
+      if (medications.value.length > 0) {
+        console.log(`📋 검색 결과 (${medications.value.length}개):`, medications.value);
+      } else {
+        console.log("⚠️ 검색 결과 없음");
+      }
     } catch (error) {
-      console.error("약물 검색 실패:", error);
+      console.error("❌ 약물 검색 실패:", error);
       medications.value = [];
     }
   }, 300);
@@ -70,17 +84,19 @@
   watch(searchQuery, fetchMedications);
   
   const selectMedication = (med) => {
-    console.log("선택한 약물:", med);
+    console.log("✅ 선택한 약물:", med);
     closeDialog();
   };
   
   const openDialog = () => {
     isOpen.value = true;
+    console.log("📂 다이얼로그 열림");
   };
   
   const closeDialog = () => {
     isOpen.value = false;
     medications.value = [];
+    console.log("📂 다이얼로그 닫힘");
   };
   
   // `defineExpose` 사용하여 부모 컴포넌트에서 `openDialog()` 호출 가능하게 설정
