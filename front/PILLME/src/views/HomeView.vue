@@ -20,7 +20,7 @@
       <BaseButton class="whitespace-nowrap text-lg font-base" @click="openFamilyModal">
         인원추가
       </BaseButton>
-      <BaseButton class="whitespace-nowrap text-lg font-base">
+      <BaseButton class="whitespace-nowrap text-lg font-base" @click="openSearchDialog">
         약정보검색
       </BaseButton>
       <BaseButton class="whitespace-nowrap text-lg font-base" @click="openSetAlarmModal">
@@ -99,7 +99,7 @@
 
 
 
-  
+  <MedicationSearchDialog ref="medSearchDialog" />
   <FamilyAddModal :isOpen="isFamilyModalOpen" @close="isFamilyModalOpen = false" />
   <Teleport to="body">
   <div v-if="isAlarmModalOpen" class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
@@ -125,6 +125,7 @@ import WhiteCard from '../layout/WhiteCard.vue';
 import HamBugerMenu from '../components/HamBugerMenu.vue';
 import NameDropdown from '../components/NameDropdown.vue';
 import FamilyAddModal from '../components/FamilyAddModal.vue';
+import MedicationSearchDialog from '../components/MedicationSearchDialog.vue';
 import { useFCM } from '../utils/usefcm';
 import BaseCalendar from '../components/BaseCalendar.vue';
 import { defineAsyncComponent } from 'vue';
@@ -187,6 +188,10 @@ const openSetAlarmModal = () => {
 };
 const closeSetAlarmModal = () => {
   isAlarmModalOpen.value = false;
+};
+const medSearchDialog = ref(null);
+const openSearchDialog = () => {
+  medSearchDialog.value.openDialog();
 };
 
 
