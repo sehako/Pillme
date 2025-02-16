@@ -35,6 +35,9 @@ public class FCMNotificationServiceImpl implements FCMNotificationService {
         private static final String SENDER_ID = "senderId";
     }
 
+    // 서비스 홈페이지 URL
+    private static final String SERVICE_URL = "https://pillme.site";
+
     @Override
     public void sendNotificationSetting(Long memberId, String title, String body) {
 
@@ -81,6 +84,13 @@ public class FCMNotificationServiceImpl implements FCMNotificationService {
             Message message = Message.builder()
                     .setToken(receiverFCMToken.getToken())
                     .putAllData(data) // 전체 데이터를 메시지에 포함
+                    // 웹/PWA용 설정
+                    .setWebpushConfig(WebpushConfig.builder()
+                            // 알림 클릭 시 이동할 URL 설정 (현재는 모두 서비스 홈 URL)
+                            .setFcmOptions(WebpushFcmOptions.builder()
+                                    .setLink(SERVICE_URL)
+                                    .build())
+                            .build())
                     .build();
             try {
                 firebaseMessaging.sendAsync(message);
@@ -166,9 +176,17 @@ public class FCMNotificationServiceImpl implements FCMNotificationService {
     private Message buildSendNotificationMessage(String token, String title, String body) {
         return Message.builder()
                 .setToken(token)
+                // 기본 알림 설정
                 .setNotification(Notification.builder()
                         .setTitle(title)
                         .setBody(body)
+                        .build())
+                // 웹/PWA용 설정
+                .setWebpushConfig(WebpushConfig.builder()
+                        // 알림 클릭 시 이동할 URL 설정 (현재는 모두 서비스 홈 URL)
+                        .setFcmOptions(WebpushFcmOptions.builder()
+                                .setLink(SERVICE_URL)
+                                .build())
                         .build())
                 .build();
     }
