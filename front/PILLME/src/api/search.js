@@ -7,9 +7,11 @@ export const searchMedications = async (keyword) => {
       return [];
     }
 
-    console.log(`🔎 API 요청 변경: /api/v1/search?keyword=${keyword}`);
+    const apiUrl = `https://pillme.site/api/v1/search`; // ✅ 절대 경로 사용
 
-    const response = await axios.get(`/api/v1/search`, {
+    console.log(`🔎 API 요청 변경: ${apiUrl}?keyword=${keyword}`);
+
+    const response = await axios.get(apiUrl, {  // ✅ 백엔드 주소를 절대 경로로 변경
       params: { keyword },
       paramsSerializer: params => qs.stringify(params, { encode: false }) // ✅ 한글 그대로 유지
     });
