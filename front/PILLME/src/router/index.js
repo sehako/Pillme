@@ -2,7 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router';
 import Cookies from 'js-cookie';
 import { decodeToken } from "../utils/jwt";
 import { refreshAccessTokenAPI } from '../api/auth';
-import { getAccessTokenFromDB } from './utils/indexedDBUtils'; // ✅ import
+// import { getAccessTokenFromDB } from './utils/indexedDBUtils'; // ✅ import
 
 // ✅ 라우트 목록
 import AccountSearchSelectionView from '../views/AccountSearchSelectionView.vue';
