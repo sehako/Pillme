@@ -35,17 +35,18 @@
     <div
       class="hidden md:flex flex-col w-1/2 bg-white items-center justify-center border-r border-gray-200 shadow-md p-6"
     >
-      <img :src="logo" alt="로고" class="w-1/2 h-auto" />
+      <img :src="logo" alt="로고" class="w-1/2 h-auto mb-8" />
+
       <h1
-        class="text-xl sm:text-2xl font-bold text-gray-800 mt-6 text-center flex items-center justify-center gap-0"
+        class="text-xl sm:text-2xl font-bold text-gray-800 flex flex-wrap items-center justify-center gap-2"
       >
-        모바일에서
-        <BaseLogo :src="textLogoSrc" class="h-[24px] inline-block -mx-8" />
-        를 만나보세요!
+        <span class="mx-0">모바일에서</span>
+        <img :src="textLogoSrc" alt="PILLME" class="h-6 inline-block object-contain" />
+        <span class="mx-0">를 만나보세요!</span>
       </h1>
 
-      <div class="w-40 h-auto mt-6">
-        <img src="./assets/fillmeqr.svg" alt="QR 코드" />
+      <div class="w-40 h-auto mt-8">
+        <img src="./assets/fillmeqr.svg" alt="QR 코드" class="w-full h-auto" />
       </div>
     </div>
 
