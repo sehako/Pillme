@@ -1,8 +1,8 @@
 package com.ssafy.pillme.auth.application.service;
 
 import com.ssafy.pillme.auth.application.exception.email.FailedEmailDeliveryException;
-import com.ssafy.pillme.auth.application.exception.verification.*;
-
+import com.ssafy.pillme.auth.application.exception.verification.ExpiredEmailCodeException;
+import com.ssafy.pillme.auth.application.exception.verification.InvalidEmailCodeException;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
@@ -11,7 +11,6 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
