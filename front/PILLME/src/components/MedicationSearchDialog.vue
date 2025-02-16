@@ -43,7 +43,7 @@
   <script setup>
   import { ref, watch } from "vue";
   import debounce from "lodash.debounce";
-  import { searchMedications } from "@/api/search"; // ✅ API 함수 불러오기
+  import { searchMedications } from "../api/search"; // ✅ API 함수 불러오기
   import defaultImage from "../assets/logi_nofont_x.png";
   
   const isOpen = ref(false);
