@@ -232,10 +232,10 @@ public class ManagementService {
 
     private void checkMedicationTaking(final Management management, TakingType time) {
         switch (time) {
-            case MORNING -> management.checkMorningTaking();
-            case LUNCH -> management.checkLunchTaking();
-            case DINNER -> management.checkDinnerTaking();
-            case SLEEP -> management.checkSleepTaking();
+            case MORNING -> management.toggleMorningTaking();
+            case LUNCH -> management.toggleLunchTaking();
+            case DINNER -> management.toggleDinnerTaking();
+            case SLEEP -> management.toggleSleepTaking();
             default -> throw new InvalidTimeSelectException(INVALID_TIME_REQUEST);
         }
     }

@@ -27,6 +27,6 @@ public interface HistoryRepository extends JpaRepository<History, Long> {
     @Query("SELECT h FROM History h "
             + "JOIN FETCH h.management "
             + "JOIN FETCH h.information i "
-            + "WHERE i.id = :informationId AND i.reader = :target")
+            + "WHERE i.id = :informationId AND i.reader.id = :target")
     List<History> findHistoryByInformationId(final Long informationId, final Long target);
 }
