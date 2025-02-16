@@ -3,29 +3,22 @@ package com.ssafy.pillme.auth.application.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ssafy.pillme.auth.application.exception.oauth.InvalidOAuthStateException;
-import com.ssafy.pillme.auth.application.exception.security.InvalidMemberInfoException;
 import com.ssafy.pillme.auth.application.exception.security.UnverifiedPhoneNumberException;
 import com.ssafy.pillme.auth.application.exception.server.JsonParsingException;
 import com.ssafy.pillme.auth.application.exception.validation.DuplicateEmailAddressException;
 import com.ssafy.pillme.auth.application.exception.validation.DuplicateMemberNicknameException;
 import com.ssafy.pillme.auth.application.exception.validation.DuplicatePhoneNumberException;
-import com.ssafy.pillme.auth.application.response.MemberResponse;
+import com.ssafy.pillme.auth.application.response.OAuth2Response;
 import com.ssafy.pillme.auth.application.response.TokenResponse;
 import com.ssafy.pillme.auth.domain.entity.Member;
 import com.ssafy.pillme.auth.domain.vo.GoogleOAuthInfo;
 import com.ssafy.pillme.auth.domain.vo.Provider;
 import com.ssafy.pillme.auth.infrastructure.repository.MemberRepository;
-import com.ssafy.pillme.auth.application.response.OAuth2Response;
-import com.ssafy.pillme.auth.presentation.request.OAuthAdditionalInfoRequest;
 import com.ssafy.pillme.auth.presentation.request.OAuthSignUpRequest;
 import com.ssafy.pillme.auth.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
@@ -128,9 +121,9 @@ public class OAuth2Service {
         }
 
         // 휴대전화 인증 확인
-//        if (!smsService.isVerified(request.phone())) {
-//            throw new UnverifiedPhoneNumberException();
-//        }
+        if (!smsService.isVerified(request.phone())) {
+            throw new UnverifiedPhoneNumberException();
+        }
 
         // 회원 생성
         Member member = Member.builder()

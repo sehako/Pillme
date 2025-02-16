@@ -101,6 +101,11 @@ public class Member extends BaseEntity {
         this.birthday = birthday;
     }
 
+    // 임시 비밀번호 저장
+    public void updatePassword(String temporaryPassword) {
+        this.password = temporaryPassword;
+    }
+
     // 회원 삭제
     @Override
     public void delete() {

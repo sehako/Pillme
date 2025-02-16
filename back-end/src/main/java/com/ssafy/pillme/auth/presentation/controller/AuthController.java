@@ -7,8 +7,9 @@ import com.ssafy.pillme.auth.application.service.AuthService;
 import com.ssafy.pillme.auth.domain.vo.Role;
 import com.ssafy.pillme.auth.infrastructure.repository.MemberRepository;
 import com.ssafy.pillme.auth.presentation.request.LoginRequest;
-import com.ssafy.pillme.auth.presentation.request.PasswordResetRequest;
+import com.ssafy.pillme.auth.presentation.request.SendEmailVerificationRequset;
 import com.ssafy.pillme.auth.presentation.request.SignUpRequest;
+import com.ssafy.pillme.auth.presentation.request.PasswordResetEmailSendRequest;
 import com.ssafy.pillme.global.response.JSONResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -69,7 +70,7 @@ public class AuthController {
         log.info("로그아웃 처리 됨");
         String accessToken = bearerToken.substring(7);
         authService.logout(accessToken);
-        return ResponseEntity.ok(JSONResponse.onSuccess(null));
+        return ResponseEntity.ok(JSONResponse.onSuccess());
     }
 
     /**
@@ -103,29 +104,28 @@ public class AuthController {
     }
 
     /**
-     * 비밀번호 재설정 요청
+     * 비밀번호 재설정을 위한 이메일 인증 요청
      */
-    @PostMapping("/reset-password/request")
-    public ResponseEntity<JSONResponse<Void>> requestPasswordReset(
-            @RequestParam String email,
-            @RequestParam String phone) {
-        authService.requestPasswordReset(email, phone);
-        return ResponseEntity.ok(JSONResponse.onSuccess(null));
+    @PostMapping("/temporary-password/verify-email")
+    public ResponseEntity<JSONResponse<Void>> requestEmailVerification(
+            @RequestBody SendEmailVerificationRequset request) {
+        authService.verifyEmailForPasswordReset(request.email());
+        return ResponseEntity.ok(JSONResponse.onSuccess());
     }
 
     /**
-     * 비밀번호 재설정
+     * 임시 비밀번호 발급 요청
      */
-    @PostMapping("/reset-password/reset")
-    public ResponseEntity<JSONResponse<Void>> resetPassword(
-            @Valid @RequestBody PasswordResetRequest request) {
-        authService.resetPassword(request);
-        return ResponseEntity.ok(JSONResponse.onSuccess(null));
+    @PostMapping("/temporary-password/request")
+    public ResponseEntity<JSONResponse<Void>> requestTemporaryPassword(
+            @RequestBody PasswordResetEmailSendRequest request) {
+        authService.sendTemporaryPasswordEmail(request.email(), request.phone());
+        return ResponseEntity.ok(JSONResponse.onSuccess());
     }
 
     @GetMapping("/check/email")
     public ResponseEntity<JSONResponse<Boolean>> checkEmailDuplicate(@RequestParam String email) {
-        boolean isDuplicate = memberRepository.existsByEmailAndRoleNot(email, Role.LOCAL);
+        boolean isDuplicate = memberRepository.existsByEmailAndRoleNotAndDeletedFalse(email, Role.LOCAL);
         return ResponseEntity.ok(JSONResponse.onSuccess(isDuplicate));
     }
 

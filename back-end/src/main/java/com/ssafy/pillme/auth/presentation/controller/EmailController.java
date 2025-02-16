@@ -1,6 +1,7 @@
 package com.ssafy.pillme.auth.presentation.controller;
 
 import com.ssafy.pillme.auth.application.service.EmailService;
+import com.ssafy.pillme.auth.application.service.TokenService;
 import com.ssafy.pillme.auth.presentation.request.SendEmailVerificationRequset;
 import com.ssafy.pillme.auth.presentation.request.VerifyEmailRequest;
 import com.ssafy.pillme.global.response.JSONResponse;
@@ -13,6 +14,8 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class EmailController {
     private final EmailService emailService;
+    private final TokenService tokenService;
+
     /**
      * 이메일 인증번호 발송
      */
