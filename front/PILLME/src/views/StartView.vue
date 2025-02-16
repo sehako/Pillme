@@ -1,46 +1,43 @@
 <template>
   <div class="start-container">
-     <!-- ✅ 로고 + 텍스트를 하나의 div로 합침 -->
-     <div class="flex flex-col items-center gap-0">
-       <BaseLogo :src="logoSrc" size="md" />
-       
-       <!-- ✅ BaseText 사용 -->
-       <BaseText 
-         textBefore="복약 관리의 새로운 방법," 
-         highlightText="PILLME" 
-         class="pb-4"
-       />
-     </div>
+    <!-- ✅ 로고 + 텍스트를 하나의 div로 합침 -->
+    <div class="flex flex-col items-center gap-0">
+      <BaseLogo :src="logoSrc" size="md" />
 
-     <div class="action-section flex flex-col">
-       <BaseButton 
-         textColor="text-white" 
-         size="md"
-         @click="goToSignInSelection"
-         >
-         시작하기
-       </BaseButton>
-       
-       <p class="login-link">
-         이미 계정이 있나요? <a href="/loginselection">로그인</a>
-       </p>
-     </div>
-   </div>
+      <div class="flex flex-row items-center gap-0">
+        <!-- ✅ BaseText 사용 -->
+        <BaseText textBefore="복약 관리의 새로운 방법," class="pb-4 -mr-10" />
+        <BaseLogo :src="textLogoSrc" class="h-[36px] pb-4 -mr-10" />
+      </div>
+    </div>
+
+    <div class="action-section flex flex-col gap-4">
+      <BaseButton textColor="text-white" size="md" @click="goToSignInSelection">
+        회원가입
+      </BaseButton>
+
+      <BaseButton textColor="text-white" size="md" @click="goToLogInSelection"> 로그인 </BaseButton>
+    </div>
+  </div>
 </template>
 
 <script setup>
-import { useRouter } from "vue-router";
-import BaseButton from "../components/BaseButton.vue";
-import BaseLogo from "../components/BaseLogo.vue";
-import BaseText from "../components/BaseText.vue"; // ✅ 추가
-import logoSrc from "../assets/logi_nofont.svg";
+import { useRouter } from 'vue-router';
+import BaseButton from '../components/BaseButton.vue';
+import BaseLogo from '../components/BaseLogo.vue';
+import BaseText from '../components/BaseText.vue'; // ✅ 추가
+import logoSrc from '../assets/logi_nofont.svg';
+import textLogoSrc from '../assets/Logi_font.svg';
 
 const router = useRouter();
 
 const goToSignInSelection = () => {
   router.push('/signinselection');
-}
+};
 
+const goToLogInSelection = () => {
+  router.push('/loginselection');
+};
 </script>
 
 <style scoped>
@@ -61,6 +58,6 @@ const goToSignInSelection = () => {
 }
 
 .pillme-text {
-  color: #4E7351;
+  color: #4e7351;
 }
 </style>
