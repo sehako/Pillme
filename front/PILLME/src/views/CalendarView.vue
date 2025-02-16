@@ -127,14 +127,26 @@ const fetchData = async () => {
   }
 };
 
+
+
 // ✅ `BaseCalendar`에서 날짜 선택 시 실행될 함수
 function onDateSelected(date) {
   selectedDate.value = date;
 }
 
-// ✅ 컴포넌트가 마운트되면 데이터 로드
-onMounted(() => {
-  fetchData();
+onMounted(async () => {
+  try {
+    console.log("📡 [DEBUG] 처방전 데이터 불러오는 중...");
+    managementInfoList.value = await fetchFormattedManagementInfo();
+    console.log("📋 [DEBUG] 불러온 처방전 데이터:", managementInfoList.value);
+
+    // ✅ MyDrugHistory 데이터 확인
+    const drugHistoryData = await MyDrugHistory();
+    console.log("📋 [DEBUG] 마이 드러그 히스토리 데이터:", drugHistoryData);
+
+  } catch (error) {
+    console.error("❌ [DEBUG] Management 정보 로드 실패:", error);
+  }
 });
 </script>
 

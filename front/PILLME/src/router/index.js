@@ -1,7 +1,8 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import Cookies from 'js-cookie';
-import { decodeToken } from "../utils/jwt"; // ✅ JWT 디코딩 유틸 추가
-import { refreshAccessTokenAPI } from '../api/auth'; // 경로는 실제 위치에 맞게 수정
+import { decodeToken } from "../utils/jwt";
+import { refreshAccessTokenAPI } from '../api/auth';
+import { getAccessTokenFromDB } from './utils/indexedDBUtils'; // ✅ import
 
 // ✅ 라우트 목록
 import AccountSearchSelectionView from '../views/AccountSearchSelectionView.vue';
