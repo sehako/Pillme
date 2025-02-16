@@ -3,6 +3,7 @@ package com.ssafy.pillme.notification.domain.entity;
 import com.ssafy.pillme.auth.domain.entity.Member;
 import com.ssafy.pillme.global.entity.BaseEntity;
 import com.ssafy.pillme.notification.domain.vo.NotificationCode;
+import com.ssafy.pillme.notification.presentation.request.ChatNotificationRequest;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -126,6 +127,15 @@ public class Notification extends BaseEntity {
                 .receiver(receiver)
                 .code(NotificationCode.MEDICINE_TAKE_REMINDER)
                 .content(sender.getName() + "님이 " + NotificationCode.MEDICINE_TAKE_REMINDER.getMessage())
+                .build();
+    }
+
+    public static Notification createChatNotification(ChatNotificationRequest request) {
+        return Notification.builder()
+                .sender(request.sender())
+                .receiver(request.receiver())
+                .code(request.notificationCode())
+                .content(request.message())
                 .build();
     }
 

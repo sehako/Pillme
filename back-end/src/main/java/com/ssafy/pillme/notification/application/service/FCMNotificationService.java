@@ -1,5 +1,6 @@
 package com.ssafy.pillme.notification.application.service;
 
+import com.ssafy.pillme.notification.presentation.request.ChatNotificationRequest;
 import com.ssafy.pillme.notification.presentation.request.NotificationRequest;
 
 public interface FCMNotificationService {
@@ -9,4 +10,6 @@ public interface FCMNotificationService {
     void sendNotification(NotificationRequest notificationRequest);
     // 피보호자 복용 여부에 따라 보호자에게 복용 여부 알림을 보내는 메서드
     void sendToProtectorNotificationForTaking(Long memberId, String title, String body);
+    // 채팅 알림을 보내는 메서드
+    void sendChatNotification(ChatNotificationRequest chatNotificationRequest);
 }
