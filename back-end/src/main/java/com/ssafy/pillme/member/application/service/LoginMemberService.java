@@ -25,19 +25,6 @@ public class LoginMemberService {
         return LoginMemberResponse.from(member);
     }
 
-    // 현재 비밀번호 확인
-    public void validateCurrentPassword(String currentPassword) {
-        Long currentMemberId = SecurityUtil.extractCurrentMemberId();
-        LoginMember member = loginMemberRepository.findByIdAndDeletedFalse(currentMemberId)
-                .orElseThrow(NoMemberInfoException::new);
-
-        boolean matches = passwordEncoder.matches(currentPassword, member.getPassword());
-
-        if (!matches) {
-            throw new MismatchedPasswordException();
-        }
-    }
-
     // 회원 탈퇴
     @Transactional
     public void deleteMember() {
