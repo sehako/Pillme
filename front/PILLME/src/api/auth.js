@@ -1,8 +1,8 @@
-import apiClient from "./index";
-import { useUserStore } from "../stores/user"; // ✅ Pinia 유저 스토어 추가
-import { decodeToken } from "../utils/jwt"; // ✅ JWT 디코딩 유틸 추가
-import Cookies from "js-cookie"; // ✅ js-cookie 라이브러리 추가
-import axios from "axios";
+import apiClient from './index';
+import { useUserStore } from '../stores/user'; // ✅ Pinia 유저 스토어 추가
+import { decodeToken } from '../utils/jwt'; // ✅ JWT 디코딩 유틸 추가
+import Cookies from 'js-cookie'; // ✅ js-cookie 라이브러리 추가
+import axios from 'axios';
 // ===========================
 // 인증 관련 API 함수들
 // ===========================
@@ -13,7 +13,7 @@ export const requestEmailVerification = (email) => {
 };
 
 export const verifyEmailCode = (email, code) => {
-  return apiClient.post("/api/v1/auth/email/verify", { email, code });
+  return apiClient.post('/api/v1/auth/email/verify', { email, code });
 };
 
 // ✅ 이메일 중복 검사
@@ -55,19 +55,23 @@ export const refreshAccessTokenAPI = async () => {
   try {
     const refreshToken = Cookies.get('refreshToken'); // 쿠키에서 refreshToken 가져오기
     const accessToken = localStorage.getItem('accessToken'); // localStorage에서 accessToken 가져오기
-    const response = await axios.post( // ✅ apiClient가 아니라 axios 인스턴스 직접 사용
+    const response = await axios.post(
+      // ✅ apiClient가 아니라 axios 인스턴스 직접 사용
       `${import.meta.env.VITE_API_URL}/api/v1/auth/refresh`,
       {},
       {
         headers: {
-          'Authorization': `Bearer ${accessToken}`,
-          'refreshToken': refreshToken,
-          'Content-Type': 'application/json'
-        }
+          Authorization: `Bearer ${accessToken}`,
+          refreshToken: refreshToken,
+          'Content-Type': 'application/json',
+        },
       }
     );
     localStorage.setItem('accessToken', response.data.result.accessToken);
-    Cookies.set('refreshToken', response.data.result.refreshToken, { secure: true, sameSite: 'Strict' });
+    Cookies.set('refreshToken', response.data.result.refreshToken, {
+      secure: true,
+      sameSite: 'Strict',
+    });
 
     // Access Token 디코딩 → 유저 정보 업데이트
     const authStore = useUserStore();
@@ -152,11 +156,11 @@ export const oauthLogin = async (code) => {
     const response = await apiClient.get(`/api/v1/auth/oauth2/google`, {
       params: { code },
     });
-    
+
     if (response.data.isSuccess) {
       return response.data;
     } else {
-      throw new Error(response.data.message || '로그인에 실패했습니다.')
+      throw new Error(response.data.message || '로그인에 실패했습니다.');
     }
   } catch (error) {
     throw new Error(error.response?.data?.message || '로그인 처리 중 오류가 발생했습니다.');
@@ -173,4 +177,28 @@ export const oauthSignUp = async (signUpData, provider) => {
   } catch (error) {
     throw new Error(error.response?.data?.message || '회원가입 처리 중 오류가 발생했습니다.');
   }
+};
+
+// ✅ 이메일 찾기
+export const findEmail = async (phone) => {
+  try {
+    const response = await apiClient.get('/api/v1/auth/find-email', {
+      params: { phone },
+    });
+    return response.data;
+  } catch (error) {
+    throw new Error(error.response?.data?.message || '이메일 찾기 중 오류가 발생했습니다.');
+  }
+};
+
+// ✅ 비밀번호 재설정
+export const requestPasswordResetVerification = (email) => {
+  return apiClient.post('/api/v1/auth/temporary-password/verify-email', { email });
+};
+
+export const requestTemporaryPassword = (email, phone) => {
+  return apiClient.post('/api/v1/auth/temporary-password/request', {
+    email,
+    phone,
+  });
 };
