@@ -42,8 +42,8 @@
   
   <script setup>
   import { ref, watch } from "vue";
-  import axios from "axios";
   import debounce from "lodash.debounce";
+  import { searchMedications } from "@/api/search"; // ✅ API 함수 불러오기
   import defaultImage from "../assets/logi_nofont_x.png";
   
   const isOpen = ref(false);
@@ -59,24 +59,13 @@
     }
   
     console.log(`🔎 검색 실행: ${searchQuery.value}`);
-    
-    try {
-      const requestUrl = `/api/v1/search?keyword=${encodeURIComponent(searchQuery.value)}`;
-      console.log(`📡 API 요청 URL: ${requestUrl}`);
   
-      const response = await axios.get(requestUrl);
-      console.log("✅ API 응답 데이터:", response.data);
+    medications.value = await searchMedications(searchQuery.value);
   
-      medications.value = response.data?.data || [];
-  
-      if (medications.value.length > 0) {
-        console.log(`📋 검색 결과 (${medications.value.length}개):`, medications.value);
-      } else {
-        console.log("⚠️ 검색 결과 없음");
-      }
-    } catch (error) {
-      console.error("❌ 약물 검색 실패:", error);
-      medications.value = [];
+    if (medications.value.length > 0) {
+      console.log(`📋 검색 결과 (${medications.value.length}개):`, medications.value);
+    } else {
+      console.log("⚠️ 검색 결과 없음");
     }
   }, 300);
   
