@@ -93,24 +93,6 @@ messaging.onBackgroundMessage((payload) => {
 
     self.registration.showNotification(payload.data.title, notificationOptions);
   }
-  // notification 메시지 처리
-  else if (payload.notification) {
-    const notificationOptions = {
-      body: payload.notification.body || '',
-      icon: '/notification-icon.png',
-      badge: '/badge-icon.png',
-      data: {
-        url: '/',
-        code: payload.notification.code,
-        senderId: payload.notification.senderId
-      }
-    };
-
-    self.registration.showNotification(
-      payload.notification.title || 'PILLME 알림',
-      notificationOptions
-    );
-  }
 });
 
 // 알림 클릭 이벤트 처리
