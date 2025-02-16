@@ -20,13 +20,6 @@ public class LoginMemberController {
         return ResponseEntity.ok(JSONResponse.onSuccess(profile));
     }
 
-    // 현재 로그인한 멤버 비밀번호 조회
-    @GetMapping("/password")
-    public ResponseEntity<JSONResponse<Void>> checkCurrentPassword(@RequestParam String currentPassword) {
-        loginMemberService.validateCurrentPassword(currentPassword);
-        return ResponseEntity.ok(JSONResponse.onSuccess());
-    }
-
     // 회원 탈퇴
     @DeleteMapping()
     public ResponseEntity<JSONResponse<Void>> deleteMember() {
