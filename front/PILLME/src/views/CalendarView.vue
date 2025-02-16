@@ -1,8 +1,8 @@
 <template>
   <!-- 부모에서 h-full 또는 h-screen을 설정해 주었다고 가정 -->
-  <div class="flex flex-col w-full h-full">
+  <div class="flex flex-col w-full h-full overflow-y-scroll">
     <!-- (1) 상단 달력 영역 (60%) -->
-    <div class="flex-none h-auto min-h-0 overflow-hidden flex">
+    <div class="flex-none h-auto min-h-0 flex">
       <BaseCalendar 
         :prescriptions="managementInfoList" 
         mode="simple"
@@ -10,11 +10,11 @@
       />
     </div>
 
-    <!-- (2) 구분 영역 (선택한 날짜 표시) -->
-    <div class="flex-none px-4 py-3 border-b bg-gray-100 text-gray-700">
+    <!-- (2) 구분 영역 (✅ sticky 적용) -->
+    <div class="!flex-none px-4 py-3 border-b bg-gray-100 text-gray-700 !sticky top-0 z-10">
       <h2 class="font-semibold text-lg">현재 복용 약 리스트</h2>
-
     </div>
+
 
 <!-- (3) 스크롤 가능한 하단 약물 카드 영역 (40%) -->
 <div class="flex-row p-4">
