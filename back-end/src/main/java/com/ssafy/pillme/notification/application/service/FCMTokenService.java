@@ -13,4 +13,6 @@ public interface FCMTokenService {
     List<FCMToken> findAllByMemberId(Long memberId);
 
     void deleteFCMToken(FCMToken fcmToken);
+
+    void deleteFCMToken(String fcmToken, Member loginMember);
 }

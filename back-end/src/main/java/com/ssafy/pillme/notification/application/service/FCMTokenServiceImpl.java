@@ -20,7 +20,7 @@ public class FCMTokenServiceImpl implements FCMTokenService {
     @Override
     public void createToken(FCMTokenRequest request, Member loginMember) {
         // FCM 토큰이 이미 존재하는지 검증 -> 이미 존재하면 저장하지 않음
-        if (fcmTokenRepository.existsByMemberIdAndToken(loginMember.getId(), request.token())) {
+        if (fcmTokenRepository.existsByMemberIdAndTokenAndDeletedIsFalse(loginMember.getId(), request.token())) {
             return;
         }
 
@@ -29,11 +29,19 @@ public class FCMTokenServiceImpl implements FCMTokenService {
 
     @Override
     public List<FCMToken> findAllByMemberId(Long memberId) {
-        return fcmTokenRepository.findAllByMemberId(memberId);
+        return fcmTokenRepository.findAllByMemberIdAndDeletedIsFalse(memberId);
     }
 
     @Override
     public void deleteFCMToken(FCMToken fcmToken) {
-        fcmTokenRepository.delete(fcmToken);
+        fcmToken.delete();
+    }
+
+    @Override
+    public void deleteFCMToken(String token, Member loginMember) {
+        FCMToken fcmToken = fcmTokenRepository.findByMemberIdAndTokenAndDeletedIsFalse(loginMember.getId(), token)
+                .orElseThrow(() -> new IllegalArgumentException("FCM 토큰이 존재하지 않습니다."));
+
+        fcmToken.delete();
     }
 }
