@@ -80,21 +80,22 @@ export const fetchFormattedManagementInfo = async () => {
             return `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
           };
 
-          // ✅ 4단계: `startDate`, `endDate`를 우선 사용, 없으면 `medicationPeriod`에서 추출
-          let startDate = formatDateArray(response.data.result.startDate);
-          let endDate = formatDateArray(response.data.result.endDate);
+// ✅ 4단계: `startDate`, `endDate`를 직접 사용
+let startDate = response.data.result.startDate || "날짜 없음";
+let endDate = response.data.result.endDate || "날짜 없음";
 
-          if (!startDate || !endDate) {
-            console.warn(`⚠️ [DEBUG] startDate 또는 endDate가 없음. medicationPeriod에서 추출 시도.`);
-            const periodMatch = response.data.result.medicationPeriod?.match(/(\d{4}-\d{2}-\d{2})/g);
-            if (periodMatch && periodMatch.length === 2) {
-              [startDate, endDate] = periodMatch;
-            } else {
-              console.error("🚨 [DEBUG] medicationPeriod에서 날짜 추출 실패:", response.data.result.medicationPeriod);
-              startDate = "날짜 없음";
-              endDate = "날짜 없음";
-            }
-          }
+// ✅ 만약 `startDate`와 `endDate`가 없을 경우 `medicationPeriod`에서 추출
+if (!startDate || !endDate) {
+  console.warn(`⚠️ [DEBUG] startDate 또는 endDate가 없음. medicationPeriod에서 추출 시도.`);
+  const periodMatch = response.data.result.medicationPeriod?.match(/(\d{4}-\d{2}-\d{2})/g);
+  if (periodMatch && periodMatch.length === 2) {
+    [startDate, endDate] = periodMatch;
+  } else {
+    console.error("🚨 [DEBUG] medicationPeriod에서 날짜 추출 실패:", response.data.result.medicationPeriod);
+    startDate = "날짜 없음";
+    endDate = "날짜 없음";
+  }
+}
 
           // ✅ 5단계: 데이터 정돈 후 리스트에 추가
           return {
