@@ -1,6 +1,8 @@
 package com.ssafy.pillme.notification.application.service;
 
 import com.ssafy.pillme.auth.domain.entity.Member;
+import com.ssafy.pillme.global.code.ErrorCode;
+import com.ssafy.pillme.notification.application.exception.FCMTokenNotFoundException;
 import com.ssafy.pillme.notification.domain.entity.FCMToken;
 import com.ssafy.pillme.notification.infrastructure.repository.FCMTokenRepository;
 import com.ssafy.pillme.notification.presentation.request.FCMTokenRequest;
@@ -40,7 +42,7 @@ public class FCMTokenServiceImpl implements FCMTokenService {
     @Override
     public void deleteFCMToken(String token, Member loginMember) {
         FCMToken fcmToken = fcmTokenRepository.findByMemberIdAndTokenAndDeletedIsFalse(loginMember.getId(), token)
-                .orElseThrow(() -> new IllegalArgumentException("FCM 토큰이 존재하지 않습니다."));
+                .orElseThrow(() -> new FCMTokenNotFoundException(ErrorCode.FCM_TOKEN_NOT_FOUND));
 
         fcmToken.delete();
     }
