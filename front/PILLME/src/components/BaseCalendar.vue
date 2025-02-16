@@ -181,4 +181,21 @@ onUnmounted(() => {
 .modal-content {
   @apply bg-white rounded p-4 max-w-xs w-full;
 }
+
+::v-deep .fc-button {
+  /* 기본 상태: 부드러운 오프화이트 배경, 중간 녹색 테두리, 진한 녹색 텍스트 */
+  background-color: #FFFDEC !important;
+  border: 1px solid #9DBB9F !important;
+  color: #4E7351 !important;
+  /* transition: background-color 0.3s, border-color 0.3s, color 0.3s; */
+}
+
+::v-deep .fc-button:hover {
+  /* hover 상태: 배경과 테두리를 중간 녹색으로 채워서, 텍스트는 오프화이트로 반전 */
+  background-color: #9DBB9F !important;
+  border-color: #9DBB9F !important;
+  color: #FFFDEC !important;
+}
+
+
 </style>
