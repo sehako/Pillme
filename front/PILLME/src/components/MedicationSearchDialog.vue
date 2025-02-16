@@ -18,7 +18,6 @@
               v-for="(med, index) in medications" 
               :key="index"
               class="flex items-center p-3 hover:bg-gray-100 cursor-pointer rounded-lg"
-              @click="selectMedication(med)"
             >
               <img :src="med.image || defaultImage" alt="약 이미지" class="w-12 h-12 object-cover rounded-md" />
               <div class="ml-3">
@@ -54,41 +53,35 @@
   const fetchMedications = debounce(async () => {
     if (!searchQuery.value.trim()) {
       medications.value = [];
-      console.log("🟡 검색어가 비어있음, 검색 중단");
       return;
     }
   
-    console.log(`🔎 검색 실행: ${searchQuery.value}`);
   
-    medications.value = await searchMedications(searchQuery.value);
+    const response = await searchMedications(searchQuery.value);
   
-    if (medications.value.length > 0) {
-      console.log(`📋 검색 결과 (${medications.value.length}개):`, medications.value);
+    if (response.length > 0) {
+      medications.value = response; // ✅ 응답을 `result`로 설정
     } else {
-      console.log("⚠️ 검색 결과 없음");
+      medications.value = [];
     }
   }, 300);
   
   // ✅ `watch`를 사용하여 `searchQuery`가 변경될 때 `fetchMedications` 실행
   watch(searchQuery, fetchMedications);
   
-  const selectMedication = (med) => {
-    console.log("✅ 선택한 약물:", med);
-    closeDialog();
-  };
   
   const openDialog = () => {
     isOpen.value = true;
-    console.log("📂 다이얼로그 열림");
   };
   
+  // ✅ **닫힐 때 검색어와 결과 초기화**
   const closeDialog = () => {
     isOpen.value = false;
-    medications.value = [];
-    console.log("📂 다이얼로그 닫힘");
+    searchQuery.value = "";  // ✅ 검색어 초기화
+    medications.value = [];  // ✅ 검색 결과 초기화
   };
   
   // `defineExpose` 사용하여 부모 컴포넌트에서 `openDialog()` 호출 가능하게 설정
   defineExpose({ openDialog });
-  </script>
+  </script>  
   
