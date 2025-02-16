@@ -7,7 +7,7 @@ export const searchMedications = async (keyword) => {
       return [];
     }
 
-    console.log(`🔎 API 요청: /api/v1/search?keyword=${keyword}`);
+    console.log(`🔎 API 요청 변경: /api/v1/search?keyword=${keyword}`);
 
     const response = await axios.get(`/api/v1/search`, {
       params: { keyword },
