@@ -137,24 +137,23 @@ export const changeNickname = async (nickname) => {
 export const checkCurrentPassword = async (currentPassword) => {
   try {
     const response = await apiClient.get('/api/v1/members/me/password', {
-      params: { currentPassword: currentPassword },
+      params: { currentPassword },
     });
-    return response.data.isSuccess;
+    return { isCurrentPasswordValid: response.data.result };
   } catch (error) {
     throw new Error(error.response?.data?.message || '비밀번호 검증 중 오류가 발생했습니다.');
   }
 };
 
 // 비밀번호 유효성 검증
-export const checkPassword = async (currentPassword, newPassword) => {
+export const checkPassword = async (newPassword) => {
   try {
     const response = await apiClient.get('/api/v1/members/me/check/password', {
       params: {
-        currentPassword: currentPassword,
         newPassword: newPassword,
       },
     });
-    return response.data.result;
+    return { isNewPasswordValid: response.data.result };
   } catch (error) {
     throw new Error(error.response?.data?.message || '비밀번호 검증 중 오류가 발생했습니다.');
   }
