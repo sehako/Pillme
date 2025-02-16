@@ -1,28 +1,33 @@
 package com.ssafy.pillme.auth.application.service;
 
-import com.ssafy.pillme.auth.application.exception.oauth.*;
 import com.ssafy.pillme.auth.application.exception.security.*;
-import com.ssafy.pillme.auth.application.exception.validation.*;
-import com.ssafy.pillme.auth.application.exception.token.*;
-import com.ssafy.pillme.auth.application.response.TokenResponse;
+import com.ssafy.pillme.auth.application.exception.token.DenylistedTokenException;
+import com.ssafy.pillme.auth.application.exception.token.InvalidAccessTokenException;
+import com.ssafy.pillme.auth.application.exception.token.InvalidRefreshTokenException;
+import com.ssafy.pillme.auth.application.exception.validation.DuplicateEmailAddressException;
+import com.ssafy.pillme.auth.application.exception.validation.DuplicateMemberNicknameException;
+import com.ssafy.pillme.auth.application.exception.validation.DuplicatePhoneNumberException;
+import com.ssafy.pillme.auth.application.response.FindEmailResponse;
 import com.ssafy.pillme.auth.application.response.MemberResponse;
+import com.ssafy.pillme.auth.application.response.TokenResponse;
 import com.ssafy.pillme.auth.domain.entity.Member;
 import com.ssafy.pillme.auth.domain.vo.Gender;
 import com.ssafy.pillme.auth.domain.vo.Provider;
 import com.ssafy.pillme.auth.domain.vo.Role;
 import com.ssafy.pillme.auth.infrastructure.repository.MemberRepository;
-import com.ssafy.pillme.auth.presentation.request.*;
-import com.ssafy.pillme.auth.application.response.FindEmailResponse;
+import com.ssafy.pillme.auth.presentation.request.CreateLocalMemberRequest;
+import com.ssafy.pillme.auth.presentation.request.LoginRequest;
+import com.ssafy.pillme.auth.presentation.request.SignUpRequest;
 import com.ssafy.pillme.auth.util.JwtUtil;
-
-import java.util.UUID;
-import java.util.regex.Pattern;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Random;
+import java.util.UUID;
+import java.util.regex.Pattern;
 
 @Service
 @RequiredArgsConstructor
@@ -47,12 +52,12 @@ public class AuthService {
         }
 
         // 휴대전화 인증 확인
-//        if (!smsService.isVerified(request.phone())) {
-//            throw new UnverifiedPhoneNumberException();
-//        }
+        if (!smsService.isVerified(request.phone())) {
+            throw new UnverifiedPhoneNumberException();
+        }
 
         // 중복 확인
-        if (memberRepository.existsByEmailAndRoleNot(request.email(), Role.LOCAL)) {
+        if (memberRepository.existsByEmailAndRoleNotAndDeletedFalse(request.email(), Role.LOCAL)) {
             throw new DuplicateEmailAddressException();
         }
         if (memberRepository.existsByNicknameAndDeletedFalse(request.nickname())) {
@@ -107,49 +112,6 @@ public class AuthService {
     }
 
     /**
-     * 비밀번호 재설정 요청
-     */
-    @Transactional
-    public void requestPasswordReset(String email, String phone) {
-        Member member = memberRepository.findByEmailAndDeletedFalseAndRoleNot(email, Role.LOCAL)
-                .orElseThrow(InvalidMemberInfoException::new);
-
-        if (member.isOauth()) {
-            throw new RestrictedOAuthPasswordException();
-        }
-
-        if (!phone.equals(member.getPhone())) {
-            throw new MismatchedPhoneNumberException();
-        }
-
-        if (!smsService.isVerified(phone)) {
-            throw new UnverifiedPhoneNumberException();
-        }
-
-        String resetToken = UUID.randomUUID().toString();
-        tokenService.savePasswordResetToken(email, resetToken, 300000); // 5분
-
-        emailService.sendPasswordResetEmail(email, resetToken);
-    }
-
-    /**
-     * 비밀번호 재설정
-     */
-    @Transactional
-    public void resetPassword(PasswordResetRequest request) {
-        String email = tokenService.findEmailByResetToken(request.token());
-        if (email == null) {
-            throw new InvalidResetTokenException();
-        }
-
-        Member member = memberRepository.findByEmailAndDeletedFalseAndRoleNot(email, Role.LOCAL)
-                .orElseThrow(InvalidMemberInfoException::new);
-
-        member.resetPassword(request.newPassword(), passwordEncoder);
-        tokenService.deletePasswordResetToken(request.token());
-    }
-
-    /**
      * 토큰 갱신
      */
     public TokenResponse refreshToken(String refreshToken) {
@@ -193,6 +155,80 @@ public class AuthService {
     }
 
     /**
+     * 임시 비밀번호 발급을 위한 이메일 검증
+     */
+    public void verifyEmailForPasswordReset(String email) {
+        // 현재 존재하는 회원의 이메일인지 검증
+        if (!memberRepository.existsByEmailAndDeletedFalse(email)) {
+            throw new InvalidMemberInfoException();
+        }
+
+        // 이메일 인증번호 발송
+        emailService.sendVerificationEmail(email);
+    }
+
+    /**
+     * 임시 비밀번호 생성 요청
+     */
+    @Transactional
+    public void sendTemporaryPasswordEmail(String email, String phone) {
+        // 이메일 인증 확인
+        if (!emailService.isVerified(email)) {
+            throw new UnverifiedEmailAddressException();
+        }
+
+        // 이메일과 전화번호로 회원 검증
+        Member member = memberRepository.findByEmailAndPhoneAndDeletedFalse(email, phone)
+                .orElseThrow(InvalidMemberInfoException::new);
+
+        String temporaryPassword;
+        do {
+            temporaryPassword = generateTemporaryPassword();
+        } while (!validatePassword(temporaryPassword));  // 생성된 비밀번호가 정규식 패턴에 맞는지 확인
+
+        member.updatePassword(passwordEncoder.encode(temporaryPassword));
+
+        emailService.sendTemporaryPassword(email, temporaryPassword);
+    }
+
+    /**
+     * 임시 비밀번호 생성
+     * 규칙: 12자리, 대문자, 소문자, 숫자, 특수문자 각각 1개 이상 포함
+     */
+    private String generateTemporaryPassword() {
+        String upperChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        String lowerChars = "abcdefghijklmnopqrstuvwxyz";
+        String numbers = "0123456789";
+        String specialChars = "~`!@#$%^&*()-_=+[{]}\\|;:'\",<.>/?";  // 정규식 패턴에 맞는 특수문자 목록으로 수정
+
+        StringBuilder password = new StringBuilder();
+        Random random = new Random();
+
+        // 각 필수 문자 타입에서 하나씩 선택 (4자리)
+        password.append(upperChars.charAt(random.nextInt(upperChars.length())));
+        password.append(lowerChars.charAt(random.nextInt(lowerChars.length())));
+        password.append(numbers.charAt(random.nextInt(numbers.length())));
+        password.append(specialChars.charAt(random.nextInt(specialChars.length())));
+
+        // 나머지 8자리를 모든 문자 타입에서 랜덤하게 선택
+        String allChars = upperChars + lowerChars + numbers + specialChars;
+        for (int i = 0; i < 8; i++) {
+            password.append(allChars.charAt(random.nextInt(allChars.length())));
+        }
+
+        // 문자열을 섞어서 패턴이 예측되지 않도록 함
+        char[] passwordArray = password.toString().toCharArray();
+        for (int i = passwordArray.length - 1; i > 0; i--) {
+            int j = random.nextInt(i + 1);
+            char temp = passwordArray[i];
+            passwordArray[i] = passwordArray[j];
+            passwordArray[j] = temp;
+        }
+
+        return new String(passwordArray);
+    }
+
+    /**
      * 사용자 정보로 토큰 응답 생성
      */
     public TokenResponse createTokenResponseFromMember(Member member) {
@@ -222,7 +258,7 @@ public class AuthService {
      */
     public boolean validatePassword(String password) {
         // 비밀번호 정규식 패턴
-        String pattern = "^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[~`!@#$%^&*()\\-_=+\\[{\\]}\\\\|;:'\",<.>/?])[A-Za-z\\d~`!@#$%^&*()\\-_=+\\[{\\]}\\\\|;:'\",<.>/?]{12}$";
+        String pattern = "^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[~`!@#$%^&*()\\-_=+\\[{\\]}\\\\|;:'\",<.>/?])[A-Za-z\\d~`!@#$%^&*()\\-_=+\\[{\\]}\\\\|;:'\",<.>/?]{12,300}$";
 
         try {
             return Pattern.matches(pattern, password);
@@ -233,7 +269,6 @@ public class AuthService {
 
     /**
      * 닉네임 중복 검사
-     *
      * @return true: 중복, false: 사용 가능
      */
     public boolean checkNicknameDuplicate(String nickname) {
