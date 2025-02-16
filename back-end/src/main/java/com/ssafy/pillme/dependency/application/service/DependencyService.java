@@ -7,6 +7,7 @@ import com.ssafy.pillme.auth.presentation.request.CreateLocalMemberRequest;
 import com.ssafy.pillme.chat.application.service.ChatRoomService;
 import com.ssafy.pillme.dependency.application.exception.DependencyNotFoundException;
 import com.ssafy.pillme.dependency.application.exception.DuplicateDependencyException;
+import com.ssafy.pillme.dependency.application.exception.SelfDependencyRequestException;
 import com.ssafy.pillme.dependency.application.response.DependentListResponse;
 import com.ssafy.pillme.dependency.application.response.RelationShipListResponse;
 import com.ssafy.pillme.dependency.domain.entity.Dependency;
@@ -34,6 +35,11 @@ public class DependencyService {
     public void requestDependency(DependentPhoneRequest request, Member protector) {
         // 피보호자 정보 조회
         Member dependent = authService.findByPhone(request.phone());
+
+        // 자기 자신에게 관계 요청하는 경우 예외 처리
+        if (protector.getId().equals(dependent.getId())) {
+            throw new SelfDependencyRequestException(ErrorCode.SELF_DEPENDENCY_REQUEST);
+        }
 
         // 이미 관계가 존재하는 경우 예외 처리
         dependencyRepository.findByDependentIdAndProtectorIdAndDeletedIsFalse(dependent.getId(), protector.getId())
