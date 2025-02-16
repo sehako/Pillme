@@ -98,7 +98,9 @@ public enum ErrorCode {
 
     // 관계
     DEPENDENCY_NOT_FOUND(4400, NOT_FOUND, "등록된 관계를 찾을 수 없습니다."),
-    DUPLICATE_DEPENDENCY(4401, BAD_REQUEST, "이미 등록된 관계입니다.");
+    DUPLICATE_DEPENDENCY(4401, BAD_REQUEST, "이미 등록된 관계입니다."),
+    SELF_DEPENDENCY_REQUEST(4402, BAD_REQUEST, "자기 자신에게 관계 등록 요청을 할 수 없습니다."),
+    ;
 
     private final int code;
     private final HttpStatus httpStatus;

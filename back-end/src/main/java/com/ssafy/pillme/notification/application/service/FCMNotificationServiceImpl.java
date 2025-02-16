@@ -1,9 +1,8 @@
 package com.ssafy.pillme.notification.application.service;
 
 import com.google.firebase.messaging.*;
-import com.ssafy.pillme.global.code.ErrorCode;
-import com.ssafy.pillme.notification.application.exception.FCMTokenNotFoundException;
 import com.ssafy.pillme.notification.domain.entity.FCMToken;
+import com.ssafy.pillme.notification.presentation.request.ChatNotificationRequest;
 import com.ssafy.pillme.notification.presentation.request.NotificationRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,7 +32,14 @@ public class FCMNotificationServiceImpl implements FCMNotificationService {
         private static final String TITLE = "title";
         private static final String BODY = "body";
         private static final String SENDER_ID = "senderId";
+
+        // 채팅 알림을 위한 데이터 키
+        private static final String CHAT_ROOM_ID = "chatRoomId";
+        private static final String SEND_TIME = "sendTime";
     }
+
+    // 서비스 홈페이지 URL
+    private static final String SERVICE_URL = "https://pillme.site";
 
     @Override
     public void sendNotificationSetting(Long memberId, String title, String body) {
@@ -81,6 +87,13 @@ public class FCMNotificationServiceImpl implements FCMNotificationService {
             Message message = Message.builder()
                     .setToken(receiverFCMToken.getToken())
                     .putAllData(data) // 전체 데이터를 메시지에 포함
+                    // 웹/PWA용 설정
+                    .setWebpushConfig(WebpushConfig.builder()
+                            // 알림 클릭 시 이동할 URL 설정 (현재는 모두 서비스 홈 URL)
+                            .setFcmOptions(WebpushFcmOptions.builder()
+                                    .setLink(SERVICE_URL)
+                                    .build())
+                            .build())
                     .build();
             try {
                 firebaseMessaging.sendAsync(message);
@@ -103,6 +116,45 @@ public class FCMNotificationServiceImpl implements FCMNotificationService {
                 firebaseMessaging.sendAsync(message);
             } catch (Exception e) {
                 handleExceptionForSendMessage(e, token);
+            }
+        }
+    }
+
+
+    /*
+     * 채팅 알림을 전송하는 메소드
+     * ChatNotificationRequest
+     * - chatRoomId: 채팅방 id
+     * - sender: 메시지를 보낸 사용자
+     * - receiver: 메시지를 받는 사용자
+     * - message: 채팅 메시지 내용
+     * - sendTime: 채팅 메시지 전송 시간
+     * */
+    @Override
+    public void sendChatNotification(ChatNotificationRequest chatNotificationRequest) {
+        // 수신자의 id로 토큰들 조회
+        List<FCMToken> receiverFCMTokens = findValidTokens(chatNotificationRequest.receiver().getId());
+
+        // 채팅 알림 데이터 설정
+        Map<String, String> data = setChatNotificationData(chatNotificationRequest);
+
+        for (FCMToken receiverFCMToken : receiverFCMTokens) {
+            Message message = Message.builder()
+                    .setToken(receiverFCMToken.getToken())
+                    .putAllData(data) // 전체 데이터를 메시지에 포함
+                    // 웹/PWA용 설정
+                    .setWebpushConfig(WebpushConfig.builder()
+                            // 알림 클릭 시 이동할 URL 설정 (현재는 모두 서비스 홈 URL)
+                            //TODO: 채팅방으로 이동하는 URL로 변경
+                            .setFcmOptions(WebpushFcmOptions.builder()
+                                    .setLink(SERVICE_URL)
+                                    .build())
+                            .build())
+                    .build();
+            try {
+                firebaseMessaging.sendAsync(message);
+            } catch (Exception e) {
+                handleExceptionForSendMessage(e, receiverFCMToken);
             }
         }
     }
@@ -149,6 +201,25 @@ public class FCMNotificationServiceImpl implements FCMNotificationService {
         return data;
     }
 
+    // 채팅 알림 데이터 설정
+    private Map<String, String> setChatNotificationData(ChatNotificationRequest chatNotificationRequest) {
+        Map<String, String> data = new HashMap<>();
+        // 어떤 알림인지 구분하기 위한 코드
+        data.put(DataKey.CODE, chatNotificationRequest.notificationCode().getCode());
+        // 알림 제목 (보낸 사람 이름)
+        data.put(DataKey.TITLE, chatNotificationRequest.sender().getName());
+        // 알림 내용
+        data.put(DataKey.BODY, chatNotificationRequest.message());
+        // 알림 발신자 id
+        data.put(DataKey.SENDER_ID, chatNotificationRequest.sender().getId().toString());
+        // 채팅방 id
+        data.put(DataKey.CHAT_ROOM_ID, chatNotificationRequest.chatRoomId().toString());
+        // 채팅 메시지 전송 시간
+        data.put(DataKey.SEND_TIME, chatNotificationRequest.sendTime().toString());
+
+        return data;
+    }
+
     // FCMTokenService를 통해 사용자의 토큰들을 조회하고 검증
     private List<FCMToken> findValidTokens(Long memberId) {
         List<FCMToken> tokens = fcmTokenService.findAllByMemberId(memberId);
@@ -166,9 +237,17 @@ public class FCMNotificationServiceImpl implements FCMNotificationService {
     private Message buildSendNotificationMessage(String token, String title, String body) {
         return Message.builder()
                 .setToken(token)
+                // 기본 알림 설정
                 .setNotification(Notification.builder()
                         .setTitle(title)
                         .setBody(body)
+                        .build())
+                // 웹/PWA용 설정
+                .setWebpushConfig(WebpushConfig.builder()
+                        // 알림 클릭 시 이동할 URL 설정 (현재는 모두 서비스 홈 URL)
+                        .setFcmOptions(WebpushFcmOptions.builder()
+                                .setLink(SERVICE_URL)
+                                .build())
                         .build())
                 .build();
     }
