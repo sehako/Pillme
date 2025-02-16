@@ -12,9 +12,9 @@ export const searchMedications = async (keyword) => {
       return []; // 검색어가 없으면 빈 배열 반환
     }
 
-    console.log(`🔎 API 요청: /api/v1/search?keyword=${keyword}`);
+    console.log(`🔎 API 요청: https://pillme.site/api/v1/search?keyword=${keyword}`);
 
-    const response = await apiClient.get(`/api/v1/search`, {
+    const response = await apiClient.get(`https://pillme.site/api/v1/search`, {
       params: { keyword },
       headers: {
         "Accept": "application/json",
