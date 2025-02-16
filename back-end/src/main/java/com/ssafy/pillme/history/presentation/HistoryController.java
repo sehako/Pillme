@@ -6,14 +6,10 @@ import com.ssafy.pillme.global.response.JSONResponse;
 import com.ssafy.pillme.history.application.HistoryService;
 import com.ssafy.pillme.history.application.response.HistoryDetailResponse;
 import com.ssafy.pillme.history.application.response.HistorySearchResponse;
-import com.ssafy.pillme.history.domain.dto.HistorySearchFilter;
 import com.ssafy.pillme.history.presentation.request.PatchHistoryRequest;
-import java.time.LocalDate;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.format.annotation.DateTimeFormat.ISO;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -33,20 +29,12 @@ public class HistoryController {
 
     @GetMapping
     public ResponseEntity<JSONResponse<List<HistorySearchResponse>>> searchHistory(
-            @RequestParam(value = "start-date")
-            @DateTimeFormat(iso = ISO.DATE, pattern = "yyyy-MM-dd") final LocalDate startDate,
-            @RequestParam(value = "end-date")
-            @DateTimeFormat(iso = ISO.DATE, pattern = "yyyy-MM-dd") final LocalDate endDate,
-            @RequestParam(value = "target") final Long memberId,
-            @RequestParam(value = "hospital", required = false) final String hospital,
-            @RequestParam(value = "diseaseName", required = false) final String diseaseName
+            @RequestParam(value = "target") final Long memberId
     ) {
         return ResponseEntity.ok(
                 JSONResponse.onSuccess(
-                        historyService.selectHistoryWithFilter(
-                                HistorySearchFilter.of(startDate, endDate, hospital, diseaseName, memberId))
-                )
-        );
+                        historyService.selectHistoryTarget(memberId)
+                ));
     }
 
     @GetMapping("/{info-id}")
@@ -70,10 +58,9 @@ public class HistoryController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<JSONResponse<Void>> deleteHistory(
-            @PathVariable(value = "id") final Long historyId,
-            @Auth final Member member
+            @PathVariable(value = "id") final Long historyId
     ) {
-        historyService.deleteHistory(historyId, member);
+        historyService.deleteHistory(historyId);
         return ResponseEntity.noContent().build();
     }
 }

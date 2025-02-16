@@ -10,7 +10,6 @@ import com.ssafy.pillme.history.application.response.HistoryDetailResponse;
 import com.ssafy.pillme.history.application.response.HistorySearchResponse;
 import com.ssafy.pillme.history.domain.History;
 import com.ssafy.pillme.history.domain.dto.HistoryChangeDto;
-import com.ssafy.pillme.history.domain.dto.HistorySearchFilter;
 import com.ssafy.pillme.history.domain.item.PatchHistoryItem;
 import com.ssafy.pillme.history.infrastructure.HistoryRepository;
 import com.ssafy.pillme.history.presentation.request.PatchHistoryRequest;
@@ -30,10 +29,10 @@ public class HistoryService {
     private final HistoryRepository historyRepository;
 
     @Transactional(readOnly = true)
-    public List<HistorySearchResponse> selectHistoryWithFilter(final HistorySearchFilter filter) {
-        List<History> historyByCondition = historyRepository.findHistoryByCondition(filter);
+    public List<HistorySearchResponse> selectHistoryTarget(final Long targetId) {
+        List<History> histories = historyRepository.findByReaderIdFetch(targetId);
 
-        return historyByCondition.stream()
+        return histories.stream()
                 .map(HistorySearchResponse::of)
                 .collect(Collectors.toList());
     }
@@ -83,10 +82,9 @@ public class HistoryService {
         history.changeTakingInformation(changeInformation);
     }
 
-    public void deleteHistory(final Long id, final Member member) {
-        History history = historyRepository.findByIdAndDeletedIsFalse(id)
+    public void deleteHistory(final Long id) {
+        History history = historyRepository.findByIdFetch(id)
                 .orElseThrow(() -> new HistoryNotFoundException(HISTORY_NOT_FOUND));
-        checkHistoryValidation(history, member);
         history.delete();
     }
 
