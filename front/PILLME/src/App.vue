@@ -2,51 +2,48 @@
   <div id="app" class="flex flex-row h-screen-custom">
     <!-- FCM 알림 컨테이너 -->
     <div class="notifications-container">
-      <div 
-        v-for="notification in notifications" 
+      <div
+        v-for="notification in notifications"
         :key="notification.id"
         class="notification"
-        :class="{ 
+        :class="{
           show: notification.show,
-          toast: notification.isToast 
+          toast: notification.isToast,
         }"
       >
         <div class="notification-header">
           <h4>{{ notification.title }}</h4>
-          <button 
-            class="close-button"
-            @click="removeNotification(notification.id)"
-          >
-            ×
-          </button>
+          <button class="close-button" @click="removeNotification(notification.id)">×</button>
         </div>
         <p>{{ notification.body }}</p>
-        <div 
-          v-if="notification.data?.code && ['DEPENDENCY_REQUEST', 'MEDICINE_REQUEST', 'DEPENDENCY_DELETE_REQUEST'].includes(notification.data.code)" 
+        <div
+          v-if="
+            notification.data?.code &&
+            ['DEPENDENCY_REQUEST', 'MEDICINE_REQUEST', 'DEPENDENCY_DELETE_REQUEST'].includes(
+              notification.data.code
+            )
+          "
           class="actions"
         >
-          <button 
-            class="accept-button"
-            @click="() => handleAccept(notification)"
-          >
-            동의
-          </button>
-          <button 
-            class="reject-button"
-            @click="() => handleReject(notification)"
-          >
-            거절
-          </button>
+          <button class="accept-button" @click="() => handleAccept(notification)">동의</button>
+          <button class="reject-button" @click="() => handleReject(notification)">거절</button>
         </div>
       </div>
     </div>
 
     <!-- 왼쪽 (PC 전용) -->
-    <div class="hidden md:flex flex-col w-1/2 bg-white items-center justify-center border-r border-gray-200 shadow-md p-6">
+    <div
+      class="hidden md:flex flex-col w-1/2 bg-white items-center justify-center border-r border-gray-200 shadow-md p-6"
+    >
       <img :src="logo" alt="로고" class="w-1/2 h-auto" />
-      <h1 class="text-xl sm:text-2xl font-bold text-gray-800 mt-6 text-center">
-        모바일에서 <span class="text-[#4E7351]">PILLME</span>를 만나보세요!
+      <h1
+        class="text-xl sm:text-2xl font-bold text-gray-800 mt-6 text-center flex items-center justify-center gap-0"
+      >
+        모바일에서
+        <BaseLogo :src="textLogoSrc" class="h-[24px] inline-block -mx-8" />
+        를 만나보세요!
       </h1>
+
       <div class="w-40 h-auto mt-6">
         <img src="./assets/fillmeqr.svg" alt="QR 코드" />
       </div>
@@ -62,7 +59,9 @@
         ref="contentRef"
         :class="[
           'h-screen-custom',
-          isScrollAllowed ? 'overflow-y-auto overflow-x-hidden' : 'flex items-center justify-center overflow-hidden',
+          isScrollAllowed
+            ? 'overflow-y-auto overflow-x-hidden'
+            : 'flex items-center justify-center overflow-hidden',
         ]"
       >
         <router-view v-if="isRouteReady" :navbarHeight="navbarHeight" />
@@ -91,11 +90,13 @@ import { useOcrStore } from './stores/ocrStore';
 
 import BaseTopbar from './components/BaseTopbar.vue';
 import BaseNavbar from './components/BaseNavbar.vue';
+import BaseLogo from './components/BaseLogo.vue';
 import OcrResultDialog from './components/OcrResultDialog.vue';
 import AdditionalInfoDialog from './components/AdditionalInfoDialog.vue';
 import MedicationScheduleDialog from './components/MedicationScheduleDialog.vue';
 
 import logo from './assets/Logo_font.svg';
+import textLogoSrc from './assets/Logi_font.svg';
 
 // 컴포저블 import
 import { useAuth } from './composables/useAuth';
@@ -114,19 +115,13 @@ const { isLoggedIn, initAuth, cleanUpAuth } = useAuth();
 const { initRealVH, cleanUpRealVH } = useRealVH();
 const { isScrollAllowed } = useScrollControl(['/afteraccount', '/', '/notificationlist','/calendar']);
 const { navbarHeight } = useNavbarHeight(navbarRef);
-const { 
-  notifications, 
-  removeNotification,
-  handleAccept,
-  handleReject,
-  initializeFCM
-} = useFCM();
+const { notifications, removeNotification, handleAccept, handleReject, initializeFCM } = useFCM();
 
 onMounted(() => {
   initAuth();
   initRealVH();
   ocrStore.loadFromLocalStorage();
-  
+
   // OCR 관련 상태 초기화
   watch(
     () => ocrStore.isLoading,
@@ -138,12 +133,12 @@ onMounted(() => {
       }
     }
   );
-  
+
   ocrStore.showResultsDialog = false;
   ocrStore.showNextDialog = false;
   ocrStore.showMedicationDialog = false;
   ocrStore.isLoading = false;
-  
+
   // FCM 초기화
   initializeFCM();
 });
@@ -211,7 +206,7 @@ onUnmounted(() => {
   padding: 15px;
   background: white;
   border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   transform: translateX(120%);
   transition: transform 0.3s ease;
 }
@@ -259,7 +254,8 @@ onUnmounted(() => {
   margin-top: 10px;
 }
 
-.accept-button, .reject-button {
+.accept-button,
+.reject-button {
   flex: 1;
   padding: 8px;
   border-radius: 4px;
@@ -270,16 +266,17 @@ onUnmounted(() => {
 }
 
 .accept-button {
-  background-color: #4E7351;
+  background-color: #4e7351;
   color: white;
 }
 
 .reject-button {
-  background-color: #DC2626;
+  background-color: #dc2626;
   color: white;
 }
 
-.accept-button:hover, .reject-button:hover {
+.accept-button:hover,
+.reject-button:hover {
   opacity: 0.9;
 }
 
@@ -291,7 +288,7 @@ onUnmounted(() => {
   .notification {
     width: 100%;
   }
-  
+
   .notification.toast {
     bottom: 80px;
   }
