@@ -15,12 +15,12 @@ export function transformPrescriptionsToEvents(prescriptions, options = {}) {
   return prescriptions.map((p, i) => {
     const bg = prescriptionColors[i % prescriptionColors.length];
     const textColor = getTextColor(bg);
-
+  
     let startDate = p.startDate;
     let endDate = p.endDate;
-
+  
     if (!startDate || !endDate) {
-      // console.warn(`⚠️ [DEBUG] startDate 또는 endDate가 없음. medicationPeriod에서 추출 시도.`);
+      console.warn(`⚠️ [DEBUG] startDate 또는 endDate가 없음. medicationPeriod에서 추출 시도.`);
       const periodMatch = p.medicationPeriod?.match(/(\d{4}-\d{2}-\d{2})/g);
       if (periodMatch && periodMatch.length === 2) {
         [startDate, endDate] = periodMatch;
@@ -29,29 +29,37 @@ export function transformPrescriptionsToEvents(prescriptions, options = {}) {
         return null;
       }
     }
-
+  
     if (!startDate || !endDate) {
       console.error("🚨 [DEBUG] 날짜 정보가 없어 이벤트를 생성할 수 없습니다:", p);
       return null;
     }
-
-    // ✅ mode에 따라 title 설정
+  
+    // ✅ 날짜 변환: YYYY-MM-DD → JavaScript Date 객체 변환
+    const startDateObj = new Date(startDate);
+    const endDateObj = new Date(endDate);
+  
+    // ✅ FullCalendar에서는 종료일을 하루 뒤로 설정해야 정상적으로 표시됨
+    endDateObj.setDate(endDateObj.getDate() + 1);
+  
+    // ✅ `toISOString().split("T")[0]`을 사용하여 YYYY-MM-DD 형식 유지
+    const formattedStartDate = startDateObj.toISOString().split("T")[0];
+    const formattedEndDate = endDateObj.toISOString().split("T")[0];
+  
     let title = "";
     if (mode === "simple") {
-      // 🌟 `simple` 모드: 처방전 색상으로만 구분, 텍스트는 고정된 메시지
       title = "처방전 일정 (색상 참조)";
     } else {
-      // 🌟 `detailed` 모드: 기존처럼 병명, 약물명, 병원명 표시
       const medicationNames = p.medications.split(", ").join(", ");
       title = p.diseaseName ? `${p.diseaseName} - ${medicationNames}` : medicationNames;
       if (p.hospital) {
         title += `\n(${p.hospital})`;
       }
     }
-
+  
     return {
-      start: startDate,
-      end: endDate,
+      start: formattedStartDate,
+      end: formattedEndDate,
       allDay: true,
       backgroundColor: bg,
       textColor,

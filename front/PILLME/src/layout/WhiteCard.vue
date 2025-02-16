@@ -1,8 +1,9 @@
 <template>
-  <div :class="[...cardClass, overrideClass]">
+  <div :class="`${cardClass.join(' ')} ${overrideClass}`">
     <slot />
   </div>
 </template>
+
 
 <script setup>
 import { computed } from "vue";
