@@ -1,11 +1,15 @@
 package com.ssafy.pillme.history.application.response;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.ssafy.pillme.history.domain.History;
 import com.ssafy.pillme.management.domain.Management;
+import java.time.LocalDate;
 
 public record HistoryDetailResponse(
         Long historyId,
         String medicationName,
+        @JsonFormat(pattern = "yyyy-MM-dd")
+        LocalDate takingDate,
         boolean morning,
         boolean lunch,
         boolean dinner,
@@ -20,6 +24,7 @@ public record HistoryDetailResponse(
         return new HistoryDetailResponse(
                 history.getId(),
                 management.getMedicationName(),
+                history.getTakingDate(),
                 history.isMorning(),
                 history.isLunch(),
                 history.isDinner(),
