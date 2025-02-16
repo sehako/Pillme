@@ -19,9 +19,9 @@ public interface InformationRepository extends JpaRepository<Information, Long> 
     Optional<Information> findByIdAndReaderIdAndDeletedIsFalse(Long id, Long readerId);
 
     @Query("SELECT i FROM Information i "
-            + "JOIN FETCH i.reader "
-            + "JOIN FETCH i.writer "
-            + "WHERE i.reader = :readerId "
+            + "JOIN FETCH i.reader r "
+            + "JOIN FETCH i.writer w "
+            + "WHERE r.id = :readerId "
             + "AND CURRENT_DATE BETWEEN i.startDate AND i.endDate AND NOT i.deleted")
     List<Information> findCurrentDateAndReaderId(Long readerId);
 }
