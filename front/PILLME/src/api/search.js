@@ -1,26 +1,17 @@
-import apiClient from "./index"; // ✅ API 기본 인스턴스
 import axios from "axios";
+import qs from "qs";  // ✅ Query String 처리를 위한 라이브러리 추가
 
-/**
- * ✅ 약물 검색 API 호출
- * @param {string} keyword - 검색어
- * @returns {Promise} - 검색 결과 목록
- */
 export const searchMedications = async (keyword) => {
   try {
     if (!keyword.trim()) {
-      return []; // 검색어가 없으면 빈 배열 반환
+      return [];
     }
 
-    console.log(`🔎 API 요청: https://pillme.site/api/v1/search?keyword=${keyword}`);
+    console.log(`🔎 API 요청: /api/v1/search?keyword=${keyword}`);
 
-    const response = await apiClient.get(`https://pillme.site/api/v1/search`, {
+    const response = await axios.get(`/api/v1/search`, {
       params: { keyword },
-      headers: {
-        "Accept": "application/json",
-        "Cache-Control": "no-cache",
-        "Pragma": "no-cache",
-      },
+      paramsSerializer: params => qs.stringify(params, { encode: false }) // ✅ 한글 그대로 유지
     });
 
     console.log("✅ API 응답 데이터:", response.data);
@@ -28,6 +19,6 @@ export const searchMedications = async (keyword) => {
     return response.data?.data || [];
   } catch (error) {
     console.error("❌ 약물 검색 실패:", error);
-    return []; // 실패 시 빈 배열 반환
+    return [];
   }
 };
