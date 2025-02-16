@@ -79,7 +79,7 @@
 import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import BackButton from '../components/BackButton.vue';
-import { checkPassword, changePassword } from '../api/mypage';
+import { checkCurrentPassword, checkPassword, changePassword } from '../api/mypage';
 
 const router = useRouter();
 const isLoading = ref(false);
@@ -119,7 +119,7 @@ const validateCurrentPassword = async () => {
   }
 
   try {
-    const result = await checkPassword(passwords.value.current, passwords.value.new);
+    const result = await checkCurrentPassword(passwords.value.current);
     validationStates.value.currentValid = result.isCurrentPasswordValid;
     validationMessages.value.current = result.isCurrentPasswordValid
       ? '현재 비밀번호가 일치합니다'
@@ -139,11 +139,11 @@ const validateNewPassword = async () => {
   }
 
   try {
-    const result = await checkPassword(passwords.value.current, passwords.value.new);
+    const result = await checkPassword(passwords.value.new);
     validationStates.value.newValid = result.isNewPasswordValid;
     validationMessages.value.new = result.isNewPasswordValid
       ? ''
-      : '비밀번호는 대소문자, 숫자, 특수문자를 포함한 12자여야 합니다';
+      : '비밀번호는 대소문자, 숫자, 특수문자를 포함한 12자 이상이어야 합니다';
   } catch (error) {
     validationMessages.value.new = error.message;
     validationStates.value.newValid = false;
@@ -171,9 +171,11 @@ const handleChangePassword = async () => {
 
   try {
     isLoading.value = true;
-    await changePassword(passwords.value.current, passwords.value.new);
-    alert('비밀번호가 성공적으로 변경되었습니다');
-    router.push('/mypage');
+    const result = await changePassword(passwords.value.current, passwords.value.new);
+    if (result) {
+      alert('비밀번호가 성공적으로 변경되었습니다');
+      router.push('/mypage');
+    }
   } catch (error) {
     alert(error.message);
   } finally {
