@@ -323,6 +323,22 @@ public class NotificationServiceImpl implements NotificationService {
         fcmNotificationService.sendNotification(NotificationRequest.of(notification));
     }
 
+    @Override
+    public void sendChatNotification(Long chatRoomId, Member sender, Member receiver, String message, Long sendTime) {
+        // 채팅 알림 요청 생성
+        ChatNotificationRequest request = ChatNotificationRequest.of(chatRoomId, sender, receiver, message, sendTime, NotificationCode.CHAT_MESSAGE);
+
+        // 채팅 알림 생성
+        Notification notification = Notification.createChatNotification(request);
+
+        // 알림 저장
+        notificationRepository.save(notification);
+
+        // 알림 전송
+        fcmNotificationService.sendChatNotification(request);
+    }
+
+
     // 등록 요청이 이미 존재하는 경우 예외 처리
     private void checkDuplicate(Member sender, Member receiver, NotificationCode code) {
         notificationRepository.findBySenderIdAndReceiverIdAndCodeAndDeletedFalse(sender.getId(), receiver.getId(), code)

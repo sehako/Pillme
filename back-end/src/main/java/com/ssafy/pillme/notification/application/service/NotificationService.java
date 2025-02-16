@@ -47,4 +47,6 @@ public interface NotificationService {
     List<NotificationSetting> getNotificationSettingListForCurrentTime(LocalTime currentTime);
 
     void sendProtectorToDependentNotification(Member sender, Member receiver);
+
+    void sendChatNotification(Long chatRoomId, Member sender, Member receiver, String message, Long sendTime);
 }

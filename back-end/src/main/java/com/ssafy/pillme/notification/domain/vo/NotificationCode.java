@@ -17,7 +17,11 @@ public enum NotificationCode {
     DEPENDENCY_DELETE_REJECT("DEPENDENCY_DELETE_REJECT", "관계 삭제 거절", "관계 삭제가 거절되었습니다."),
 
     // 보호자 -> 피보호자 약 복용 얄림
-    MEDICINE_TAKE_REMINDER("MEDICINE_TAKE_REMINDER", "약 복용 요청 알림", "약 복용을 요청했습니다.");
+    MEDICINE_TAKE_REMINDER("MEDICINE_TAKE_REMINDER", "약 복용 요청 알림", "약 복용을 요청했습니다."),
+
+    // 채팅 메시지 알림
+    CHAT_MESSAGE("CHAT_MESSAGE", "새로운 메시지", "메시지를 보냈습니다.")
+    ;
 
     // 어떤 종류의 알림인지 구분하기 위한 코드
     private final String code;
