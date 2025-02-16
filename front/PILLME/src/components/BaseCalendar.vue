@@ -1,6 +1,7 @@
 <template>
   <div class="full-calendar-container relative">
     <FullCalendar
+    ref="calendarRef"
       :options="calendarOptions"
       class="full-calendar text-xs sm:text-sm md:text-base"
     />
@@ -35,12 +36,21 @@
 </template>
 
 <script setup>
-import { ref, computed, defineProps } from "vue";
+import { ref, computed, defineProps,onMounted, onUnmounted, nextTick } from "vue";
 import FullCalendar from "@fullcalendar/vue3";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import { transformPrescriptionsToEvents } from '../composables/useCalendarEvents';
 
+const calendarRef = ref(null);
+
+function updateCalendarSize() {
+  nextTick(() => {
+    if (calendarRef.value) {
+      calendarRef.value.getApi().updateSize();
+    }
+  });
+}
 /** ✅ (A) props 정의 */
 const props = defineProps({
   mode: {
@@ -128,6 +138,7 @@ const calendarOptions = computed(() => ({
   locale: "ko",
   initialView: "dayGridMonth",
   height: "auto",
+  aspectRatio: 1.5, // ✅ 반응형 비율 조정
   headerToolbar: {
     left: "prev",
     center: "title",
@@ -141,15 +152,23 @@ const calendarOptions = computed(() => ({
   eventDisplay: "block",
   dateClick: onDateClick,
   eventClick: onEventClick,
-  dayCellDidMount: onDayCellDidMount
+  dayCellDidMount: onDayCellDidMount,
 }));
+onMounted(() => {
+  window.addEventListener("resize", updateCalendarSize);
+  updateCalendarSize(); // ✅ 초기 로딩 시에도 크기 조정
+});
+
+onUnmounted(() => {
+  window.removeEventListener("resize", updateCalendarSize);
+});
 </script>
 
 <style scoped>
 .full-calendar-container {
-  @apply w-full relative;
+  @apply w-full flex flex-col items-center;
+  min-height: 300px; /* ✅ 최소 높이 설정 (원하는 값으로 조정 가능) */
 }
-
 /* 날짜 클릭 시 하이라이트 */
 .bg-yellow-200 {
   background-color: rgb(253 230 138 / 0.8) !important;

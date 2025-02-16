@@ -309,12 +309,27 @@ const managementInfoList = ref([]);
 const fetchData = async () => {
   try {
     const data = await fetchFormattedManagementInfo();
-    managementInfoList.value = data.length > 0 ? data : [{ diseaseName: "복용 내역 없음", medicationPeriod: "", medications: "", hospital: "" }];
+
+    managementInfoList.value = data.prescriptions.length > 0
+      ? data.prescriptions.map(prescription => {
+          // ✅ medicationPeriod에서 YYYY-MM-DD 형식의 날짜 추출
+          const periodMatch = prescription.medicationPeriod.match(/(\d{4}-\d{2}-\d{2})/g);
+          const startDate = periodMatch?.[0] || null;
+          const endDate = periodMatch?.[1] || null;
+
+          return {
+            ...prescription,
+            startDate,
+            endDate
+          };
+        })
+      : [{ diseaseName: "복용 내역 없음", medicationPeriod: "", medications: "", hospital: "", startDate: null, endDate: null }];
   } catch (error) {
     console.error("❌ [DEBUG] Management 정보 로드 실패:", error);
-    managementInfoList.value = [{ diseaseName: "데이터 불러오기 실패", medicationPeriod: "", medications: "", hospital: "" }];
+    managementInfoList.value = [{ diseaseName: "데이터 불러오기 실패", medicationPeriod: "", medications: "", hospital: "", startDate: null, endDate: null }];
   }
 };
+
 
 // 복약 완료 처리 함수 (사용자가 체크하면 호출)
 const completeMedications = async () => {
