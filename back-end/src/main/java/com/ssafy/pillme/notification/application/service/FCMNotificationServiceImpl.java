@@ -36,6 +36,9 @@ public class FCMNotificationServiceImpl implements FCMNotificationService {
         // 채팅 알림을 위한 데이터 키
         private static final String CHAT_ROOM_ID = "chatRoomId";
         private static final String SEND_TIME = "sendTime";
+        private static final String RECEIVER_ID = "receiverId";
+        private static final String SENDER_NAME = "senderName";
+        private static final String RECEIVER_NAME = "receiverName";
     }
 
     // 서비스 홈페이지 URL
@@ -125,8 +128,8 @@ public class FCMNotificationServiceImpl implements FCMNotificationService {
      * 채팅 알림을 전송하는 메소드
      * ChatNotificationRequest
      * - chatRoomId: 채팅방 id
-     * - sender: 메시지를 보낸 사용자
-     * - receiver: 메시지를 받는 사용자
+     * - senderId: 메시지를 보낸 사용자
+     * - receiverId: 메시지를 받는 사용자
      * - message: 채팅 메시지 내용
      * - sendTime: 채팅 메시지 전송 시간
      * */
@@ -145,7 +148,6 @@ public class FCMNotificationServiceImpl implements FCMNotificationService {
                     // 웹/PWA용 설정
                     .setWebpushConfig(WebpushConfig.builder()
                             // 알림 클릭 시 이동할 URL 설정 (현재는 모두 서비스 홈 URL)
-                            //TODO: 채팅방으로 이동하는 URL로 변경
                             .setFcmOptions(WebpushFcmOptions.builder()
                                     .setLink(SERVICE_URL)
                                     .build())
@@ -216,6 +218,12 @@ public class FCMNotificationServiceImpl implements FCMNotificationService {
         data.put(DataKey.CHAT_ROOM_ID, chatNotificationRequest.chatRoomId().toString());
         // 채팅 메시지 전송 시간
         data.put(DataKey.SEND_TIME, chatNotificationRequest.sendTime().toString());
+        // 채팅 메시지 수신자 id
+        data.put(DataKey.RECEIVER_ID, chatNotificationRequest.receiver().getId().toString());
+        // 채팅 메시지 발신자 이름
+        data.put(DataKey.SENDER_NAME, chatNotificationRequest.sender().getName());
+        // 채팅 메시지 수신자 이름
+        data.put(DataKey.RECEIVER_NAME, chatNotificationRequest.receiver().getName());
 
         return data;
     }
