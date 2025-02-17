@@ -7,7 +7,7 @@ const messaging = getMessaging(app)
 export function useFCM() {
   const fcmToken = ref(null)
   const notifications = ref([])
-
+  
   // FCM 초기화
   const initializeFCM = async () => {
     try {
@@ -231,6 +231,7 @@ export function useFCM() {
     };
 
     notifications.value.push(toastNotification);
+    
 
     // 3초 후 토스트 메시지 제거
     setTimeout(() => {

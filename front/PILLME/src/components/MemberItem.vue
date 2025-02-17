@@ -2,8 +2,10 @@
   <div class="flex items-center justify-between py-1 w-full">
     <!-- 로고 및 이름 -->
     <div class="flex items-center">
-      <BaseLogo :src="logoSrc" class="w-9 h-9"/>
-      <p class="ml-2 text-sm font-semibold">{{ name }}</p>
+      <p class="ml-2 text-sm font-semibold">
+        {{ name }}
+        <span class="text-gray-400 text-xs ml-1">({{ role }})</span> <!-- ✅ 역할을 회색 글씨로 표시 -->
+      </p>
     </div>
 
     <!-- 삭제 버튼 -->
@@ -14,7 +16,7 @@
 </template>
 
 <script setup>
-import { defineProps, defineEmits } from "vue";
+import { defineProps, defineEmits, computed } from "vue";
 import BaseLogo from "../components/BaseLogo.vue";
 import logoSrc from "../assets/logi_nofont.svg";
 
@@ -23,7 +25,14 @@ const props = defineProps({
     type: Number,
     required: true,
   },
-  name: String,
+  name: {
+    type: String,
+    required: true,
+  },
+  role: {  // ✅ 역할 추가 (보호자 / 피보호자)
+    type: String,
+    default: "피보호자",
+  },
 });
 
 const emit = defineEmits(["deleteMember"]);
@@ -33,7 +42,9 @@ const handleDelete = () => {
     console.error("❌ dependencyId가 없습니다!", props.dependencyId);
     return;
   }
-  emit("deleteMember", props.dependencyId); // ✅ dependencyId 전송
+  if (window.confirm(`정말 ${props.name} (${props.role})을(를) 삭제하시겠습니까?`)) {
+    emit("deleteMember", props.dependencyId); // ✅ dependencyId 전송
+  }
 };
 </script>
 

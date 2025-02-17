@@ -31,7 +31,7 @@ export const acceptDependencyDelete = async (senderId) => {
   try {
     console.log(`✅ 관계 삭제 요청 수락 요청: senderId=${senderId}`);
 
-    const response = await apiClient.delete(`/api/v1/dependency/delete/accept`, {
+    const response = await apiClient.post(`/api/v1/dependency/delete/accept`, {
       headers: {
         'Content-Type': 'application/json'
       },
