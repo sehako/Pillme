@@ -17,7 +17,8 @@
           v-for="(item, index) in menuItems"
           :key="index"
           class="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-        >
+          @click="handleNavigation(item)"
+          >
           {{ item }}
         </li>
         <li class="border-t border-gray-300 mt-2"></li>
@@ -36,9 +37,11 @@
 
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue';
+import {useRouter} from 'vue-router';
 import { logoutAPI, handleLogout } from "../api/auth";
 const isOpen = ref(false);
 const isLoading = ref(false); // ✅ isLoading 추가
+const router = useRouter();
 
 const menuItems = ref([
   "알림 설정",
@@ -61,6 +64,14 @@ const handleClickOutside = (event) => {
     isOpen.value = false;
   }
 };
+
+// ✅ 메뉴 항목 클릭 시 페이지 이동
+const handleNavigation = (item) => {
+  if (item === "가족 및 관리자") {
+    router.push("/managememberlist"); // ✅ 원하는 경로로 이동
+  }
+};
+
 
 // 로그아웃 이벤트
 const handleLogoutEvent = async () => {

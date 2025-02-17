@@ -1,21 +1,42 @@
 <template>
-  <div class="flex items-center p-4 w-full">
-    <BaseLogo :src="logoSrc" size="xxs" />
-
-    <div class="ml-4">
-      <p class="text-lg font-semibold">{{ name }}</p>
-      <p class="text-sm text-gray-500">{{ birthdate }} ({{ age }}세)</p>
+  <div class="flex items-center justify-between py-1 w-full">
+    <!-- 로고 및 이름 -->
+    <div class="flex items-center">
+      <BaseLogo :src="logoSrc" class="w-9 h-9"/>
+      <p class="ml-2 text-sm font-semibold">{{ name }}</p>
     </div>
+
+    <!-- 삭제 버튼 -->
+    <button @click="handleDelete" class="text-red-500 hover:text-red-700">
+      <img src="../assets/delete.svg" alt="삭제" class="w-4 h-4"/>
+    </button>
   </div>
 </template>
 
 <script setup>
+import { defineProps, defineEmits } from "vue";
 import BaseLogo from "../components/BaseLogo.vue";
 import logoSrc from "../assets/logi_nofont.svg";
 
-defineProps({
+const props = defineProps({
+  dependencyId: {  // ✅ dependencyId를 props로 받음
+    type: Number,
+    required: true,
+  },
   name: String,
-  birthdate: String,
-  age: Number
 });
+
+const emit = defineEmits(["deleteMember"]);
+
+const handleDelete = () => {
+  if (!props.dependencyId) {
+    console.error("❌ dependencyId가 없습니다!", props.dependencyId);
+    return;
+  }
+  emit("deleteMember", props.dependencyId); // ✅ dependencyId 전송
+};
 </script>
+
+<style scoped>
+/* 줄어든 아이템 크기 */
+</style>
