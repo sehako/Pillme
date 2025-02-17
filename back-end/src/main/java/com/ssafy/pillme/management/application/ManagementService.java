@@ -100,20 +100,33 @@ public class ManagementService {
     }
 
     public Information acceptInformationRegisterRequest(
-            final Long memberId
+            final Long writerId,
+            final Member reader
     ) {
-        Information requestedInformation = informationRepository.findUnAcceptedInformation(memberId)
+        Member writer = authService.findById(writerId);
+        Information requestedInformation = informationRepository.findUnAcceptedInformation(reader.getId())
                 .orElseThrow(() -> new NoInformationException(INFORMATION_NOT_FOUND));
 
         requestedInformation.dependencyAddSetting();
 
+        notificationService.sendMedicineAcceptNotification(reader, writer);
         return requestedInformation;
     }
 
     public void rejectInformationRegisterRequest(
-            final Long memberId
+            final Long writerId,
+            final Member reader
     ) {
+        Member writer = authService.findById(writerId);
+        Information requestedInformation = informationRepository.findUnAcceptedInformation(writerId)
+                .orElseThrow(() -> new NoInformationException(INFORMATION_NOT_FOUND));
 
+        List<Management> requestedManagements = managementRepository.findByInformationIdAndInformationReaderIdAndDeletedIsFalse(
+                requestedInformation.getId(), writerId);
+
+        notificationService.sendMedicineRejectNotification(reader, writer);
+        managementRepository.deleteAll(requestedManagements);
+        informationRepository.delete(requestedInformation);
     }
 
     @Transactional(readOnly = true)

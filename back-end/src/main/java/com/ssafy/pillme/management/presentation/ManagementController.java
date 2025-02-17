@@ -55,21 +55,23 @@ public class ManagementController {
                         information.isRequested() ? INFORMATION_ADD_REQUEST_SUCCESS : INFORMATION_SAVE_SUCCESS));
     }
 
-    @PostMapping("/accept/{member-id}")
+    @PostMapping("/accept/{writer}")
     public ResponseEntity<JSONResponse<Void>> acceptDependencyInformation(
-            @PathVariable(value = "member-id") Long memberId
+            @PathVariable(value = "writer") Long writer,
+            @Auth Member reader
     ) {
-        Information information = managementService.acceptInformationRegisterRequest(memberId);
+        Information information = managementService.acceptInformationRegisterRequest(writer, reader);
         return ResponseEntity
                 .created(URI.create("/api/v1/management/" + information.getId()))
                 .body(JSONResponse.of(INFORMATION_SAVE_SUCCESS));
     }
 
-    @DeleteMapping("/reject/{member-id}")
+    @DeleteMapping("/reject/{writer}")
     public ResponseEntity<Void> rejectDependencyInformation(
-            @PathVariable(value = "member-id") Long memberId
+            @PathVariable(value = "writer") Long writer,
+            @Auth Member reader
     ) {
-
+        managementService.rejectInformationRegisterRequest(writer, reader);
         return ResponseEntity.noContent().build();
     }
 
