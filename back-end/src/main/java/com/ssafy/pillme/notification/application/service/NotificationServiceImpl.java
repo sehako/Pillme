@@ -328,12 +328,6 @@ public class NotificationServiceImpl implements NotificationService {
         // 채팅 알림 요청 생성
         ChatNotificationRequest request = ChatNotificationRequest.of(chatRoomId, sender, receiver, message, sendTime, NotificationCode.CHAT_MESSAGE);
 
-        // 채팅 알림 생성
-        Notification notification = Notification.createChatNotification(request);
-
-        // 알림 저장
-        notificationRepository.save(notification);
-
         // 알림 전송
         fcmNotificationService.sendChatNotification(request);
     }
