@@ -49,4 +49,22 @@ public interface NotificationService {
     void sendProtectorToDependentNotification(Member sender, Member receiver);
 
     void sendChatNotification(Long chatRoomId, Member sender, Member receiver, String message, Long sendTime);
+
+    // 처방전 등록 요청 알림
+    void sendTakingInformationNotification(Member sender, Member receiver, String diseaseName);
+
+    // 처방전 등록 수락 알림
+    void sendTakingInformationAcceptNotification(Member sender, Member receiver, String diseaseName);
+
+    // 처방전 등록 거절 알림
+    void sendTakingInformationRejectNotification(Member sender, Member receiver, String diseaseName);
+
+    // 처방전 삭제 요청 알림
+    void sendTakingInformationDeleteRequestNotification(Member sender, Member receiver, String diseaseName);
+
+    // 처방전 삭제 수락 알림
+    void sendTakingInformationDeleteAcceptNotification(Member sender, Member receiver, String diseaseName);
+
+    // 처방전 삭제 거절 알림
+    void sendTakingInformationDeleteRejectNotification(Member sender, Member receiver, String diseaseName);
 }

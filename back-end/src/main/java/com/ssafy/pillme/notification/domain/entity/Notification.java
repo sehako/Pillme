@@ -30,7 +30,7 @@ public class Notification extends BaseEntity {
 
     // 알림 종류에 대한 코드
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
+    @Column(nullable = false, length = 60)
     private NotificationCode code;
 
     // 알림 내용
@@ -136,6 +136,60 @@ public class Notification extends BaseEntity {
                 .receiver(request.receiver())
                 .code(request.notificationCode())
                 .content(request.message())
+                .build();
+    }
+
+    public static Notification createTakingInformation(Member sender, Member receiver, String diseaseName) {
+        return Notification.builder()
+                .sender(sender)
+                .receiver(receiver)
+                .code(NotificationCode.PRESCRIPTION_REQUEST)
+                .content(sender.getName() + "님이 " + diseaseName + "에 대한 " + NotificationCode.PRESCRIPTION_REQUEST.getMessage())
+                .build();
+    }
+
+    public static Notification createTakingInformationAccept(Member sender, Member receiver, String diseaseName) {
+        return Notification.builder()
+                .sender(sender)
+                .receiver(receiver)
+                .code(NotificationCode.PRESCRIPTION_ACCEPT)
+                .content(sender.getName() + "님의 " + diseaseName + "에 대한 " + NotificationCode.PRESCRIPTION_ACCEPT.getMessage())
+                .build();
+    }
+
+    public static Notification createTakingInformationReject(Member sender, Member receiver, String diseaseName) {
+        return Notification.builder()
+                .sender(sender)
+                .receiver(receiver)
+                .code(NotificationCode.PRESCRIPTION_REJECT)
+                .content(sender.getName() + "님의 " + diseaseName + "에 대한 " + NotificationCode.PRESCRIPTION_REJECT.getMessage())
+                .build();
+    }
+
+    public static Notification createTakingInformationDeleteRequest(Member sender, Member receiver, String diseaseName) {
+        return Notification.builder()
+                .sender(sender)
+                .receiver(receiver)
+                .code(NotificationCode.PRESCRIPTION_DELETE_REQUEST)
+                .content(sender.getName() + "님이 " + diseaseName + "에 대한 " + NotificationCode.PRESCRIPTION_DELETE_REQUEST.getMessage())
+                .build();
+    }
+
+    public static Notification createTakingInformationDeleteAccept(Member sender, Member receiver, String diseaseName) {
+        return Notification.builder()
+                .sender(sender)
+                .receiver(receiver)
+                .code(NotificationCode.PRESCRIPTION_DELETE_ACCEPT)
+                .content(sender.getName() + "님과 " + diseaseName + "에 대한 " + NotificationCode.PRESCRIPTION_DELETE_ACCEPT.getMessage())
+                .build();
+    }
+
+    public static Notification createTakingInformationDeleteReject(Member sender, Member receiver, String diseaseName) {
+        return Notification.builder()
+                .sender(sender)
+                .receiver(receiver)
+                .code(NotificationCode.PRESCRIPTION_DELETE_REJECT)
+                .content(sender.getName() + "님과 " + diseaseName + "에 대한 " + NotificationCode.PRESCRIPTION_DELETE_REJECT.getMessage())
                 .build();
     }
 

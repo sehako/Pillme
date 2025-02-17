@@ -328,14 +328,110 @@ public class NotificationServiceImpl implements NotificationService {
         // 채팅 알림 요청 생성
         ChatNotificationRequest request = ChatNotificationRequest.of(chatRoomId, sender, receiver, message, sendTime, NotificationCode.CHAT_MESSAGE);
 
-        // 채팅 알림 생성
-        Notification notification = Notification.createChatNotification(request);
+        // 알림 전송
+        fcmNotificationService.sendChatNotification(request);
+    }
+
+    @Override
+    public void sendTakingInformationNotification(Member sender, Member receiver, String diseaseName) {
+        // 복용 정보 알림 생성
+        Notification notification = Notification.createTakingInformation(sender, receiver, diseaseName);
+
+        // 해당 알림이 이미 존재하는 경우 예외 처리
+        checkDuplicate(sender, receiver, NotificationCode.PRESCRIPTION_REQUEST);
 
         // 알림 저장
         notificationRepository.save(notification);
 
         // 알림 전송
-        fcmNotificationService.sendChatNotification(request);
+        fcmNotificationService.sendNotification(NotificationRequest.of(notification));
+    }
+
+    @Override
+    public void sendTakingInformationAcceptNotification(Member sender, Member receiver, String diseaseName) {
+        // 복용 정보 수락 알림 생성
+        Notification notification = Notification.createTakingInformationAccept(sender, receiver, diseaseName);
+
+        // 복용 정보 등록 요청이 없는 경우 예외 처리
+        Notification existNotification = checkRequestExist(sender, receiver, NotificationCode.PRESCRIPTION_REQUEST);
+
+        // 알림 저장
+        notificationRepository.save(notification);
+
+        // 알림 전송
+        fcmNotificationService.sendNotification(NotificationRequest.of(notification));
+
+        // 요청 알림 삭제
+        existNotification.delete();
+    }
+
+    @Override
+    public void sendTakingInformationRejectNotification(Member sender, Member receiver, String diseaseName) {
+        // 복용 정보 거절 알림 생성
+        Notification notification = Notification.createTakingInformationReject(sender, receiver, diseaseName);
+
+        // 복용 정보 등록 요청이 없는 경우 예외 처리
+        Notification existNotification = checkRequestExist(sender, receiver, NotificationCode.PRESCRIPTION_REQUEST);
+
+        // 알림 저장
+        notificationRepository.save(notification);
+
+        // 알림 전송
+        fcmNotificationService.sendNotification(NotificationRequest.of(notification));
+
+        // 요청 알림 삭제
+        existNotification.delete();
+    }
+
+    @Override
+    public void sendTakingInformationDeleteRequestNotification(Member sender, Member receiver, String diseaseName) {
+        // 복용 정보 삭제 요청 알림 생성
+        Notification notification = Notification.createTakingInformationDeleteRequest(sender, receiver, diseaseName);
+
+        // 삭제 요청이 이미 존재하는 경우 예외 처리
+        checkDuplicate(sender, receiver, NotificationCode.PRESCRIPTION_DELETE_REQUEST);
+
+        // 알림 저장
+        notificationRepository.save(notification);
+
+        // 알림 전송
+        fcmNotificationService.sendNotification(NotificationRequest.of(notification));
+    }
+
+    @Override
+    public void sendTakingInformationDeleteAcceptNotification(Member sender, Member receiver, String diseaseName) {
+        // 복용 정보 삭제 허락 알림 생성
+        Notification notification = Notification.createTakingInformationDeleteAccept(sender, receiver, diseaseName);
+
+        // 삭제된 요청이 없는 경우 예외 처리
+        Notification existNotification = checkRequestExist(sender, receiver, NotificationCode.PRESCRIPTION_DELETE_REQUEST);
+
+        // 알림 저장
+        notificationRepository.save(notification);
+
+        // 알림 전송
+        fcmNotificationService.sendNotification(NotificationRequest.of(notification));
+
+        // 요청 알림 삭제
+        existNotification.delete();
+    }
+
+    @Override
+    public void sendTakingInformationDeleteRejectNotification(Member sender, Member receiver, String diseaseName) {
+        // 복용 정보 삭제 거절 알림 생성
+        Notification notification = Notification.createTakingInformationDeleteReject(sender, receiver, diseaseName);
+
+        // 삭제된 요청이 없는 경우 예외 처리
+        Notification existNotification = checkRequestExist(sender, receiver, NotificationCode.PRESCRIPTION_DELETE_REQUEST);
+
+        // 알림 저장
+        notificationRepository.save(notification);
+
+        // 알림 전송
+        fcmNotificationService.sendNotification(NotificationRequest.of(notification));
+
+        // 요청 알림 삭제
+        existNotification.delete();
     }
 
 

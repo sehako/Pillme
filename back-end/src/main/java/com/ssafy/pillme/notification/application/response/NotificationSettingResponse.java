@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @Builder
 public class NotificationSettingResponse {
-    private Integer notificationSettingId;
+    private Long notificationSettingId;
     private LocalTime morning;
     private LocalTime lunch;
     private LocalTime dinner;
