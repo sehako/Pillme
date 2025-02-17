@@ -106,6 +106,7 @@ let activeNotificationRect = null;
 
 const loadNotifications = async () => {
   notifications.value = await fetchNotifications();
+  notifications.value.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
   console.log("📌 Fetched Notifications:", JSON.stringify(notifications.value, null, 2));
 };
 
