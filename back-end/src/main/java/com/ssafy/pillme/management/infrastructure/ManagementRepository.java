@@ -29,9 +29,13 @@ public interface ManagementRepository extends JpaRepository<Management, Long> {
     @Query("SELECT m FROM Management m "
             + "JOIN FETCH m.information i "
             + "JOIN FETCH i.writer w "
-            + "WHERE ")
+            + "WHERE w.id = :writerId AND i.id = :informationId AND NOT i.deleted AND NOT i.requested")
     List<Management> findByInformationIdAndInformationWriterIdAndDeletedIsFalse(Long informationId, Long writerId);
 
+    @Query("SELECT m FROM Management m "
+            + "JOIN FETCH m.information i "
+            + "JOIN FETCH i.reader r "
+            + "WHERE r.id = :readerId AND i.id = :informationId AND NOT i.deleted AND NOT i.requested")
     List<Management> findByInformationIdAndInformationReaderIdAndDeletedIsFalse(Long informationId, Long readerId);
 
     @Query("SELECT m FROM Management m "
