@@ -13,6 +13,8 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const messaging = firebase.messaging();
 
+const SERVICE_URL = "https://pillme.site";
+
 // API 요청 처리 함수
 async function handleApiRequest(code, action, senderId) {
   let endpoint = '';
@@ -70,7 +72,7 @@ messaging.onBackgroundMessage((payload) => {
       icon: '/notification-icon.png',
       badge: '/badge-icon.png',
       data: {
-        url: '/',
+        url: SERVICE_URL,
         code: payload.data.code,
         senderId: payload.data.senderId
       },
@@ -139,17 +141,15 @@ self.addEventListener('notificationclick', async (event) => {
 
     // 이미 열린 창이 있다면 해당 창을 포커스하고 홈으로 이동
     for (const client of windowClients) {
-      if (client.url.includes(self.location.origin)) {
+      if (client.url.includes(SERVICE_URL)) {
         await client.focus();
-        return client.navigate('/');
+        return client.navigate(SERVICE_URL);
       }
     }
 
-    // PWA로 이동
-    await clients.openWindow(self.location.origin + '/');
+    // 열린 창이 없다면 새 창 열기 (PWA/웹)
+    await clients.openWindow(SERVICE_URL);
   } catch (error) {
-
-    // 열린 창이 없다면 웹으로 새 창 열기
-    await clients.openWindow('/');
+    console.error('Navigation error: ', error);
   }
 });
