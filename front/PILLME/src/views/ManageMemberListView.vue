@@ -2,20 +2,36 @@
   <div class="flex flex-col w-full h-full overflow-hidden">
     <!-- ✅ 상단바 (고정 높이) -->
     <div class="flex-none bg-[#B5CCB7] py-3 px-4 text-lg font-semibold text-gray-900 text-center">
-      관리 회원 목록
+      가족 회원 목록
+    </div>
+
+    <!-- ✅ 필터 버튼 추가 -->
+    <div class="flex justify-center space-x-2 mt-4">
+      <button 
+        v-for="option in filterOptions" 
+        :key="option.value" 
+        @click="selectedFilter = option.value"
+        :class="[
+          'px-4 py-2 rounded-lg border transition', 
+          selectedFilter === option.value ? 'bg-[#4E7351] text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+        ]"
+      >
+        {{ option.label }}
+      </button>
     </div>
 
     <!-- ✅ 스크롤 가능한 본문 -->
     <div class="flex-auto overflow-y-auto px-4 py-2">
-      <template v-if="members.length > 0">
+      <template v-if="filteredMembers.length > 0">
         <div
-          v-for="(member, index) in members"
+          v-for="(member, index) in filteredMembers"
           :key="member.dependencyId" 
           class="flex items-center justify-between py-3 w-full border-b"
         >
           <MemberItem
-            :dependencyId="member.dependencyId"  
-            :name="member.dependentName"
+            :dependencyId="member.dependencyId"
+            :name="member.name"
+            :role="member.role"
             @deleteMember="confirmDelete"
             class="w-full"
           />
@@ -41,27 +57,54 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed } from "vue";
 import MemberItem from "../components/MemberItem.vue";
 import BaseButton from "../components/BaseButton.vue";
 import FamilyAddModal from "../components/FamilyAddModal.vue";
-// ✅ `notify.js`에서 삭제 요청 API 가져오기
-import { fetchDependents } from "../api/dependentmember"; // 가족 목록 불러오기
+import { fetchRelationships } from "../api/relationmember"; // 가족 목록 불러오기
 import { requestDependencyDelete } from "../api/notify"; // 삭제 요청 API
-
 const members = ref([]);
 const isModalOpen = ref(false);
+const selectedFilter = ref("all"); // ✅ 선택된 필터 (기본: 전체 보기)
 
-// ✅ 가족 목록 불러오기
-const loadDependents = async () => {
+const filterOptions = [
+  { label: "전체", value: "all" },
+  { label: "보호자", value: "protector" },
+  { label: "피보호자", value: "dependent" },
+];
+
+// ✅ 가족 목록 불러오기 (보호자/피보호자 포함)
+const loadMembers = async () => {
   try {
-    members.value = await fetchDependents();
+    const { dependents, protectors } = await fetchRelationships();
+
+    // ✅ 보호자 및 피보호자 데이터를 하나의 리스트로 합침
+    members.value = [
+      ...dependents.map((item) => ({
+        dependencyId: item.dependencyId,
+        name: item.dependentName,
+        role: "피보호자",
+        type:"dependent",
+      })),
+      ...protectors.map((item) => ({
+        dependencyId: item.dependencyId,
+        name: item.protectorName,
+        role: "보호자",
+        type: "protector",
+      })),
+    ];
+
     console.log("✅ 불러온 가족 목록:", members.value);
   } catch (error) {
     console.error("❌ 가족 목록을 불러오는 중 오류 발생:", error);
   }
 };
 
+// ✅ 필터링된 멤버 리스트 (computed 사용)
+const filteredMembers = computed(() => {
+  if (selectedFilter.value === "all") return members.value;
+  return members.value.filter((member) => member.type === selectedFilter.value);
+});
 
 // ✅ 관계 삭제 요청 (dependencyId 사용)
 const confirmDelete = async (dependencyId) => {
@@ -91,7 +134,7 @@ const confirmDelete = async (dependencyId) => {
   }
 };
 
-onMounted(loadDependents);
+onMounted(loadMembers);
 </script>
 
 <style scoped>
