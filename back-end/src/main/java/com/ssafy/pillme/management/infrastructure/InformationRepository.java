@@ -13,7 +13,7 @@ public interface InformationRepository extends JpaRepository<Information, Long> 
     @Query("SELECT i FROM Information i "
             + "JOIN FETCH i.writer "
             + "JOIN FETCH i.reader "
-            + "WHERE i.id = :id AND NOT i.deleted")
+            + "WHERE i.id = :id AND NOT i.deleted AND NOT i.requested")
     Optional<Information> findByIdMemberFetchJoin(Long id);
 
     Optional<Information> findByIdAndReaderIdAndDeletedIsFalse(Long id, Long readerId);
@@ -27,6 +27,6 @@ public interface InformationRepository extends JpaRepository<Information, Long> 
             + "JOIN FETCH i.reader r "
             + "JOIN FETCH i.writer w "
             + "WHERE r.id = :readerId "
-            + "AND CURRENT_DATE BETWEEN i.startDate AND i.endDate AND NOT i.deleted")
+            + "AND CURRENT_DATE BETWEEN i.startDate AND i.endDate AND NOT i.deleted AND NOT i.requested")
     List<Information> findCurrentDateAndReaderId(Long readerId);
 }
