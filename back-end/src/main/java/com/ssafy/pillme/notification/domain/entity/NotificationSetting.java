@@ -17,7 +17,7 @@ public class NotificationSetting {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY) // 데이터베이스의 AUTO_INCREMENT 기능 사용
-    private Integer id;
+    private Long id;
 
     @OneToOne(fetch = FetchType.LAZY) // 지연 로딩을 통해 회원 데이터는 필요할 때만 가져옴
     @JoinColumn(name = "member_id", nullable = false)
