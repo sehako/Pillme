@@ -20,6 +20,11 @@ public interface InformationRepository extends JpaRepository<Information, Long> 
 
     @Query("SELECT i FROM Information i "
             + "JOIN FETCH i.reader r "
+            + "WHERE r.id = :memberId AND i.requested AND NOT i.deleted")
+    Optional<Information> findUnAcceptedInformation(Long memberId);
+
+    @Query("SELECT i FROM Information i "
+            + "JOIN FETCH i.reader r "
             + "JOIN FETCH i.writer w "
             + "WHERE r.id = :readerId "
             + "AND CURRENT_DATE BETWEEN i.startDate AND i.endDate AND NOT i.deleted")

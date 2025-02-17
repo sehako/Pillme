@@ -21,8 +21,8 @@ CREATE TABLE `medication`
 (
     `id`      BIGINT       NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `name`    VARCHAR(255) NULL,
-    `company`  VARCHAR(100)  NULL,
-    `image`    VARCHAR(255)   NULL
+    `company` VARCHAR(100) NULL,
+    `image`   VARCHAR(255) NULL
 );
 
 DROP TABLE IF EXISTS `management`;
@@ -79,6 +79,7 @@ CREATE TABLE `information`
     `start_date`   DATE         NULL,
     `end_date`     DATE         NULL,
     `disease_name` VARCHAR(255) NULL,
+    `requested`    TINYINT      NULL,
     `created_at`   TIMESTAMP    NULL,
     `modified_at`  TIMESTAMP    NULL,
     `deleted`      TINYINT      NULL
@@ -130,7 +131,7 @@ CREATE TABLE `notification`
     `id`          BIGINT       NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `sender_id`   BIGINT       NOT NULL,
     `receiver_id` BIGINT       NOT NULL,
-    `code`        VARCHAR(20)  NULL,
+    `code`        VARCHAR(60)  NULL,
     `content`     VARCHAR(255) NULL,
     `confirm`     TINYINT      NULL,
     `created_at`  TIMESTAMP    NULL,

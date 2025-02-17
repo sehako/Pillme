@@ -14,15 +14,16 @@ public interface HistoryRepository extends JpaRepository<History, Long> {
             + "JOIN FETCH h.information i "
             + "JOIN FETCH h.member "
             + "WHERE h.id = :id")
-    Optional<History> findByIdFetch(Long id);
+    Optional<History> findByIdFetch(final Long id);
 
     @Query("SELECT h FROM History h "
             + "JOIN FETCH h.management "
             + "JOIN FETCH h.information i "
-            + "WHERE i.reader.id = :readerId")
-    List<History> findByReaderIdFetch(Long readerId);
+            + "JOIN FETCH h.information.reader r "
+            + "WHERE r.id = :readerId")
+    List<History> findByReaderIdFetch(final Long readerId);
 
-    List<History> findByIdInAndDeletedIsFalse(List<Long> ids);
+    List<History> findByIdInAndDeletedIsFalse(final List<Long> ids);
 
     @Query("SELECT h FROM History h "
             + "JOIN FETCH h.management "
