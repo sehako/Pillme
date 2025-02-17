@@ -42,6 +42,8 @@ import NotificationListView from '../views/NotificationListView.vue';
 import CameraCapture from '../components/CameraCapture.vue';
 import ImageAnalysis from '../components/ImageAnalysis.vue';
 
+import { deleteAccessToken} from '../utils/localForage'
+
 const routes = [
   // 👉 게스트 전용 페이지 (비로그인 사용자만 접근)
   { path: '/start', name: 'StartView', component: StartView },
@@ -133,6 +135,7 @@ router.beforeEach(async (to, from, next) => {
         } catch (error) {
           console.error('[Route Guard] 게스트 페이지 접근 시 토큰 재발급 실패:', error);
           localStorage.removeItem('accessToken');
+          deleteAccessToken();
           Cookies.remove('refreshToken');
         }
       }
@@ -160,6 +163,7 @@ router.beforeEach(async (to, from, next) => {
     } catch (error) {
       console.error('[Route Guard] 보호된 페이지 접근 시 토큰 재발급 실패:', error);
       localStorage.removeItem('accessToken');
+      deleteAccessToken();
       Cookies.remove('refreshToken');
       return next('/start');
     }
