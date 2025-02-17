@@ -4,10 +4,13 @@
     <div class="flex flex-col items-center gap-0">
       <BaseLogo :src="logoSrc" size="md" />
 
-      <div class="flex flex-row items-center gap-0">
-        <!-- ✅ BaseText 사용 -->
-        <BaseText textBefore="복약 관리의 새로운 방법," class="pb-4 -mr-10" />
-        <BaseLogo :src="textLogoSrc" class="h-[36px] pb-4 -mr-10" />
+      <div class="flex flex-row items-center gap-1 flex-nowrap whitespace-nowrap">
+        <BaseText textBefore="복약 관리의 새로운 방법," class="text-base sm:text-lg md:text-xl" />
+        <img
+          :src="textLogoSrc"
+          alt="PILLME"
+          class="h-3 sm:h-4 md:h-5 inline-block object-contain ml-1"
+        />
       </div>
     </div>
 
