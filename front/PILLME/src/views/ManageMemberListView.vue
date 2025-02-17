@@ -45,9 +45,9 @@ import { ref, onMounted } from "vue";
 import MemberItem from "../components/MemberItem.vue";
 import BaseButton from "../components/BaseButton.vue";
 import FamilyAddModal from "../components/FamilyAddModal.vue";
-// ✅ 올바른 API import
+// ✅ `notify.js`에서 삭제 요청 API 가져오기
 import { fetchDependents } from "../api/dependentmember"; // 가족 목록 불러오기
-import { requestDependencyDelete } from "../api/dependency"; // 가족 삭제 요청
+import { requestDependencyDelete } from "../api/notify"; // 삭제 요청 API
 
 const members = ref([]);
 const isModalOpen = ref(false);
@@ -71,25 +71,27 @@ const confirmDelete = async (dependencyId) => {
     return;
   }
 
-  const member = members.value.find(m => m.dependencyId === dependencyId);
-  if (!member) {
+  const memberIndex = members.value.findIndex(m => m.dependencyId === dependencyId);
+  if (memberIndex === -1) {
     console.error(`❌ dependencyId=${dependencyId}에 해당하는 멤버를 찾을 수 없습니다.`);
     return;
   }
+
+  // ✅ 삭제 요청 중 상태를 업데이트하여 사용자에게 요청이 진행 중임을 알림
+  members.value[memberIndex].isRequestPending = true;
 
   // ✅ 삭제 요청 실행
   const success = await requestDependencyDelete(dependencyId);
   if (success) {
     console.log("✅ 삭제 요청이 성공적으로 전송되었습니다.");
-    await loadDependents(); // 🔄 삭제 요청이 성공하면 목록을 다시 불러오기
   } else {
     console.error(`❌ dependencyId=${dependencyId} 삭제 요청 실패`);
+    members.value[memberIndex].isRequestPending = false; // ❌ 실패 시 요청 중 상태 해제
   }
 };
 
 onMounted(loadDependents);
 </script>
-
 
 <style scoped>
 /* ✅ 부모 높이를 유지하여 상단바 아래로 내용이 정상 표시되도록 함 */

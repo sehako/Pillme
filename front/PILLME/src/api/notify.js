@@ -168,11 +168,8 @@ export const acceptDependencyDelete = async (senderId) => {
 
     console.log(`✅ 관계 삭제 요청 수락 요청: senderId=${senderId}`);
 
-    const response = await apiClient.delete(`/api/v1/dependency/delete/accept`, {
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      data: { senderId } // ✅ JSON body에 senderId 포함
+    const response = await apiClient.post(`/api/v1/dependency/delete/accept`, {
+      senderId, // ✅ 요청 바디에 senderId 포함
     });
 
     console.log("🔍 서버 응답:", response);
@@ -215,6 +212,31 @@ export const rejectDependencyDelete = async (senderId) => {
     }
   } catch (error) {
     console.error("❌ rejectDependencyDelete API 호출 실패:", error);
+    return false;
+  }
+};
+
+// ✅ 관계 삭제 요청 보내기 (삭제 요청 API)
+export const requestDependencyDelete = async (dependencyId) => {
+  try {
+    if (!dependencyId) {
+      console.error("❌ dependencyId가 없습니다!", dependencyId);
+      return false;
+    }
+
+    console.log(`🔗 관계 삭제 요청: /api/v1/dependency/delete/${dependencyId}`);
+
+    const response = await apiClient.post(`/api/v1/dependency/delete/${dependencyId}`);
+
+    if (response.data && response.data.isSuccess) {
+      console.log("✅ 관계 삭제 요청 성공:", response.data.message);
+      return true;
+    } else {
+      console.error("❌ 관계 삭제 요청 실패:", response.data.message || "알 수 없는 오류");
+      return false;
+    }
+  } catch (error) {
+    console.error(`❌ requestDependencyDelete API 호출 실패 (dependencyId: ${dependencyId}):`, error);
     return false;
   }
 };
