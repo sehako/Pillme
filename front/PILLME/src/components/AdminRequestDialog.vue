@@ -33,7 +33,6 @@
 </template>
 
 <script setup>
-import { defineProps, defineEmits } from "vue";
 import { rejectAdminRequest, acceptAdminRequest } from "../api/notify";
 
 const emit = defineEmits(["close", "reject", "accept"]);
