@@ -2,14 +2,12 @@ package com.ssafy.pillme.search.presentation;
 
 import com.ssafy.pillme.global.code.SuccessCode;
 import com.ssafy.pillme.global.response.JSONResponse;
-import com.ssafy.pillme.management.application.ManagementService;
 import com.ssafy.pillme.search.application.SearchService;
 import com.ssafy.pillme.search.application.response.MedicationSearchResponse;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
