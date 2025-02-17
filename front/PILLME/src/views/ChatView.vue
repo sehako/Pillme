@@ -13,25 +13,29 @@
       <div class="overflow-x-auto w-full whitespace-nowrap px-1.5 py-2">
         <div class="w-48 sm:w-56 md:w-64 lg:w-72 flex flex-nowrap space-x-4">
           <GreenCard
-            v-for="user in chatStore.users"
-            :key="user.id"
+            v-for="user in dependents"
+            :key="user.dependentId"
             class="flex flex-col min-w-[200px] p-1 rounded-lg bg-9DBB9F80"
           >
             <div class="flex flex-col items-center justify-between">
-              <p class="font-bold text-lg text-nowrap">{{ user.name }}</p>
+              <p class="font-bold text-lg text-nowrap">{{ user.dependentName }}</p>
               <div class="flex flex-row items-center space-x-2">
+                <!-- 아침 -->
                 <div class="flex flex-col items-center justify-center">
                   <div class="bg-[#9DBB9F80] rounded-full p-1">아침</div>
                   <img src="../assets/CheckCircle.svg" alt="약물복용체크" />
                 </div>
+                <!-- 점심 -->
                 <div class="flex flex-col items-center justify-center">
                   <div class="bg-[#FFE2E2] rounded-full p-1">점심</div>
                   <img src="../assets/CheckCircle.svg" alt="약물복용체크" />
                 </div>
+                <!-- 저녁 -->
                 <div class="flex flex-col items-center justify-center">
                   <div class="bg-[#EF7C8E] rounded-full p-1">저녁</div>
                   <img src="../assets/CheckCircle.svg" alt="약물복용체크" />
                 </div>
+                <!-- 자기 전 -->
                 <div class="flex flex-col items-center justify-center">
                   <div class="bg-[#888585] rounded-full p-1">자기 전</div>
                   <img src="../assets/CheckCircle.svg" alt="약물복용체크" />
@@ -106,6 +110,11 @@ import { getChatRoomList, enterChatRoom } from '../api/chatRoom';
 import { decodeToken } from "../utils/jwt"; // ✅ JWT 디코딩 유틸 추가
 import SockJS from 'sockjs-client/dist/sockjs.min.js'
 import Stomp from "stompjs";
+import { useDependents } from '../composables/useDependents';
+import { fetchManagementData } from '../api/drugmanagement_dependency';
+
+const { dependents, loadDependents } = useDependents();
+
 const chatStore = useChatStore();
 const router = useRouter();
 
@@ -116,6 +125,81 @@ const myId = tokenId ? tokenId : null;
 const searchQuery = ref('');
 const chatRooms = ref([]);
 
+
+// 각 가족의 개별 복약 데이터를 저장 (dependentId가 key)
+const processedManagementData = ref({});
+
+/**
+ * 각 약의 시간대별 복용 상태를 처리
+ * 만약 처방이 없으면 "처방없음"
+ * 처방이 있으면
+ * - "복용완료"와 "미복용" 상태만 고려 (처방없음은 제외)
+ * - 복용완료가 하나 이상이고 미복용이 하나 이상이면 "일부 미복용"
+ * - 복용완료만 있으면 "복용완료"
+ * - 미복용만 있으면 "완전 미복용"
+ */
+const aggregateStatus = (meds, key) => {
+  // key는 "morning", "lunch", "dinner", "sleep"
+  const statuses = meds.map(med => med[key]).filter(status => status !== "처방없음");
+  if (statuses.length === 0) return "처방없음";
+  const hasTaken = statuses.includes("복용완료");
+  const hasNot = statuses.includes("미복용");
+  if (hasNot) {
+    return hasTaken ? "일부 미복용" : "완전 미복용";
+  }
+  return "복용완료";
+};
+
+// 기존의 API 응답을 시간별로 가공하는 함수
+const processMedicationData = (managementResult) => {
+  if (!managementResult || managementResult.length === 0) {
+    return { hasPrescription: false, message: "현재 복용중인 처방전이 없습니다." };
+  }
+  const processed = managementResult.map((med) => ({
+    managementId: med.managementId,
+    medicationName: med.medicationName,
+    morning: med.morning ? (med.morningTaking ? "복용완료" : "미복용") : "처방없음",
+    lunch: med.lunch ? (med.lunchTaking ? "복용완료" : "미복용") : "처방없음",
+    dinner: med.dinner ? (med.dinnerTaking ? "복용완료" : "미복용") : "처방없음",
+    sleep: med.sleep ? (med.sleepTaking ? "복용완료" : "미복용") : "처방없음"
+  }));
+  return { hasPrescription: true, data: processed };
+};
+
+// 모든 dependent에 대해 관리 데이터를 요청하고 가공하는 함수
+const loadAllManagementData = async () => {
+  try {
+    // 먼저 dependents 데이터를 불러옴
+    await loadDependents();
+    const managementPromises = dependents.value.map(async (dependent) => {
+      const response = await fetchManagementData(dependent.dependentId);
+      const processedData = processMedicationData(response.result);
+      return { dependentId: dependent.dependentId, data: processedData };
+    });
+    const results = await Promise.all(managementPromises);
+    results.forEach(item => {
+      processedManagementData.value[item.dependentId] = item.data;
+    });
+    console.log("각 사용자별 가공된 복약 데이터:", processedManagementData.value);
+
+    // 각 사용자의 aggregate 상태를 계산하여 콘솔에 출력
+    for (const dependentId in processedManagementData.value) {
+      const userData = processedManagementData.value[dependentId];
+      if (!userData.hasPrescription) {
+        console.log(`Dependent ${dependentId}: 현재 복용중인 처방전이 없습니다.`);
+      } else {
+        const meds = userData.data;
+        const morningStatus = aggregateStatus(meds, "morning");
+        const lunchStatus = aggregateStatus(meds, "lunch");
+        const dinnerStatus = aggregateStatus(meds, "dinner");
+        const sleepStatus = aggregateStatus(meds, "sleep");
+        console.log(`Dependent ${dependentId} - 아침: ${morningStatus}, 점심: ${lunchStatus}, 저녁: ${dinnerStatus}, 자기 전: ${sleepStatus}`);
+      }
+    }
+  } catch (error) {
+    console.error("모든 관리 데이터 요청 실패:", error);
+  }
+};
 
 let stompClient = null;
 let headers = {Authorization : localStorage.getItem('accessToken')};
@@ -175,7 +259,9 @@ const loadChatRooms = async () => {
   }
 };
 
+
 onMounted(() => {
+  loadAllManagementData(); // 모든 가족의 복약 데이터를 불러와 처리
   loadChatRooms();
   connectWebSocket();
 });
