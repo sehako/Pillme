@@ -77,14 +77,12 @@ const confirmDelete = async (dependencyId) => {
     return;
   }
 
-  if (confirm(`${member.dependentName}님과의 관계를 삭제 요청하시겠습니까?`)) {
-    const success = await requestDependencyDelete(dependencyId); // ✅ dependencyId 사용
-    if (success) {
-      alert("삭제 요청이 전송되었습니다. 상대방의 승인 후 삭제됩니다.");
-      members.value = members.value.filter(member => member.dependencyId !== dependencyId);
-    } else {
-      alert("삭제 요청에 실패했습니다. 다시 시도해주세요.");
-    }
+  // ✅ 삭제 요청을 바로 보냄 (confirm 제거)
+  const success = await requestDependencyDelete(dependencyId);
+  if (success) {
+    console.log("✅ 삭제 요청이 전송되었습니다. 상대방의 승인 후 삭제됩니다.");
+  } else {
+    console.error("❌ 삭제 요청 실패");
   }
 };
 

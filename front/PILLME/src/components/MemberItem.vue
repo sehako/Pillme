@@ -33,10 +33,7 @@ const handleDelete = () => {
     console.error("❌ dependencyId가 없습니다!", props.dependencyId);
     return;
   }
-
-  if (confirm(`${props.name}님을 목록에서 삭제하시겠습니까?`)) {
-    emit("deleteMember", props.dependencyId); // ✅ dependencyId 전송
-  }
+  emit("deleteMember", props.dependencyId); // ✅ dependencyId 전송
 };
 </script>
 
