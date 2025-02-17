@@ -22,6 +22,7 @@
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import Cookies from 'js-cookie';
+import {saveAccessToken} from '../utils/localForage'
 
 const router = useRouter()
 const error = ref('')
@@ -64,6 +65,7 @@ onMounted(async () => {
       // 토큰 저장
       // localStorage.clear(); // 기존 토큰 정보 초기화
       localStorage.setItem('accessToken', accessToken);
+      saveAccessToken(accessToken);
       // localStorage.setItem('accessTokenExpiry', expiryTime.toString());
       // Cookies.remove('refreshToken'); // 기존 쿠키 제거
       Cookies.set('refreshToken', refreshToken);

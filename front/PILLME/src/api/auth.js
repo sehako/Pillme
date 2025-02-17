@@ -3,6 +3,7 @@ import { useUserStore } from '../stores/user'; // ✅ Pinia 유저 스토어 추
 import { decodeToken } from '../utils/jwt'; // ✅ JWT 디코딩 유틸 추가
 import Cookies from 'js-cookie'; // ✅ js-cookie 라이브러리 추가
 import axios from 'axios';
+import {getAccessToken, saveAccessToken, deleteAccessToken} from '../utils/localForage';
 // ===========================
 // 인증 관련 API 함수들
 // ===========================
@@ -68,6 +69,7 @@ export const refreshAccessTokenAPI = async () => {
       }
     );
     localStorage.setItem('accessToken', response.data.result.accessToken);
+    saveAccessToken(response.data.result.accessToken);
     Cookies.set('refreshToken', response.data.result.refreshToken, {
       secure: true,
       sameSite: 'Strict',
@@ -104,6 +106,7 @@ export const logoutAPI = async () => {
 export const handleLoginSuccess = (responseData) => {
   const { accessToken, refreshToken } = responseData.result;
   localStorage.setItem('accessToken', accessToken);
+  saveAccessToken(accessToken);
   Cookies.set('refreshToken', refreshToken, { secure: true, sameSite: 'Strict' });
 
   // ✅ JWT 디코딩 후 Pinia 업데이트
@@ -115,6 +118,7 @@ export const handleLoginSuccess = (responseData) => {
 // ✅ 로그아웃 처리 함수 (js-cookie 사용, 자동 로그아웃 포함)
 export const handleLogout = () => {
   localStorage.removeItem('accessToken');
+  deleteAccessToken();
   Cookies.remove('refreshToken');
 
   // ✅ 유저 정보 초기화

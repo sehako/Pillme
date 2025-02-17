@@ -11,6 +11,7 @@ import { onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { oauthLogin } from '../api/auth';
 import Cookies from "js-cookie"; // ✅ js-cookie 라이브러리 추가
+import { saveAccessToken } from '../utils/localForage';
 const router = useRouter();
 
 onMounted(async () => {
@@ -29,6 +30,7 @@ onMounted(async () => {
     } else {
       // 로그인 성공 처리
       localStorage.setItem('accessToken', response.tokenResponse.accessToken);
+      saveAccessToken(response.tokenResponse.accessToken); // localForage로 access token 저장
       Cookies.set('refreshToken', response.tokenResponse.refreshToken, { secure: true, sameSite: 'Strict' });
       router.push('/');
     }

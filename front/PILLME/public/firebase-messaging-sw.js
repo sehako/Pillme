@@ -1,6 +1,6 @@
 importScripts('https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js');
 importScripts('https://www.gstatic.com/firebasejs/9.0.0/firebase-messaging-compat.js');
-
+importScripts("https://cdnjs.cloudflare.com/ajax/libs/localforage/1.10.0/localforage.min.js");
 const firebaseConfig = {
   apiKey: "AIzaSyCKU41WUvCo9DU7GWOuWqVJ-SURbeyl0Es",
   authDomain: "pillme-d16b6.firebaseapp.com",
@@ -9,6 +9,11 @@ const firebaseConfig = {
   messagingSenderId: "256685141880",
   appId: "1:256685141880:web:8fe6c1e8c62513a0e6628d",
 };
+
+localforage.config({
+  name: "authDB",
+  storeName: "tokens"
+});
 
 firebase.initializeApp(firebaseConfig);
 const messaging = firebase.messaging();
@@ -20,46 +25,49 @@ async function handleApiRequest(code, action, senderId) {
   let endpoint = '';
   let apiPath = '';
   let bodyData = {};
-
   // API 엔드포인트와 요청 데이터 설정
-  // switch (code) {
-  //   case 'DEPENDENCY_REQUEST':
-  //     apiPath = 'dependency';
-  //     bodyData = {
-  //       protectorId: senderId
-  //     };
-  //     break;
-  //   case 'MEDICINE_REQUEST':
-  //     apiPath = 'medicine';
-  //     bodyData = {
-  //       protectorId: senderId
-  //     };
-  //     break;
-  //   case 'DEPENDENCY_DELETE_REQUEST':
-  //     apiPath = 'dependency/delete';
-  //     bodyData = {
-  //       senderId: senderId
-  //     };
-  //     break;
-  // }
+  switch (code) {
+    case 'DEPENDENCY_REQUEST':
+      apiPath = 'dependency';
+      bodyData = {
+        protectorId: senderId
+      };
+      break;
+    case 'MEDICINE_REQUEST':
+      apiPath = 'medicine';
+      bodyData = {
+        protectorId: senderId
+      };
+      break;
+    case 'DEPENDENCY_DELETE_REQUEST':
+      apiPath = 'dependency/delete';
+      bodyData = {
+        senderId: senderId
+      };
+      break;
+  }
+  const accessToken = await localforage.getItem("accessToken");
+  console.log("Background Test Token : " + accessToken);
+  if (!accessToken) {
+      console.warn("⚠️ Access Token 없음, 인증이 필요합니다.");
+      return fetch(event.request);
+  }
+  endpoint = action === 'accept' ? 'accept' : 'reject';
+  const url = `https://i12a606.p.ssafy.io/api/v1/${apiPath}/${endpoint}`;
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${accessToken}`
+    },
+    body: JSON.stringify(bodyData)
+  });
 
-  // endpoint = action === 'accept' ? 'accept' : 'reject';
-  // const url = `https://i12a606.p.ssafy.io/api/v1/${apiPath}/${endpoint}`;
+  if (!response.ok) {
+    throw new Error(`${action} 처리 실패`);
+  }
 
-  // const response = await fetch(url, {
-  //   method: 'POST',
-  //   headers: {
-  //     'Content-Type': 'application/json',
-  //     'Authorization': `Bearer ${await self.registration.active.clients.get().localStorage.getItem('accessToken')}`
-  //   },
-  //   body: JSON.stringify(bodyData)
-  // });
-
-  // if (!response.ok) {
-  //   throw new Error(`${action} 처리 실패`);
-  // }
-
-  // return response;
+  return response;
 }
 
 // 백그라운드 메시지 처리

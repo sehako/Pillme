@@ -2,6 +2,7 @@ import { defineStore } from "pinia";
 import { refreshAccessTokenAPI } from "../api/auth";
 import { decodeToken } from "../utils/jwt";
 import Cookies from "js-cookie";
+import { deleteAccessToken} from "../utils/localForage";
 
 export const useUserStore = defineStore("user", {
   state: () => ({
@@ -19,6 +20,7 @@ export const useUserStore = defineStore("user", {
       console.log("🚫 [DEBUG] 유저 정보 초기화");
       this.user = null;
       localStorage.removeItem("accessToken"); // ✅ 추가
+      deleteAccessToken();
       Cookies.remove("refreshToken"); // ✅ 추가
     },
     async getMemberId() {
