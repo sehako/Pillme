@@ -131,7 +131,7 @@ CREATE TABLE `notification`
     `id`          BIGINT       NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `sender_id`   BIGINT       NOT NULL,
     `receiver_id` BIGINT       NOT NULL,
-    `code`        VARCHAR(20)  NULL,
+    `code`        VARCHAR(60)  NULL,
     `content`     VARCHAR(255) NULL,
     `confirm`     TINYINT      NULL,
     `created_at`  TIMESTAMP    NULL,
