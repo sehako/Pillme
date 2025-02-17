@@ -47,7 +47,7 @@ async function handleApiRequest(code, action, senderId) {
       break;
   }
   const accessToken = await localforage.getItem("accessToken");
-  console.log("Background Test Token : " + accessToken);
+  
   if (!accessToken) {
       console.warn("⚠️ Access Token 없음, 인증이 필요합니다.");
       return fetch(event.request);
@@ -73,7 +73,7 @@ async function handleApiRequest(code, action, senderId) {
 // 백그라운드 메시지 처리
 messaging.onBackgroundMessage((payload) => {
   console.log('백그라운드 메시지 수신:', payload);
-
+  
   if (payload.data) {
     const notificationOptions = {
       body: payload.data.body,
@@ -82,13 +82,20 @@ messaging.onBackgroundMessage((payload) => {
       data: {
         url: SERVICE_URL,
         code: payload.data.code,
-        senderId: payload.data.senderId
+        senderId: payload.data.senderId,
+        receiveUserId : payload.data.receiverId,
+        sendUserName : payload.data.senderName,
+        receiveUserName : payload.data.receiverName
       },
-      requireInteraction: ['DEPENDENCY_REQUEST', 'MEDICINE_REQUEST', 'DEPENDENCY_DELETE_REQUEST'].includes(payload.data.code)
+      requireInteraction: ['DEPENDENCY_REQUEST', 'MEDICINE_REQUEST', 'DEPENDENCY_DELETE_REQUEST', 'CHAT_MESSAGE'].includes(payload.data.code)
     };
 
     // 액션 버튼이 필요한 알림 타입 처리
-    if (['DEPENDENCY_REQUEST', 'MEDICINE_REQUEST', 'DEPENDENCY_DELETE_REQUEST'].includes(payload.data.code)) {
+    if(payload.data.messageType === 'CHAT_MESSAGE'){
+      notificationOptions.requireInteraction = false;
+      delete notificationOptions.actions; // 채팅은 수락/거절 버튼 불필요
+    }
+    else if (['DEPENDENCY_REQUEST', 'MEDICINE_REQUEST', 'DEPENDENCY_DELETE_REQUEST'].includes(payload.data.code)) {
       notificationOptions.actions = [
         {
           action: 'accept',
@@ -139,6 +146,48 @@ self.addEventListener('notificationclick', async (event) => {
     }
     return; // 동의/거절 처리 후 여기서 종료 (페이지 이동 없음)
   }
+
+  // 채팅 메시지 알림 클릭 시 처리
+  if (data.messageType === 'CHAT' && data.chatRoomId) {
+    const targetUrl = `${SERVICE_URL}/chat/individual?info=${encodeURIComponent(JSON.stringify({
+      chatRoomId: data.chatRoomId,
+      sendUserId: data.senderId,
+      receiveUserId: data.receiveUserId,
+      sendUserName: data.sendUserName,
+      receiveUserName: data.receiveUserName,
+    }))}`;
+
+    event.waitUntil(
+      (async () => {
+        const windowClients = await clients.matchAll({
+          type: 'window',
+          includeUncontrolled: true
+        });
+
+        // 이미 열려있는 창 찾기
+        const hadWindowToFocus = windowClients.some((windowClient) => {
+          if (windowClient.url.includes(SERVICE_URL)) {
+            return windowClient.focus().then(() => {
+              if (windowClient.url !== targetUrl) {
+                return windowClient.navigate(targetUrl);
+              }
+            });
+          }
+          return false;
+        });
+
+        // 열려있는 창이 없으면 새 창 열기
+        if (!hadWindowToFocus) {
+          const newClient = await clients.openWindow(targetUrl);
+          if (newClient) {
+            await newClient.focus();
+          }
+        }
+      })()
+    );
+    return;
+  }
+
 
   event.waitUntil(
     (async () => {
