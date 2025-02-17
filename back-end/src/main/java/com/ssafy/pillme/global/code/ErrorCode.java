@@ -89,6 +89,7 @@ public enum ErrorCode {
 
     // FCM Token
     FCM_TOKEN_NOT_FOUND(4200, NOT_FOUND, "FCM 토큰을 찾을 수 없습니다."),
+    INVALID_FCM_TOKEN(4201, BAD_REQUEST, "유효하지 않은 FCM 토큰입니다."),
 
     // 알림
     NOTIFICATION_SETTING_NOT_FOUND(4300, NOT_FOUND, "알림 설정을 찾을 수 없습니다."),

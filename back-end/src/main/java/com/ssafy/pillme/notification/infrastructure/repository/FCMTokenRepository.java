@@ -15,4 +15,8 @@ public interface FCMTokenRepository extends JpaRepository<FCMToken, Integer> {
     boolean existsByMemberIdAndTokenAndDeletedIsFalse(@Param("memberId") Long memberId, @Param("token") String token);
 
     Optional<FCMToken> findByMemberIdAndTokenAndDeletedIsFalse(@Param("memberId") Long memberId, @Param("token") String token);
+
+    Optional<FCMToken> findByTokenAndDeletedIsFalse(String token);
+
+    Optional<FCMToken> findByTokenAndMemberIdAndDeletedIsTrue(String token, Long memberId);
 }
