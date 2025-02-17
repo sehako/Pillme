@@ -148,7 +148,7 @@ self.addEventListener('notificationclick', async (event) => {
   }
 
   // 채팅 메시지 알림 클릭 시 처리
-  if (data.messageType === 'CHAT' && data.chatRoomId) {
+  if (data.code === 'CHAT' && data.chatRoomId) {
     const targetUrl = `${SERVICE_URL}/chat/individual?info=${encodeURIComponent(JSON.stringify({
       chatRoomId: data.chatRoomId,
       sendUserId: data.senderId,
