@@ -44,7 +44,7 @@
      <div 
       v-if="isAdminDialogOpen"
       class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-30"
-      @click.self="closeit"
+      @click.self="close"
     >
       <AdminRequestDialog
         class="absolute transition-transform duration-300 bg-white rounded-lg p-6 shadow-lg"
@@ -56,7 +56,7 @@
         }"
         :username="selectedNotification?.content"
         :id="selectedNotification?.senderId"
-        @close="closeit"
+        @close="close"
         @accept="handleAccept"
         @reject="handleReject"
       />
@@ -66,7 +66,7 @@
     <div 
       v-if="isDeleteDialogOpen"
       class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-30"
-      @click.self="closeit"
+      @click.self="close"
     >
       <DeleteRequestDialog
         class="absolute transition-transform duration-300 bg-white rounded-lg p-6 shadow-lg"
@@ -78,7 +78,7 @@
         }"
         :username="selectedNotification?.content"
         :id="selectedNotification?.senderId"
-        @close="closeit"
+        @close="close"
         @deleteAccept="handleDeleteAccept"
         @deleteReject="handleDeleteReject"
       />
@@ -109,11 +109,6 @@ const loadNotifications = async () => {
   console.log("📌 Fetched Notifications:", JSON.stringify(notifications.value, null, 2));
 };
 
-// ✅ closeit 메서드 추가
-const closeit = () => {
-  isAdminDialogOpen.value = false;
-  isDeleteDialogOpen.value = false;
-};
 
 const formatDate = (timestamp) => {
   if (!timestamp) return ""; // undefined 방지
