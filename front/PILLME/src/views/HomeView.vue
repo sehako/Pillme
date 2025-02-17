@@ -43,13 +43,45 @@
       </div>
     </span>
   </div>
-  <div class="flex flex-row items-end">
+  
+  <div class="flex flex-col items-left">
     <p class="font-bold text-lg">
       {{ fetchFailed ? '' : `${currentTimePeriod} 약을 드셨나요?` }}
     </p>
-    <img v-if="!fetchFailed" src="../assets/CheckCircle.svg" alt="약물복용체크" @click="completeMedications" class="cursor-pointer">
+
+    <!-- ✅ 체크박스 + 텍스트 (오른쪽 정렬) -->
+    <div class="flex justify-left items-center -ml-4">
+      <!-- ✅ 체크 아이콘 -->
+      <img 
+        v-if="!fetchFailed" 
+        :src="isMedicationCompleted ? CheckDoneboxes : Checkboxes"
+        alt="약물복용체크"
+        @click="completeMedications"
+        class="cursor-pointer transition duration-300 transform hover:scale-110 hover:opacity-80"
+      />
+
+      <!-- ✅ 오른쪽에 텍스트 추가 -->
+      <span 
+        v-if="!isMedicationCompleted"
+        class="text-sm text-gray-500 opacity-80 transition-opacity duration-300"
+      >
+        클릭해서 복약 완료!
+      </span>
+
+      <!-- ✅ 완료 후 텍스트 (✅로 변경되면 표시) -->
+      <transition name="slide-fade">
+        <span 
+          v-if="isMedicationCompleted" 
+          class="text-green-600 font-bold text-sm transition-opacity duration-500 ease-in-out"
+        >
+          복약 완료!
+        </span>
+      </transition>
+    </div>
   </div>
 </YellowCard>
+
+
 
 
 <div class="m-4 flex flex-col">
@@ -143,6 +175,9 @@ import { defineAsyncComponent } from 'vue';
 import { fetchManagementData, fetchFormattedManagementInfo  } from '../api/drugmanagement';
 import { useUserStore } from '../stores/user';
 import HistoryModal from '../components/HistoryModal.vue'; // 모달 컴포넌트 import
+import CheckDoneboxes from '../assets/CheckDoneboxes.svg';
+import Checkboxes from '../assets/Checkboxes.svg';
+
 const userStore = useUserStore();
 const memberId = ref(null);
 
@@ -152,6 +187,10 @@ const modalData = ref([]); // 초기값 설정
 //  My_Alarm.vue를 동적으로 import (모달에서만 로드)
 const MyAlarmModal = defineAsyncComponent(() => import('../views/My_Alarm.vue'));
 
+
+
+// ✅ 복약 완료 상태
+const isMedicationCompleted = ref(false);
 
 defineProps({
   navbarHeight: Number, //  props 정의
@@ -396,19 +435,17 @@ function handleModalClose() {
   showModal.value = false;
   modalData.value = []; // 필요에 따라 초기화
 }
-
-// 복약 완료 처리 함수 (사용자가 체크하면 호출)
+// ✅ 복약 완료 처리 함수
 const completeMedications = async () => {
   try {
-    const periodMap = {
-      "아침": "morning",
-      "점심": "lunch",
-      "저녁": "dinner",
-      "자기전": "sleep",
-    };
-    
-    const timePeriod = periodMap[currentTimePeriod.value] || "";
-    
+    if (isMedicationCompleted.value) {
+      alert("이미 복약 완료 처리되었습니다.");
+      return;
+    }
+
+    const periodMap = { "아침": "morning", "점심": "lunch", "저녁": "dinner", "자기전": "sleep" };
+    const timePeriod = periodMap[currentTimePeriod.value];
+
     if (!timePeriod) {
       alert("현재 시간대를 인식할 수 없습니다.");
       return;
@@ -416,14 +453,42 @@ const completeMedications = async () => {
 
     await fetchAllDrugCheck(timePeriod);
 
-    todaysMedications.value.forEach((med) => (med.taken = true));  // ❗ 여기가 문제
+    // ✅ 복약 완료 처리 성공 시 UI 업데이트
+    isMedicationCompleted.value = true;
 
-    alert("복약 완료 처리에 성공했습니다.");
+    alert("복약 완료 처리에 성공했습니다!");
   } catch (error) {
     console.error("❌ 복약 완료 처리 실패:", error);
     alert("복약 완료 처리에 실패했습니다.");
   }
 };
+// // 복약 완료 처리 함수 (사용자가 체크하면 호출)
+// const completeMedications = async () => {
+//   try {
+//     const periodMap = {
+//       "아침": "morning",
+//       "점심": "lunch",
+//       "저녁": "dinner",
+//       "자기전": "sleep",
+//     };
+    
+//     const timePeriod = periodMap[currentTimePeriod.value] || "";
+    
+//     if (!timePeriod) {
+//       alert("현재 시간대를 인식할 수 없습니다.");
+//       return;
+//     }
+
+//     await fetchAllDrugCheck(timePeriod);
+
+//     todaysMedications.value.forEach((med) => (med.taken = true));  // ❗ 여기가 문제
+
+//     alert("복약 완료 처리에 성공했습니다.");
+//   } catch (error) {
+//     console.error("❌ 복약 완료 처리 실패:", error);
+//     alert("복약 완료 처리에 실패했습니다.");
+//   }
+// };
 
 
 

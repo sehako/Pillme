@@ -43,7 +43,7 @@
 
       <!-- ✅ 상세 정보가 있는 경우: DrugHistoryDetailModal 표시 -->
       <template v-else>
-        <button @click="selectedPrescription = null" class="mb-4 text-blue-500">
+        <button @click="selectedPrescription = null" class="ml-4 text-left text-gray-500 hover:text-gray-700">
           ← 뒤로가기
         </button>
         <DrugHistoryDetailModal :prescription="selectedPrescription" />
