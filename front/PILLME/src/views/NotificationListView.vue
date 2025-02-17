@@ -109,6 +109,11 @@ const loadNotifications = async () => {
   console.log("📌 Fetched Notifications:", JSON.stringify(notifications.value, null, 2));
 };
 
+// ✅ closeit 메서드 추가
+const closeit = () => {
+  isAdminDialogOpen.value = false;
+  isDeleteDialogOpen.value = false;
+};
 
 const formatDate = (timestamp) => {
   if (!timestamp) return ""; // undefined 방지
@@ -162,15 +167,6 @@ const handleMarkAsRead = async (notificationId) => {
   } else {
     console.error("❌ 알림 읽음 처리 실패");
   }
-};
-
-const handleClose = () => {
-  isDialogOpen.value = false;
-
-  // ✅ 0.3초 후 같은 경로로 이동하여 새로고침 효과
-  setTimeout(() => {
-    router.push({ path: router.currentRoute.value.path, query: { refresh: Date.now() } });
-  }, 300);
 };
 
 //알림 삭제(단일)
@@ -337,9 +333,11 @@ const handleDeleteAccept = async ({ id }) => {
     .filter(n => n.senderId === id)
     .map(n => n.notificationId);
 
+  
   const success = await deleteNotification(notificationIds);
   if (success) {
     notifications.value = notifications.value.filter(n => !notificationIds.includes(n.notificationId));
+    await loadNotifications();
   }
 
   isDeleteDialogOpen.value = false;

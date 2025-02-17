@@ -62,6 +62,7 @@ const loadDependents = async () => {
   }
 };
 
+
 // ✅ 관계 삭제 요청 (dependencyId 사용)
 const confirmDelete = async (dependencyId) => {
   console.log(`🛠 삭제 요청: dependencyId = ${dependencyId}`);
