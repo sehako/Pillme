@@ -3,8 +3,7 @@
     <div class="flex flex-col w-full">
       <!-- 상단 안내 메시지 -->
       <div
-        class="w-full flex items-center justify-between bg-[#9DBB9F80] p-3 rounded-b-sm shadow-md"
-      >
+        class="w-full flex items-center justify-between bg-[#9DBB9F80] p-3 rounded-b-sm shadow-md">
         <h2 class="text-lg font-bold text-green-900">오늘 복약 하셔야 하는 분들입니다.</h2>
         <button class="text-green-700 text-xl">⚙️</button>
       </div>
@@ -13,36 +12,65 @@
       <div class="overflow-x-auto w-full whitespace-nowrap px-1.5 py-2">
         <div class="w-48 sm:w-56 md:w-64 lg:w-72 flex flex-nowrap space-x-4">
           <GreenCard
-            v-for="user in dependents"
-            :key="user.dependentId"
-            class="flex flex-col min-w-[200px] p-1 rounded-lg bg-9DBB9F80"
-          >
-            <div class="flex flex-col items-center justify-between">
-              <p class="font-bold text-lg text-nowrap">{{ user.dependentName }}</p>
-              <div class="flex flex-row items-center space-x-2">
-                <!-- 아침 -->
-                <div class="flex flex-col items-center justify-center">
-                  <div class="bg-[#9DBB9F80] rounded-full p-1">아침</div>
-                  <img src="../assets/CheckCircle.svg" alt="약물복용체크" />
-                </div>
-                <!-- 점심 -->
-                <div class="flex flex-col items-center justify-center">
-                  <div class="bg-[#FFE2E2] rounded-full p-1">점심</div>
-                  <img src="../assets/CheckCircle.svg" alt="약물복용체크" />
-                </div>
-                <!-- 저녁 -->
-                <div class="flex flex-col items-center justify-center">
-                  <div class="bg-[#EF7C8E] rounded-full p-1">저녁</div>
-                  <img src="../assets/CheckCircle.svg" alt="약물복용체크" />
-                </div>
-                <!-- 자기 전 -->
-                <div class="flex flex-col items-center justify-center">
-                  <div class="bg-[#888585] rounded-full p-1">자기 전</div>
-                  <img src="../assets/CheckCircle.svg" alt="약물복용체크" />
-                </div>
-              </div>
-            </div>
-          </GreenCard>
+  v-for="user in dependents"
+  :key="user.dependentId"
+  class="flex flex-col min-w-[200px] p-1 rounded-lg bg-9DBB9F80"
+>
+  <div class="flex flex-col items-center justify-between">
+    <p class="font-bold text-lg text-nowrap">{{ user.dependentName }}</p>
+
+<!-- 처방전이 있을 때만 체크박스 영역 표시 -->
+<div
+  v-if="processedManagementData[user.dependentId] && processedManagementData[user.dependentId].hasPrescription"
+  class="flex flex-row items-center justify-between"
+>
+  <!-- 아침 영역 -->
+  <div
+    v-if="aggregateStatus(processedManagementData[user.dependentId].data, 'morning') !== '처방없음'"
+    class="flex flex-col items-center justify-center flex-1"
+  >
+    <div class="bg-[#9DBB9F80] rounded-full p-1">아침</div>
+    <img :src="getIcon(user.dependentId, 'morning')" alt="아침 복약체크" />
+  </div>
+
+  <!-- 점심 영역 -->
+  <div
+    v-if="aggregateStatus(processedManagementData[user.dependentId].data, 'lunch') !== '처방없음'"
+    class="flex flex-col items-center justify-center flex-1"
+  >
+    <div class="bg-[#FFE2E2] rounded-full p-1">점심</div>
+    <img :src="getIcon(user.dependentId, 'lunch')" alt="점심 복약체크" />
+  </div>
+
+  <!-- 저녁 영역 -->
+  <div
+    v-if="aggregateStatus(processedManagementData[user.dependentId].data, 'dinner') !== '처방없음'"
+    class="flex flex-col items-center justify-center flex-1"
+  >
+    <div class="bg-[#EF7C8E] rounded-full p-1">저녁</div>
+    <img :src="getIcon(user.dependentId, 'dinner')" alt="저녁 복약체크" />
+  </div>
+
+  <!-- 자기 전 영역 -->
+  <div
+    v-if="aggregateStatus(processedManagementData[user.dependentId].data, 'sleep') !== '처방없음'"
+    class="flex flex-col items-center justify-center flex-1"
+  >
+    <div class="bg-[#888585] rounded-full p-1">수면</div>
+    <img :src="getIcon(user.dependentId, 'sleep')" alt="자기 전 복약체크" />
+  </div>
+</div>
+
+
+
+    <!-- 처방전이 없는 경우 -->
+    <div v-else class="flex flex-nowrap items-center justify-center p-2 rounded-lg bg-[#9DBB9F80]">
+      <span>처방전이<br>없습니다.</span>
+    </div>
+  </div>
+</GreenCard>
+
+
         </div>
       </div>
       <hr class="border-t border-[#9DBB9F80]" />
@@ -65,12 +93,12 @@
         </div>
 
         <div v-else class="space-y-2">
-          <div
-            v-for="room in chatRooms"
-            :key="room.chatRoomId"
-            class="flex items-center justify-between p-4 bg-[#9DBB9F26] rounded-lg shadow-md cursor-pointer hover:bg-[#B5CCB7] transition"
-            @click="enterChat(room.opponentId)"
-          >
+<div
+  v-for="room in filteredChatRooms"
+  :key="room.chatRoomId"
+  class="flex items-center justify-between p-4 bg-[#9DBB9F26] rounded-lg shadow-md cursor-pointer hover:bg-[#B5CCB7] transition"
+  @click="enterChat(room.opponentId)"
+>
             <!-- 왼쪽: 상대방 프로필 및 이름 -->
             <div class="flex items-center space-x-2">
               <div
@@ -90,7 +118,7 @@
               <span
                 v-if="room.unreadMessageCount > 0"
                 class="bg-red-500 text-white text-xs font-semibold px-2 py-1 rounded-full"
-              >
+                >
                 {{ room.unreadMessageCount }}
               </span>
             </div>
@@ -112,6 +140,8 @@ import SockJS from 'sockjs-client/dist/sockjs.min.js'
 import Stomp from "stompjs";
 import { useDependents } from '../composables/useDependents';
 import { fetchManagementData } from '../api/drugmanagement_dependency';
+import CheckDoneboxes from '../assets/CheckDoneboxes.svg';
+import Checkboxes from '../assets/Checkboxes.svg';
 
 const { dependents, loadDependents } = useDependents();
 
@@ -125,6 +155,18 @@ const myId = tokenId ? tokenId : null;
 const searchQuery = ref('');
 const chatRooms = ref([]);
 
+// 특정 dependent의 시간대별 aggregated 상태에 따른 아이콘을 반환하는 함수
+const getIcon = (dependentId, timeKey) => {
+  const data = processedManagementData.value[dependentId];
+  // 만약 복용중인 처방전이 없다면 기본 아이콘 (예: 미복용 아이콘) 반환
+  if (!data || !data.hasPrescription) {
+    return Checkboxes;
+  }
+  // data.data 배열 안의 개별 약들에 대해 aggregate 상태를 계산
+  const status = aggregateStatus(data.data, timeKey);
+  // "복용완료"이면 체크 완료 아이콘, 그 외(일부/완전 미복용)이면 미체크 아이콘 반환
+  return status === "복용완료" ? CheckDoneboxes : Checkboxes;
+};
 
 // 각 가족의 개별 복약 데이터를 저장 (dependentId가 key)
 const processedManagementData = ref({});
@@ -200,6 +242,8 @@ const loadAllManagementData = async () => {
     console.error("모든 관리 데이터 요청 실패:", error);
   }
 };
+
+
 
 let stompClient = null;
 let headers = {Authorization : localStorage.getItem('accessToken')};
