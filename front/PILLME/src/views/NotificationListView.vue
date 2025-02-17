@@ -46,32 +46,35 @@
       class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-30"
       @click.self="isDialogOpen = false"
     >
-      <AdminRequestDialog
-        class="absolute transition-transform duration-300 bg-white rounded-lg p-6 shadow-lg"
-        :style="{ 
-          width: dialogSize.width, 
-          maxWidth: '90%', 
-          top: `${dialogPosition.top}px`, 
-          left: `${dialogPosition.left}px` 
-        }"
-        :username="selectedNotification?.content"
-        :id="selectedNotification?.senderId"
-        @close="isDialogOpen = false"
-        @accept="handleAccept"
-        @reject="handleReject"
-      />
+<AdminRequestDialog
+  class="absolute transition-transform duration-300 bg-white rounded-lg p-6 shadow-lg"
+  :style="{ 
+    width: dialogSize.width, 
+    maxWidth: '90%', 
+    top: `${dialogPosition.top}px`, 
+    left: `${dialogPosition.left}px` 
+  }"
+  :username="selectedNotification?.content"
+  :id="selectedNotification?.senderId"
+  @closeit="handleClose"
+  @accept="handleAccept"
+  @reject="handleReject"
+/>
+
     </div>
   </div>
 </template>
  
 <script setup>
 import { ref, onMounted, onUnmounted, nextTick } from "vue";
+import { useRouter } from "vue-router";
+
 import { fetchNotifications, deleteNotification, markNotificationAsRead, deleteAllNotifications } from "../api/notify";
 import { refreshAccessTokenAPI } from "../api/auth";
 import NotificationItem from "../components/NotificationItem.vue";
 import AdminRequestItem from "../components/AdminRequestItem.vue";
 import AdminRequestDialog from "../components/AdminRequestDialog.vue";
-
+const router = useRouter();
 const notifications = ref([]);
 const isDialogOpen = ref(false);
 const dialogPosition = ref({ top: 0, left: 0 });
@@ -139,7 +142,14 @@ const handleMarkAsRead = async (notificationId) => {
   }
 };
 
+const handleClose = () => {
+  isDialogOpen.value = false;
 
+  // ✅ 0.3초 후 같은 경로로 이동하여 새로고침 효과
+  setTimeout(() => {
+    router.push({ path: router.currentRoute.value.path, query: { refresh: Date.now() } });
+  }, 300);
+};
 
 //알림 삭제(단일)
 const handleDelete = async (notificationId) => {
