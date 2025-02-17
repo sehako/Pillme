@@ -10,7 +10,8 @@
           v-model="passwords.current"
           type="password"
           placeholder="현재 비밀번호"
-          @blur="validateCurrentPassword"
+          autocomplete="current-password"
+          @input="validateCurrentPassword"
           class="border border-gray-300 rounded w-full p-2 outline-none focus:ring-2 focus:ring-[#3D5A3F]"
         />
         <p
@@ -31,6 +32,7 @@
           v-model="passwords.new"
           type="password"
           placeholder="새 비밀번호"
+          autocomplete="new-password"
           @input="validateNewPassword"
           class="border border-gray-300 rounded w-full p-2 outline-none focus:ring-2 focus:ring-[#3D5A3F]"
         />
@@ -77,9 +79,10 @@
 
 <script setup>
 import { ref, computed } from 'vue';
+import { debounce } from 'lodash';
 import { useRouter } from 'vue-router';
 import BackButton from '../components/BackButton.vue';
-import { checkPassword, changePassword } from '../api/mypage';
+import { checkCurrentPassword, checkPassword, changePassword } from '../api/mypage';
 
 const router = useRouter();
 const isLoading = ref(false);
@@ -119,7 +122,7 @@ const validateCurrentPassword = async () => {
   }
 
   try {
-    const result = await checkPassword(passwords.value.current, passwords.value.new);
+    const result = await checkCurrentPassword(passwords.value.current);
     validationStates.value.currentValid = result.isCurrentPasswordValid;
     validationMessages.value.current = result.isCurrentPasswordValid
       ? '현재 비밀번호가 일치합니다'
@@ -131,7 +134,7 @@ const validateCurrentPassword = async () => {
 };
 
 // 새 비밀번호 검증
-const validateNewPassword = async () => {
+const validateNewPassword = debounce(async () => {
   if (!passwords.value.new) {
     validationMessages.value.new = '새 비밀번호를 입력해주세요';
     validationStates.value.newValid = false;
@@ -139,16 +142,16 @@ const validateNewPassword = async () => {
   }
 
   try {
-    const result = await checkPassword(passwords.value.current, passwords.value.new);
+    const result = await checkPassword(passwords.value.new);
     validationStates.value.newValid = result.isNewPasswordValid;
     validationMessages.value.new = result.isNewPasswordValid
       ? ''
-      : '비밀번호는 대소문자, 숫자, 특수문자를 포함한 12자여야 합니다';
+      : '비밀번호는 대소문자, 숫자, 특수문자를 포함한 12자 이상이어야 합니다';
   } catch (error) {
     validationMessages.value.new = error.message;
     validationStates.value.newValid = false;
   }
-};
+}, 500); // 500ms 디바운스
 
 // 새 비밀번호 확인 검증
 const validateConfirmPassword = () => {
@@ -171,9 +174,11 @@ const handleChangePassword = async () => {
 
   try {
     isLoading.value = true;
-    await changePassword(passwords.value.current, passwords.value.new);
-    alert('비밀번호가 성공적으로 변경되었습니다');
-    router.push('/mypage');
+    const result = await changePassword(passwords.value.current, passwords.value.new);
+    if (result) {
+      alert('비밀번호가 성공적으로 변경되었습니다');
+      router.push('/mypage');
+    }
   } catch (error) {
     alert(error.message);
   } finally {

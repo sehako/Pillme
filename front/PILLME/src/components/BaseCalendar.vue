@@ -1,6 +1,7 @@
 <template>
   <div class="full-calendar-container relative">
     <FullCalendar
+    ref="calendarRef"
       :options="calendarOptions"
       class="full-calendar text-xs sm:text-sm md:text-base"
     />
@@ -35,12 +36,21 @@
 </template>
 
 <script setup>
-import { ref, computed, defineProps } from "vue";
+import { ref, computed, defineProps,onMounted, onUnmounted, nextTick } from "vue";
 import FullCalendar from "@fullcalendar/vue3";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import { transformPrescriptionsToEvents } from '../composables/useCalendarEvents';
 
+const calendarRef = ref(null);
+
+function updateCalendarSize() {
+  nextTick(() => {
+    if (calendarRef.value) {
+      calendarRef.value.getApi().updateSize();
+    }
+  });
+}
 /** ✅ (A) props 정의 */
 const props = defineProps({
   mode: {
@@ -128,6 +138,7 @@ const calendarOptions = computed(() => ({
   locale: "ko",
   initialView: "dayGridMonth",
   height: "auto",
+  aspectRatio: 1.5, // ✅ 반응형 비율 조정
   headerToolbar: {
     left: "prev",
     center: "title",
@@ -141,15 +152,23 @@ const calendarOptions = computed(() => ({
   eventDisplay: "block",
   dateClick: onDateClick,
   eventClick: onEventClick,
-  dayCellDidMount: onDayCellDidMount
+  dayCellDidMount: onDayCellDidMount,
 }));
+onMounted(() => {
+  window.addEventListener("resize", updateCalendarSize);
+  updateCalendarSize(); // ✅ 초기 로딩 시에도 크기 조정
+});
+
+onUnmounted(() => {
+  window.removeEventListener("resize", updateCalendarSize);
+});
 </script>
 
 <style scoped>
 .full-calendar-container {
-  @apply w-full relative;
+  @apply w-full flex flex-col items-center;
+  min-height: 300px; /* ✅ 최소 높이 설정 (원하는 값으로 조정 가능) */
 }
-
 /* 날짜 클릭 시 하이라이트 */
 .bg-yellow-200 {
   background-color: rgb(253 230 138 / 0.8) !important;
@@ -162,4 +181,21 @@ const calendarOptions = computed(() => ({
 .modal-content {
   @apply bg-white rounded p-4 max-w-xs w-full;
 }
+
+::v-deep .fc-button {
+  /* 기본 상태: 부드러운 오프화이트 배경, 중간 녹색 테두리, 진한 녹색 텍스트 */
+  background-color: #FFFDEC !important;
+  border: 1px solid #9DBB9F !important;
+  color: #4E7351 !important;
+  /* transition: background-color 0.3s, border-color 0.3s, color 0.3s; */
+}
+
+::v-deep .fc-button:hover {
+  /* hover 상태: 배경과 테두리를 중간 녹색으로 채워서, 텍스트는 오프화이트로 반전 */
+  background-color: #9DBB9F !important;
+  border-color: #9DBB9F !important;
+  color: #FFFDEC !important;
+}
+
+
 </style>

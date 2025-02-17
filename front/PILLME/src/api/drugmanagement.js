@@ -26,7 +26,8 @@ export const fetchManagementData = async () => {
   }
 };
 
-// 복약 상세정보
+
+// 복약 상세정보 가져오기 + memberId 반환
 export const fetchFormattedManagementInfo = async () => {
   const userStore = useUserStore();
   const memberId = await userStore.getMemberId();
@@ -34,7 +35,7 @@ export const fetchFormattedManagementInfo = async () => {
   console.log("🔍 [DEBUG] 요청 memberId:", memberId);
   if (!memberId) {
     console.error("❌ [DEBUG] memberId를 가져올 수 없음. 요청 중단.");
-    return [];
+    return { memberId: null, prescriptions: [] }; // ✅ memberId도 함께 반환
   }
 
   try {
@@ -48,7 +49,7 @@ export const fetchFormattedManagementInfo = async () => {
 
     if (!infoResponse.data || !Array.isArray(infoResponse.data.result) || infoResponse.data.result.length === 0) {
       console.error("🚨 [DEBUG] 처방전 데이터가 유효하지 않음. 응답 데이터:", infoResponse.data);
-      return [];
+      return { memberId, prescriptions: [] };
     }
 
     // ✅ 2단계: 모든 처방전의 상세 정보 가져오기 (병렬 요청)
@@ -73,16 +74,9 @@ export const fetchFormattedManagementInfo = async () => {
             return null;
           }
 
-          // ✅ 3단계: 날짜 변환 함수 (배열 → YYYY-MM-DD)
-          const formatDateArray = (dateArray) => {
-            if (!Array.isArray(dateArray) || dateArray.length !== 3) return null;
-            const [year, month, day] = dateArray;
-            return `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
-          };
-
-          // ✅ 4단계: `startDate`, `endDate`를 우선 사용, 없으면 `medicationPeriod`에서 추출
-          let startDate = formatDateArray(response.data.result.startDate);
-          let endDate = formatDateArray(response.data.result.endDate);
+          // ✅ 3단계: 날짜 변환
+          let startDate = response.data.result.startDate || "날짜 없음";
+          let endDate = response.data.result.endDate || "날짜 없음";
 
           if (!startDate || !endDate) {
             console.warn(`⚠️ [DEBUG] startDate 또는 endDate가 없음. medicationPeriod에서 추출 시도.`);
@@ -98,8 +92,9 @@ export const fetchFormattedManagementInfo = async () => {
 
           // ✅ 5단계: 데이터 정돈 후 리스트에 추가
           return {
+            informationId: prescription.informationId,  // ✅ 추가
             diseaseName: response.data.result.diseaseName || "정보 없음",
-            medicationPeriod: `${startDate} ~ ${endDate}`, // 변환된 날짜 사용
+            medicationPeriod: `${startDate} ~ ${endDate}`,
             medications: response.data.result.medications.length > 0
               ? response.data.result.medications.map(med => med.medicationName).join(", ")
               : "약 정보 없음",
@@ -116,9 +111,91 @@ export const fetchFormattedManagementInfo = async () => {
     const validPrescriptionList = prescriptionList.filter(prescription => prescription !== null);
 
     console.log("📋 [DEBUG] 최종 정돈된 처방전 리스트:", validPrescriptionList);
-    return validPrescriptionList;
+    return { memberId, prescriptions: validPrescriptionList }; // ✅ memberId와 prescriptions 함께 반환
   } catch (error) {
     console.error("❌ [DEBUG] Management 정보 요청 실패:", error);
-    return [];
+    return { memberId: null, prescriptions: [] };
   }
 };
+
+
+
+// ✅ `/api/v1/management/{infoId}?reader={memberId}` API 호출 함수
+export const fetchAllManagementDetails = async (informationIdList, memberId) => {
+  // ✅ 결과 저장 배열
+  const results = [];
+
+  // ✅ 사용 횟수 추적 변수
+  let usageCount = 0;
+
+  for (const infoId of informationIdList) {
+    if (usageCount >= informationIdList.length) {
+      console.warn("⚠️ [DEBUG] memberId 사용 제한 초과! 더 이상 요청을 보낼 수 없습니다.");
+      break;
+    }
+
+    try {
+      console.log(`📡 [DEBUG] 요청: /api/v1/management/${infoId}?reader=${memberId}`);
+
+      // ✅ API 요청 실행
+      const response = await apiClient.get(`/api/v1/management/${infoId}`, {
+        params: { reader: memberId }
+      });
+
+      console.log("📦 [DEBUG] 응답 데이터:", response.data);
+
+      // ✅ 응답 데이터 저장
+      results.push(response.data);
+
+      // ✅ 사용 횟수 증가
+      usageCount++;
+
+    } catch (error) {
+      console.error(`❌ [DEBUG] ${infoId} 정보 가져오기 실패:`, error);
+    }
+  }
+
+  console.log("📋 [DEBUG] 최종 API 응답 결과:", results);
+  return results; // ✅ 모든 API 응답 결과 반환
+};
+
+
+
+// ✅ API 응답을 개별 medication 단위로 변환하는 함수
+export const transformManagementDetails = (apiResponse) => {
+  const transformedData = [];
+
+  apiResponse.forEach((prescription, index) => {
+    if (prescription.code === 2000 && prescription.isSuccess && prescription.result) {
+      const { diseaseName, startDate, endDate, hospital, medications } = prescription.result;
+
+      medications.forEach(med => {
+        transformedData.push({
+          prescriptionIndex: index, // ✅ 처방전 번호 추가 (0, 1, 2...)
+          diseaseName,
+          startDate,
+          endDate,
+          hospital,
+          medicationName: med.medicationName,
+          managementId: med.managementId,
+
+          // ✅ 복약 예정 여부
+          morning: med.morning || false,
+          lunch: med.lunch || false,
+          dinner: med.dinner || false,
+          sleep: med.sleep || false,
+
+          // ✅ 실제 복약 여부 추가
+          morningTaking: med.morningTaking || false,
+          lunchTaking: med.lunchTaking || false,
+          dinnerTaking: med.dinnerTaking || false,
+          sleepTaking: med.sleepTaking || false,
+        });
+      });
+    }
+  });
+
+  console.log("📋 [DEBUG] 변환된 Medication 리스트:", transformedData);
+  return transformedData;
+};
+
