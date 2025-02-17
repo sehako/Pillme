@@ -43,27 +43,64 @@
       </div>
     </span>
   </div>
-  <div class="flex flex-row items-end">
+  
+  <div class="flex flex-col items-left">
     <p class="font-bold text-lg">
       {{ fetchFailed ? '' : `${currentTimePeriod} 약을 드셨나요?` }}
     </p>
-    <img v-if="!fetchFailed" src="../assets/CheckCircle.svg" alt="약물복용체크" @click="completeMedications" class="cursor-pointer">
+
+    <!-- ✅ 체크박스 + 텍스트 (오른쪽 정렬) -->
+    <div class="flex justify-left items-center -ml-4">
+      <!-- ✅ 체크 아이콘 -->
+      <img 
+        v-if="!fetchFailed" 
+        :src="isMedicationCompleted ? CheckDoneboxes : Checkboxes"
+        alt="약물복용체크"
+        @click="completeMedications"
+        class="cursor-pointer transition duration-300 transform hover:scale-110 hover:opacity-80"
+      />
+
+      <!-- ✅ 오른쪽에 텍스트 추가 -->
+      <span 
+        v-if="!isMedicationCompleted"
+        class="text-sm text-gray-500 opacity-80 transition-opacity duration-300"
+      >
+        클릭해서 복약 완료!
+      </span>
+
+      <!-- ✅ 완료 후 텍스트 (✅로 변경되면 표시) -->
+      <transition name="slide-fade">
+        <span 
+          v-if="isMedicationCompleted" 
+          class="text-green-600 font-bold text-sm transition-opacity duration-500 ease-in-out"
+        >
+          복약 완료!
+        </span>
+      </transition>
+    </div>
   </div>
 </YellowCard>
 
 
-<!-- 복용 내역 카드 -->
-<div class="m-4 flex flex-col">
-  <p class="text-xl font-bold">복용 내역</p>
 
-  <!-- ✅ 가로 스크롤 가능하게 설정 -->
+
+<div class="m-4 flex flex-col">
+    <!-- 헤더 영역: 제목과 오른쪽 정렬된 "See all" 버튼 -->
+    <div class="flex justify-between items-center mb-2">
+      <p class="text-xl font-bold">복용 내역</p>
+      <button @click="seeAllFunction" class="text-sm text-blue-500 hover:underline">
+        See all
+      </button>
+    </div>
+
+  <!-- 가로 스크롤 가능한 화이트카드 영역 -->
   <div class="scroll-container flex overflow-x-auto space-x-4 p-2">
     <WhiteCard 
       v-for="(info, index) in managementInfoList" 
       :key="index"
       overrideClass="bg-white min-w-[300px] max-w-[300px] flex-shrink-0 relative p-4 overflow-hidden"
     >
-      <!-- ✅ 병원 정보 (오른쪽 상단, 회색 & 작은 글씨) -->
+      <!-- 병원 정보 (오른쪽 상단, 회색 & 작은 글씨) -->
       <p class="absolute top-2 right-3 text-xs text-gray-400 truncate max-w-[150px]">
         {{ info.hospital || "병원 정보 없음" }}
       </p>
@@ -71,13 +108,13 @@
       <div class="flex flex-row items-center">
         <img src="../assets/logi_nofont.svg" alt="알약이미지" class="w-16 h-16">
         <div class="flex flex-col ml-4 max-w-[200px]">
-          <!-- ✅ 병명이 없으면 "병명 미등록" -->
+          <!-- 병명이 없으면 "병명 미등록" -->
           <p class="font-bold text-lg truncate max-w-[200px]">{{ info.diseaseName || "병명 미등록" }}</p>
 
-          <!-- ✅ 날짜 (회색 & 작은 글씨) -->
+          <!-- 날짜 (회색 & 작은 글씨) -->
           <p class="text-xs text-gray-500 truncate max-w-[200px]">{{ info.medicationPeriod }}</p>
 
-          <!-- ✅ 약 이름 (회색 & 작은 글씨) -->
+          <!-- 약 이름 (회색 & 작은 글씨) -->
           <p class="text-xs text-gray-500 mt-1 truncate max-w-[200px]">
             {{ info.medications || "약 정보 없음" }}
           </p>
@@ -97,7 +134,11 @@
     </main>
   </div>
 
-
+  <HistoryModal 
+  v-if="showModal && modalData && modalData.length > 0" 
+  :prescriptions="modalData" 
+  @close="handleModalClose" 
+/>
 
   <MedicationSearchDialog ref="medSearchDialog" />
   <FamilyAddModal :isOpen="isFamilyModalOpen" @close="isFamilyModalOpen = false" />
@@ -108,9 +149,10 @@
         ✕
       </button>
       <MyAlarmModal />
-    </div>
+    </div>z
   </div>
 </Teleport>
+
 
 
 </template>
@@ -119,6 +161,7 @@
 import { ref, computed, onMounted, reactive } from 'vue';
 import { fetchNotificationSettings } from '../api/setalarm';
 import { fetchAllDrugCheck } from '../api/drugcheck';
+import { fetchHistory, fetchPrescriptionPeriod  } from "../api/drughistory";
 import BaseButton from '../components/BaseButton.vue';
 import YellowCard from '../layout/YellowCard.vue';
 import WhiteCard from '../layout/WhiteCard.vue';
@@ -131,13 +174,23 @@ import BaseCalendar from '../components/BaseCalendar.vue';
 import { defineAsyncComponent } from 'vue';
 import { fetchManagementData, fetchFormattedManagementInfo  } from '../api/drugmanagement';
 import { useUserStore } from '../stores/user';
+import HistoryModal from '../components/HistoryModal.vue'; // 모달 컴포넌트 import
+import CheckDoneboxes from '../assets/CheckDoneboxes.svg';
+import Checkboxes from '../assets/Checkboxes.svg';
 
 const userStore = useUserStore();
 const memberId = ref(null);
 
+// 모달 제어용 상태 변수
+const showModal = ref(false);
+const modalData = ref([]); // 초기값 설정
 //  My_Alarm.vue를 동적으로 import (모달에서만 로드)
 const MyAlarmModal = defineAsyncComponent(() => import('../views/My_Alarm.vue'));
 
+
+
+// ✅ 복약 완료 상태
+const isMedicationCompleted = ref(false);
 
 defineProps({
   navbarHeight: Number, //  props 정의
@@ -330,19 +383,69 @@ const fetchData = async () => {
   }
 };
 
+async function seeAllFunction() {
+  try {
+    // 1. 복용 내역 데이터 받아오기
+    const historyResponse = await fetchHistory();
+    console.log("Fetched history data:", historyResponse);
 
-// 복약 완료 처리 함수 (사용자가 체크하면 호출)
+    // 2. 처방전 기간 데이터 받아오기
+    const periodResponse = await fetchPrescriptionPeriod();
+    console.log("Fetched prescription period data:", periodResponse);
+
+    // 3. 복용 내역 데이터를 informationId 기준으로 그룹화
+    const groupedHistory = {};
+    historyResponse.result.forEach(item => {
+      const id = item.informationId;
+      if (!groupedHistory[id]) {
+        groupedHistory[id] = {
+          informationId: id,
+          diseaseName: item.diseaseName,
+          hospital: item.hospital || "병원 정보 없음", // ✅ hospital이 없으면 기본값 설정
+          takingDate: item.takingDate
+        };
+      }
+    });
+
+    // 4. 각 그룹에 대해 처방전 기간 정보를 찾아서 추가
+    Object.keys(groupedHistory).forEach(id => {
+      const period = periodResponse.find(p => p.informationId === Number(id));
+      if (period) {
+        groupedHistory[id].startDate = period.startDate;
+        groupedHistory[id].endDate = period.endDate;
+      } else {
+        // ✅ startDate와 endDate가 없을 경우 기본값 설정
+        groupedHistory[id].startDate = "기간 정보 없음";
+        groupedHistory[id].endDate = "기간 정보 없음";
+      }
+    });
+
+    // 5. 최종 그룹 데이터를 배열로 변환하여 모달에 전달
+    modalData.value = Object.values(groupedHistory);
+    console.log("modalData:", modalData.value);
+    // ✅ 모든 데이터가 준비된 후 모달 열기
+    showModal.value = true;
+  } catch (error) {
+    console.error("Error fetching history or prescription period:", error);
+  }
+}
+
+
+function handleModalClose() {
+  showModal.value = false;
+  modalData.value = []; // 필요에 따라 초기화
+}
+// ✅ 복약 완료 처리 함수
 const completeMedications = async () => {
   try {
-    const periodMap = {
-      "아침": "morning",
-      "점심": "lunch",
-      "저녁": "dinner",
-      "자기전": "sleep",
-    };
-    
-    const timePeriod = periodMap[currentTimePeriod.value] || "";
-    
+    if (isMedicationCompleted.value) {
+      alert("이미 복약 완료 처리되었습니다.");
+      return;
+    }
+
+    const periodMap = { "아침": "morning", "점심": "lunch", "저녁": "dinner", "자기전": "sleep" };
+    const timePeriod = periodMap[currentTimePeriod.value];
+
     if (!timePeriod) {
       alert("현재 시간대를 인식할 수 없습니다.");
       return;
@@ -350,14 +453,42 @@ const completeMedications = async () => {
 
     await fetchAllDrugCheck(timePeriod);
 
-    todaysMedications.value.forEach((med) => (med.taken = true));  // ❗ 여기가 문제
+    // ✅ 복약 완료 처리 성공 시 UI 업데이트
+    isMedicationCompleted.value = true;
 
-    alert("복약 완료 처리에 성공했습니다.");
+    alert("복약 완료 처리에 성공했습니다!");
   } catch (error) {
     console.error("❌ 복약 완료 처리 실패:", error);
     alert("복약 완료 처리에 실패했습니다.");
   }
 };
+// // 복약 완료 처리 함수 (사용자가 체크하면 호출)
+// const completeMedications = async () => {
+//   try {
+//     const periodMap = {
+//       "아침": "morning",
+//       "점심": "lunch",
+//       "저녁": "dinner",
+//       "자기전": "sleep",
+//     };
+    
+//     const timePeriod = periodMap[currentTimePeriod.value] || "";
+    
+//     if (!timePeriod) {
+//       alert("현재 시간대를 인식할 수 없습니다.");
+//       return;
+//     }
+
+//     await fetchAllDrugCheck(timePeriod);
+
+//     todaysMedications.value.forEach((med) => (med.taken = true));  // ❗ 여기가 문제
+
+//     alert("복약 완료 처리에 성공했습니다.");
+//   } catch (error) {
+//     console.error("❌ 복약 완료 처리 실패:", error);
+//     alert("복약 완료 처리에 실패했습니다.");
+//   }
+// };
 
 
 
