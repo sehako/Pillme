@@ -3,6 +3,7 @@ package com.ssafy.pillme.management.application;
 import static com.ssafy.pillme.global.code.ErrorCode.INFORMATION_NOT_FOUND;
 import static com.ssafy.pillme.global.code.ErrorCode.INVALID_TIME_REQUEST;
 import static com.ssafy.pillme.global.code.ErrorCode.MANAGEMENT_NOT_FOUND;
+import static com.ssafy.pillme.global.code.ErrorCode.MEMBER_NOT_PROTECTOR;
 import static com.ssafy.pillme.global.code.ErrorCode.MEMBER_NOT_READER;
 import static com.ssafy.pillme.global.code.ErrorCode.MEMBER_NOT_WRITER;
 
@@ -14,6 +15,7 @@ import com.ssafy.pillme.management.application.exception.MemberIsNotReaderExcept
 import com.ssafy.pillme.management.application.exception.MemberIsNotWriterException;
 import com.ssafy.pillme.management.application.exception.NoInformationException;
 import com.ssafy.pillme.management.application.exception.NoManagementException;
+import com.ssafy.pillme.management.application.exception.NotProtectorException;
 import com.ssafy.pillme.management.application.response.CurrentTakingPrescriptionResponse;
 import com.ssafy.pillme.management.application.response.CurrentTakingResponse;
 import com.ssafy.pillme.management.application.response.TakingDetailResponse;
@@ -64,10 +66,12 @@ public class ManagementService {
         Information savedInformation = informationRepository.save(request.toInformation(writer, reader));
 
         // 작성자와 읽는 사람이 의존관계에 있는 경우
-        // TODO: 의존관계 서비스를 기다리다...
-        if (true) {
-            notificationService.sendDependencyRequestNotification(writer, reader);
-            savedInformation.dependencyBeforeSetting();
+        if (!writer.getId().equals(reader.getId())) {
+            if (dependencyService.isDependencyExist(writer, reader)) {
+                throw new NotProtectorException(MEMBER_NOT_PROTECTOR);
+            }
+            notificationService.sendTakingInformationNotification(writer, reader, savedInformation.getDiseaseName());
+            savedInformation.requested();
         }
 
         for (TakingSettingItem medication : request.medications()) {
@@ -104,12 +108,12 @@ public class ManagementService {
             final Member reader
     ) {
         Member writer = authService.findById(writerId);
-        Information requestedInformation = informationRepository.findUnAcceptedInformation(reader.getId())
-                .orElseThrow(() -> new NoInformationException(INFORMATION_NOT_FOUND));
+        Information requestedInformation = findRequestedInformation(reader.getId());
 
-        requestedInformation.dependencyAddSetting();
+        requestedInformation.requestComplete();
 
-        notificationService.sendMedicineAcceptNotification(reader, writer);
+        notificationService.sendTakingInformationAcceptNotification(reader, writer,
+                requestedInformation.getDiseaseName());
         return requestedInformation;
     }
 
@@ -118,13 +122,13 @@ public class ManagementService {
             final Member reader
     ) {
         Member writer = authService.findById(writerId);
-        Information requestedInformation = informationRepository.findUnAcceptedInformation(writerId)
-                .orElseThrow(() -> new NoInformationException(INFORMATION_NOT_FOUND));
+        Information requestedInformation = findRequestedInformation(writerId);
 
         List<Management> requestedManagements = managementRepository.findByInformationIdAndInformationReaderIdAndDeletedIsFalse(
                 requestedInformation.getId(), writerId);
 
-        notificationService.sendMedicineRejectNotification(reader, writer);
+        notificationService.sendTakingInformationRejectNotification(reader, writer,
+                requestedInformation.getDiseaseName());
         managementRepository.deleteAll(requestedManagements);
         informationRepository.delete(requestedInformation);
     }
@@ -286,19 +290,69 @@ public class ManagementService {
             final DeleteManagementRequest request,
             final Member member) {
         Information information = findInformationById(infoId);
+        Member writer = information.getWriter();
 
-        if (!information.getWriter().getId().equals(member.getId())) {
-            throw new MemberIsNotWriterException(MEMBER_NOT_WRITER);
+        try {
+            checkWriterValidation(member, information);
+
+            List<Long> managementList = request.managementList();
+            List<Management> managements = managementRepository.findManagementList(managementList, infoId);
+
+            managements.forEach(Management::delete);
+
+            if (managements.size() == managementList.size()) {
+                information.delete();
+            }
+        } catch (MemberIsNotWriterException e) {
+            sendDeleteRequestToWriter(information, member, writer);
         }
+    }
 
-        List<Long> managementList = request.managementList();
-        List<Management> managements = managementRepository.findManagementList(managementList, infoId);
+    private void sendDeleteRequestToWriter(
+            final Information information,
+            final Member reader,
+            final Member writer
+    ) {
+        information.requested();
+        notificationService.sendTakingInformationDeleteRequestNotification(reader, writer,
+                information.getDiseaseName());
+    }
+
+    public void acceptDependentDeleteRequest(
+            final Long readerId,
+            final Member writer
+    ) {
+        Information requestedInformation = findRequestedInformation(readerId);
+
+        requestedInformation.delete();
+
+        List<Management> managements = managementRepository
+                .findManagementsByInformationIdAndReaderIdFetch(
+                        requestedInformation.getId(),
+                        readerId
+                );
 
         managements.forEach(Management::delete);
+        notificationService
+                .sendTakingInformationDeleteAcceptNotification(
+                        writer,
+                        requestedInformation.getReader(),
+                        requestedInformation.getDiseaseName()
+                );
+    }
 
-        if (managements.size() == managementList.size()) {
-            information.delete();
-        }
+    public void rejectDependentDeleteRequest(
+            final Long readerId,
+            final Member writer
+    ) {
+        Information requestedInformation = findRequestedInformation(readerId);
+        requestedInformation.requestComplete();
+        notificationService
+                .sendTakingInformationDeleteRejectNotification(
+                        writer,
+                        requestedInformation.getReader(),
+                        requestedInformation.getDiseaseName()
+                );
     }
 
     private void checkWriterValidation(
@@ -321,6 +375,11 @@ public class ManagementService {
 
     private Information findInformationById(final Long infoId) {
         return informationRepository.findByIdMemberFetchJoin(infoId)
+                .orElseThrow(() -> new NoInformationException(INFORMATION_NOT_FOUND));
+    }
+
+    private Information findRequestedInformation(final Long memberId) {
+        return informationRepository.findUnAcceptedInformation(memberId)
                 .orElseThrow(() -> new NoInformationException(INFORMATION_NOT_FOUND));
     }
 }

@@ -19,6 +19,7 @@ public enum SuccessCode {
     INFORMATION_ADD_SUCCESS(2102, OK, "복약 정보 추가가 성공적으로 처리되었습니다."),
     INFORMATION_ADD_REQUEST_SUCCESS(2103, OK, "복약 정보 추가가 성공적으로 요청되었습니다."),
     MEDICATION_CHECK_SUCCESS(2104, OK, "복약 정보 단일 체크가 성공적으로 처리되었습니다."),
+    INFORMATION_DELETE_REQUEST_REJECT_SUCCESS(2105, OK, "복약 정보 삭제 요청을 거절했습니다."),
 
     // 약물 검색
     MEDICATION_SEARCH_SUCCESS(2200, OK, "약물 검색이 성공적으로 완료되었습니다"),

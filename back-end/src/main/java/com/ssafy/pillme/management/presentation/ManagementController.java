@@ -2,6 +2,7 @@ package com.ssafy.pillme.management.presentation;
 
 import static com.ssafy.pillme.global.code.SuccessCode.INFORMATION_ADD_REQUEST_SUCCESS;
 import static com.ssafy.pillme.global.code.SuccessCode.INFORMATION_ADD_SUCCESS;
+import static com.ssafy.pillme.global.code.SuccessCode.INFORMATION_DELETE_REQUEST_REJECT_SUCCESS;
 import static com.ssafy.pillme.global.code.SuccessCode.INFORMATION_SAVE_SUCCESS;
 import static com.ssafy.pillme.global.code.SuccessCode.MANAGEMENT_CHANGE_SUCCESS;
 import static com.ssafy.pillme.global.code.SuccessCode.MEDICATION_CHECK_SUCCESS;
@@ -164,9 +165,29 @@ public class ManagementController {
     public ResponseEntity<Void> deleteManagement(
             @PathVariable(value = "info-id") final Long infoId,
             @RequestBody final DeleteManagementRequest request,
-            @Auth Member member
+            @Auth final Member member
     ) {
         managementService.deleteManagement(infoId, request, member);
         return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/delete-accept/{reader-id}")
+    public ResponseEntity<Void> deleteAccept(
+            @PathVariable(value = "reader-id") final Long readerId,
+            @Auth final Member member
+    ) {
+        managementService.acceptDependentDeleteRequest(readerId, member);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/delete-reject/{reader-id}")
+    public ResponseEntity<JSONResponse<Void>> deleteReject(
+            @PathVariable(value = "reader-id") final Long readerId,
+            @Auth final Member member
+    ) {
+        managementService.acceptDependentDeleteRequest(readerId, member);
+        return ResponseEntity.ok(
+                JSONResponse.of(INFORMATION_DELETE_REQUEST_REJECT_SUCCESS)
+        );
     }
 }
