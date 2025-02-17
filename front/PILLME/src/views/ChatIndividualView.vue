@@ -50,7 +50,7 @@
   </div>
 </template>
 <script setup>
-import { ref, computed, defineProps, onMounted, nextTick, onUnmounted } from "vue";
+import { ref, computed, onMounted, nextTick, onUnmounted } from "vue";
 import { useRouter } from "vue-router";
 import SockJS from 'sockjs-client/dist/sockjs.min.js'
 import Stomp from "stompjs";
