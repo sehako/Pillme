@@ -28,7 +28,7 @@ public class ChatMessageService {
                 .toList();
     }
 
-    public void saveMessage(ChatMessage chatMessage){
+    public ChatMessage saveMessage(ChatMessage chatMessage){
         Long chatRoomId = chatMessage.getChatRoomId();
         Long receiverId = chatMessage.getReceiverId();
 
@@ -39,7 +39,7 @@ public class ChatMessageService {
             chatMessage.markAsRead();
         }
 
-        chatMessageRepository.save(chatMessage);
+        return chatMessageRepository.save(chatMessage);
     }
 
     public void markMessageAsRead(Long chatRoomId, Long userId){
