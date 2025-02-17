@@ -44,7 +44,7 @@
      <div 
       v-if="isAdminDialogOpen"
       class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-30"
-      @click.self="closeit"
+      @click.self="close"
     >
       <AdminRequestDialog
         class="absolute transition-transform duration-300 bg-white rounded-lg p-6 shadow-lg"
@@ -56,7 +56,7 @@
         }"
         :username="selectedNotification?.content"
         :id="selectedNotification?.senderId"
-        @close="closeit"
+        @close="close"
         @accept="handleAccept"
         @reject="handleReject"
       />
@@ -66,7 +66,7 @@
     <div 
       v-if="isDeleteDialogOpen"
       class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-30"
-      @click.self="closeit"
+      @click.self="close"
     >
       <DeleteRequestDialog
         class="absolute transition-transform duration-300 bg-white rounded-lg p-6 shadow-lg"
@@ -78,7 +78,7 @@
         }"
         :username="selectedNotification?.content"
         :id="selectedNotification?.senderId"
-        @close="closeit"
+        @close="close"
         @deleteAccept="handleDeleteAccept"
         @deleteReject="handleDeleteReject"
       />
@@ -162,15 +162,6 @@ const handleMarkAsRead = async (notificationId) => {
   } else {
     console.error("❌ 알림 읽음 처리 실패");
   }
-};
-
-const handleClose = () => {
-  isDialogOpen.value = false;
-
-  // ✅ 0.3초 후 같은 경로로 이동하여 새로고침 효과
-  setTimeout(() => {
-    router.push({ path: router.currentRoute.value.path, query: { refresh: Date.now() } });
-  }, 300);
 };
 
 //알림 삭제(단일)
@@ -337,9 +328,11 @@ const handleDeleteAccept = async ({ id }) => {
     .filter(n => n.senderId === id)
     .map(n => n.notificationId);
 
+  
   const success = await deleteNotification(notificationIds);
   if (success) {
     notifications.value = notifications.value.filter(n => !notificationIds.includes(n.notificationId));
+    await loadNotifications();
   }
 
   isDeleteDialogOpen.value = false;
