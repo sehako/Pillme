@@ -42,6 +42,7 @@
     <FamilyAddModal 
       :isOpen="isFamilyModalOpen" 
       @close="handleModalClose" 
+      @add="handleModalClose"
     />
   </div>
 </template>
@@ -61,9 +62,18 @@ const username = ref('');
 const router = useRouter();
 const route = useRoute();
 
-// ✅ 모달 토글
-const toggleModal = (event) => {
+// ✅ 모달 토글 (드롭다운 열 때 가족 목록 새로고침)
+const toggleModal = async (event) => {
   event.stopPropagation();
+  
+  if (!isOpen.value) { // 드롭다운을 열 때만 가족 목록 새로고침
+    try {
+      dependents.value = await fetchDependents();
+    } catch (error) {
+      console.error("가족 목록 새로고침 실패:", error);
+    }
+  }
+  
   isOpen.value = !isOpen.value;
 };
 
