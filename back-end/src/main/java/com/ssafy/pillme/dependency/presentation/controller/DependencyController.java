@@ -68,7 +68,7 @@ public class DependencyController {
      * 가족 관계 삭제 요청 수락 - 삭제 요청을 받은 회원이 삭제 요청을 수락하는 경우
      * 메시지에 존재하는 senderId를 통해 삭제 요청을 보낸 회원을 찾아서 삭제 요청을 수락
      * */
-    @DeleteMapping("/delete/accept")
+    @PostMapping("/delete/accept")
     public ResponseEntity<JSONResponse<Void>> acceptDeleteDependency(@RequestBody AcceptDependencyDeletionRequest request, @Auth Member loginMember) {
         dependencyService.acceptDeleteDependency(request, loginMember);
         return ResponseEntity.ok(JSONResponse.onSuccess());
