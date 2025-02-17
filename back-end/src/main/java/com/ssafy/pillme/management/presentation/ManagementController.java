@@ -1,5 +1,6 @@
 package com.ssafy.pillme.management.presentation;
 
+import static com.ssafy.pillme.global.code.SuccessCode.INFORMATION_ADD_REQUEST_SUCCESS;
 import static com.ssafy.pillme.global.code.SuccessCode.INFORMATION_ADD_SUCCESS;
 import static com.ssafy.pillme.global.code.SuccessCode.INFORMATION_SAVE_SUCCESS;
 import static com.ssafy.pillme.global.code.SuccessCode.MANAGEMENT_CHANGE_SUCCESS;
@@ -50,7 +51,26 @@ public class ManagementController {
     ) {
         Information information = managementService.saveTakingInformation(request, writer);
         return ResponseEntity.created(URI.create("/api/v1/management/" + information.getId()))
+                .body(JSONResponse.of(
+                        information.isRequested() ? INFORMATION_ADD_REQUEST_SUCCESS : INFORMATION_SAVE_SUCCESS));
+    }
+
+    @PostMapping("/accept/{member-id}")
+    public ResponseEntity<JSONResponse<Void>> acceptDependencyInformation(
+            @PathVariable(value = "member-id") Long memberId
+    ) {
+        Information information = managementService.acceptInformationRegisterRequest(memberId);
+        return ResponseEntity
+                .created(URI.create("/api/v1/management/" + information.getId()))
                 .body(JSONResponse.of(INFORMATION_SAVE_SUCCESS));
+    }
+
+    @DeleteMapping("/reject/{member-id}")
+    public ResponseEntity<Void> rejectDependencyInformation(
+            @PathVariable(value = "member-id") Long memberId
+    ) {
+
+        return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/{info-id}")

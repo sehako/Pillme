@@ -38,15 +38,29 @@ public class Information extends BaseEntity {
     private LocalDate endDate;
     @Column(name = "disease_name")
     private String diseaseName;
+    private boolean requested = false;
 
     @Builder
-    private Information(Member reader, Member writer, String hospital, LocalDate startDate, LocalDate endDate,
-                        String diseaseName) {
+    public Information(Member reader, Member writer, String hospital, LocalDate startDate, LocalDate endDate,
+                       String diseaseName, boolean requested) {
         this.reader = reader;
         this.writer = writer;
         this.hospital = hospital;
         this.startDate = startDate;
         this.endDate = endDate;
         this.diseaseName = diseaseName;
+        this.requested = requested;
+    }
+
+    public void dependencyBeforeSetting() {
+        this.requested = true;
+    }
+
+    public void dependencyAddSetting() {
+        this.requested = false;
+    }
+
+    public boolean isRequested() {
+        return this.requested;
     }
 }

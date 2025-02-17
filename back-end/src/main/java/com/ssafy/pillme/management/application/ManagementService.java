@@ -8,6 +8,7 @@ import static com.ssafy.pillme.global.code.ErrorCode.MEMBER_NOT_WRITER;
 
 import com.ssafy.pillme.auth.application.service.AuthService;
 import com.ssafy.pillme.auth.domain.entity.Member;
+import com.ssafy.pillme.dependency.application.service.DependencyService;
 import com.ssafy.pillme.management.application.exception.InvalidTimeSelectException;
 import com.ssafy.pillme.management.application.exception.MemberIsNotReaderException;
 import com.ssafy.pillme.management.application.exception.MemberIsNotWriterException;
@@ -32,6 +33,7 @@ import com.ssafy.pillme.management.presentation.request.CheckCurrentTakingReques
 import com.ssafy.pillme.management.presentation.request.DeleteManagementRequest;
 import com.ssafy.pillme.management.presentation.request.SingleTakingCheckRequest;
 import com.ssafy.pillme.management.presentation.request.TakingInformationRegisterRequest;
+import com.ssafy.pillme.notification.application.service.NotificationService;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -49,7 +51,8 @@ public class ManagementService {
     private final ManagementRepository managementRepository;
     private final InformationRepository informationRepository;
     private final AuthService authService;
-
+    private final NotificationService notificationService;
+    private final DependencyService dependencyService;
 
     // 새로운 복약 정보 저장
     public Information saveTakingInformation(
@@ -57,7 +60,15 @@ public class ManagementService {
             final Member writer
     ) {
         Member reader = authService.findById(request.reader());
+
         Information savedInformation = informationRepository.save(request.toInformation(writer, reader));
+
+        // 작성자와 읽는 사람이 의존관계에 있는 경우
+        // TODO: 의존관계 서비스를 기다리다...
+        if (true) {
+            notificationService.sendDependencyRequestNotification(writer, reader);
+            savedInformation.dependencyBeforeSetting();
+        }
 
         for (TakingSettingItem medication : request.medications()) {
             saveManagement(medication, savedInformation);
@@ -75,7 +86,7 @@ public class ManagementService {
         Information information = informationRepository.findByIdMemberFetchJoin(infoId)
                 .orElseThrow(() -> new NoInformationException(INFORMATION_NOT_FOUND));
         // 이 부분 조금 더 고민해봐야 함 (요구사항 명세서에 약물 삭제 요청이 있는데 고려를 안함)
-//        checkMemberValidation(member, information);
+        checkWriterValidation(member, information);
         saveManagement(request.toItem(), information);
         return information;
     }
@@ -86,6 +97,23 @@ public class ManagementService {
     ) {
         Management management = settingItem.toManagement(information);
         managementRepository.save(management);
+    }
+
+    public Information acceptInformationRegisterRequest(
+            final Long memberId
+    ) {
+        Information requestedInformation = informationRepository.findUnAcceptedInformation(memberId)
+                .orElseThrow(() -> new NoInformationException(INFORMATION_NOT_FOUND));
+
+        requestedInformation.dependencyAddSetting();
+
+        return requestedInformation;
+    }
+
+    public void rejectInformationRegisterRequest(
+            final Long memberId
+    ) {
+
     }
 
     @Transactional(readOnly = true)
