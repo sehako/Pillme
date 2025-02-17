@@ -20,7 +20,15 @@ public enum NotificationCode {
     MEDICINE_TAKE_REMINDER("MEDICINE_TAKE_REMINDER", "약 복용 요청 알림", "약 복용을 요청했습니다."),
 
     // 채팅 메시지 알림
-    CHAT_MESSAGE("CHAT_MESSAGE", "새로운 메시지", "메시지를 보냈습니다.")
+    CHAT_MESSAGE("CHAT_MESSAGE", "새로운 메시지", "메시지를 보냈습니다."),
+
+    // 처방전 알림
+    PRESCRIPTION_REQUEST("PRESCRIPTION_REQUEST", "처방전 등록 요청", "복약 정보 등록을 요청했습니다."),
+    PRESCRIPTION_ACCEPT("PRESCRIPTION_ACCEPT", "처방전 등록 수락", "복약 정보 등록이 수락되었습니다."),
+    PRESCRIPTION_REJECT("PRESCRIPTION_REJECT", "처방전 등록 거절", "복약 정보 등록이 거절되었습니다."),
+    PRESCRIPTION_DELETE_REQUEST("PRESCRIPTION_DELETE_REQUEST", "처방전 삭제 요청", "복약 정보 삭제를 요청했습니다."),
+    PRESCRIPTION_DELETE_ACCEPT("PRESCRIPTION_DELETE_ACCEPT", "처방전 삭제 수락", "복약 정보 삭제가 수락되었습니다."),
+    PRESCRIPTION_DELETE_REJECT("PRESCRIPTION_DELETE_REJECT", "처방전 삭제 거절", "복약 정보 삭제가 거절되었습니다."),
     ;
 
     // 어떤 종류의 알림인지 구분하기 위한 코드
