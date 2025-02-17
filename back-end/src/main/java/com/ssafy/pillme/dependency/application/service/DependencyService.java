@@ -191,4 +191,10 @@ public class DependencyService {
 
         return RelationShipListResponse.of(dependencies, loginMember.getId());
     }
+
+    // 보호자와 피보호자 간의 관계가 존재하는지 확인
+    @Transactional(readOnly = true)
+    public boolean isDependencyExist(Member protector, Member dependent) {
+        return dependencyRepository.findByDependentIdAndProtectorIdAndDeletedIsFalse(dependent.getId(), protector.getId()).isPresent();
+    }
 }
