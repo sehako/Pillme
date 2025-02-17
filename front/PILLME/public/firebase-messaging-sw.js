@@ -73,7 +73,7 @@ async function handleApiRequest(code, action, senderId) {
 // 백그라운드 메시지 처리
 messaging.onBackgroundMessage((payload) => {
   console.log('백그라운드 메시지 수신:', payload);
-  
+
   if (payload.data) {
     const notificationOptions = {
       body: payload.data.body,
@@ -91,7 +91,7 @@ messaging.onBackgroundMessage((payload) => {
     };
 
     // 액션 버튼이 필요한 알림 타입 처리
-    if(payload.data.messageType === 'CHAT_MESSAGE'){
+    if(payload.data.code === 'CHAT_MESSAGE'){
       notificationOptions.requireInteraction = false;
       delete notificationOptions.actions; // 채팅은 수락/거절 버튼 불필요
     }
