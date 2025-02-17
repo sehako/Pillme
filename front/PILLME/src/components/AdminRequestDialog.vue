@@ -53,7 +53,7 @@ const handleReject = async () => {
   if (success) {
     console.log("🚀 알림 거절 성공:", props.id);
     emit("reject", { id: props.id }); // ✅ senderId를 부모에게 전달
-    // emit("close"); // ✅ 다이얼로그 닫기 **중복인지확인하기위해주석처리리
+    emit("close"); // ✅ 다이얼로그 닫기 **중복인지확인하기위해주석처리리
   } else {
     console.error("❌ 알림 거절 실패");
   }

@@ -110,14 +110,27 @@ export function useFCM() {
     endpoint = action === 'accept' ? 'accept' : 'reject';
     const url = `${import.meta.env.VITE_API_URL}/api/v1/${apiPath}/${endpoint}`;
 
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
-      },
-      body: JSON.stringify(bodyData)
-    });
+    const response = "";
+    if (url === `${import.meta.env.VITE_API_URL}/api/v1/dependency/delete/accept`) {
+      response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+        },
+        body: JSON.stringify(bodyData)
+      });
+    }
+    else {
+      response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+        },
+        body: JSON.stringify(bodyData)
+      });
+    }
 
     if (!response.ok) {
       throw new Error(`${action} 처리 실패`);

@@ -73,21 +73,23 @@ const confirmDelete = async (dependencyId) => {
 
   const member = members.value.find(m => m.dependencyId === dependencyId);
   if (!member) {
-    console.error("❌ 해당 dependencyId에 해당하는 member가 없습니다.", dependencyId);
+    console.error(`❌ dependencyId=${dependencyId}에 해당하는 멤버를 찾을 수 없습니다.`);
     return;
   }
 
-  // ✅ 삭제 요청을 바로 보냄 (confirm 제거)
+  // ✅ 삭제 요청 실행
   const success = await requestDependencyDelete(dependencyId);
   if (success) {
-    console.log("✅ 삭제 요청이 전송되었습니다. 상대방의 승인 후 삭제됩니다.");
+    console.log("✅ 삭제 요청이 성공적으로 전송되었습니다.");
+    await loadDependents(); // 🔄 삭제 요청이 성공하면 목록을 다시 불러오기
   } else {
-    console.error("❌ 삭제 요청 실패");
+    console.error(`❌ dependencyId=${dependencyId} 삭제 요청 실패`);
   }
 };
 
 onMounted(loadDependents);
 </script>
+
 
 <style scoped>
 /* ✅ 부모 높이를 유지하여 상단바 아래로 내용이 정상 표시되도록 함 */
