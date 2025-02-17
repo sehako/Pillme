@@ -30,7 +30,7 @@ public class Notification extends BaseEntity {
 
     // 알림 종류에 대한 코드
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
+    @Column(nullable = false, length = 60)
     private NotificationCode code;
 
     // 알림 내용
