@@ -22,44 +22,44 @@ async function handleApiRequest(code, action, senderId) {
   let bodyData = {};
 
   // API 엔드포인트와 요청 데이터 설정
-  switch (code) {
-    case 'DEPENDENCY_REQUEST':
-      apiPath = 'dependency';
-      bodyData = {
-        protectorId: senderId
-      };
-      break;
-    case 'MEDICINE_REQUEST':
-      apiPath = 'medicine';
-      bodyData = {
-        protectorId: senderId
-      };
-      break;
-    case 'DEPENDENCY_DELETE_REQUEST':
-      apiPath = 'dependency/delete';
-      bodyData = {
-        senderId: senderId
-      };
-      break;
-  }
+  // switch (code) {
+  //   case 'DEPENDENCY_REQUEST':
+  //     apiPath = 'dependency';
+  //     bodyData = {
+  //       protectorId: senderId
+  //     };
+  //     break;
+  //   case 'MEDICINE_REQUEST':
+  //     apiPath = 'medicine';
+  //     bodyData = {
+  //       protectorId: senderId
+  //     };
+  //     break;
+  //   case 'DEPENDENCY_DELETE_REQUEST':
+  //     apiPath = 'dependency/delete';
+  //     bodyData = {
+  //       senderId: senderId
+  //     };
+  //     break;
+  // }
 
-  endpoint = action === 'accept' ? 'accept' : 'reject';
-  const url = `https://i12a606.p.ssafy.io/api/v1/${apiPath}/${endpoint}`;
+  // endpoint = action === 'accept' ? 'accept' : 'reject';
+  // const url = `https://i12a606.p.ssafy.io/api/v1/${apiPath}/${endpoint}`;
 
-  const response = await fetch(url, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${await self.registration.active.clients.get().localStorage.getItem('accessToken')}`
-    },
-    body: JSON.stringify(bodyData)
-  });
+  // const response = await fetch(url, {
+  //   method: 'POST',
+  //   headers: {
+  //     'Content-Type': 'application/json',
+  //     'Authorization': `Bearer ${await self.registration.active.clients.get().localStorage.getItem('accessToken')}`
+  //   },
+  //   body: JSON.stringify(bodyData)
+  // });
 
-  if (!response.ok) {
-    throw new Error(`${action} 처리 실패`);
-  }
+  // if (!response.ok) {
+  //   throw new Error(`${action} 처리 실패`);
+  // }
 
-  return response;
+  // return response;
 }
 
 // 백그라운드 메시지 처리
@@ -132,24 +132,41 @@ self.addEventListener('notificationclick', async (event) => {
     return; // 동의/거절 처리 후 여기서 종료 (페이지 이동 없음)
   }
 
-  // 알림 카드 클릭 시 홈 화면으로 이동
-  try {
-    const windowClients = await clients.matchAll({
-      type: 'window',
-      includeUncontrolled: true
-    });
+  event.waitUntil(
+    (async () => {
+      const notification = event.notification;
+      const action = event.action;
+      const data = notification.data || {};
 
-    // 이미 열린 창이 있다면 해당 창을 포커스하고 홈으로 이동
-    for (const client of windowClients) {
-      if (client.url.includes(SERVICE_URL)) {
-        await client.focus();
-        return client.navigate(SERVICE_URL);
+      notification.close();
+
+      // 열려있는 윈도우 클라이언트를 찾습니다
+      const windowClients = await clients.matchAll({
+        type: 'window',
+        includeUncontrolled: true
+      });
+
+      // 이미 열려있는 창이 있는지 확인
+      const hadWindowToFocus = windowClients.some((windowClient) => {
+        if (windowClient.url.includes(SERVICE_URL)) {
+          return windowClient.focus().then(() => {
+            // URL이 다른 경우에만 navigate 실행
+            if (windowClient.url !== data.url) {
+              return windowClient.navigate(data.url || SERVICE_URL);
+            }
+          });
+        }
+        return false;
+      });
+
+      // 열려있는 창이 없는 경우에만 새 창을 엽니다
+      if (!hadWindowToFocus) {
+        const newClient = await clients.openWindow(data.url || SERVICE_URL);
+        // 새 창이 제대로 열렸는지 확인
+        if (newClient) {
+          await newClient.focus();
+        }
       }
-    }
-
-    // 열린 창이 없다면 새 창 열기 (PWA/웹)
-    await clients.openWindow(SERVICE_URL);
-  } catch (error) {
-    console.error('Navigation error: ', error);
-  }
+    })()
+  );
 });
