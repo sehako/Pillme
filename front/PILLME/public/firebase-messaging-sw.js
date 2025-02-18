@@ -21,7 +21,7 @@ const messaging = firebase.messaging();
 const SERVICE_URL = "https://pillme.site";
 
 // API 요청 처리 함수
-async function handleApiRequest(code, action, senderId) {
+async function handleApiRequest(code, action, senderId, dependencyId) {
   let endpoint = '';
   let apiPath = '';
   let bodyData = {};
@@ -42,15 +42,16 @@ async function handleApiRequest(code, action, senderId) {
     case 'DEPENDENCY_DELETE_REQUEST':
       apiPath = 'dependency/delete';
       bodyData = {
-        senderId: senderId
+        senderId: senderId,
+        dependencyId: dependencyId
       };
       break;
   }
   const accessToken = await localforage.getItem("accessToken");
-  
+
   if (!accessToken) {
-      console.warn("⚠️ Access Token 없음, 인증이 필요합니다.");
-      return fetch(event.request);
+    console.warn("⚠️ Access Token 없음, 인증이 필요합니다.");
+    return fetch(event.request);
   }
   endpoint = action === 'accept' ? 'accept' : 'reject';
   const url = `https://i12a606.p.ssafy.io/api/v1/${apiPath}/${endpoint}`;
@@ -83,15 +84,16 @@ messaging.onBackgroundMessage((payload) => {
         url: SERVICE_URL,
         code: payload.data.code,
         senderId: payload.data.senderId,
-        receiveUserId : payload.data.receiverId,
-        sendUserName : payload.data.senderName,
-        receiveUserName : payload.data.receiverName
+        receiveUserId: payload.data.receiverId,
+        sendUserName: payload.data.senderName,
+        receiveUserName: payload.data.receiverName,
+        dependencyId: payload.data.dependencyId
       },
       requireInteraction: ['DEPENDENCY_REQUEST', 'MEDICINE_REQUEST', 'DEPENDENCY_DELETE_REQUEST', 'CHAT_MESSAGE'].includes(payload.data.code)
     };
 
     // 액션 버튼이 필요한 알림 타입 처리
-    if(payload.data.code === 'CHAT_MESSAGE'){
+    if (payload.data.code === 'CHAT_MESSAGE') {
       notificationOptions.requireInteraction = false;
       delete notificationOptions.actions; // 채팅은 수락/거절 버튼 불필요
     }
@@ -123,7 +125,7 @@ self.addEventListener('notificationclick', async (event) => {
   // 동의/거절 액션 버튼 클릭 시
   if (action === 'accept' || action === 'reject') {
     try {
-      await handleApiRequest(data.code, action, data.senderId);
+      await handleApiRequest(data.code, action, data.senderId, data.dependencyId);
       // 성공 시 추가 알림 표시
       self.registration.showNotification(
         '알림',
@@ -189,37 +191,42 @@ self.addEventListener('notificationclick', async (event) => {
   }
 
 
+  // 페이지 이동 처리를 위한 waitUntil
   event.waitUntil(
     (async () => {
-      const notification = event.notification;
-      const action = event.action;
-      const data = notification.data || {};
-
-      notification.close();
-
-      // 열려있는 윈도우 클라이언트를 찾습니다
       const windowClients = await clients.matchAll({
         type: 'window',
         includeUncontrolled: true
       });
 
-      // 이미 열려있는 창이 있는지 확인
+      let targetUrl = data.url || SERVICE_URL;
+
+      // 채팅 메시지인 경우 채팅방 URL 생성
+      if (data.code === 'CHAT_MESSAGE' && data.chatRoomId) {
+        targetUrl = `${SERVICE_URL}/chat/individual?info=${encodeURIComponent(JSON.stringify({
+          chatRoomId: data.chatRoomId,
+          sendUserId: data.senderId,
+          receiveUserId: data.receiveUserId,
+          sendUserName: data.sendUserName,
+          receiveUserName: data.receiveUserName,
+        }))}`;
+      }
+
+      // 이미 열려있는 창 찾기
       const hadWindowToFocus = windowClients.some((windowClient) => {
         if (windowClient.url.includes(SERVICE_URL)) {
           return windowClient.focus().then(() => {
-            // URL이 다른 경우에만 navigate 실행
-            if (windowClient.url !== data.url) {
-              return windowClient.navigate(data.url || SERVICE_URL);
+            if (windowClient.url !== targetUrl) {
+              return windowClient.navigate(targetUrl);
             }
           });
         }
         return false;
       });
 
-      // 열려있는 창이 없는 경우에만 새 창을 엽니다
+      // 열려있는 창이 없으면 새 창 열기
       if (!hadWindowToFocus) {
-        const newClient = await clients.openWindow(data.url || SERVICE_URL);
-        // 새 창이 제대로 열렸는지 확인
+        const newClient = await clients.openWindow(targetUrl);
         if (newClient) {
           await newClient.focus();
         }
