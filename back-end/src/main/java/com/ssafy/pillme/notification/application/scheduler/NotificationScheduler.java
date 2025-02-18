@@ -99,7 +99,7 @@ public class NotificationScheduler {
             // 피보호자의 보호자들에게 알림 전송
             for (Member protector : dependentToProtectors.get(dependent)) {
                 // 복용 알림 시간 타입 확인
-                NotificationTimeType timeType = NotificationTimeType.determineType(setting, currentTime);
+                NotificationTimeType timeType = NotificationTimeType.determineType(setting, currentTime.minusMinutes(MEDICATION_STATUS_NOTIFICATION_DELAY_MINUTES));
 
                 // 복용 여부 확인(모든 약 복용 여부가 true인 경우에만 복용했다는 것으로 판단)
                 boolean isTaken = checkMedicineStatus(items, timeType);
