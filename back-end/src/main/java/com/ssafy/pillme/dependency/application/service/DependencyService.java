@@ -17,6 +17,7 @@ import com.ssafy.pillme.global.code.ErrorCode;
 import com.ssafy.pillme.notification.application.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,10 +28,14 @@ import java.util.List;
 @Transactional
 @Slf4j
 public class DependencyService {
+    private final RedisTemplate<String, String> redisTemplate;
     private final DependencyRepository dependencyRepository;
     private final NotificationService notificationService;
     private final AuthService authService;
     private final ChatRoomService chatRoomService;
+
+    private static final String DEPENDENCY_DELETE_REQUEST_KEY = "dependency:delete:request:";
+    private static final long DEPENDENCY_DELETE_REQUEST_EXPIRE = 7; // 7일
 
     public void requestDependency(DependentPhoneRequest request, Member protector) {
         // 피보호자 정보 조회
@@ -145,8 +150,21 @@ public class DependencyService {
 
     // senderId를 통해 삭제 요청을 보낸 회원을 찾아서 삭제 요청을 수락
     public void acceptDeleteDependency(AcceptDependencyDeletionRequest request, Member loginMember) {
+        long dependencyId;
+
+        // 서비스 내부 알림 리스트에서 삭제 요청을 수락할 때 사용
+        if (request.dependencyId() == null) {
+            String dependencyIdStr = redisTemplate.opsForValue().get(DEPENDENCY_DELETE_REQUEST_KEY + request.notificationId());
+            if (dependencyIdStr == null) {
+                throw new DependencyNotFoundException(ErrorCode.DEPENDENCY_NOT_FOUND);
+            }
+            dependencyId = Long.parseLong(dependencyIdStr);
+        } else {
+            dependencyId = request.dependencyId();
+        }
+
         // 요청에 존재하는 dependencyId로 관계 정보 조회
-        Dependency dependency = dependencyRepository.findByIdAndDeletedIsFalse(request.dependencyId())
+        Dependency dependency = dependencyRepository.findByIdAndDeletedIsFalse(dependencyId)
                 .orElseThrow(() -> new DependencyNotFoundException(ErrorCode.DEPENDENCY_NOT_FOUND));
 
         // 관계 정보가 올바른지 검증
@@ -164,18 +182,37 @@ public class DependencyService {
         // 관계 정보 삭제
         dependency.delete();
 
+        // redis 키 삭제
+        redisTemplate.delete(DEPENDENCY_DELETE_REQUEST_KEY + request.notificationId());
+
         // 가족 관계 삭제 요청 수락 알림 전송
         notificationService.sendDependencyDeleteAcceptNotification(loginMember, dependency.getOtherMember(loginMember));
     }
 
     // senderId를 통해 삭제 요청을 보낸 회원을 찾아서 삭제 요청을 거절
     public void rejectDeleteDependency(RejectDependencyDeletionRequest request, Member loginMember) {
+        long dependencyId;
+
+        // 서비스 내부 알림 리스트에서 삭제 요청을 거절할 때 사용
+        if (request.dependencyId() == null) {
+            String dependencyIdStr = redisTemplate.opsForValue().get(DEPENDENCY_DELETE_REQUEST_KEY + request.notificationId());
+            if (dependencyIdStr == null) {
+                throw new DependencyNotFoundException(ErrorCode.DEPENDENCY_NOT_FOUND);
+            }
+            dependencyId = Long.parseLong(dependencyIdStr);
+        } else {
+            dependencyId = request.dependencyId();
+        }
+
         // 요청에 존재하는 dependencyId로 관계 정보 조회
-        Dependency dependency = dependencyRepository.findByIdAndDeletedIsFalse(request.dependencyId())
+        Dependency dependency = dependencyRepository.findByIdAndDeletedIsFalse(dependencyId)
                 .orElseThrow(() -> new DependencyNotFoundException(ErrorCode.DEPENDENCY_NOT_FOUND));
 
         // 관계 정보가 올바른지 검증
         checkValidatedDependency(dependency, loginMember, request.senderId());
+
+        // redis 키 삭제
+        redisTemplate.delete(DEPENDENCY_DELETE_REQUEST_KEY + request.notificationId());
 
         // 가족 관계 삭제 요청 거절 알림 전송
         notificationService.sendDependencyDeleteRejectNotification(loginMember, dependency.getOtherMember(loginMember));

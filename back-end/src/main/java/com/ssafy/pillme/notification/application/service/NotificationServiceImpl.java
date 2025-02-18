@@ -15,20 +15,26 @@ import com.ssafy.pillme.notification.infrastructure.repository.NotificationRepos
 import com.ssafy.pillme.notification.infrastructure.repository.NotificationSettingRepository;
 import com.ssafy.pillme.notification.presentation.request.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalTime;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 @Service
 @Transactional
 @RequiredArgsConstructor // 생성자 주입
 public class NotificationServiceImpl implements NotificationService {
 
+    private final RedisTemplate<String, Object> redisTemplate;
     private final NotificationSettingRepository notificationSettingRepository;
     private final FCMNotificationService fcmNotificationService;
     private final NotificationRepository notificationRepository;
+
+    private static final String DEPENDENCY_DELETE_REQUEST_KEY = "dependency:delete:request:";
+    private static final long DEPENDENCY_DELETE_REQUEST_EXPIRE = 7; // 7일
 
     @Override
     public void createNotificationSetting(NotificationSettingRequest request, Member loginMember) {
@@ -209,6 +215,10 @@ public class NotificationServiceImpl implements NotificationService {
 
         // 알림 저장
         notificationRepository.save(notification);
+
+        // Redis에 삭제 요청 정보 저장
+        redisTemplate.opsForValue().set(DEPENDENCY_DELETE_REQUEST_KEY + notification.getId(), String.valueOf(dependencyId));
+        redisTemplate.expire(DEPENDENCY_DELETE_REQUEST_KEY + notification.getId(), DEPENDENCY_DELETE_REQUEST_EXPIRE, TimeUnit.DAYS);
 
         // 알림 전송
         fcmNotificationService.sendDeleteDependencyNotification(NotificationRequest.of(notification), dependencyId);
