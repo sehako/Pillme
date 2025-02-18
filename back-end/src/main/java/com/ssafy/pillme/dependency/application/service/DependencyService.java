@@ -152,11 +152,17 @@ public class DependencyService {
         // 관계 정보가 올바른지 검증
         checkValidatedDependency(dependency, loginMember, request.senderId());
 
+        /* 두 회원이 서로 보호자, 피보호자 관계를 가지는 경우 채팅방 삭제 X
+         * 관계가 1:1 관계인 경우만 채팅방 삭제
+         * */
+        List<Dependency> dependencies = dependencyRepository.findByMemberIdsAndDeletedIsFalse(dependency.getProtector().getId(), dependency.getDependent().getId());
+        if (dependencies.size() == 1) {
+            // 채팅방 삭제
+            chatRoomService.deleteChatRoom(dependency.getProtector(), dependency.getDependent());
+        }
+
         // 관계 정보 삭제
         dependency.delete();
-
-        // 채팅방 삭제
-        chatRoomService.deleteChatRoom(dependency.getProtector(), dependency.getDependent());
 
         // 가족 관계 삭제 요청 수락 알림 전송
         notificationService.sendDependencyDeleteAcceptNotification(loginMember, dependency.getOtherMember(loginMember));
