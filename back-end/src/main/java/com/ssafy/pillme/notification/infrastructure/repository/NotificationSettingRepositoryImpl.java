@@ -4,10 +4,13 @@ import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.TimePath;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import com.ssafy.pillme.auth.domain.entity.QMember;
 import com.ssafy.pillme.notification.domain.entity.NotificationSetting;
 import com.ssafy.pillme.notification.domain.entity.QNotificationSetting;
+
 import java.time.LocalTime;
 import java.util.List;
+
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
@@ -18,9 +21,11 @@ public class NotificationSettingRepositoryImpl implements NotificationSettingRep
     public List<NotificationSetting> findSettingsForCurrentTime(LocalTime currentTime) {
         // QNotificationSetting : QueryDSL에서 사용할 Entity
         QNotificationSetting setting = QNotificationSetting.notificationSetting;
+        QMember member = QMember.member;
 
         return queryFactory
                 .selectFrom(setting)
+                .join(setting.member, member).fetchJoin()
                 .where(
                         timeMatches(setting.morning, currentTime)
                                 .or(timeMatches(setting.lunch, currentTime))
