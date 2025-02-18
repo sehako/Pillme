@@ -20,7 +20,7 @@ public interface FCMTokenRepository extends JpaRepository<FCMToken, Integer> {
     // N+1 문제 해결을 위한 fetch join
     @Query("SELECT f FROM FCMToken f " +
             "JOIN FETCH f.member " +
-            "WHERE f.id = :id AND f.deleted = false")
+            "WHERE f.token = :token AND f.deleted = false")
     Optional<FCMToken> findByTokenAndDeletedIsFalse(String token);
 
     // N+1 문제 해결을 위한 fetch join
