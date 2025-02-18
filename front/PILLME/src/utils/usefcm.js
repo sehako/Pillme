@@ -48,28 +48,28 @@ export function useFCM() {
   // FCM 초기화
   const initializeFCM = async () => {
     try {
+
       // Service Worker 등록 상태 확인
       const registration = await navigator.serviceWorker.getRegistration('/firebase-messaging-sw.js');
       console.log('Service Worker registration:', registration);
 
       let token = ''
       // 알림 권한 확인
-      if (Notification.permission === 'granted') {
-        token = await getToken(messaging, {
-          vapidKey: import.meta.env.VITE_FIREBASE_VAPID_KEY
-        });
-
-        if (token) {
-          fcmToken.value = token;
-          await registerTokenToServer(token);
-          setupFCMListeners();
+      if (Notification.permission !== 'granted') {
+        const permission = await Notification.requestPermission();
+        if (permission !== 'granted') {
+          console.log('알림 권한이 거부되었습니다.');
           return;
         }
       }
-      else { // 권한이 없거나 토큰이 없는 경우 새로 요청
-        token = await getFCMToken();
-      }
+
+      token = await getToken(messaging, {
+        vapidKey: import.meta.env.VITE_FIREBASE_VAPID_KEY
+      });
+
       if (token) {
+        fcmToken.value = token;
+        await registerTokenToServer(token);
         setupFCMListeners();
       }
     } catch (error) {
@@ -139,8 +139,15 @@ export function useFCM() {
   // 토큰 서버에서 삭제
   const deleteTokenFromServer = async () => {
     try {
-      const token = fcmToken.value;
-      if (!token) return;
+      // 현재 토큰 가져오기
+      const token = await getToken(messaging, {
+        vapidKey: import.meta.env.VITE_FIREBASE_VAPID_KEY
+      });
+
+      if (!token) {
+        console.log('삭제할 FCM 토큰이 없습니다.');
+        return;
+      }
 
       const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/fcm/${token}`, {
         method: 'DELETE',
