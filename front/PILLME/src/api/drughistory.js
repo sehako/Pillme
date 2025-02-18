@@ -109,3 +109,13 @@ export async function deleteHistory(historyId) {
     throw error;
   }
 }
+
+export async function updateHistoryDetails(infoId, modifyList) {
+  try {
+    const response = await apiClient.patch(`/api/v1/history/modify`, { modifyList });
+    return response.data;
+  } catch (error) {
+    console.error("복약 내역 수정 API 호출 실패:", error);
+    throw error;
+  }
+}

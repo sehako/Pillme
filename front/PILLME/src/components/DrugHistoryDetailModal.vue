@@ -87,43 +87,73 @@
                     :key="`${date}-${time}`"
                   >
                     <span class="font-semibold">{{ getTimeLabel(time) }}:</span>
-                    <span
-                      :class="{
-                        'text-green-500': groupedByMedication[medName][date]?.[`${time}Taking`],
-                        'text-red-500': !groupedByMedication[medName][date]?.[`${time}Taking`],
-                      }"
-                    >
-                      {{ groupedByMedication[medName][date]?.[`${time}Taking`] ? '복용' : '미복용' }}
-                    </span>
+
+                    <template v-if="isEditMode">
+                      <input
+                        type="checkbox"
+                        :id="`${medName}-${date}-${time}`"
+                        :name="`${medName}-${date}-${time}`"
+                        class="medication-checkbox"
+                        v-model="groupedByMedication[medName][date][`${time}Taking`]"
+                      />
+                    </template>
+
+                    <template v-else>
+                      <span
+                        :class="{
+                          'text-green-500': groupedByMedication[medName][date]?.[`${time}Taking`],
+                          'text-red-500': !groupedByMedication[medName][date]?.[`${time}Taking`],
+                        }"
+                      >
+                        {{ groupedByMedication[medName][date]?.[`${time}Taking`] ? '복용' : '미복용' }}
+                      </span>
+                    </template>
+
                   </div>
                 </div>
               </td>
               <td class="border border-gray-200 text-center p-2 sticky left-0 bg-white">
-  <BaseButton
-    v-if="historyDetailsList.length > 0"
-    label="삭제"
-    @click="deleteMedication(medName)"
-    class="bg-red-500 hover:bg-red-700 text-white px-2 py-1 rounded-sm text-xs"
-  >삭제</BaseButton>
-</td>
+                <BaseButton
+                  v-if="historyDetailsList.length > 0 && !isEditMode"
+                  label="삭제"
+                  @click="deleteMedication(medName)"
+                  class="bg-red-500 hover:bg-red-700 text-white px-2 py-1 rounded-sm text-xs"
+                >삭제</BaseButton>
+                 <BaseButton
+                    v-if="isEditMode"
+                    label="저장"
+                    @click="saveMedicationHistory(medName)"
+                    class=" hover:bg-green-700 text-white px-2 py-1 rounded-sm text-xs mt-1"
+                  >저장</BaseButton>
+              </td>
             </tr>
           </tbody>
         </table>
       </div>
 
-      <button
-        @click="emit('close')"
-        class="bg-[#9DBB9F] text-white px-4 py-2 rounded mt-4 hover:bg-[#88a88c]"
-      >
-        닫기
-      </button>
+      <div class="flex justify-center mt-4 !min-w-fit-content">
+        <button
+          v-if="isEditMode"
+          @click="cancelEditMode"
+          class="bg-gray-400 hover:bg-gray-500 text-white px-4 py-2 rounded mr-2"
+        >취소</button>
+        <button
+          @click="emit('close')"
+          class="bg-[#9DBB9F] text-white px-4 py-2 rounded hover:bg-[#88a88c]"
+        >닫기</button>
+          <button
+              v-if="!isEditMode"
+              @click="startEditMode"
+              class="ml-2 bg-blue-500 hover:bg-blue-700 text-white px-4 py-2 rounded"
+          >수정</button>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup>
 import { ref, computed, onMounted, nextTick } from "vue";
-import { fetchPrescriptionDetails, deleteHistory } from "../api/drughistory";
+import { fetchPrescriptionDetails, deleteHistory, updateHistoryDetails } from "../api/drughistory"; // ✅ updateHistoryDetails import 추가
 import BaseButton from "../components/BaseButton.vue";
 
 const props = defineProps({
@@ -142,6 +172,8 @@ const itemsPerPage = 7;
 const tableContainer = ref(null);
 const modalContainer = ref(null);
 const historyDetailsList = ref([]);
+const isEditMode = ref(false); // ✅ 수정 모드 상태 변수 추가
+const originalMedicationData = ref({}); // ✅ 수정 전 데이터 백업용 ref
 
 const paginatedDates = computed(() => {
   const start = currentPage.value * itemsPerPage;
@@ -212,6 +244,7 @@ async function loadPrescriptionDetails() {
     const historyDetails = await fetchPrescriptionDetails(infoId);
     historyDetailsList.value = historyDetails;
     console.log("📌 상세 정보 로드:", historyDetails);
+    console.log("📌 처방전 정보:", props.prescription);
     dateList.value = generateDateList(
       props.prescription.startDate,
       props.prescription.endDate
@@ -226,6 +259,8 @@ async function loadPrescriptionDetails() {
     });
 
     groupedByMedication.value = groups;
+    console.log("📌 그룹화된 데이터:", groups);
+    originalMedicationData.value = structuredClone(groups); // ✅ 깊은 복사로 초기 데이터 저장
   } catch (error) {
     console.error("❌ 상세 정보 로드 실패:", error);
   }
@@ -270,6 +305,55 @@ async function deleteMedication(medicationNameToDelete) { // ✅ Receive medicat
   }
 }
 
+function startEditMode() { // ✅ "수정" 버튼 클릭 시 호출될 함수
+  isEditMode.value = true; // 수정 모드 활성화
+}
+
+function cancelEditMode() { // ✅ "취소" 버튼 클릭 시 호출될 함수
+  isEditMode.value = false; // 수정 모드 비활성화
+  groupedByMedication.value = structuredClone(originalMedicationData.value); // 데이터 복원
+}
+
+async function saveMedicationHistory() { // ✅ "저장" 버튼 클릭 시 호출될 함수
+  if (!props.prescription.informationId) {
+    alert("처방전 정보 ID가 없습니다.");
+    return;
+  }
+
+  const modifyList = [];
+  for (const medName in groupedByMedication.value) {
+    for (const date in groupedByMedication.value[medName]) {
+      const dayData = groupedByMedication.value[medName][date];
+      if (dayData.historyId) { // historyId가 있는 경우에만 수정 대상으로 추가
+        modifyList.push({
+          historyId: dayData.historyId,
+          morningTaking: dayData.morningTaking, // ✅ 체크박스 값 직접 참조
+          lunchTaking: dayData.lunchTaking,   // ✅ 체크박스 값 직접 참조
+          dinnerTaking: dayData.dinnerTaking,  // ✅ 체크박스 값 직접 참조
+          sleepTaking: dayData.sleepTaking,   // ✅ 체크박스 값 직접 참조
+        });
+      }
+    }
+  }
+
+  if (modifyList.length === 0) {
+    alert("수정된 복약 정보가 없습니다.");
+    return;
+  }
+
+  // ✅ modifyList  생성 후 콘솔에 출력하여 확인 (디버깅 용도)
+  console.log("📌 modifyList (API 요청 Body):", modifyList);
+
+  try {
+    await updateHistoryDetails(props.prescription.informationId, modifyList);
+    alert("수정된 복약 정보는 매일 새벽 4시에 업데이트됩니다.");
+    loadPrescriptionDetails(); // 데이터 다시 로드
+    isEditMode.value = false; // 수정 모드 비활성화
+  } catch (error) {
+    console.error("❌ 복약 정보 수정 실패:", error);
+    alert("복약 정보 수정에 실패했습니다.");
+  }
+}
 
 onMounted(async () => {
   await loadPrescriptionDetails();
@@ -336,5 +420,11 @@ onMounted(async () => {
 button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+.medication-checkbox {
+  transform: scale(1.2); /* 체크박스 크기 약간 확대 */
+  margin: 5px; /* 체크박스 주변 여백 추가 */
+  cursor: pointer; /* 마우스 커서 변경 */
 }
 </style>
