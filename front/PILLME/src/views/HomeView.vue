@@ -163,7 +163,6 @@ import HamBugerMenu from '../components/HamBugerMenu.vue';
 import NameDropdown from '../components/NameDropdown.vue';
 import FamilyAddModal from '../components/FamilyAddModal.vue';
 import MedicationSearchDialog from '../components/MedicationSearchDialog.vue';
-import { useFCM } from '../utils/usefcm';
 import BaseCalendar from '../components/BaseCalendar.vue';
 import { defineAsyncComponent } from 'vue';
 import { fetchManagementData, fetchFormattedManagementInfo  } from '../api/drugmanagement';
@@ -186,8 +185,6 @@ const isMedicationCompleted = ref(false);
 defineProps({
   navbarHeight: Number, //  props 정의
 });
-
-const { getFCMToken } = useFCM();
 
 //  모달 상태 관리
 const isFamilyModalOpen = ref(false);
@@ -371,12 +368,6 @@ const completeMedications = async () => {
 
 //  컴포넌트가 마운트되면 데이터 및 이벤트 리스너 등록
 onMounted(async () => {
-    // FCM 토큰 가져오기 (비동기 예외 처리)
-  try {
-    await getFCMToken();
-  } catch (error) {
-    console.error("FCM 초기화 실패:", error);
-  }
   // 오늘의 복약 내역 불러오기
   await fetchTodaysMedications();
   await fetchData();
