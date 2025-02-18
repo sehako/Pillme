@@ -344,6 +344,9 @@ const enterChat = async (receiverId) => {
       name: "ChatIndividualView",
       query: { info: JSON.stringify(chatRoomData)}
 });
+  setTimeout(() => {
+    window.history.replaceState({}, document.title, router.currentRoute.value.path)
+    }, 100);
   } catch (error) {
     alert("채팅방 입장에 실패했습니다.");
   }
