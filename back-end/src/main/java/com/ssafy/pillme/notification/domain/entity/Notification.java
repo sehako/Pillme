@@ -193,6 +193,15 @@ public class Notification extends BaseEntity {
                 .build();
     }
 
+    public static Notification createAnalysisComplete(Member receiver) {
+        return Notification.builder()
+                .sender(receiver) // 분석 완료 알림은 시스템에서 보내므로 sender와 receiver를 receiver로 설정
+                .receiver(receiver)
+                .code(NotificationCode.ANALYSIS_COMPLETE)
+                .content(receiver.getName() + "님이 " + NotificationCode.ANALYSIS_COMPLETE.getMessage())
+                .build();
+    }
+
     public void updateConfirmStatus(boolean confirm) {
         this.confirm = confirm;
     }
