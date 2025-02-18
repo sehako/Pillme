@@ -35,7 +35,7 @@
 
       <div class="button-group">
         <button @click="ocrStore.goBackToNextDialog" class="secondary-btn">이전</button>
-        <button @click="ocrStore.saveOcrDataToDB" class="primary-btn" :disabled="ocrStore.isLoading">
+        <button @click="saveOcrData" class="primary-btn" :disabled="ocrStore.isLoading">
           {{ ocrStore.isLoading ? '저장 중...' : '저장' }}
         </button>
 
@@ -46,9 +46,29 @@
 
 <script setup>
 import { useOcrStore } from '../stores/ocrStore';
-import { reactive, onMounted } from 'vue';
+import { reactive, onMounted, watch } from 'vue';
 
 const ocrStore = useOcrStore();
+
+// ✅ `dependentId`를 받을 수 있도록 props 추가
+const props = defineProps({
+  dependentId: {
+    type: Number,
+    required: true
+  }
+});
+
+
+// ✅ OCR 데이터 저장 함수
+
+const saveOcrData = async () => {
+  if (!ocrStore.dependentId) {
+    console.error("❌ dependentId가 없습니다.");
+    return;
+  }
+  console.log(`📤 [DEBUG] OCR 데이터 저장 시작 - dependentId: ${ocrStore.dependentId}`);
+  await ocrStore.saveOcrDataToDB();
+};
 
 // ✅ 전체 체크박스 상태 저장
 const overallCheck = reactive({

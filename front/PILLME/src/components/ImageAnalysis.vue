@@ -113,6 +113,11 @@ const analyzeImage = async () => {
 onMounted(() => {
   if(ocrStore.isLoading) return;
 
+  if (route.query.dependentId) {
+    ocrStore.setDependentId(Number(route.query.dependentId));  // ✅ OCR Store에 보호자 ID 저장
+  }
+
+
   if (route.query.image) {
     try {
       const base64Data = decodeURIComponent(route.query.image);

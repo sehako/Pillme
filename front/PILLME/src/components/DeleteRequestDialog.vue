@@ -45,33 +45,37 @@
   
   const handleReject = async () => {
     if (!props.id || !props.dependencyId) {
-      console.error("❌ 거절할 senderId 또는 dependencyId가 없습니다.");
+      alert("관계 삭제 요청청 거절 실패.");
+      emit("close"); // ✅ 다이얼로그 닫기
       return;
     }
   
     const success = await rejectDependencyDelete(props.id, props.dependencyId); // ✅ 관계 삭제 요청 거절
     if (success) {
-      console.log("🚀 관계 삭제 요청 거절 성공:", props.id);
+      alert("🚀 관계 삭제 요청 거절 성공:", props.id);
       emit("deleteReject", { id: props.id, dependencyId: props.dependencyId }); // ✅ 거절 이벤트 전송
       emit("close"); // ✅ 다이얼로그 닫기
     } else {
-      console.error("❌ 관계 삭제 요청 거절 실패");
+      alert("관계 삭제 요청 거절 실패");
+      emit("close"); // ✅ 다이얼로그 닫기
     }
   };
   
   const handleAccept = async () => {
     if (!props.id || !props.dependencyId) {
-      console.error("❌ 승인할 senderId가 없습니다.");
+      alert("관계 삭제 요청 동의 실패")
+      emit("close"); // ✅ 다이얼로그 닫기;
       return;
     }
   
     const success = await acceptDependencyDelete(props.id, props.dependencyId); // ✅ 관계 삭제 요청 수락
     if (success) {
-      console.log("✅ 관계 삭제 요청 수락 성공:", props.id);
+      alert("관계 삭제 요청 수락 성공:");
       emit("deleteAccept", { id: props.id, dependencyId: props.dependencyId }); // ✅ 수락 이벤트 전송
       emit("close"); // ✅ 다이얼로그 닫기
     } else {
-      console.error("❌ 관계 삭제 요청 수락 실패");
+      alert("관계 삭제 요청 수락 실패");
+      emit("close"); // ✅ 다이얼로그 닫기
     }
   };
   </script>

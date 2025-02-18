@@ -44,7 +44,7 @@
      <div 
       v-if="isAdminDialogOpen"
       class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-30"
-      @click.self="close"
+      @click.self="handleclose"
     >
       <AdminRequestDialog
         class="absolute transition-transform duration-300 bg-white rounded-lg p-6 shadow-lg"
@@ -56,7 +56,7 @@
         }"
         :username="selectedNotification?.content"
         :id="selectedNotification?.senderId"
-        @close="close"
+        @close="handleclose"
         @accept="handleAccept"
         @reject="handleReject"
       />
@@ -66,7 +66,7 @@
     <div 
       v-if="isDeleteDialogOpen"
       class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-30"
-      @click.self="close"
+      @click.self="handleclose"
     >
       <DeleteRequestDialog
         class="absolute transition-transform duration-300 bg-white rounded-lg p-6 shadow-lg"
@@ -78,7 +78,7 @@
         }"
         :username="selectedNotification?.content"
         :id="selectedNotification?.senderId"
-        @close="close"
+  @close="handleClose"
         @deleteAccept="handleDeleteAccept"
         @deleteReject="handleDeleteReject"
       />
@@ -177,7 +177,7 @@ const handleDelete = async (notificationId) => {
   if (success) {
     console.log(`🚀 알림 삭제 성공: ${notificationId}`);
     notifications.value = notifications.value.filter(n => n.notificationId !== notificationId);
-    isDialogOpen.value = false; // ✅ 다이얼로그 닫기 (삭제해야할 부분인지 확인)
+    await handleClose()
   } else {
     console.error("❌ 알림 삭제 실패");
   }
@@ -189,6 +189,7 @@ const handleReject = async ({ id }) => {
 
   if (!id) {
     console.error("❌ 유효하지 않은 senderId");
+    await handleClose()
     return;
   }
 
@@ -199,6 +200,7 @@ const handleReject = async ({ id }) => {
 
   if (notificationIds.length === 0) {
     console.error("❌ 해당 senderId와 일치하는 notificationId를 찾을 수 없음.");
+    await handleClose()
     return;
   }
 
@@ -211,7 +213,7 @@ const handleReject = async ({ id }) => {
     restoreUserSession();
 
     // ✅ 모달 닫기
-    isDialogOpen.value = false;
+    await handleClose()
   } else {
     console.error("❌ 알림 삭제 실패");
   }
@@ -222,6 +224,7 @@ const handleAccept = async ({ id }) => {
 
   if (!id) {
     console.error("❌ 유효하지 않은 senderId");
+    await handleClose()
     return;
   }
 
@@ -232,6 +235,7 @@ const handleAccept = async ({ id }) => {
 
   if (notificationIds.length === 0) {
     console.error("❌ 해당 senderId와 일치하는 notificationId를 찾을 수 없음.");
+    await handleClose()
     return;
   }
 
@@ -244,10 +248,16 @@ const handleAccept = async ({ id }) => {
     restoreUserSession();
 
     // ✅ 모달 닫기
-    isDialogOpen.value = false;
+    await handleClose()
   } else {
     console.error("❌ 알림 삭제 실패");
+    await handleClose()
   }
+};
+
+const handleClose = () => {
+  isAdminDialogOpen.value = false;
+  isDeleteDialogOpen.value = false;
 };
 
 const restoreUserSession = async () => {
