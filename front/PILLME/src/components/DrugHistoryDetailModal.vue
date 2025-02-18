@@ -104,7 +104,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, defineProps, defineEmits } from "vue";
+import { ref, onMounted } from "vue";
 import { fetchPrescriptionDetails } from "../api/drughistory";
 
 const props = defineProps({

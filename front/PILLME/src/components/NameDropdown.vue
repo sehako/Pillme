@@ -42,6 +42,7 @@
     <FamilyAddModal 
       :isOpen="isFamilyModalOpen" 
       @close="handleModalClose" 
+      @add="handleModalClose"
     />
   </div>
 </template>
@@ -51,28 +52,25 @@ import { ref, onMounted, onUnmounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import FamilyAddModal from '../components/FamilyAddModal.vue';
 import { fetchUsername } from '../api/username';
-import { fetchDependents } from '../api/dependentmember';
+import { useDependents } from '../composables/useDependents';
 
-// ✅ 상태 관리
+// ✅ 컴포저블에서 상태 가져오기
+const { dependents, loadDependents } = useDependents();
 const isOpen = ref(false);
 const isFamilyModalOpen = ref(false);
-const dependents = ref([]); // 가족 목록
 const username = ref('');
 const router = useRouter();
 const route = useRoute();
 
-// ✅ 모달 토글
-const toggleModal = (event) => {
+// ✅ 모달 토글 (드롭다운 열 때 가족 목록 새로고침)
+const toggleModal = async (event) => {
   event.stopPropagation();
-  isOpen.value = !isOpen.value;
-};
+  
+  if (!isOpen.value) {
+    await loadDependents(); // ✅ 가족 목록 새로고침
+  }
 
-// ✅ 가족 전환 (경로 변경)
-const switchToDependent = (dependent) => {
-  const newPath = `${route.path}/${dependent.dependentId}`;
-  alert(`${dependent.dependentName}의 메인페이지로 이동합니다.`);
-  router.push(newPath);
-  isOpen.value = false;
+  isOpen.value = !isOpen.value;
 };
 
 // ✅ 가족 추가 모달 열기
@@ -84,7 +82,7 @@ const openFamilyModal = () => {
 // ✅ 모달 닫힐 때 가족 목록 갱신
 const handleModalClose = async () => {
   isFamilyModalOpen.value = false;
-  dependents.value = await fetchDependents(); // 가족 목록 새로고침
+  await loadDependents(); // ✅ 가족 목록 새로고침
 };
 
 // ✅ 외부 클릭 감지 → 모달 닫기
@@ -97,7 +95,7 @@ const closeModal = (event) => {
 // ✅ 초기 데이터 불러오기
 onMounted(async () => {
   try {
-    dependents.value = await fetchDependents();
+    await loadDependents(); // ✅ 가족 목록 초기 로드
     username.value = await fetchUsername();
   } catch (error) {
     console.error("초기 데이터 불러오기 실패:", error);

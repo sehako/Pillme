@@ -36,7 +36,7 @@
 </template>
 
 <script setup>
-import { ref, computed, defineProps, onMounted, onUnmounted, nextTick } from "vue";
+import { ref, computed, onMounted, onUnmounted, nextTick } from "vue";
 import FullCalendar from "@fullcalendar/vue3";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import interactionPlugin from "@fullcalendar/interaction";
@@ -162,12 +162,12 @@ onUnmounted(() => {
 }
 
 /* FullCalendar 버튼 스타일 오버라이드 */
-::v-deep .fc-button {
+:deep() .fc-button {
   background-color: #FFFDEC !important;
   border: 1px solid #9DBB9F !important;
   color: #4E7351 !important;
 }
-::v-deep .fc-button:hover {
+:deep() .fc-button:hover {
   background-color: #9DBB9F !important;
   border-color: #9DBB9F !important;
   color: #FFFDEC !important;

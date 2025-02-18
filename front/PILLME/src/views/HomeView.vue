@@ -85,11 +85,11 @@
 
 
 <div class="m-4 flex flex-col">
-    <!-- 헤더 영역: 제목과 오른쪽 정렬된 "See all" 버튼 -->
+    <!-- 헤더 영역 -->
     <div class="flex justify-between items-center mb-2">
       <p class="text-xl font-bold">복용 내역</p>
-      <button @click="seeAllFunction" class="text-sm text-blue-500 hover:underline">
-        See all
+      <button @click="fetchPrescriptionHistory" class="text-sm text-gray-500 hover:underline">
+        과거 복용내역 조회 ▷
       </button>
     </div>
 
@@ -134,22 +134,18 @@
     </main>
   </div>
 
-  <HistoryModal 
-  v-if="showModal && modalData && modalData.length > 0" 
-  :prescriptions="modalData" 
-  @close="handleModalClose" 
-/>
+  <HistoryModal v-if="showModal" :prescriptions="modalData" @close="handleModalClose" />
 
   <MedicationSearchDialog ref="medSearchDialog" />
   <FamilyAddModal :isOpen="isFamilyModalOpen" @close="isFamilyModalOpen = false" />
   <Teleport to="body">
   <div v-if="isAlarmModalOpen" class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-    <div :class="`bg-white p-4 rounded-lg shadow-lg relative ${modalClass}`">
+    <div class="bg-white p-4 rounded-lg shadow-lg relative w-[500px] h-[600px]">
       <button @click="closeSetAlarmModal" class="absolute top-2 right-2 text-gray-500 hover:text-gray-800">
         ✕
       </button>
-      <MyAlarmModal />
-    </div>z
+      <MyAlarmModal :isModal="true" />
+    </div>
   </div>
 </Teleport>
 
@@ -158,10 +154,8 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, reactive } from 'vue';
-import { fetchNotificationSettings } from '../api/setalarm';
+import { ref, computed, onMounted } from 'vue';
 import { fetchAllDrugCheck } from '../api/drugcheck';
-import { fetchHistory, fetchPrescriptionPeriod  } from "../api/drughistory";
 import BaseButton from '../components/BaseButton.vue';
 import YellowCard from '../layout/YellowCard.vue';
 import WhiteCard from '../layout/WhiteCard.vue';
@@ -173,21 +167,18 @@ import { useFCM } from '../utils/usefcm';
 import BaseCalendar from '../components/BaseCalendar.vue';
 import { defineAsyncComponent } from 'vue';
 import { fetchManagementData, fetchFormattedManagementInfo  } from '../api/drugmanagement';
-import { useUserStore } from '../stores/user';
 import HistoryModal from '../components/HistoryModal.vue'; // 모달 컴포넌트 import
 import CheckDoneboxes from '../assets/CheckDoneboxes.svg';
 import Checkboxes from '../assets/Checkboxes.svg';
-
-const userStore = useUserStore();
-const memberId = ref(null);
-
+import { useNotificationSettings } from '../composables/useNotificationSettings'; // Composable import
+import { usePrescriptionHistory } from "../composables/usePrescriptionHistory"; 
 // 모달 제어용 상태 변수
-const showModal = ref(false);
-const modalData = ref([]); // 초기값 설정
+const { modalData, showModal, fetchPrescriptionHistory } = usePrescriptionHistory();
 //  My_Alarm.vue를 동적으로 import (모달에서만 로드)
 const MyAlarmModal = defineAsyncComponent(() => import('../views/My_Alarm.vue'));
 
-
+// / ✅ Composable 사용
+const { notificationSettings, fetchFailed, loadNotificationSettings } = useNotificationSettings();
 
 // ✅ 복약 완료 상태
 const isMedicationCompleted = ref(false);
@@ -197,38 +188,6 @@ defineProps({
 });
 
 const { getFCMToken } = useFCM();
-
-// 알림 설정 상태 (기본값은 null)
-const notificationSettings = reactive({
-  morning: null,
-  lunch: null,
-  dinner: null,
-  sleep: null,
-  notificationId: null // 응답에 포함된 notificationId 저장
-});
-
-const fetchFailed = ref(false); // 알림 설정 불러오기 실패 여부
-
-// 서버에서 알림 설정 정보를 불러오는 함수
-const loadNotificationSettings = async () => {
-  try {
-    const data = await fetchNotificationSettings();
-    
-    // 값이 null이면 그대로 유지
-    notificationSettings.morning = data.morning ?? null;
-    notificationSettings.lunch = data.lunch ?? null;
-    notificationSettings.dinner = data.dinner ?? null;
-    notificationSettings.sleep = data.sleep ?? null;
-    notificationSettings.notificationId = data.notificationId ?? null;
-
-    // 모든 값이 null이면 실패로 간주
-    const allNull = [notificationSettings.morning, notificationSettings.lunch, notificationSettings.dinner, notificationSettings.sleep].every(v => v === null);
-    fetchFailed.value = allNull;
-  } catch (error) {
-    console.error('🚨 알림 설정 로드 실패:', error);
-    fetchFailed.value = true;
-  }
-};
 
 //  모달 상태 관리
 const isFamilyModalOpen = ref(false);
@@ -329,14 +288,6 @@ const currentTimePeriod = computed(() => {
   return periods[periods.length - 1].label;
 });
 
-// 오늘의 날짜를 'YYYY-MM-DD' 형태로 구하는 함수
-const getTodayDate = () => {
-  const today = new Date();
-  const year = today.getFullYear();
-  const month = (today.getMonth() + 1).toString().padStart(2, '0');
-  const date = today.getDate().toString().padStart(2, '0');
-  return `${year}-${month}-${date}`;
-};
 
 // 오늘의 복약 내역(약물 리스트)을 담는 ref
 const todaysMedications = ref([]);
@@ -383,52 +334,6 @@ const fetchData = async () => {
   }
 };
 
-async function seeAllFunction() {
-  try {
-    // 1. 복용 내역 데이터 받아오기
-    const historyResponse = await fetchHistory();
-    console.log("Fetched history data:", historyResponse);
-
-    // 2. 처방전 기간 데이터 받아오기
-    const periodResponse = await fetchPrescriptionPeriod();
-    console.log("Fetched prescription period data:", periodResponse);
-
-    // 3. 복용 내역 데이터를 informationId 기준으로 그룹화
-    const groupedHistory = {};
-    historyResponse.result.forEach(item => {
-      const id = item.informationId;
-      if (!groupedHistory[id]) {
-        groupedHistory[id] = {
-          informationId: id,
-          diseaseName: item.diseaseName,
-          hospital: item.hospital || "병원 정보 없음", // ✅ hospital이 없으면 기본값 설정
-          takingDate: item.takingDate
-        };
-      }
-    });
-
-    // 4. 각 그룹에 대해 처방전 기간 정보를 찾아서 추가
-    Object.keys(groupedHistory).forEach(id => {
-      const period = periodResponse.find(p => p.informationId === Number(id));
-      if (period) {
-        groupedHistory[id].startDate = period.startDate;
-        groupedHistory[id].endDate = period.endDate;
-      } else {
-        // ✅ startDate와 endDate가 없을 경우 기본값 설정
-        groupedHistory[id].startDate = "기간 정보 없음";
-        groupedHistory[id].endDate = "기간 정보 없음";
-      }
-    });
-
-    // 5. 최종 그룹 데이터를 배열로 변환하여 모달에 전달
-    modalData.value = Object.values(groupedHistory);
-    console.log("modalData:", modalData.value);
-    // ✅ 모든 데이터가 준비된 후 모달 열기
-    showModal.value = true;
-  } catch (error) {
-    console.error("Error fetching history or prescription period:", error);
-  }
-}
 
 
 function handleModalClose() {
@@ -462,35 +367,6 @@ const completeMedications = async () => {
     alert("복약 완료 처리에 실패했습니다.");
   }
 };
-// // 복약 완료 처리 함수 (사용자가 체크하면 호출)
-// const completeMedications = async () => {
-//   try {
-//     const periodMap = {
-//       "아침": "morning",
-//       "점심": "lunch",
-//       "저녁": "dinner",
-//       "자기전": "sleep",
-//     };
-    
-//     const timePeriod = periodMap[currentTimePeriod.value] || "";
-    
-//     if (!timePeriod) {
-//       alert("현재 시간대를 인식할 수 없습니다.");
-//       return;
-//     }
-
-//     await fetchAllDrugCheck(timePeriod);
-
-//     todaysMedications.value.forEach((med) => (med.taken = true));  // ❗ 여기가 문제
-
-//     alert("복약 완료 처리에 성공했습니다.");
-//   } catch (error) {
-//     console.error("❌ 복약 완료 처리 실패:", error);
-//     alert("복약 완료 처리에 실패했습니다.");
-//   }
-// };
-
-
 
 
 //  컴포넌트가 마운트되면 데이터 및 이벤트 리스너 등록
@@ -505,7 +381,7 @@ onMounted(async () => {
   await fetchTodaysMedications();
   await fetchData();
   // 알림 설정 불러오기
-  await loadNotificationSettings();
+  await loadNotificationSettings(); // Composable 함수 호출
 
   // 클릭 이벤트 리스너 등록
   document.addEventListener("click", handleClickOutside);

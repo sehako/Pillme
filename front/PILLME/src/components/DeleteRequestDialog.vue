@@ -33,7 +33,6 @@
   </template>
   
   <script setup>
-  import { defineProps, defineEmits } from "vue";
   import { rejectDependencyDelete, acceptDependencyDelete } from "../api/notify"; // ✅ 삭제 요청 API 사용
   
   const emit = defineEmits(["close", "deleteReject", "deleteAccept"]);
