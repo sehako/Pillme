@@ -27,15 +27,15 @@ export const requestDependencyDelete = async (dependencyId) => {
 };
 
 // 🔥 관계 삭제 요청 수락 API (삭제 요청을 받은 상대방이 수락할 경우)
-export const acceptDependencyDelete = async (senderId, dependencyId) => {
+export const acceptDependencyDelete = async (senderId, dependencyId, notificationId) => {
   try {
-    console.log(`✅ 관계 삭제 요청 수락 요청: senderId=${senderId} / dependencyId=${dependencyId}`);
+    console.log(`✅ 관계 삭제 요청 수락 요청: senderId=${senderId} / dependencyId=${dependencyId} / notificationId=${notificationId}`);
 
     const response = await apiClient.post(`/api/v1/dependency/delete/accept`, {
       headers: {
         'Content-Type': 'application/json'
       },
-      body: { senderId, dependencyId } // ✅ JSON 형식으로 올바르게 보냄
+      body: { senderId, dependencyId, notificationId } // ✅ JSON 형식으로 올바르게 보냄
     });
 
     console.log("🔍 서버 응답:", response);
@@ -55,10 +55,10 @@ export const acceptDependencyDelete = async (senderId, dependencyId) => {
 
 
 // 🔥 관계 삭제 요청 거절 API (삭제 요청을 받은 상대방이 거절할 경우)
-export const rejectDependencyDelete = async (senderId, dependencyId) => {
+export const rejectDependencyDelete = async (senderId, dependencyId, notificationId) => {
   try {
     const response = await apiClient.post(`/api/v1/dependency/delete/reject`, {
-      senderId, dependencyId
+      senderId, dependencyId, notificationId
     });
 
     if (response.data && response.data.isSuccess) {

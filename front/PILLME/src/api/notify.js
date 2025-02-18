@@ -159,17 +159,19 @@ export const markNotificationAsRead = async (notificationId) => {
 };
 
 // ✅ 가족 관계 삭제 요청 수락 API
-export const acceptDependencyDelete = async (senderId) => {
+export const acceptDependencyDelete = async (senderId, dependencyId, notificationId) => {
   try {
     if (typeof senderId !== "number") {
       console.error("❌ senderId가 숫자가 아닙니다:", senderId);
       return false;
     }
 
-    console.log(`✅ 관계 삭제 요청 수락 요청: senderId=${senderId}`);
+    console.log(`✅ 관계 삭제 요청 수락 요청: senderId=${senderId}/notificationId=${notificationId}`);
 
     const response = await apiClient.post(`/api/v1/dependency/delete/accept`, {
       senderId, // ✅ 요청 바디에 senderId 포함
+      dependencyId,
+      notificationId
     });
 
     console.log("🔍 서버 응답:", response);
@@ -188,17 +190,19 @@ export const acceptDependencyDelete = async (senderId) => {
 };
 
 // ✅ 가족 관계 삭제 요청 거절 API
-export const rejectDependencyDelete = async (senderId) => {
+export const rejectDependencyDelete = async (senderId, dependencyId, notificationId) => {
   try {
     if (typeof senderId !== "number") {
       console.error("❌ senderId가 숫자가 아닙니다:", senderId);
       return false;
     }
 
-    console.log(`❌ 관계 삭제 요청 거절 요청: senderId=${senderId}`);
+    console.log(`❌ 관계 삭제 요청 거절 요청: senderId=${senderId}/notificationId=${notificationId}`);
 
     const response = await apiClient.post(`/api/v1/dependency/delete/reject`, {
-      senderId // ✅ JSON body에 senderId 포함
+      senderId, // ✅ JSON body에 senderId 포함
+      dependencyId,
+      notificationId
     });
 
     console.log("🔍 서버 응답:", response);
@@ -237,12 +241,6 @@ export const requestDependencyDelete = async (dependencyId) => {
     }
   } catch (error) {
     console.error(`❌ requestDependencyDelete API 호출 실패 (dependencyId: ${dependencyId}):`, error);
-    if(error.response?.data) {
-      const { code, message } = error.response.data;
-      if(code === 4302) {
-        alert(message || "중복된 삭제 요청입니다.");
-      }
-    } 
     return false;
   }
 };
