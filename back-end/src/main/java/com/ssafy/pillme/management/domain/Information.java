@@ -52,11 +52,11 @@ public class Information extends BaseEntity {
         this.requested = requested;
     }
 
-    public void dependencyBeforeSetting() {
+    public void requested() {
         this.requested = true;
     }
 
-    public void dependencyAddSetting() {
+    public void requestComplete() {
         this.requested = false;
     }
 }

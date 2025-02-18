@@ -39,6 +39,9 @@ public class FCMNotificationServiceImpl implements FCMNotificationService {
         private static final String RECEIVER_ID = "receiverId";
         private static final String SENDER_NAME = "senderName";
         private static final String RECEIVER_NAME = "receiverName";
+
+        // 삭제할 관계 id
+        private static final String DEPENDENCY_ID = "dependencyId";
     }
 
     // 서비스 홈페이지 URL
@@ -104,6 +107,36 @@ public class FCMNotificationServiceImpl implements FCMNotificationService {
                 handleExceptionForSendMessage(e, receiverFCMToken);
             }
 
+        }
+    }
+
+    @Override
+    public void sendDeleteDependencyNotification(NotificationRequest notificationRequest, Long dependencyId) {
+        // 수신자의 id로 토큰들 조회
+        List<FCMToken> receiverFCMTokens = findValidTokens(notificationRequest.receiver().getId());
+
+        // 알림 데이터 설정
+        Map<String, String> data = setNotificationData(notificationRequest);
+        // 알림 데이터에 삭제할 관계 id 추가
+        data.put(DataKey.DEPENDENCY_ID, dependencyId.toString());
+
+        for (FCMToken receiverFCMToken : receiverFCMTokens) {
+            Message message = Message.builder()
+                    .setToken(receiverFCMToken.getToken())
+                    .putAllData(data) // 전체 데이터를 메시지에 포함
+                    // 웹/PWA용 설정
+                    .setWebpushConfig(WebpushConfig.builder()
+                            // 알림 클릭 시 이동할 URL 설정 (현재는 모두 서비스 홈 URL)
+                            .setFcmOptions(WebpushFcmOptions.builder()
+                                    .setLink(SERVICE_URL)
+                                    .build())
+                            .build())
+                    .build();
+            try {
+                firebaseMessaging.sendAsync(message);
+            } catch (Exception e) {
+                handleExceptionForSendMessage(e, receiverFCMToken);
+            }
         }
     }
 

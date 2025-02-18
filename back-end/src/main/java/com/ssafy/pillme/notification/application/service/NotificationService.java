@@ -32,7 +32,7 @@ public interface NotificationService {
 
     void sendMedicineRejectNotification(Member sender, Member receiver);
 
-    void sendDependencyDeleteRequestNotification(Member sender, Member receiver);
+    void sendDependencyDeleteRequestNotification(Member sender, Member receiver, Long dependencyId);
 
     void sendDependencyDeleteAcceptNotification(Member sender, Member receiver);
 

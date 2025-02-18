@@ -47,7 +47,7 @@ public class ChatRoomService {
                             chatRoom,
                             chatMessageRepository.countByChatRoomIdAndSenderIdNotAndReadFalse(chatRoom.getId(), user.getId()),
                             lastMessage.map(ChatMessage::getMessage).orElse(""),
-                            lastMessage.map(ChatMessage::getTimestamp).orElse(System.currentTimeMillis())
+                            lastMessage.map(ChatMessage::getTimestamp).orElse(null)
                     );
                 })
                 .collect(Collectors.toList());

@@ -2,6 +2,9 @@ package com.ssafy.pillme.management.presentation;
 
 import static com.ssafy.pillme.global.code.SuccessCode.INFORMATION_ADD_REQUEST_SUCCESS;
 import static com.ssafy.pillme.global.code.SuccessCode.INFORMATION_ADD_SUCCESS;
+import static com.ssafy.pillme.global.code.SuccessCode.INFORMATION_DELETE_REQUEST_REJECT_SUCCESS;
+import static com.ssafy.pillme.global.code.SuccessCode.INFORMATION_DELETE_REQUEST_SUCCESS;
+import static com.ssafy.pillme.global.code.SuccessCode.INFORMATION_DELETE_SUCCESS;
 import static com.ssafy.pillme.global.code.SuccessCode.INFORMATION_SAVE_SUCCESS;
 import static com.ssafy.pillme.global.code.SuccessCode.MANAGEMENT_CHANGE_SUCCESS;
 import static com.ssafy.pillme.global.code.SuccessCode.MEDICATION_CHECK_SUCCESS;
@@ -173,12 +176,34 @@ public class ManagementController {
     }
 
     @DeleteMapping("/{info-id}")
-    public ResponseEntity<Void> deleteManagement(
+    public ResponseEntity<JSONResponse<Void>> deleteManagement(
             @PathVariable(value = "info-id") final Long infoId,
             @RequestBody final DeleteManagementRequest request,
-            @Auth Member member
+            @Auth final Member member
     ) {
-        managementService.deleteManagement(infoId, request, member);
+        boolean deleteMyself = managementService.deleteManagement(infoId, request, member);
+        return ResponseEntity.ok(
+                JSONResponse.of(deleteMyself ? INFORMATION_DELETE_SUCCESS : INFORMATION_DELETE_REQUEST_SUCCESS)
+        );
+    }
+
+    @DeleteMapping("/delete-accept/{reader-id}")
+    public ResponseEntity<Void> deleteAccept(
+            @PathVariable(value = "reader-id") final Long readerId,
+            @Auth final Member member
+    ) {
+        managementService.acceptDependentDeleteRequest(readerId, member);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/delete-reject/{reader-id}")
+    public ResponseEntity<JSONResponse<Void>> deleteReject(
+            @PathVariable(value = "reader-id") final Long readerId,
+            @Auth final Member member
+    ) {
+        managementService.acceptDependentDeleteRequest(readerId, member);
+        return ResponseEntity.ok(
+                JSONResponse.of(INFORMATION_DELETE_REQUEST_REJECT_SUCCESS)
+        );
     }
 }
