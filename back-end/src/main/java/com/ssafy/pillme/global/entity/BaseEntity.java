@@ -29,4 +29,8 @@ public class BaseEntity {
     public void delete() {
         this.deleted = true;
     }
+
+    public void activate() {
+        this.deleted = false;
+    }
 }

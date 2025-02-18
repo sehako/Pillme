@@ -15,6 +15,11 @@ public interface DependencyRepository extends JpaRepository<Dependency, Long> {
     // 회원의 삭제되지 않은 모든 관계 조회
     List<Dependency> findAllByProtectorIdAndDeletedIsFalse(Long protectorId);
 
+    // N+1 문제 해결을 위한 fetch join
+    @Query("SELECT d FROM Dependency d " +
+            "JOIN FETCH d.protector " +
+            "JOIN FETCH d.dependent " +
+            "WHERE d.id = :dependencyId AND d.deleted = false")
     Optional<Dependency> findByIdAndDeletedIsFalse(Long dependencyId);
 
     // 두 회원 간의 관계 조회
