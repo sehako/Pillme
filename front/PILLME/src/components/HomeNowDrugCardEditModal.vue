@@ -159,12 +159,32 @@ const allMedicationsChecked = computed(() => {
 
 // 개별 토글 핸들러
 const handleIndividualToggle = (medicationId, timeSlot, value) => {
-  emit('thisdrugcheck', {
-    medicationId,
-    timeSlot,
-    checked: value
-  });
+  // 현재 medicationList에서 해당 약물의 인덱스를 찾음
+  const idx = medicationList.value.findIndex(med => med.id == medicationId);
+  if (idx === -1) return; // 해당하는 약물을 찾지 못하면 종료
+
+  // ✅ 현재 모든 약물 상태를 반영하여 업데이트된 `medications` 생성
+  const medications = medicationList.value.map((med, index) => ({
+    managementId: Number(med.id),
+    morning: index === idx && timeSlot === 'morning' ? value : morningToggles.value[index],
+    lunch: index === idx && timeSlot === 'lunch' ? value : lunchToggles.value[index],
+    dinner: index === idx && timeSlot === 'dinner' ? value : dinnerToggles.value[index],
+    sleep: index === idx && timeSlot === 'sleep' ? value : sleepToggles.value[index]
+  }));
+
+  const infoId = props.info.informationId;
+  console.log("📌 개별 토글 - 전송할 medications:", medications);
+
+  // ✅ 부모로 `medications` 객체 배열 전달
+  emit('thisdrugcheck', medications, infoId);
+
+  // ✅ UI 상태 업데이트 (변경된 값 반영)
+  morningToggles.value[idx] = medications[idx].morning;
+  lunchToggles.value[idx] = medications[idx].lunch;
+  dinnerToggles.value[idx] = medications[idx].dinner;
+  sleepToggles.value[idx] = medications[idx].sleep;
 };
+
 
 // 전체 복약 토글 핸들러
 const handleAllMedicationsToggle = (value) => {

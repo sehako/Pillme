@@ -171,7 +171,7 @@
         v-if="isEditModalOpen" 
         :info="selectedInfo" 
         modalClass="w-full h-4/5 max-w-[calc(100vw-32px)] sm:max-w-md mx-4" 
-        @thisdrugcheck="handleIndividualDrugCheck"
+        @thisdrugcheck="handleAllDrugCheck"
     @alldrugcheck="handleAllDrugCheck"
     @close="closeEditModal"
       />
