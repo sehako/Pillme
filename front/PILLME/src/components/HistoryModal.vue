@@ -53,7 +53,7 @@
 </template>
 
 <script setup>
-import { defineProps, defineEmits, ref, computed } from "vue";
+import { ref, computed } from "vue";
 import WhiteCard from "../layout/WhiteCard.vue";
 import DrugHistoryDetailModal from "../components/DrugHistoryDetailModal.vue";
 
