@@ -237,6 +237,12 @@ export const requestDependencyDelete = async (dependencyId) => {
     }
   } catch (error) {
     console.error(`❌ requestDependencyDelete API 호출 실패 (dependencyId: ${dependencyId}):`, error);
+    if(error.response?.data) {
+      const { code, message } = error.response.data;
+      if(code === 4302) {
+        alert(message || "중복된 삭제 요청입니다.");
+      }
+    } 
     return false;
   }
 };
