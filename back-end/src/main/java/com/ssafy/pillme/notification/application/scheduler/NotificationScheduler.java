@@ -69,11 +69,14 @@ public class NotificationScheduler {
         Map<Member, NotificationSetting> memberToSetting = settings.stream()
                 .collect(Collectors.toMap(NotificationSetting::getMember, setting -> setting));
 
-        // 2. 복용 알림 설정을 가진 회원들의 보호자 조회
+        // 2. 복용 알림 설정을 가진 회원들의 보호자 조회(보호자 조회 시, Name도 함께 조회)
         Map<Member, List<Member>> dependentToProtectors = new HashMap<>();
+        Map<Long, String> dependentNames = new HashMap<>();
 
         for (NotificationSetting setting : settings) {
-            List<Member> protectors = dependencyService.findProtectorsByDependent(setting.getMember());
+            Member dependent = setting.getMember();
+            dependentNames.put(dependent.getId(), dependent.getName());
+            List<Member> protectors = dependencyService.findProtectorsByDependent(dependent);
             dependentToProtectors.put(setting.getMember(), protectors);
         }
 
@@ -104,7 +107,7 @@ public class NotificationScheduler {
                 // 복용 여부에 따라 보호자에게 알림 전송
                 fcmNotificationService.sendToProtectorNotificationForTaking(
                         protector.getId(),
-                        dependent.getName() + "님이 " +
+                        dependentNames.get(dependent.getId()) + "님이 " +
                                 (isTaken ? notificationMessageProvider.getTakenMessage(timeType) : notificationMessageProvider.getNotTakenMessage(timeType)),
                         ""
                 );

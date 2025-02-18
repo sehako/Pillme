@@ -433,6 +433,18 @@ public class NotificationServiceImpl implements NotificationService {
         existNotification.delete();
     }
 
+    @Override
+    public void sendAnalysisCompleteNotification(Member receiver) {
+        // 분석 완료 알림 생성
+        Notification notification = Notification.createAnalysisComplete(receiver);
+
+        // 알림 저장
+        notificationRepository.save(notification);
+
+        // 알림 전송
+        fcmNotificationService.sendNotification(NotificationRequest.of(notification));
+    }
+
 
     // 등록 요청이 이미 존재하는 경우 예외 처리
     private void checkDuplicate(Member sender, Member receiver, NotificationCode code) {

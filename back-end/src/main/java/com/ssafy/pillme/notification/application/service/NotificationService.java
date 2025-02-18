@@ -67,4 +67,7 @@ public interface NotificationService {
 
     // 처방전 삭제 거절 알림
     void sendTakingInformationDeleteRejectNotification(Member sender, Member receiver, String diseaseName);
+
+    // 분석 완료 알림
+    void sendAnalysisCompleteNotification(Member receiver);
 }

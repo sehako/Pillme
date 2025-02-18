@@ -29,7 +29,7 @@ public enum NotificationCode {
     PRESCRIPTION_DELETE_REQUEST("PRESCRIPTION_DELETE_REQUEST", "처방전 삭제 요청", "복약 정보 삭제를 요청했습니다."),
     PRESCRIPTION_DELETE_ACCEPT("PRESCRIPTION_DELETE_ACCEPT", "처방전 삭제 수락", "복약 정보 삭제가 수락되었습니다."),
     PRESCRIPTION_DELETE_REJECT("PRESCRIPTION_DELETE_REJECT", "처방전 삭제 거절", "복약 정보 삭제가 거절되었습니다."),
-    ;
+    ANALYSIS_COMPLETE("ANALYSIS_COMPLETE", "이미지 분석 완료", "요청하신 이미지 분석이 완료되었습니다.");
 
     // 어떤 종류의 알림인지 구분하기 위한 코드
     private final String code;
