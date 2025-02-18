@@ -1,15 +1,18 @@
 package com.ssafy.pillme.management.application;
 
+import static com.ssafy.pillme.global.code.ErrorCode.ANALYZE_ERROR;
 import static com.ssafy.pillme.global.code.ErrorCode.INFORMATION_NOT_FOUND;
 import static com.ssafy.pillme.global.code.ErrorCode.INVALID_TIME_REQUEST;
 import static com.ssafy.pillme.global.code.ErrorCode.MANAGEMENT_NOT_FOUND;
 import static com.ssafy.pillme.global.code.ErrorCode.MEMBER_NOT_PROTECTOR;
 import static com.ssafy.pillme.global.code.ErrorCode.MEMBER_NOT_READER;
 import static com.ssafy.pillme.global.code.ErrorCode.MEMBER_NOT_WRITER;
+import static org.springframework.http.MediaType.MULTIPART_FORM_DATA;
 
 import com.ssafy.pillme.auth.application.service.AuthService;
 import com.ssafy.pillme.auth.domain.entity.Member;
 import com.ssafy.pillme.dependency.application.service.DependencyService;
+import com.ssafy.pillme.management.application.exception.AnalyzeProcessingException;
 import com.ssafy.pillme.management.application.exception.InvalidTimeSelectException;
 import com.ssafy.pillme.management.application.exception.MemberIsNotReaderException;
 import com.ssafy.pillme.management.application.exception.MemberIsNotWriterException;
@@ -22,6 +25,7 @@ import com.ssafy.pillme.management.application.response.TakingDetailResponse;
 import com.ssafy.pillme.management.application.util.RegistrationStatusCalculator;
 import com.ssafy.pillme.management.domain.Information;
 import com.ssafy.pillme.management.domain.Management;
+import com.ssafy.pillme.management.domain.PrescriptionRequestResult;
 import com.ssafy.pillme.management.domain.item.ChangeManagementItem;
 import com.ssafy.pillme.management.domain.item.TakingInformationItem;
 import com.ssafy.pillme.management.domain.item.TakingSettingItem;
@@ -30,20 +34,30 @@ import com.ssafy.pillme.management.infrastructure.InformationRepository;
 import com.ssafy.pillme.management.infrastructure.ManagementRepository;
 import com.ssafy.pillme.management.presentation.request.AddTakingInformationRequest;
 import com.ssafy.pillme.management.presentation.request.AllTakingCheckRequest;
+import com.ssafy.pillme.management.presentation.request.AnalyzeImageRequest;
 import com.ssafy.pillme.management.presentation.request.ChangeTakingInformationRequest;
 import com.ssafy.pillme.management.presentation.request.CheckCurrentTakingRequest;
 import com.ssafy.pillme.management.presentation.request.DeleteManagementRequest;
 import com.ssafy.pillme.management.presentation.request.SingleTakingCheckRequest;
 import com.ssafy.pillme.management.presentation.request.TakingInformationRegisterRequest;
 import com.ssafy.pillme.notification.application.service.NotificationService;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.reactive.function.BodyInserters;
+import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 
 @Slf4j
 @Service
@@ -55,6 +69,81 @@ public class ManagementService {
     private final AuthService authService;
     private final NotificationService notificationService;
     private final DependencyService dependencyService;
+    private final WebClient.Builder webClientBuilder;
+
+    // fastapi 요청
+    public void requestToFastApi(
+            final MultipartFile file,
+            final AnalyzeImageRequest request,
+            final Member writer
+    ) {
+        WebClient webClient = buildWebClient();
+
+        try {
+            // 파일을 임시 디렉토리에 저장
+            Path tempFile = Files.createTempFile("upload-", "-" + file.getOriginalFilename());
+            file.transferTo(tempFile.toFile());
+
+            FileSystemResource fileResource = new FileSystemResource(tempFile.toFile());
+            Member reader = authService.findById(request.readerId());
+
+            Mono<List<PrescriptionRequestResult>> analyzeResult = webClient
+                    .post()
+                    .uri("/prescription")
+                    .contentType(MULTIPART_FORM_DATA)
+                    .body(BodyInserters.fromMultipartData("file", fileResource))
+                    .retrieve()
+                    .bodyToFlux(PrescriptionRequestResult.class)
+                    .collectList();
+            processRequestResult(analyzeResult, reader, writer);
+        } catch (IOException e) {
+            throw new AnalyzeProcessingException(ANALYZE_ERROR);
+        }
+    }
+
+    private void processRequestResult(
+            final Mono<List<PrescriptionRequestResult>> result,
+            final Member reader,
+            final Member writer
+    ) {
+        result.subscribe(prescriptionRequestResult -> {
+            List<Management> managements = prescriptionRequestResult.stream()
+                    .map(PrescriptionRequestResult::toManagement)
+                    .toList();
+
+            Information notUsedEntity = Information.builder()
+                    .reader(reader)
+                    .writer(writer)
+                    .diseaseName("NOT_COMPLETED")
+                    .build();
+
+            if (!writer.getId().equals(reader.getId())) {
+                if (!dependencyService.isDependencyExist(writer, reader)) {
+                    throw new NotProtectorException(MEMBER_NOT_PROTECTOR);
+                }
+                notificationService.sendTakingInformationNotification(writer, reader,
+                        notUsedEntity.getDiseaseName());
+                notUsedEntity.requested();
+                informationRepository.save(notUsedEntity);
+                managementRepository.saveAll(managements);
+
+                return;
+            }
+
+            informationRepository.save(notUsedEntity);
+            managementRepository.saveAll(managements);
+        });
+    }
+
+    private WebClient buildWebClient() {
+        return webClientBuilder
+                .baseUrl("https://i12a606.p.ssafy.io")
+                .defaultHeaders(
+                        httpHeaders ->
+                                httpHeaders.add(HttpHeaders.CONTENT_TYPE, "multipart/form-data")
+                )
+                .build();
+    }
 
     // 새로운 복약 정보 저장
     public Information saveTakingInformation(
@@ -63,22 +152,24 @@ public class ManagementService {
     ) {
         Member reader = authService.findById(request.reader());
 
-        Information savedInformation = informationRepository.save(request.toInformation(writer, reader));
+        Information information = request.toInformation(writer, reader);
 
         // 작성자와 읽는 사람이 의존관계에 있는 경우
         if (!writer.getId().equals(reader.getId())) {
-            if (dependencyService.isDependencyExist(writer, reader)) {
+            if (!dependencyService.isDependencyExist(writer, reader)) {
                 throw new NotProtectorException(MEMBER_NOT_PROTECTOR);
             }
-            notificationService.sendTakingInformationNotification(writer, reader, savedInformation.getDiseaseName());
-            savedInformation.requested();
+
+            informationRepository.save(information);
+            notificationService.sendTakingInformationNotification(writer, reader, information.getDiseaseName());
+            information.requested();
         }
 
         for (TakingSettingItem medication : request.medications()) {
-            saveManagement(medication, savedInformation);
+            saveManagement(medication, information);
         }
 
-        return savedInformation;
+        return information;
     }
 
     // 기존 처방전에 새로운 복약 정보 저장
