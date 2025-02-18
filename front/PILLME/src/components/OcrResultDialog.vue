@@ -15,17 +15,15 @@
         </li>
       </ul>
 
-
       <!-- ✅ 약물 검색 + 직접 추가 -->
       <div class="mt-4 flex flex-col sm:flex-row gap-2">
         <input
           v-model="searchQuery"
-          @input="fetchMedications"
+          @input="onChange"
           type="text"
-          placeholder="약물 검색 또는 입력"
+          placeholder="약물 검색 또는 입력 후 추가"
           class="border p-2 rounded w-full sm:w-3/4 md:w-2/3 focus:outline-none focus:ring-2 focus:ring-blue-400"
         />
-        <button @click="openSearchDialog" class="search-btn w-full sm:w-auto">🔍 검색</button>
       </div>
 
       <!-- ✅ 검색 결과 표시 -->
@@ -44,7 +42,7 @@
 
       <!-- ✅ 직접 추가 -->
       <div class="mt-4 flex justify-center">
-        <button @click="addDrug" class="add-btn w-full sm:w-auto">➕ 직접 추가</button>
+        <button @click="addDrug" class="add-btn w-full sm:w-auto">직접 추가</button>
       </div>
 
       <div class="button-group">
@@ -55,7 +53,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 import { searchMedications } from '../api/search';
 import { useOcrStore } from '../stores/ocrStore';
 
@@ -64,7 +62,8 @@ const newDrug = ref(''); // ✅ 새로운 약물 추가 입력 필드
 const searchQuery = ref('');
 const medications = ref([]);
 
-// ✅ DB에서 약물 검색 (debounce 적용)
+
+// ✅ `debounce` 적용하여 불필요한 API 요청 방지 (300ms 동안 입력이 멈추면 실행)
 const fetchMedications = async () => {
   if (!searchQuery.value.trim()) {
     medications.value = [];
@@ -75,29 +74,34 @@ const fetchMedications = async () => {
   medications.value = response.length > 0 ? response : [];
 };
 
+// ✅ 입력 시 즉시 검색 실행
+const onChange = (event) => {
+  searchQuery.value = event.target.value;
+  fetchMedications(); // API 요청 실행
+};
+
+// ✅ `watch`를 사용하여 `searchQuery`가 변경될 때 `fetchMedications` 실행
+watch(searchQuery, fetchMedications);
+
 // ✅ 검색된 약물 선택 시 추가
 const selectDrug = (med) => {
   ocrStore.results.push({ matched_drug: med.name });
-  searchQuery.value = ''; // 검색 필드 초기화
+  searchQuery.value = ""; // 검색 필드 초기화
   medications.value = []; // 검색 결과 초기화
 };
 
 // ✅ 직접 입력하여 추가
 const addDrug = () => {
-  if (searchQuery.value.trim() !== '') {
+  if (searchQuery.value.trim() !== "") {
     ocrStore.results.push({ matched_drug: searchQuery.value.trim() });
-    searchQuery.value = ''; // 입력 필드 초기화
+    searchQuery.value = ""; // 입력 필드 초기화
   }
 };
+
 
 // ✅ 약물 삭제 기능
 const removeDrug = (index) => {
   ocrStore.results.splice(index, 1);
-};
-
-// ✅ 약물 검색 다이얼로그 열기 (추후 확장 가능)
-const openSearchDialog = () => {
-  fetchMedications();
 };
 </script>
 
