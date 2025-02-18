@@ -57,14 +57,15 @@
       </div>
 
       <div
-        ref="contentRef"
-        :class="[
-          'h-screen-custom',
-          isScrollAllowed
-            ? 'overflow-y-auto overflow-x-hidden'
-            : 'flex items-center justify-center overflow-hidden',
-        ]"
-      >
+  ref="contentRef"
+  :class="[
+    'h-screen-custom',
+    'scrollable',
+    isScrollAllowed
+      ? 'overflow-y-auto overflow-x-hidden'
+      : 'flex items-center justify-center overflow-hidden',
+  ]"
+>
         <router-view v-if="isRouteReady" :navbarHeight="navbarHeight" />
       </div>
 
@@ -114,7 +115,7 @@ const isRouteReady = ref(true);
 // 컴포저블 설정
 const { isLoggedIn, initAuth, cleanUpAuth } = useAuth();
 const { initRealVH, cleanUpRealVH } = useRealVH();
-const { isScrollAllowed } = useScrollControl(['/afteraccount', '/', '/notificationlist','/calendar']);
+const { isScrollAllowed } = useScrollControl(['/afteraccount', '/', '/notificationlist','/calendar','/chat']);
 const { navbarHeight } = useNavbarHeight(navbarRef);
 const { notifications, removeNotification, handleAccept, handleReject, initializeFCM } = useFCM();
 
@@ -294,4 +295,15 @@ onUnmounted(() => {
     bottom: 80px;
   }
 }
+
+/* Firefox */
+.scrollable {
+  scrollbar-width: none;
+}
+
+/* Chrome, Safari, Opera */
+.scrollable::-webkit-scrollbar {
+  display: none;
+}
+
 </style>

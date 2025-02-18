@@ -89,40 +89,55 @@
 <div class="m-4 flex flex-col">
     <!-- 헤더 영역 -->
     <div class="flex justify-between items-center mb-2">
-      <p class="text-xl font-bold">복용 내역</p>
-      <button @click="fetchPrescriptionHistory" class="text-sm text-gray-500 hover:underline">
-        과거 복용내역 조회 ▷
+      <p class="text-xl font-bold">현재 복용 중인 처방전</p>
+      <button @click="fetchPrescriptionHistory" class="text-sm text-gray-500 hover:underline self-end">
+        전체 복용내역 조회 ▷
       </button>
     </div>
 
   <!-- 가로 스크롤 가능한 화이트카드 영역 -->
   <div class="scroll-container flex overflow-x-auto space-x-4 p-2">
     <WhiteCard 
-      v-for="(info, index) in managementInfoList" 
-      :key="index"
-      overrideClass="bg-white min-w-[300px] max-w-[300px] flex-shrink-0 relative p-4 overflow-hidden"
-    >
-      <!-- 병원 정보 (오른쪽 상단, 회색 & 작은 글씨) -->
-      <p class="absolute top-2 right-3 text-xs text-gray-400 truncate max-w-[150px]">
-        {{ info.hospital || "병원 정보 없음" }}
+  v-for="(info, index) in managementInfoList" 
+  :key="index"
+  overrideClass="bg-white min-w-[300px] max-w-[300px] flex-shrink-0 relative p-4 overflow-hidden"
+>
+  <!-- 병원 정보 (오른쪽 상단, 회색 & 작은 글씨) -->
+  <p class="absolute top-2 right-3 text-xs text-gray-400 truncate max-w-[150px]">
+    {{ info.hospital || "병원 정보 없음" }}
+  </p>
+
+  <div class="flex flex-row items-center">
+    <img src="../assets/logi_nofont.svg" alt="알약이미지" class="w-16 h-16">
+    <div class="flex flex-col ml-4 max-w-[200px]">
+      <!-- 병명이 없으면 "병명 미등록" -->
+      <p class="font-bold text-lg truncate max-w-[200px]">
+        {{ info.diseaseName || "병명 미등록" }}
       </p>
 
-      <div class="flex flex-row items-center">
-        <img src="../assets/logi_nofont.svg" alt="알약이미지" class="w-16 h-16">
-        <div class="flex flex-col ml-4 max-w-[200px]">
-          <!-- 병명이 없으면 "병명 미등록" -->
-          <p class="font-bold text-lg truncate max-w-[200px]">{{ info.diseaseName || "병명 미등록" }}</p>
+      <!-- 날짜 (회색 & 작은 글씨) -->
+      <p class="text-xs text-gray-500 truncate max-w-[200px]">
+        {{ info.medicationPeriod }}
+      </p>
 
-          <!-- 날짜 (회색 & 작은 글씨) -->
-          <p class="text-xs text-gray-500 truncate max-w-[200px]">{{ info.medicationPeriod }}</p>
+      <!-- 약 이름 (회색 & 작은 글씨) -->
+      <p class="text-xs text-gray-500 mt-1 truncate max-w-[200px]">
+        {{ info.medications || "약 정보 없음" }}
+      </p>
+    </div>
+  </div>
 
-          <!-- 약 이름 (회색 & 작은 글씨) -->
-          <p class="text-xs text-gray-500 mt-1 truncate max-w-[200px]">
-            {{ info.medications || "약 정보 없음" }}
-          </p>
-        </div>
-      </div>
-    </WhiteCard>
+  <!-- 오른쪽 하단 수정하기 버튼 -->
+  <div class="absolute bottom-2 right-3">
+    <button 
+      class="text-xs text-gray-500 hover:underline" 
+      @click="openEditModal(info, modalClass)"
+    >
+      수정하기
+    </button>
+  </div>
+</WhiteCard>
+
   </div>
 </div>
 
@@ -151,6 +166,16 @@
   </div>
 </Teleport>
 
+<Teleport to="body">
+      <HomeNowDrugCardEditModal 
+        v-if="isEditModalOpen" 
+        :info="selectedInfo" 
+        modalClass="w-full h-4/5 max-w-[calc(100vw-32px)] sm:max-w-md mx-4" 
+        @thisdrugcheck="handleIndividualDrugCheck"
+    @alldrugcheck="handleAllDrugCheck"
+    @close="closeEditModal"
+      />
+    </Teleport>
 
 
 </template>
@@ -174,6 +199,8 @@ import CheckDoneboxes from '../assets/CheckDoneboxes.svg';
 import Checkboxes from '../assets/Checkboxes.svg';
 import { useNotificationSettings } from '../composables/useNotificationSettings'; // Composable import
 import { usePrescriptionHistory } from "../composables/usePrescriptionHistory"; 
+import HomeNowDrugCardEditModal from '../components/HomeNowDrugCardEditModal.vue'; // 모달 컴포넌트
+import { prescriptionAllCheck } from '../api/drugtaking';
 
 // 모달 제어용 상태 변수
 const { modalData, showModal, fetchPrescriptionHistory } = usePrescriptionHistory();
@@ -208,7 +235,18 @@ const medSearchDialog = ref(null);
 const openSearchDialog = () => {
   medSearchDialog.value.openDialog();
 };
+const isEditModalOpen = ref(false);
+const selectedInfo = ref(null);
+const closeEditModal = () => {
+  isEditModalOpen.value = false;
+};
 
+// 수정하기 버튼 클릭 시 호출하는 함수
+const openEditModal = (info) => {
+  selectedInfo.value = info; // 수정할 정보 저장
+  console.log("📌 수정할 정보:", info);
+  isEditModalOpen.value = true; // 모달 열기
+};
 
 //알림모달크기조절
 const modalSize = ref("md"); // "sm", "md", "lg"
@@ -323,7 +361,7 @@ const fetchData = async () => {
           const periodMatch = prescription.medicationPeriod.match(/(\d{4}-\d{2}-\d{2})/g);
           const startDate = periodMatch?.[0] || null;
           const endDate = periodMatch?.[1] || null;
-
+          
           return {
             ...prescription,
             startDate,
@@ -337,7 +375,10 @@ const fetchData = async () => {
   }
 };
 
-
+const handleAllDrugCheck = (medications,ifid) => {
+  console.log("모든 약 복용 체크",medications,ifid);
+  prescriptionAllCheck(medications,ifid);
+};
 
 function handleModalClose() {
   showModal.value = false;
@@ -383,6 +424,7 @@ onMounted(async () => {
   // 오늘의 복약 내역 불러오기
   await fetchTodaysMedications();
   await fetchData();
+  console.log("zzzzzzzz",managementInfoList);
   // 알림 설정 불러오기
   await loadNotificationSettings(); // Composable 함수 호출
 
