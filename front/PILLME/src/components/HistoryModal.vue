@@ -65,7 +65,7 @@ const props = defineProps({
     required: true
   }
 });
-
+console.log("📌 복용 내역 데이터:", props.prescriptions);
 // Emits (부모로 모달 닫기 이벤트 전달)
 const emit = defineEmits(["close"]);
 
