@@ -51,12 +51,13 @@ public class ManagementController {
     private final ManagementService managementService;
 
     @PostMapping("/analyze")
-    public void analyzePrescription(
-            @RequestPart(value = "file") MultipartFile file,
-            @RequestBody AnalyzeImageRequest request,
+    public ResponseEntity<JSONResponse<Void>> analyzePrescription(
+            @RequestPart(value = "image") MultipartFile image,
+            @RequestPart(value = "detail") AnalyzeImageRequest request,
             @Auth Member member
     ) {
-        managementService.requestToFastApi(file, request, member);
+        managementService.requestToFastApi(image, request, member);
+        return ResponseEntity.noContent().build();
     }
 
     @PostMapping

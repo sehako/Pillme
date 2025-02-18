@@ -96,7 +96,6 @@ public class ManagementService {
                     .bodyToFlux(PrescriptionRequestResult.class)
                     .collectList();
             processRequestResult(analyzeResult, reader, writer);
-
         } catch (IOException e) {
             throw new AnalyzeProcessingException(ANALYZE_ERROR);
         }
@@ -112,15 +111,27 @@ public class ManagementService {
                     .map(PrescriptionRequestResult::toManagement)
                     .toList();
 
-            managementRepository.saveAll(managements);
-
             Information notUsedEntity = Information.builder()
                     .reader(reader)
                     .writer(writer)
                     .diseaseName("NOT_COMPLETED")
                     .build();
 
+            if (!writer.getId().equals(reader.getId())) {
+                if (!dependencyService.isDependencyExist(writer, reader)) {
+                    throw new NotProtectorException(MEMBER_NOT_PROTECTOR);
+                }
+                notificationService.sendTakingInformationNotification(writer, reader,
+                        notUsedEntity.getDiseaseName());
+                notUsedEntity.requested();
+                informationRepository.save(notUsedEntity);
+                managementRepository.saveAll(managements);
+
+                return;
+            }
+
             informationRepository.save(notUsedEntity);
+            managementRepository.saveAll(managements);
         });
     }
 
@@ -141,22 +152,24 @@ public class ManagementService {
     ) {
         Member reader = authService.findById(request.reader());
 
-        Information savedInformation = informationRepository.save(request.toInformation(writer, reader));
+        Information information = request.toInformation(writer, reader);
 
         // 작성자와 읽는 사람이 의존관계에 있는 경우
         if (!writer.getId().equals(reader.getId())) {
-            if (dependencyService.isDependencyExist(writer, reader)) {
+            if (!dependencyService.isDependencyExist(writer, reader)) {
                 throw new NotProtectorException(MEMBER_NOT_PROTECTOR);
             }
-            notificationService.sendTakingInformationNotification(writer, reader, savedInformation.getDiseaseName());
-            savedInformation.requested();
+
+            informationRepository.save(information);
+            notificationService.sendTakingInformationNotification(writer, reader, information.getDiseaseName());
+            information.requested();
         }
 
         for (TakingSettingItem medication : request.medications()) {
-            saveManagement(medication, savedInformation);
+            saveManagement(medication, information);
         }
 
-        return savedInformation;
+        return information;
     }
 
     // 기존 처방전에 새로운 복약 정보 저장
