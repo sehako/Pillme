@@ -38,15 +38,18 @@
       <div v-if="fetchFailed">
         알림 설정을 활성화해야 오늘의 복약 알림을 받을 수 있습니다.
       </div>
-      <div v-else>
+      <!-- <div v-else>
         {{ todaysMedications ? todaysMedications : "약정보 없음" }}
-      </div>
+      </div> -->
     </span>
   </div>
   
   <div class="flex flex-col items-left">
     <p class="font-bold text-lg">
       {{ fetchFailed ? '' : `${currentTimePeriod} 약을 드셨나요?` }}
+    </p>
+    <p v-if="!fetchFailed && todaysMedications" class="text-sm text-gray-700 mt-1">
+      {{ todaysMedications }}
     </p>
 
     <!-- ✅ 체크박스 + 텍스트 (오른쪽 정렬) -->
@@ -154,7 +157,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted,watchEffect } from 'vue';
 import { fetchAllDrugCheck } from '../api/drugcheck';
 import BaseButton from '../components/BaseButton.vue';
 import YellowCard from '../layout/YellowCard.vue';
@@ -170,7 +173,7 @@ import HistoryModal from '../components/HistoryModal.vue'; // 모달 컴포넌�
 import CheckDoneboxes from '../assets/CheckDoneboxes.svg';
 import Checkboxes from '../assets/Checkboxes.svg';
 import { useNotificationSettings } from '../composables/useNotificationSettings'; // Composable import
-import { usePrescriptionHistory } from "../composables/usePrescriptionHistory"; 
+import { usePrescriptionHistory } from "../composables/usePrescriptionHistory";
 // 모달 제어용 상태 변수
 const { modalData, showModal, fetchPrescriptionHistory } = usePrescriptionHistory();
 //  My_Alarm.vue를 동적으로 import (모달에서만 로드)
@@ -297,6 +300,26 @@ const fetchTodaysMedications = async () => {
     todaysMedications.value = data.result
       ? data.result.map(med => med.medicationName).join(", ")
       : "약 정보 없음";
+      if (data.result && data.result.length > 0) {
+        const periodMap = {
+          "아침": { period: "morning", taking: "morningTaking" },
+    "점심": { period: "lunch", taking: "lunchTaking" },
+    "저녁": { period: "dinner", taking: "dinnerTaking" },
+    "자기전": { period: "sleep", taking: "sleepTaking" }
+  };
+  console.log("먹는 약 정보들", data.result);
+  
+  const currentPeriod = periodMap[currentTimePeriod.value];
+  console.log("시간", currentPeriod);
+  if (currentPeriod) {
+    const medicationsForPeriod = data.result.filter(med => med[currentPeriod.period]);
+
+    // ✅ 모든 약의 taking 값이 true이면 복약 완료
+    isMedicationCompleted.value = medicationsForPeriod.length > 0 &&
+      medicationsForPeriod.every(med => med[currentPeriod.taking]);
+    }
+  }
+    
   } catch (error) {
     console.error("❌ [DEBUG] 복약 리스트 가져오기 실패:", error);
     todaysMedications.value = "데이터 불러오기 실패";
@@ -364,12 +387,16 @@ const completeMedications = async () => {
     alert("복약 완료 처리에 실패했습니다.");
   }
 };
-
+watchEffect(() => {
+  if (currentTimePeriod.value) { // ✅ 값이 존재하는지 확인
+    console.log("✅ 현재 시간대:", currentTimePeriod.value);
+    fetchTodaysMedications(); // ✅ `currentTimePeriod.value`가 설정된 후 실행
+  }
+});
 
 //  컴포넌트가 마운트되면 데이터 및 이벤트 리스너 등록
 onMounted(async () => {
-  // 오늘의 복약 내역 불러오기
-  await fetchTodaysMedications();
+  
   await fetchData();
   // 알림 설정 불러오기
   await loadNotificationSettings(); // Composable 함수 호출
