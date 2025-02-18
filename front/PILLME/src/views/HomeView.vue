@@ -200,14 +200,10 @@ import HistoryModal from '../components/HistoryModal.vue'; // 모달 컴포넌�
 import CheckDoneboxes from '../assets/CheckDoneboxes.svg';
 import Checkboxes from '../assets/Checkboxes.svg';
 import { useNotificationSettings } from '../composables/useNotificationSettings'; // Composable import
-<<<<<<< HEAD
-import { usePrescriptionHistory } from "../composables/usePrescriptionHistory";
-=======
 import { usePrescriptionHistory } from "../composables/usePrescriptionHistory"; 
 import HomeNowDrugCardEditModal from '../components/HomeNowDrugCardEditModal.vue'; // 모달 컴포넌트
 import { prescriptionAllCheck } from '../api/drugtaking';
 
->>>>>>> b82a03499ce031ed1028cf2bab0abba9382fc5ad
 // 모달 제어용 상태 변수
 const { modalData, showModal, fetchPrescriptionHistory } = usePrescriptionHistory();
 //  My_Alarm.vue를 동적으로 import (모달에서만 로드)
