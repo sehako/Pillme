@@ -39,9 +39,11 @@
 import { ref, onMounted, onUnmounted } from 'vue';
 import {useRouter} from 'vue-router';
 import { logoutAPI, handleLogout } from "../api/auth";
+import {useFCM} from '../utils/usefcm';
 const isOpen = ref(false);
 const isLoading = ref(false); // ✅ isLoading 추가
 const router = useRouter();
+const {deleteTokenFromServer} = useFCM();
 
 const menuItems = ref([
   "알림 설정",
@@ -78,6 +80,14 @@ const handleLogoutEvent = async () => {
   isLoading.value = true; // ✅ 로딩 상태 활성화
 
   try {
+
+    // FCM 토큰 삭제 시도 (실패해도 로그아웃은 계속 진행)
+    try {
+      await deleteTokenFromServer();
+    } catch (error) {
+      console.error("FCM 토큰 삭제 실패:", error);
+    }
+
     // ✅ 로그아웃 API 요청
     await logoutAPI();
 
