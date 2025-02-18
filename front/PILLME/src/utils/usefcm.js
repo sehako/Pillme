@@ -110,7 +110,7 @@ export function useFCM() {
     endpoint = action === 'accept' ? 'accept' : 'reject';
     const url = `${import.meta.env.VITE_API_URL}/api/v1/${apiPath}/${endpoint}`;
 
-    const response = "";
+    let response = "";
     if (url === `${import.meta.env.VITE_API_URL}/api/v1/dependency/delete/accept`) {
       response = await fetch(url, {
         method: 'POST',
