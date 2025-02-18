@@ -140,14 +140,17 @@ public class DependencyService {
         Member receiver = dependency.getOtherMember(loginMember);
 
         // 가족 관계 삭제 요청 알림 전송
-        notificationService.sendDependencyDeleteRequestNotification(loginMember, receiver);
+        notificationService.sendDependencyDeleteRequestNotification(loginMember, receiver, dependencyId);
     }
 
     // senderId를 통해 삭제 요청을 보낸 회원을 찾아서 삭제 요청을 수락
     public void acceptDeleteDependency(AcceptDependencyDeletionRequest request, Member loginMember) {
-        // 현재 로그인한 회원과 senderId를 통해 삭제 요청을 보낸 회원의 관계 정보 조회
-        Dependency dependency = dependencyRepository.findByMemberIdsAndDeletedIsFalse(loginMember.getId(), request.senderId())
+        // 요청에 존재하는 dependencyId로 관계 정보 조회
+        Dependency dependency = dependencyRepository.findByIdAndDeletedIsFalse(request.dependencyId())
                 .orElseThrow(() -> new DependencyNotFoundException(ErrorCode.DEPENDENCY_NOT_FOUND));
+
+        // 관계 정보가 올바른지 검증
+        checkValidatedDependency(dependency, loginMember, request.senderId());
 
         // 관계 정보 삭제
         dependency.delete();
@@ -161,9 +164,12 @@ public class DependencyService {
 
     // senderId를 통해 삭제 요청을 보낸 회원을 찾아서 삭제 요청을 거절
     public void rejectDeleteDependency(RejectDependencyDeletionRequest request, Member loginMember) {
-        // 현재 로그인한 회원과 senderId를 통해 삭제 요청을 보낸 회원의 관계 정보 조회
-        Dependency dependency = dependencyRepository.findByMemberIdsAndDeletedIsFalse(loginMember.getId(), request.senderId())
+        // 요청에 존재하는 dependencyId로 관계 정보 조회
+        Dependency dependency = dependencyRepository.findByIdAndDeletedIsFalse(request.dependencyId())
                 .orElseThrow(() -> new DependencyNotFoundException(ErrorCode.DEPENDENCY_NOT_FOUND));
+
+        // 관계 정보가 올바른지 검증
+        checkValidatedDependency(dependency, loginMember, request.senderId());
 
         // 가족 관계 삭제 요청 거절 알림 전송
         notificationService.sendDependencyDeleteRejectNotification(loginMember, dependency.getOtherMember(loginMember));
@@ -196,5 +202,16 @@ public class DependencyService {
     @Transactional(readOnly = true)
     public boolean isDependencyExist(Member protector, Member dependent) {
         return dependencyRepository.findByDependentIdAndProtectorIdAndDeletedIsFalse(dependent.getId(), protector.getId()).isPresent();
+    }
+
+    // 현재 로그인한 회원과 요청으로 보낸 회원이 관계 정보를 가지고 있는지 확인
+    private void checkValidatedDependency(Dependency dependency, Member loginMember, Long senderId) {
+        if (!dependency.getProtector().getId().equals(loginMember.getId()) && !dependency.getDependent().getId().equals(loginMember.getId())) {
+            throw new DependencyNotFoundException(ErrorCode.DEPENDENCY_NOT_FOUND);
+        }
+
+        if (!dependency.getProtector().getId().equals(senderId) && !dependency.getDependent().getId().equals(senderId)) {
+            throw new DependencyNotFoundException(ErrorCode.DEPENDENCY_NOT_FOUND);
+        }
     }
 }

@@ -15,7 +15,6 @@ import com.ssafy.pillme.notification.infrastructure.repository.NotificationRepos
 import com.ssafy.pillme.notification.infrastructure.repository.NotificationSettingRepository;
 import com.ssafy.pillme.notification.presentation.request.*;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -201,7 +200,7 @@ public class NotificationServiceImpl implements NotificationService {
      * 알림을 수신자에게 전송
      * */
     @Override
-    public void sendDependencyDeleteRequestNotification(Member sender, Member receiver) {
+    public void sendDependencyDeleteRequestNotification(Member sender, Member receiver, Long dependencyId) {
         // 관계 삭제 요청 알림 생성
         Notification notification = Notification.createDependencyDeleteRequest(sender, receiver);
 
@@ -212,7 +211,7 @@ public class NotificationServiceImpl implements NotificationService {
         notificationRepository.save(notification);
 
         // 알림 전송
-        fcmNotificationService.sendNotification(NotificationRequest.of(notification));
+        fcmNotificationService.sendDeleteDependencyNotification(NotificationRequest.of(notification), dependencyId);
     }
 
     /*
