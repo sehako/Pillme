@@ -16,6 +16,7 @@ import com.ssafy.pillme.management.application.response.TakingDetailResponse;
 import com.ssafy.pillme.management.domain.Information;
 import com.ssafy.pillme.management.presentation.request.AddTakingInformationRequest;
 import com.ssafy.pillme.management.presentation.request.AllTakingCheckRequest;
+import com.ssafy.pillme.management.presentation.request.AnalyzeImageRequest;
 import com.ssafy.pillme.management.presentation.request.ChangeTakingInformationRequest;
 import com.ssafy.pillme.management.presentation.request.CheckCurrentTakingRequest;
 import com.ssafy.pillme.management.presentation.request.DeleteManagementRequest;
@@ -35,7 +36,9 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 @Slf4j
 @RestController
@@ -43,6 +46,15 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class ManagementController {
     private final ManagementService managementService;
+
+    @PostMapping("/analyze")
+    public void analyzePrescription(
+            @RequestPart(value = "file") MultipartFile file,
+            @RequestBody AnalyzeImageRequest request,
+            @Auth Member member
+    ) {
+        managementService.requestToFastApi(file, request, member);
+    }
 
     @PostMapping
     public ResponseEntity<JSONResponse<Void>> register(

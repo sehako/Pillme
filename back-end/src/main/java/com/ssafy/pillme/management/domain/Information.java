@@ -59,8 +59,4 @@ public class Information extends BaseEntity {
     public void dependencyAddSetting() {
         this.requested = false;
     }
-
-    public boolean isRequested() {
-        return this.requested;
-    }
 }

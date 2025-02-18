@@ -78,6 +78,7 @@ public enum ErrorCode {
     INVALID_TIME_REQUEST(4054, BAD_REQUEST, "유효하지 않은 시간 요청입니다"),
     MEMBER_NOT_WRITER(4055, UNAUTHORIZED, "본인이 작성하지 않은 복약 정보는 수정할 수 없습니다"),
     MEMBER_NOT_READER(4056, UNAUTHORIZED, "잘못 조회된 복약 정보입니다."),
+    ANALYZE_ERROR(4057, INTERNAL_SERVER_ERROR, "현재 이미지 분석이 불가능합니다."),
 
     //채팅방 관리
     EMPTY_CHATROOM_ID(4070, BAD_REQUEST, "요청한 채팅방은 존재하지 않습니다."),
