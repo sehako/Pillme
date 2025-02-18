@@ -1,5 +1,5 @@
 <template>
-  <!-- 스크롤 컨테이너에 ref="scrollContainer" 추가 -->
+  <!-- 이 부분은 스크롤이있어야한다고 생각 -->
   <div ref="scrollContainer" class="flex flex-col w-full h-full overflow-y-scroll">
     <!-- 달력 영역 -->
     <div class="flex-none h-auto min-h-0 flex">
@@ -179,6 +179,8 @@ import {
   transformManagementDetails,
 } from "../api/drugmanagement";
 import { updateCheckTaking, fetchAllDrugCheck } from "../api/drugcheck";
+import { useRouter } from "vue-router";
+const router = useRouter();
 
 // 스크롤 컨테이너 ref
 const scrollContainer = ref(null);
@@ -275,15 +277,19 @@ async function toggleGlobal(timeSlot) {
   globalChecks.value[timeSlot] = !globalChecks.value[timeSlot];
   console.log(`[DEBUG] 글로벌 ${timeSlot} 체크:`, globalChecks.value[timeSlot]);
 
-  // API 호출: 모든 복약 체크 상태 업데이트 (PATCH)
+  // 모든 약의 개별 체크 상태 업데이트 (예: 'morningTaking')
+  medicationsList.value.forEach((medication) => {
+    medication[timeSlot + "Taking"] = globalChecks.value[timeSlot];
+  });
+
   try {
     const result = await fetchAllDrugCheck(timeSlot);
     console.log("[toggleGlobal] API 응답:", result);
-    // 필요 시 result 값을 기반으로 추가 로직 처리 가능 (예: UI 업데이트)
   } catch (error) {
     console.error("[toggleGlobal] API 호출 실패:", error);
   }
 }
+
 
 // 그룹 헤더 클릭 시 해당 그룹으로 스크롤 이동 (scrollContainer 기준)
 function scrollToGroup(prescriptionIndex) {

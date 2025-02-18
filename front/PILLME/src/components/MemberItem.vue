@@ -16,7 +16,7 @@
 </template>
 
 <script setup>
-import { defineProps, defineEmits, computed } from "vue";
+import { computed } from "vue";
 import BaseLogo from "../components/BaseLogo.vue";
 import logoSrc from "../assets/logi_nofont.svg";
 
