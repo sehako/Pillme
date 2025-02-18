@@ -3,6 +3,8 @@ package com.ssafy.pillme.management.presentation;
 import static com.ssafy.pillme.global.code.SuccessCode.INFORMATION_ADD_REQUEST_SUCCESS;
 import static com.ssafy.pillme.global.code.SuccessCode.INFORMATION_ADD_SUCCESS;
 import static com.ssafy.pillme.global.code.SuccessCode.INFORMATION_DELETE_REQUEST_REJECT_SUCCESS;
+import static com.ssafy.pillme.global.code.SuccessCode.INFORMATION_DELETE_REQUEST_SUCCESS;
+import static com.ssafy.pillme.global.code.SuccessCode.INFORMATION_DELETE_SUCCESS;
 import static com.ssafy.pillme.global.code.SuccessCode.INFORMATION_SAVE_SUCCESS;
 import static com.ssafy.pillme.global.code.SuccessCode.MANAGEMENT_CHANGE_SUCCESS;
 import static com.ssafy.pillme.global.code.SuccessCode.MEDICATION_CHECK_SUCCESS;
@@ -42,7 +44,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("api/v1/management")
 @RequiredArgsConstructor
-// 인생은 억까다...
 public class ManagementController {
     private final ManagementService managementService;
 
@@ -163,13 +164,15 @@ public class ManagementController {
     }
 
     @DeleteMapping("/{info-id}")
-    public ResponseEntity<Void> deleteManagement(
+    public ResponseEntity<JSONResponse<Void>> deleteManagement(
             @PathVariable(value = "info-id") final Long infoId,
             @RequestBody final DeleteManagementRequest request,
             @Auth final Member member
     ) {
-        managementService.deleteManagement(infoId, request, member);
-        return ResponseEntity.noContent().build();
+        boolean deleteMyself = managementService.deleteManagement(infoId, request, member);
+        return ResponseEntity.ok(
+                JSONResponse.of(deleteMyself ? INFORMATION_DELETE_SUCCESS : INFORMATION_DELETE_REQUEST_SUCCESS)
+        );
     }
 
     @DeleteMapping("/delete-accept/{reader-id}")

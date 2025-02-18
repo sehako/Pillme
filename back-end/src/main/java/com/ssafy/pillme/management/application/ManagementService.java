@@ -49,7 +49,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 @Transactional
-// 아니 이게 왜 반영이 안됐냐....
 public class ManagementService {
     private final ManagementRepository managementRepository;
     private final InformationRepository informationRepository;
@@ -286,7 +285,7 @@ public class ManagementService {
         }
     }
 
-    public void deleteManagement(
+    public boolean deleteManagement(
             final Long infoId,
             final DeleteManagementRequest request,
             final Member member) {
@@ -304,8 +303,11 @@ public class ManagementService {
             if (managements.size() == managementList.size()) {
                 information.delete();
             }
+
+            return true;
         } catch (MemberIsNotWriterException e) {
             sendDeleteRequestToWriter(information, member, writer);
+            return false;
         }
     }
 
