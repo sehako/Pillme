@@ -1,7 +1,7 @@
 <template>
   <div v-if="ocrStore.showResultsDialog" class="dialog-overlay">
     <div class="dialog-box">
-      <h2 class="text-lg font-semibold mb-2 text-center">📄 분석 결과</h2>
+      <h2 class="text-lg font-semibold mb-2 text-center">약 분석 결과</h2>
 
       <!-- ✅ 분석된 약 리스트 -->
       <ul class="medication-list">

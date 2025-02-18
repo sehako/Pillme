@@ -1,10 +1,19 @@
 <template>
-  <div class="camera-container relative h-screen-custom flex flex-col items-center justify-center bg-black">
+  <div
+    class="camera-container relative h-screen-custom flex flex-col items-center justify-center bg-black"
+  >
     <!-- 📌 카메라 화면 -->
-    <video ref="videoElement" class="camera-view w-full max-h-full object-cover" autoplay></video>
+    <video
+      ref="videoElement"
+      class="camera-view w-full max-h-full object-cover"
+      autoplay
+      @click="refocusCamera"
+    ></video>
 
     <!-- 📌 사용자 안내 메시지 -->
-    <div class="absolute top-4 z-50 text-white text-center bg-black bg-opacity-50 px-4 py-2 rounded-lg">
+    <div
+      class="absolute top-4 z-50 text-white text-center bg-black bg-opacity-50 px-4 py-2 rounded-lg"
+    >
       📢 약 이름이 흰색 네모에 다 들어오도록 맞춰주세요!
     </div>
 
@@ -12,12 +21,12 @@
     <button @click="toggleCamera" class="switch-btn absolute top-6 right-6 z-50">
       🔄 카메라 전환
     </button>
-    
+
     <!-- 📌 네모 가이드 박스 -->
     <div class="overlay">
       <div class="guide-box" :style="{ width: guideBoxWidth, height: guideBoxHeight }"></div>
     </div>
-    
+
     <!-- 📌 버튼 오버레이 -->
     <div v-if="!capturedImage" class="absolute bottom-20 z-50 flex gap-4">
       <button @click="closeCamera" class="control-btn bg-gray-500">✖ 닫기</button>
@@ -65,6 +74,28 @@ const onVideoLoaded = () => {
   });
 };
 
+// ✅ 초점 재조정 함수
+const refocusCamera = async () => {
+  if (!streamRef.value) return;
+
+  const track = streamRef.value.getVideoTracks()[0];
+  const capabilities = track.getCapabilities();
+
+  if (capabilities.focusMode) {
+    try {
+      await track.applyConstraints({ advanced: [{ focusMode: "continuous" }] });
+      console.log("📌 초점 재조정됨!");
+    } catch (error) {
+      console.error("⚠ 초점 재조정 실패:", error);
+    }
+  } else {
+    console.warn("⚠ 현재 브라우저에서 초점 재조정 기능을 지원하지 않습니다.");
+  }
+};
+
+
+
+
 // ✅ 카메라 열기
 const openCamera = async () => {
   stopStream();
@@ -82,13 +113,18 @@ const openCamera = async () => {
     streamRef.value = stream;
     videoElement.value.srcObject = stream;
 
-    // ✅ 비디오가 로드된 후 가이드 박스 크기 업데이트
-    videoElement.value.addEventListener("loadedmetadata", updateGuideBoxSize);
+    // ✅ 비디오가 로드된 후 가이드 박스 크기 업데이트 & 초점 설정
+    videoElement.value.addEventListener("loadedmetadata", () => {
+      updateGuideBoxSize();
+      refocusCamera(); // ✅ 카메라 실행 시 초점 자동 조정
+    });
   } catch (error) {
     alert("카메라를 사용할 수 없습니다.");
     closeCamera();
   }
 };
+
+
 
 // ✅ 스트림 중지
 const stopStream = () => {
@@ -174,7 +210,6 @@ onBeforeUnmount(() => {
 });
 </script>
 
-
 <style scoped>
 .preview-container {
   position: fixed; /* 화면 전체 덮기 */
@@ -203,10 +238,9 @@ onBeforeUnmount(() => {
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
 }
 
-
 /* 📌 캡처된 이미지 크기 조절 (반응형) */
 .captured-photo {
-  max-width: 80%;  /* 기본 크기를 더 크게 설정 */
+  max-width: 80%; /* 기본 크기를 더 크게 설정 */
   max-height: 60vh; /* 화면 높이의 70%까지 확장 */
   width: auto;
   height: auto;
@@ -224,7 +258,7 @@ onBeforeUnmount(() => {
 /* 📌 반응형 조절 (모바일에서는 크기 줄이기) */
 @media (max-width: 600px) {
   .preview-box {
-    max-width: 90%;  /* 모바일에서는 90% 너비 */
+    max-width: 90%; /* 모바일에서는 90% 너비 */
     max-height: 60vh; /* 높이 최대 60vh */
   }
 
@@ -271,7 +305,9 @@ onBeforeUnmount(() => {
 }
 
 /* 📌 버튼 스타일 */
-.control-btn, .capture-btn, .switch-btn {
+.control-btn,
+.capture-btn,
+.switch-btn {
   padding: 14px 28px;
   border-radius: 50px;
   font-size: 18px;
@@ -279,8 +315,12 @@ onBeforeUnmount(() => {
   cursor: pointer;
 }
 
-.control-btn { background: gray; }
-.capture-btn { background: red; }
+.control-btn {
+  background: gray;
+}
+.capture-btn {
+  background: red;
+}
 
 /* 📌 전환 버튼 스타일 */
 .switch-btn {
