@@ -1,7 +1,7 @@
 <template>
   <div v-if="ocrStore.showMedicationDialog" class="dialog-overlay">
     <div class="dialog-box">
-      <h2 class="text-lg font-semibold text-center text-pink-500">⏰ 복약 시간 설정</h2>
+      <h2 class="text-lg font-semibold text-center text-pink-500">복약 시간 설정</h2>
 
       <div class="medication-container">
         <div class="medication-header">
