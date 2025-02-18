@@ -42,6 +42,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("api/v1/management")
 @RequiredArgsConstructor
+// 인생은 억까다...
 public class ManagementController {
     private final ManagementService managementService;
 

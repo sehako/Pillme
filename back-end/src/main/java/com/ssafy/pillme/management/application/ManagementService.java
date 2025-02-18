@@ -49,6 +49,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 @Transactional
+// 아니 이게 왜 반영이 안됐냐....
 public class ManagementService {
     private final ManagementRepository managementRepository;
     private final InformationRepository informationRepository;
