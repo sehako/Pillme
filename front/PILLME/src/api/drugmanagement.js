@@ -18,7 +18,7 @@ export const fetchManagementData = async () => {
     const response = await apiClient.get('/api/v1/management', {
       params: { target: memberId }
     });
-    console.log(response.data)
+    console.log("본인 복약체크 정보",response.data)
     return response.data; // 응답 데이터 반환
   } catch (error) {
     console.error("❌ [DEBUG] Management 데이터 요청 실패:", error);

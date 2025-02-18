@@ -12,7 +12,7 @@
       </div>
 
       <!-- ✅ 인원 추가 컴포넌트 사용 -->
-      <AddMember @addMember="addNewFamily" />
+      <AddMember @close="closeModal" />
 
     </div>
   </div>
@@ -25,16 +25,11 @@ import AddMember from './AddMember.vue';
 const props = defineProps({ isOpen: Boolean });
 
 // ✅ 부모로 이벤트 전달
-const emit = defineEmits(["close", "add"]);
+const emit = defineEmits(["close"]);
 
 // ✅ 모달 닫기
 const closeModal = () => {
   emit("close");
 };
 
-// ✅ 인원 추가 기능
-// const addNewFamily = (newFamily) => {
-//   emit("add", newFamily);
-//   closeModal();
-// };
 </script>
