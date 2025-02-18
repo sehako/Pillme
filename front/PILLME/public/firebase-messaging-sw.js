@@ -168,6 +168,11 @@ self.addEventListener('notificationclick', async (event) => {
           sendUserName: data.sendUserName,
           receiveUserName: data.receiveUserName,
         }))}`;
+        const newClient = await clients.openWindow(targetUrl);
+        if (newClient) {
+          await newClient.focus();
+        }
+        return;
       }
 
       // 이미 열려있는 창 찾기
