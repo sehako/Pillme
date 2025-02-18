@@ -83,6 +83,7 @@ messaging.onBackgroundMessage((payload) => {
       data: {
         url: SERVICE_URL,
         code: payload.data.code,
+        chatRoomId: payload.data.chatRoomId,
         senderId: payload.data.senderId,
         receiveUserId: payload.data.receiverId,
         sendUserName: payload.data.senderName,
@@ -119,7 +120,6 @@ self.addEventListener('notificationclick', async (event) => {
   const notification = event.notification;
   const action = event.action;
   const data = notification.data || {};
-
   notification.close();
 
   // 동의/거절 액션 버튼 클릭 시
@@ -148,48 +148,6 @@ self.addEventListener('notificationclick', async (event) => {
     }
     return; // 동의/거절 처리 후 여기서 종료 (페이지 이동 없음)
   }
-
-  // 채팅 메시지 알림 클릭 시 처리
-  if (data.code === 'CHAT_MESSAGE' && data.chatRoomId) {
-    const targetUrl = `${SERVICE_URL}/chat/individual?info=${encodeURIComponent(JSON.stringify({
-      chatRoomId: data.chatRoomId,
-      sendUserId: data.senderId,
-      receiveUserId: data.receiveUserId,
-      sendUserName: data.sendUserName,
-      receiveUserName: data.receiveUserName,
-    }))}`;
-
-    event.waitUntil(
-      (async () => {
-        const windowClients = await clients.matchAll({
-          type: 'window',
-          includeUncontrolled: true
-        });
-
-        // 이미 열려있는 창 찾기
-        const hadWindowToFocus = windowClients.some((windowClient) => {
-          if (windowClient.url.includes(SERVICE_URL)) {
-            return windowClient.focus().then(() => {
-              if (windowClient.url !== targetUrl) {
-                return windowClient.navigate(targetUrl);
-              }
-            });
-          }
-          return false;
-        });
-
-        // 열려있는 창이 없으면 새 창 열기
-        if (!hadWindowToFocus) {
-          const newClient = await clients.openWindow(targetUrl);
-          if (newClient) {
-            await newClient.focus();
-          }
-        }
-      })()
-    );
-    return;
-  }
-
 
   // 페이지 이동 처리를 위한 waitUntil
   event.waitUntil(

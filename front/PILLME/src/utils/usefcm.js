@@ -192,6 +192,7 @@ export function useFCM() {
     endpoint = action === 'accept' ? 'accept' : 'reject';
     const url = `${import.meta.env.VITE_API_URL}/api/v1/${apiPath}/${endpoint}`;
 
+<<<<<<< HEAD
 
     const response = await fetch(url, {
       method: 'POST',
@@ -201,6 +202,29 @@ export function useFCM() {
       },
       body: JSON.stringify(bodyData)
     });
+=======
+    let response = "";
+    if (url === `${import.meta.env.VITE_API_URL}/api/v1/dependency/delete/accept`) {
+      response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+        },
+        body: JSON.stringify(bodyData)
+      });
+    }
+    else {
+      response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+        },
+        body: JSON.stringify(bodyData)
+      });
+    }
+>>>>>>> 0c5641badaab1b33f46839db510b8438b0026923
 
     if (!response.ok) {
       throw new Error(`${action} 처리 실패`);
