@@ -55,6 +55,7 @@
 import { ref, onMounted, onUnmounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { logoutAPI, handleLogout } from "../api/auth";
+import {useFCM} from '../utils/usefcm';
 import { usePrescriptionHistory } from "../composables/usePrescriptionHistory"; 
 import HistoryModal from "../components/HistoryModal.vue"; // 모달 컴포넌트 추가
 import { defineAsyncComponent } from 'vue';
@@ -63,6 +64,7 @@ const MyAlarmModal = defineAsyncComponent(() => import('../views/My_Alarm.vue'))
 const isOpen = ref(false);
 const isLoading = ref(false);
 const router = useRouter();
+const {deleteTokenFromServer} = useFCM();
 const menuRef = ref(null);
 //알림모달크기조절
 const modalSize = ref("md"); // "sm", "md", "lg"
@@ -123,6 +125,15 @@ const handleLogoutEvent = async () => {
   isLoading.value = true;
 
   try {
+
+    // FCM 토큰 삭제 시도 (실패해도 로그아웃은 계속 진행)
+    try {
+      await deleteTokenFromServer();
+    } catch (error) {
+      console.error("FCM 토큰 삭제 실패:", error);
+    }
+
+    // ✅ 로그아웃 API 요청
     await logoutAPI();
     handleLogout();
     alert("✅ 로그아웃 성공!");
