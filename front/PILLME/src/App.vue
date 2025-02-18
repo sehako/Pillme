@@ -2,29 +2,21 @@
   <div id="app" class="flex flex-row h-screen-custom">
     <!-- FCM 알림 컨테이너 -->
     <div class="notifications-container">
-      <div
-        v-for="notification in notifications"
-        :key="notification.id"
-        class="notification"
-        :class="{
-          show: notification.show,
-          toast: notification.isToast,
-        }"
-      >
+      <div v-for="notification in notifications" :key="notification.id" class="notification" :class="{
+        show: notification.show,
+        toast: notification.isToast,
+      }">
         <div class="notification-header">
           <h4>{{ notification.title }}</h4>
           <button class="close-button" @click="removeNotification(notification.id)">×</button>
         </div>
         <p>{{ notification.body }}</p>
-        <div
-          v-if="
-            notification.data?.code &&
-            ['DEPENDENCY_REQUEST', 'MEDICINE_REQUEST', 'DEPENDENCY_DELETE_REQUEST'].includes(
-              notification.data.code
-            )
-          "
-          class="actions"
-        >
+        <div v-if="
+          notification.data?.code &&
+          ['DEPENDENCY_REQUEST', 'MEDICINE_REQUEST', 'DEPENDENCY_DELETE_REQUEST'].includes(
+            notification.data.code
+          )
+        " class="actions">
           <button class="accept-button" @click="() => handleAccept(notification)">동의</button>
           <button class="reject-button" @click="() => handleReject(notification)">거절</button>
         </div>
@@ -33,13 +25,10 @@
 
     <!-- 왼쪽 (PC 전용) -->
     <div
-      class="hidden md:flex flex-col w-1/2 bg-white items-center justify-center border-r border-gray-200 shadow-md p-6"
-    >
+      class="hidden md:flex flex-col w-1/2 bg-white items-center justify-center border-r border-gray-200 shadow-md p-6">
       <img :src="logo" alt="로고" class="w-1/2 h-auto mb-8" />
 
-      <h1
-        class="text-xl sm:text-2xl font-bold text-gray-800 flex flex-wrap items-center justify-center gap-2"
-      >
+      <h1 class="text-xl sm:text-2xl font-bold text-gray-800 flex flex-wrap items-center justify-center gap-2">
         <span class="mx-0">모바일에서</span>
         <img :src="textLogoSrc" alt="PILLME" class="h-6 inline-block object-contain" />
         <span class="mx-0">를 만나보세요!</span>
@@ -56,15 +45,12 @@
         <BaseTopbar />
       </div>
 
-      <div
-        ref="contentRef"
-        :class="[
-          'h-screen-custom',
-          isScrollAllowed
-            ? 'overflow-y-auto overflow-x-hidden'
-            : 'flex items-center justify-center overflow-hidden',
-        ]"
-      >
+      <div ref="contentRef" :class="[
+        'h-screen-custom',
+        isScrollAllowed
+          ? 'overflow-y-auto overflow-x-hidden'
+          : 'flex items-center justify-center overflow-hidden',
+      ]">
         <router-view v-if="isRouteReady" :navbarHeight="navbarHeight" />
       </div>
 
@@ -114,9 +100,9 @@ const isRouteReady = ref(true);
 // 컴포저블 설정
 const { isLoggedIn, initAuth, cleanUpAuth } = useAuth();
 const { initRealVH, cleanUpRealVH } = useRealVH();
-const { isScrollAllowed } = useScrollControl(['/afteraccount', '/', '/notificationlist','/calendar']);
+const { isScrollAllowed } = useScrollControl(['/afteraccount', '/', '/notificationlist', '/calendar']);
 const { navbarHeight } = useNavbarHeight(navbarRef);
-const { notifications, removeNotification, handleAccept, handleReject, initializeFCM } = useFCM();
+const { notifications, removeNotification, handleAccept, handleReject, initializeFCM, cleanupFCM } = useFCM();
 
 onMounted(() => {
   initAuth();
@@ -139,14 +125,19 @@ onMounted(() => {
   ocrStore.showNextDialog = false;
   ocrStore.showMedicationDialog = false;
   ocrStore.isLoading = false;
+});
 
-  // FCM 초기화
-  initializeFCM();
+// 로그인 상태 변경 시, fcm 초기화
+watch(isLoggedIn, (newValue) => {
+  if (newValue === true) {
+    initializeFCM();
+  }
 });
 
 onUnmounted(() => {
   cleanUpAuth();
   cleanUpRealVH();
+  cleanupFCM();
 });
 </script>
 
