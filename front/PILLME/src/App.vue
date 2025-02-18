@@ -100,7 +100,7 @@ const isRouteReady = ref(true);
 // 컴포저블 설정
 const { isLoggedIn, initAuth, cleanUpAuth } = useAuth();
 const { initRealVH, cleanUpRealVH } = useRealVH();
-const { isScrollAllowed } = useScrollControl(['/afteraccount', '/', '/notificationlist', '/calendar']);
+const { isScrollAllowed } = useScrollControl(['/afteraccount', '/', '/notificationlist', '/calendar','/chat']);
 const { navbarHeight } = useNavbarHeight(navbarRef);
 const { notifications, removeNotification, handleAccept, handleReject, initializeFCM, cleanupFCM } = useFCM();
 
