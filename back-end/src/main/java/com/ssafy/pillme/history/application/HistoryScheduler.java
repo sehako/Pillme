@@ -4,6 +4,7 @@ import com.ssafy.pillme.history.domain.History;
 import com.ssafy.pillme.history.infrastructure.HistoryRepository;
 import com.ssafy.pillme.management.application.ManagementService;
 import com.ssafy.pillme.management.domain.Management;
+import jakarta.transaction.Transactional;
 import java.time.LocalDate;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Component
 @RequiredArgsConstructor
+@Transactional
 public class HistoryScheduler {
     private final HistoryRepository historyRepository;
     private final ManagementService managementService;
