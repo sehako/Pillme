@@ -157,15 +157,18 @@ const allMedicationsChecked = computed(() => {
   );
 });
 
-// 개별 토글 핸들러
 const handleIndividualToggle = (medicationId, timeSlot, value) => {
   // 현재 medicationList에서 해당 약물의 인덱스를 찾음
   const idx = medicationList.value.findIndex(med => med.id == medicationId);
-  if (idx === -1) return; // 해당하는 약물을 찾지 못하면 종료
+  if (idx === -1) return; // 해당 약물을 찾지 못하면 종료
 
+  // 실제 medicationsId 배열을 직접 생성 (예: ["12", "13", "14"])
+  const actualIds = splitField(props.info.medicationsId);
+  
   // ✅ 현재 모든 약물 상태를 반영하여 업데이트된 `medications` 생성
   const medications = medicationList.value.map((med, index) => ({
-    managementId: Number(med.id),
+    // actualIds 배열에서 실제 약물 id를 가져옴
+    managementId: Number(actualIds[index]),
     morning: index === idx && timeSlot === 'morning' ? value : morningToggles.value[index],
     lunch: index === idx && timeSlot === 'lunch' ? value : lunchToggles.value[index],
     dinner: index === idx && timeSlot === 'dinner' ? value : dinnerToggles.value[index],
@@ -221,6 +224,7 @@ watch(medicationList, (newVal) => {
   dinnerToggles.value = splitField(props.info.dinner).map(val => val === "true");
   sleepToggles.value = splitField(props.info.sleep).map(val => val === "true");
 }, { immediate: true });
+
 </script>
 
 <style scoped>
