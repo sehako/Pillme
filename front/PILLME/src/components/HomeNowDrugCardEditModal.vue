@@ -57,7 +57,7 @@
           <p class="font-bold whitespace-nowrap mb-2">{{ medication.name }}</p>
           <div class="mt-2 space-y-1">
             <div class="flex items-center space-x-2">
-              <span class="whitespace-nowrap">아침 복약:</span>
+              <span class="whitespace-nowrap">아침 복약 여부:</span>
               <span class="text-sm font-semibold" v-text="morningToggles[idx] ? 'O' : 'X'"></span>
               <ToggleSwitch 
                 v-model="morningToggles[idx]"
@@ -65,7 +65,7 @@
               />
             </div>
             <div class="flex items-center space-x-2">
-              <span class="whitespace-nowrap">점심 복약:</span>
+              <span class="whitespace-nowrap">점심 복약 여부:</span>
               <span class="text-sm font-semibold" v-text="lunchToggles[idx] ? 'O' : 'X'"></span>
               <ToggleSwitch 
                 v-model="lunchToggles[idx]"
@@ -73,7 +73,7 @@
               />
             </div>
             <div class="flex items-center space-x-2">
-              <span class="whitespace-nowrap">저녁 복약:</span>
+              <span class="whitespace-nowrap">저녁 복약 여부:</span>
               <span class="text-sm font-semibold" v-text="dinnerToggles[idx] ? 'O' : 'X'"></span>
               <ToggleSwitch 
                 v-model="dinnerToggles[idx]"
@@ -81,7 +81,7 @@
               />
             </div>
             <div class="flex items-center space-x-2">
-              <span class="whitespace-nowrap">수면 복약:</span>
+              <span class="whitespace-nowrap">수면 복약 여부:</span>
               <span class="text-sm font-semibold" v-text="sleepToggles[idx] ? 'O' : 'X'"></span>
               <ToggleSwitch 
                 v-model="sleepToggles[idx]"
