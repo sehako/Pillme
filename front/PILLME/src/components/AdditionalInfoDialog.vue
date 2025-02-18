@@ -1,20 +1,20 @@
 <template>
   <div v-if="ocrStore.showNextDialog" class="dialog-overlay">
     <div class="dialog-box">
-      <h2 class="text-lg font-semibold mb-2 text-center">📄 추가 정보 입력</h2>
+      <h2 class="text-lg font-semibold mb-2 text-center">추가 정보 입력</h2>
 
       <div class="mb-4">
-        <label class="text-gray-700 font-semibold">🏥 병원 이름 (선택)</label>
+        <label class="text-gray-700 font-semibold">병원 이름 (선택)</label>
         <input v-model="ocrStore.hospitalName" type="text" class="input-field" />
       </div>
 
       <div class="mb-4">
-        <label class="text-gray-700 font-semibold">💊 병명 (선택)</label>
+        <label class="text-gray-700 font-semibold">병명 (선택)</label>
         <input v-model="ocrStore.diseaseName" type="text" class="input-field" />
       </div>
 
       <div class="mb-4">
-        <label class="text-gray-700 font-semibold">📅 복용 기간 설정(필수)</label>
+        <label class="text-gray-700 font-semibold">복용 기간 설정(필수)</label>
         <VueDatePicker
           v-model="ocrStore.dateRange"
           range
