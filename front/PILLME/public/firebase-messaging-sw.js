@@ -82,6 +82,7 @@ messaging.onBackgroundMessage((payload) => {
       data: {
         url: SERVICE_URL,
         code: payload.data.code,
+        chatRoomId: payload.data.chatRoomId,
         senderId: payload.data.senderId,
         receiveUserId : payload.data.receiverId,
         sendUserName : payload.data.senderName,
@@ -117,7 +118,6 @@ self.addEventListener('notificationclick', async (event) => {
   const notification = event.notification;
   const action = event.action;
   const data = notification.data || {};
-
   notification.close();
 
   // 동의/거절 액션 버튼 클릭 시
