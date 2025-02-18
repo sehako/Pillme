@@ -114,7 +114,7 @@
 
             <!-- 오른쪽: 안 읽은 메시지 수 표시 -->
             <div class="flex items-center space-x-2">
-              <button class="text-gray-600">🔍</button>
+              <span class="text-gray-500 text-xs">{{ formatTime(room.lastMessageTime) }}</span>
               <span
                 v-if="room.unreadMessageCount > 0"
                 class="bg-red-500 text-white text-xs font-semibold px-2 py-1 rounded-full"
@@ -167,6 +167,27 @@ const getIcon = (dependentId, timeKey) => {
   // "복용완료"이면 체크 완료 아이콘, 그 외(일부/완전 미복용)이면 미체크 아이콘 반환
   return status === "복용완료" ? CheckDoneboxes : Checkboxes;
 };
+
+//시간 포맷
+function formatTime(timestamp) {
+        const date = new Date(timestamp);
+        const now = new Date();
+    
+        const hours = date.getHours().toString().padStart(2, "0"); // 2자리 숫자 유지
+        const minutes = date.getMinutes().toString().padStart(2, "0");
+        const month = (date.getMonth() + 1).toString().padStart(2, "0"); // 월 (0부터 시작하므로 +1)
+        const day = date.getDate().toString().padStart(2, "0");
+    
+        // 오늘 날짜와 비교하여 'Today' 표시
+        const isToday =
+            date.getFullYear() === now.getFullYear() &&
+            date.getMonth() === now.getMonth() &&
+            date.getDate() === now.getDate();
+    
+        return isToday
+            ? `Today ${hours}:${minutes}` // 오늘이면 'Today HH:MM'
+            : `${month}-${day} ${hours}:${minutes}`; // 아니면 'MM-DD HH:MM'
+    }
 
 // 각 가족의 개별 복약 데이터를 저장 (dependentId가 key)
 const processedManagementData = ref({});

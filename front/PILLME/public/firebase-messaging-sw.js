@@ -166,6 +166,7 @@ self.addEventListener('notificationclick', async (event) => {
 
         // 이미 열려있는 창 찾기
         const hadWindowToFocus = windowClients.some((windowClient) => {
+          console.log("window client: " + windowClient);
           if (windowClient.url.includes(SERVICE_URL)) {
             return windowClient.focus().then(() => {
               if (windowClient.url !== targetUrl) {
@@ -202,7 +203,7 @@ self.addEventListener('notificationclick', async (event) => {
         type: 'window',
         includeUncontrolled: true
       });
-
+      console.log("windowClient " + windowClients.length);
       // 이미 열려있는 창이 있는지 확인
       const hadWindowToFocus = windowClients.some((windowClient) => {
         if (windowClient.url.includes(SERVICE_URL)) {
