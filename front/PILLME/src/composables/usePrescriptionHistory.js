@@ -11,6 +11,7 @@ export function usePrescriptionHistory() {
       const periodResponse = await fetchPrescriptionPeriod();
 
       const groupedHistory = {};
+      console.log("✅ 처방전 기간 조회 결과:", periodResponse);
       historyResponse.result.forEach((item) => {
         const id = item.informationId;
         if (!groupedHistory[id]) {

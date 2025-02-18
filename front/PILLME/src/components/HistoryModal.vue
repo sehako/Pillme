@@ -46,7 +46,8 @@
         <button @click="selectedPrescription = null" class="ml-4 text-left text-gray-500 hover:text-gray-700">
           ← 뒤로가기
         </button>
-        <DrugHistoryDetailModal :prescription="selectedPrescription" />
+        <DrugHistoryDetailModal :prescription="selectedPrescription"
+        @close="handleclose" />
       </template>
     </div>
   </div>
@@ -64,7 +65,7 @@ const props = defineProps({
     required: true
   }
 });
-
+console.log("📌 복용 내역 데이터:", props.prescriptions);
 // Emits (부모로 모달 닫기 이벤트 전달)
 const emit = defineEmits(["close"]);
 
@@ -94,6 +95,10 @@ const filteredPrescriptions = computed(() => {
 const closeModal = () => {
   emit("close");
 };
+const handleclose = () => {
+  selectedPrescription.value = null;
+};
+
 
 // ✅ 카드 클릭 시 상세 모달로 전환
 const handleCardClick = (prescription) => {
