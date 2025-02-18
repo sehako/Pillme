@@ -1,20 +1,22 @@
 <template>
   <div class="flex flex-col w-full">
-    <div class="bg-[#B5CCB7] rounded-bl-xl rounded-br-lg top-0 sticky z-50">
-      <div class="flex flex-row items-center justify-between px-4 py-1">
-        <!-- 베이스탑바 바로 밑의 바임 -->
-        <!--  햄버거 메뉴 컴포넌트 -->
-        <div class="flex-1 flex">
-          <HamBugerMenu />
-        </div>
-
-        <!--  사용자 이름 드롭다운 (컴포넌트 사용) -->
-        <NameDropdown />
-
-        <!--  공백 (햄버거 아이콘과 크기 맞춤) -->
-        <div class="flex-1"></div>
-      </div>
+    <div class="bg-[#B5CCB7] rounded-bl-xl rounded-br-lg top-0 sticky z-50 filter saturate-105 contrast-140">
+  <div class="flex flex-row items-center justify-between px-4 py-1">
+    <!-- 베이스탑바 바로 밑의 바임 -->
+    <!--  햄버거 메뉴 컴포넌트 -->
+    <div class="flex-1 flex">
+      <HamBugerMenu />
     </div>
+
+    <!--  사용자 이름 드롭다운 (컴포넌트 사용) -->
+    <NameDropdown />
+
+    <!--  공백 (햄버거 아이콘과 크기 맞춤) -->
+    <div class="flex-1"></div>
+  </div>
+</div>
+
+
 
     <div class="grid gap-4 grid-cols-3 p-4">
       <BaseButton class="whitespace-nowrap text-lg font-base" @click="openFamilyModal">
@@ -172,6 +174,7 @@ import CheckDoneboxes from '../assets/CheckDoneboxes.svg';
 import Checkboxes from '../assets/Checkboxes.svg';
 import { useNotificationSettings } from '../composables/useNotificationSettings'; // Composable import
 import { usePrescriptionHistory } from "../composables/usePrescriptionHistory"; 
+
 // 모달 제어용 상태 변수
 const { modalData, showModal, fetchPrescriptionHistory } = usePrescriptionHistory();
 //  My_Alarm.vue를 동적으로 import (모달에서만 로드)
