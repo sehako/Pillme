@@ -28,7 +28,7 @@ import java.util.concurrent.TimeUnit;
 @RequiredArgsConstructor // 생성자 주입
 public class NotificationServiceImpl implements NotificationService {
 
-    private final RedisTemplate<String, Object> redisTemplate;
+    private final RedisTemplate<String, String> redisTemplate;
     private final NotificationSettingRepository notificationSettingRepository;
     private final FCMNotificationService fcmNotificationService;
     private final NotificationRepository notificationRepository;
