@@ -127,12 +127,9 @@ const closeModal = () => {
 };
 
 const splitField = (field) => {
-  if (!field) return [];
-  return field.includes('|||') 
-    ? field.split('|||').map(item => item.trim())
-    : field.split(',').map(item => item.trim());
+  if (!field || field === "정보 없음" || field === "약 정보 없음") return [];
+  return field.split("◎").map(item => item.trim());
 };
-
 // medications와 medicationIds를 함께 처리
 const medicationList = computed(() => {
   const names = splitField(props.info.medications);
@@ -203,8 +200,8 @@ const handleIndividualToggle = (medicationId, timeSlot, value) => {
 
 // 전체 복약 토글 핸들러
 const handleAllMedicationsToggle = (value) => {
-  // medicationsId를 쉼표(,)로 구분된 배열로 변환
-  const managementIds = props.info.medicationsId.split(",").map(id => id.trim());
+  // medicationsId를 ◎로 구분된 배열로 변환
+  const managementIds = props.info.medicationsId.split("◎").map(id => id.trim());
 
   // ✅ medications 배열 생성 (시간대는 value 상태에 따라 설정)
   const medications = managementIds.map(id => ({
@@ -218,7 +215,7 @@ const handleAllMedicationsToggle = (value) => {
   console.log("📌 전체 토글 - 전송할 medications:", medications);
 
   // ✅ 부모로 `medications` 객체 배열 전달
-  emit('alldrugcheck', medications,ifid);
+  emit('alldrugcheck', medications, ifid);
 
   // ✅ 로컬 상태 업데이트 (UI 즉시 반영)
   medicationList.value.forEach((_, idx) => {

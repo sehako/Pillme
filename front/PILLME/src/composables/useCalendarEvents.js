@@ -50,10 +50,7 @@ export function transformPrescriptionsToEvents(prescriptions, options = {}) {
     if (mode === "simple") {
       title = "처방전 일정 (색상 참조)";
     } else {
-      const medicationNames = p.medications.includes('|||')
-        ? p.medications.split('|||').join(', ')
-        : p.medications.split(', ').join(', ');
-        
+      const medicationNames = p.medications.split("◎").join(", ");
       title = p.diseaseName ? `${p.diseaseName} - ${medicationNames}` : medicationNames;
       if (p.hospital) {
         title += `\n(${p.hospital})`;

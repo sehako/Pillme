@@ -31,11 +31,11 @@
   <div class="flex flex-col sm:flex-row sm:items-end gap-1 sm:gap-2">
     <p class="text-sm font-bold whitespace-nowrap">오늘의 복약 내역</p>
     <span class="text-xs">
-<div v-if="fetchFailed" class="text-wrap sm:text-nowrap text-xs">
-  알림 설정을 활성화해야
-  <br class="sm:hidden" />
-  오늘의 복약 알림을 받을 수 있습니다.
-</div>
+      <div v-if="fetchFailed" class="text-wrap sm:text-nowrap text-xs">
+        알림 설정을 활성화해야
+        <br class="sm:hidden" />
+        오늘의 복약 알림을 받을 수 있습니다.
+      </div>
     </span>
   </div>
 
@@ -44,11 +44,13 @@
     <p class="font-bold text-base sm:text-lg break-keep">
       {{ fetchFailed ? '' : `${currentTimePeriod} 약을 드셨나요?` }}
     </p>
+    <!-- 약 정보 표시 부분 수정 -->
     <p 
       v-if="!fetchFailed && todaysMedications" 
-      class="text-sm text-gray-700 mt-1 break-words"
+      class="text-sm text-gray-700 mt-1 break-words line-clamp-1 cursor-pointer"
+      @click="openTodaysMedicationModal"
     >
-      {{ todaysMedications }}
+      {{ formatMedications(todaysMedications) }}
     </p>
 
     <!-- 체크박스 영역 -->
@@ -150,9 +152,11 @@
   <HistoryModal v-if="showModal" :prescriptions="modalData" @close="handleModalClose" />
 
   <MedicationSearchDialog ref="medSearchDialog" />
-  <FamilyAddModal :isOpen="isFamilyModalOpen" @close="isFamilyModalOpen = false" />
+
+  <FamilyAddModal @click.self="closeModal('family')" :isOpen="isFamilyModalOpen" @close="isFamilyModalOpen = false" />
+  
   <Teleport to="body">
-  <div v-if="isAlarmModalOpen" class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+  <div v-if="isAlarmModalOpen" @click.self="closeModal('alarm')" class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
     <div class="bg-white p-4 rounded-lg shadow-lg relative w-[500px] h-[600px]">
       <button @click="closeSetAlarmModal" class="absolute top-2 right-2 text-gray-500 hover:text-gray-800">
         ✕
@@ -172,9 +176,10 @@
     @close="closeEditModal"
       />
     </Teleport>
- <!-- 약 정보 모달 -->
+ <!--WHITECARD 약 클릭시 모달 -->
  <div
     v-if="showMedicationModal"
+    @click.self="closeModal('medication')"
     class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
   >
     <div class="bg-white p-6 rounded-lg max-w-lg w-full">
@@ -193,6 +198,29 @@
       </button>
     </div>
   </div>
+
+  <!--YELLOCARD의 약 목록 클릭시 모달 -->
+<div
+  v-if="showTodaysMedicationModal"
+  @click.self="closeModal('todaysMedication')"
+  class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
+>
+  <div class="bg-white p-6 rounded-lg max-w-lg w-full">
+    <h2 class="text-xl font-bold mb-4">오늘의 복약 내역</h2>
+    <p class="text-lg mb-4">{{ currentTimePeriod }} 복용 약</p>
+    <ul class="list-disc list-inside text-sm text-gray-700">
+      <li v-for="(med, index) in todaysMedicationList" :key="index">
+        {{ med }}
+      </li>
+    </ul>
+    <button
+      class="mt-4 text-blue-500 hover:underline"
+      @click="closeTodaysMedicationModal"
+    >
+      닫기
+    </button>
+  </div>
+</div>
 </template>
 
 <script setup>
@@ -219,7 +247,12 @@ import { prescriptionAllCheck } from '../api/drugtaking';
 // ----------------- Composable import 및 초기화 -----------------
 // ✅ Composable 사용
 const { notificationSettings, fetchFailed, loadNotificationSettings } = useNotificationSettings();
-const { modalData, showModal, fetchPrescriptionHistory } = usePrescriptionHistory();
+const { 
+  modalData, 
+  showModal, 
+  fetchPrescriptionHistory,
+  handleModalClose  // 추가
+} = usePrescriptionHistory();
 
 // ----------------- 동적 컴포넌트 import -----------------
 //  My_Alarm.vue를 동적으로 import (모달에서만 로드)
@@ -260,21 +293,25 @@ const modalClass = computed(() => {
     lg: "w-[80%] max-w-lg"
   }[modalSize.value];
 });
-// 약 이름 포맷팅 유틸리티 함수 추가
+
+// 약 이름 포맷팅 유틸리티 함수
 const formatMedications = (medications) => {
   if (!medications || medications === "약 정보 없음") return "약 정보 없음";
-  return medications.includes('|||')
-    ? medications.split('|||').join(' • ')
-    : medications.split(',').join(' • ');
+  // 배열인 경우 처리
+  if (Array.isArray(medications)) {
+    return medications.join(" • ");
+  }
+  // 문자열인 경우 처리
+  return medications.split("◎").join(" • ");
 };
 // selectedMedication를 콤마로 구분하여 배열로 변환한 computed 변수
 const medicationList = computed(() => {
-  if (!selectedMedication.value) return []
+  if (!selectedMedication.value) return [];
   return selectedMedication.value
-    .split(',')
+    .split("◎")  // 쉼표(,) 대신 ◎ 사용
     .map(item => item.trim())
-    .filter(item => item)
-})
+    .filter(item => item);
+});
 
 // 현재 시간대를 계산하는 computed 속성 (설정된 알림 시간만 기준으로)
 const currentTimePeriod = computed(() => {
@@ -356,17 +393,34 @@ const closeEditModal = async () => {
   await fetchData(); // 최신 데이터 리패칭
   await fetchTodaysMedications(); // 오늘의 복약 내역 리패칭
 };
+const openTodaysMedicationModal = () => {
+  showTodaysMedicationModal.value = true;
+};
 
-// 약 정보 모달 열기
+const closeTodaysMedicationModal = () => {
+  showTodaysMedicationModal.value = false;
+};
+
+// 오늘의 약 정보 모달 관련 상태와 함수
+const showTodaysMedicationModal = ref(false);
+const todaysMedicationList = computed(() => {
+  if (!todaysMedications.value || todaysMedications.value === "약 정보 없음") return [];
+  return todaysMedications.value.split("◎").map(med => med.trim());
+});
+
+// white 약 정보 모달 열기
 function openMedicationModal(info) {
   selectedMedication.value = info.medications
   showMedicationModal.value = true
 }
 
-// 약 정보 모달 닫기
+// white 약 정보 모달 닫기
 function closeMedicationModal() {
   showMedicationModal.value = false
 }
+
+
+
 
 // 수정하기 버튼 클릭 시 호출하는 함수
 const openEditModal = (info) => {
@@ -386,6 +440,35 @@ const handleClickOutside = (event) => {
   }
 };
 
+
+// 모달 상태 관리를 위한 공통 함수
+const closeModal = async (modalType) => {
+  switch(modalType) {
+    case 'medication':
+      showMedicationModal.value = false;
+      break;
+    case 'todaysMedication':
+      showTodaysMedicationModal.value = false;
+      break;
+    case 'alarm':
+      isAlarmModalOpen.value = false;
+      break;
+    case 'edit':
+      isEditModalOpen.value = false;
+      await fetchData(); // 데이터 리패칭
+      await fetchTodaysMedications(); // 오늘의 복약 내역 리패칭
+      break;
+    case 'family':
+      isFamilyModalOpen.value = false;
+      break;
+    case 'history':
+      showModal.value = false;
+      modalData.value = []; // 데이터 초기화
+      break;
+    default:
+      break;
+  }
+};
 // ----------------- API 데이터 가져오는 함수 (비동기) -----------------
 
 const fetchTodaysMedications = async () => {
@@ -404,10 +487,10 @@ const fetchTodaysMedications = async () => {
         if (medicationsForCurrentPeriod.length > 0) {
           todaysMedications.value = medicationsForCurrentPeriod
             .map(med => med.medicationName)
-            .join(' • '); // 가독성을 위해 ' • ' 구분자 사용
+            .join("◎");  // 내부 데이터는 ◎로 저장
         } else {
-          todaysMedications.value = "약 정보 없음"; // 현재 시간대에 약 정보가 없을 경우
-        }
+          todaysMedications.value = "약 정보 없음";
+        }
 
         // ✅ 복약 완료 상태 업데이트 (수정된 부분 반영)
         const currentTakingKey = periodMap[currentTimePeriod.value] + "Taking"; // 예: morningTaking
@@ -458,11 +541,6 @@ const handleAllDrugCheck = (medications,ifid) => {
   prescriptionAllCheck(medications,ifid);
 };
 
-// -----------------  HistoryModal 닫기 핸들러 -----------------
-function handleModalClose() {
-  showModal.value = false;
-  modalData.value = []; // 필요에 따라 초기화
-}
 
 // ✅ 복약 완료 처리 함수 (UI 상태 변경 및 서버 동기화)
 const completeMedications = async () => {
