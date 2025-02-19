@@ -5,7 +5,7 @@
       <div
         class="w-full flex items-center justify-between bg-[#9DBB9F80] p-3 rounded-b-sm shadow-md">
         <h2 class="text-lg font-bold text-green-900">오늘 복약 하셔야 하는 분들입니다.</h2>
-        <button class="text-green-700 text-xl">⚙️</button>
+
       </div>
 
       <!-- ✅ 가로 스크롤 가능한 사용자 목록 -->
@@ -81,9 +81,8 @@
           type="text"
           v-model="searchQuery"
           placeholder="검색"
-          class="w-full p-2 pl-8 border rounded-lg focus:ring focus:ring-[#B5CCB7]"
+          class="w-full p-2 pl-4 border rounded-lg focus:ring focus:ring-[#B5CCB7]"
         />
-        <span class="absolute left-2 top-2 text-gray-500">🔍</span>
       </div>
 
       <!-- ✅ 채팅 목록 -->
