@@ -1,5 +1,5 @@
 <template>
-  <div class="w-full flex items-center bg-[#A3BFA5] px-4 h-16">
+  <div class="w-full flex items-center bg-[#A3BFA5] px-4 h-12">
     <!-- 왼쪽: 햄버거 메뉴 -->
     <div class="flex items-center">
       <HamBugerMenu />
