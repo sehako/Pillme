@@ -49,15 +49,14 @@ const handleReject = async () => {
     return;
   }
 
-  const success = await rejectAdminRequest(props.id); // ✅ API 요청 수행
+  const success = await rejectAdminRequest(props.id);
   if (success) {
     console.log("🚀 알림 거절 성공:", props.id);
-    emit("reject", { id: props.id }); // ✅ senderId를 부모에게 전달
-    emit("close"); // ✅ 다이얼로그 닫기 **중복인지확인하기위해주석처리리
+    emit("reject", { id: props.id });
   } else {
     console.error("❌ 알림 거절 실패");
-    emit("close");
   }
+  emit("close");
 };
 
 const handleAccept = async () => {
@@ -67,15 +66,14 @@ const handleAccept = async () => {
     return;
   }
 
-  const success = await acceptAdminRequest(props.id); // ✅ API 요청 수행
+  const success = await acceptAdminRequest(props.id);
   if (success) {
     console.log("✅ 알림 승인 성공:", props.id);
-    emit("accept", { id: props.id }); // ✅ senderId를 부모에게 전달
-    emit("close"); // ✅ 다이얼로그 닫기 **중복인지확인하기위해주석처리
+    emit("accept", { id: props.id });
   } else {
     console.error("❌ 알림 승인 실패");
-    emit("close");
   }
+  emit("close");
 };
 
 </script>

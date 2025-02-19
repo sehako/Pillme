@@ -213,7 +213,7 @@ const handleReject = async ({ id }) => {
     restoreUserSession();
 
     // ✅ 모달 닫기
-    isDialogOpen.value = false;
+    isAdminDialogOpen.value = false;
   } else {
     console.error("❌ 알림 삭제 실패");
   }
@@ -248,7 +248,7 @@ const handleAccept = async ({ id }) => {
     restoreUserSession();
 
     // ✅ 모달 닫기
-    isDialogOpen.value = false;
+    isAdminDialogOpen.value = false;
   } else {
     console.error("❌ 알림 삭제 실패");
   }
@@ -357,6 +357,12 @@ const handleDeleteReject = async ({ id, dependencyId, notificationId }) => {
     notifications.value = notifications.value.filter(n => !notificationIds.includes(n.notificationId));
   }
 
+  isDeleteDialogOpen.value = false;
+};
+
+// close 함수 추가
+const close = () => {
+  isAdminDialogOpen.value = false;
   isDeleteDialogOpen.value = false;
 };
 

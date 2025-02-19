@@ -8,6 +8,8 @@ import "./style.css";
 import App from './App.vue';
 // import './styles/global.css'; // 전역 스타일 적용
 import router from './router';
+
+// import { useCssVar } from "@vueuse/core"; 
 // import '@/registerServiceWorker'; // ✅ PWA 서비스 워커 등록
 
 const app = createApp(App);
@@ -15,6 +17,8 @@ const app = createApp(App);
 app.use(createPinia());
 app.use(router);
 app.component("FullCalendar", FullCalendar);
+// const fontSize = useCssVar("--global-font-size", document.documentElement);
+// if (!fontSize.value) fontSize.value = "16px"; // 기본값
 
 app.mount('#app');
 
