@@ -174,16 +174,10 @@ export const useOcrStore = defineStore('ocr', {
       this.saveToLocalStorage();
     },
 
-     /** ✅ OCR 데이터 저장 */
-     async saveOcrDataToDB() {
+    /** ✅ OCR 데이터 저장 */
+    async saveOcrDataToDB() {
       try {
         this.isLoading = true;
-
-        // ✅ `dependentId` 확인
-        if (!this.dependentId) {
-          console.error('❌ 저장할 사용자 ID (dependentId)가 없습니다.');
-          return;
-        }
 
         // ✅ JWT에서 보호자 ID 가져오기
         const accessToken = localStorage.getItem('accessToken');
@@ -195,20 +189,15 @@ export const useOcrStore = defineStore('ocr', {
         const decodedToken = decodeToken(accessToken);
         const guardianId = decodedToken?.memberId; // ✅ 로그인한 보호자 ID
 
-        // ✅ `dependentId` 디버깅
-        console.log(
-          `🔍 [DEBUG] 전달된 dependentId: ${this.dependentId} (typeof: ${typeof this.dependentId})`
-        );
-
-        // ✅ 보호자 ID를 대체할 필요가 있는지 확인
-        if (typeof this.dependentId !== 'number') {
-          console.warn('⚠️ 잘못된 dependentId 감지, 보호자 ID로 대체됨.');
+        // ✅ `dependentId`가 `null`이면 `guardianId`를 설정
+        if (!this.dependentId) {
+          console.warn('⚠️ dependentId가 null이므로 보호자 본인 ID 사용:', guardianId);
           this.dependentId = guardianId;
         }
 
+        // ✅ 최종적으로 `dependentId`가 없으면 오류 발생
         if (!this.dependentId) {
-          console.error('❌ 저장할 사용자 ID가 없습니다.');
-          return;
+          throw new Error('❌ 저장할 사용자 ID가 없습니다. OCR 데이터를 저장할 수 없습니다.');
         }
 
         // ✅ 날짜 변환 함수
@@ -218,21 +207,11 @@ export const useOcrStore = defineStore('ocr', {
           return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
         };
 
-        // ✅ 기간 계산
-        const startDate = this.dateRange?.[0] ? new Date(this.dateRange[0]) : null;
-        const endDate = this.dateRange?.[1] ? new Date(this.dateRange[1]) : null;
-
-        let period = 1;
-        if (startDate && endDate) {
-          const diffTime = Math.abs(endDate - startDate);
-          period = Math.max(1, Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1);
-        }
-
         // ✅ API 요청 데이터 구성
         const requestData = {
           hospital: this.hospitalName || '',
           diseaseName: this.diseaseName || '',
-          reader: this.dependentId, // ✅ 피보호자 ID or 보호자 ID 선택
+          reader: this.dependentId, // ✅ 피보호자 ID or 보호자 ID 자동 설정
           startDate: formatDate(this.dateRange?.[0]),
           endDate: formatDate(this.dateRange?.[1]),
           medications: this.results.map((med) => ({
@@ -249,11 +228,29 @@ export const useOcrStore = defineStore('ocr', {
 
         // ✅ API 요청 실행
         const response = await apiClient.post('/api/v1/management', requestData);
-        console.log('✅ OCR 데이터 저장 성공:', response.data);
+
+        // ✅ 응답이 있는지 확인
+        if (response && response.data) {
+          console.log('✅ OCR 데이터 저장 성공:', response.data);
+        } else {
+          console.warn('⚠️ 응답 데이터가 없음. response:', response);
+        }
 
         await this.closeDialog();
+
+        // ✅ 사용자에게 알림 표시 (Toast 또는 alert)
+        alert('✅ 복약 내역이 성공적으로 저장되었습니다!');
       } catch (error) {
         console.error('❌ API 요청 실패:', error);
+
+        // ✅ API 요청이 실패했을 경우 정확한 메시지 출력
+        if (error.response) {
+          console.error('❌ 서버 응답 오류:', error.response.data);
+        } else if (error.request) {
+          console.error('❌ 요청이 서버에 도달하지 못함:', error.request);
+        } else {
+          console.error('❌ 요청 중 오류 발생:', error.message);
+        }
       } finally {
         this.isLoading = false;
       }

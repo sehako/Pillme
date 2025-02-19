@@ -1,15 +1,15 @@
 <template>
   <div v-if="ocrStore.showResultsDialog" class="dialog-overlay">
     <div class="dialog-box">
-      <h2 class="text-lg font-semibold mb-2 text-center">약 분석 결과</h2>
-
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-lg font-semibold">약 분석 결과</h2>
+        <button @click="ocrStore.closeDialog()" class="text-gray-500 hover:text-gray-700 text-xl">
+          ✕
+        </button>
+      </div>
       <!-- ✅ 분석된 약 리스트 -->
       <ul class="medication-list">
-        <li
-          v-for="(result, index) in ocrStore.results"
-          :key="index"
-          class="medication-row"
-        >
+        <li v-for="(result, index) in ocrStore.results" :key="index" class="medication-row">
           <span class="med-name">{{ result.matched_drug }}</span>
           <button @click="removeDrug(index)" class="delete-btn" title="삭제">🗑</button>
         </li>
@@ -27,7 +27,10 @@
       </div>
 
       <!-- ✅ 검색 결과 표시 -->
-      <div v-if="medications.length > 0" class="max-h-40 overflow-y-auto border p-2 rounded bg-white shadow">
+      <div
+        v-if="medications.length > 0"
+        class="max-h-40 overflow-y-auto border p-2 rounded bg-white shadow"
+      >
         <ul>
           <li
             v-for="(med, index) in medications"
@@ -62,7 +65,6 @@ const newDrug = ref(''); // ✅ 새로운 약물 추가 입력 필드
 const searchQuery = ref('');
 const medications = ref([]);
 
-
 // ✅ `debounce` 적용하여 불필요한 API 요청 방지 (300ms 동안 입력이 멈추면 실행)
 const fetchMedications = async () => {
   if (!searchQuery.value.trim()) {
@@ -80,13 +82,12 @@ const onChange = (event) => {
   fetchMedications(); // API 요청 실행
 };
 
-
 const selectDrug = async (med) => {
   ocrStore.results = [...ocrStore.results, { matched_drug: med.name }]; // 🔥 새로운 배열로 업데이트
 
-  searchQuery.value = ""; // 🔥 검색 필드 즉시 초기화
+  searchQuery.value = ''; // 🔥 검색 필드 즉시 초기화
   medications.value = []; // 🔥 즉시 검색 결과 초기화
-  
+
   await nextTick(); // 🔥 Vue의 반응성 강제 업데이트 후 실행
 
   setTimeout(() => {
@@ -96,16 +97,14 @@ const selectDrug = async (med) => {
 
 // ✅ 직접 입력하여 추가
 const addDrug = () => {
-  if (searchQuery.value.trim() !== "") {
+  if (searchQuery.value.trim() !== '') {
     ocrStore.results.push({ matched_drug: searchQuery.value.trim() });
-    searchQuery.value = ""; // 입력 필드 초기화
+    searchQuery.value = ''; // 입력 필드 초기화
   }
 };
 
 // ✅ `watch`를 사용하여 `searchQuery`가 변경될 때 `fetchMedications` 실행
 watch(searchQuery, fetchMedications);
-
-
 
 // ✅ 약물 삭제 기능
 const removeDrug = (index) => {
@@ -191,7 +190,7 @@ const removeDrug = (index) => {
 }
 
 .add-btn {
-  background-color: #4CAF50;
+  background-color: #4caf50;
   color: white;
   padding: 10px 16px;
   border-radius: 8px;

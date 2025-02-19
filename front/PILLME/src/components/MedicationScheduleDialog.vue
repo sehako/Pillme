@@ -1,8 +1,12 @@
 <template>
   <div v-if="ocrStore.showMedicationDialog" class="dialog-overlay">
     <div class="dialog-box">
-      <h2 class="text-lg font-semibold text-center text-pink-500">복약 시간 설정</h2>
-
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-lg font-semibold">복약 시간 설정</h2>
+        <button @click="ocrStore.closeDialog()" class="text-gray-500 hover:text-gray-700 text-xl">
+          ✕
+        </button>
+      </div>
       <div class="medication-container">
         <div class="medication-header">
           <span></span>
@@ -15,10 +19,26 @@
         <!-- ✅ 전체 선택 체크박스 -->
         <div class="medication-row">
           <span class="med-name">전체</span>
-          <input type="checkbox" v-model="overallCheck.breakfast" @change="toggleAll('breakfast', $event.target.checked)" />
-          <input type="checkbox" v-model="overallCheck.lunch" @change="toggleAll('lunch', $event.target.checked)" />
-          <input type="checkbox" v-model="overallCheck.dinner" @change="toggleAll('dinner', $event.target.checked)" />
-          <input type="checkbox" v-model="overallCheck.bedtime" @change="toggleAll('bedtime', $event.target.checked)" />
+          <input
+            type="checkbox"
+            v-model="overallCheck.breakfast"
+            @change="toggleAll('breakfast', $event.target.checked)"
+          />
+          <input
+            type="checkbox"
+            v-model="overallCheck.lunch"
+            @change="toggleAll('lunch', $event.target.checked)"
+          />
+          <input
+            type="checkbox"
+            v-model="overallCheck.dinner"
+            @change="toggleAll('dinner', $event.target.checked)"
+          />
+          <input
+            type="checkbox"
+            v-model="overallCheck.bedtime"
+            @change="toggleAll('bedtime', $event.target.checked)"
+          />
         </div>
 
         <!-- ✅ 약 목록 -->
@@ -38,7 +58,6 @@
         <button @click="saveOcrData" class="primary-btn" :disabled="ocrStore.isLoading">
           {{ ocrStore.isLoading ? '저장 중...' : '저장' }}
         </button>
-
       </div>
     </div>
   </div>
@@ -54,20 +73,24 @@ const ocrStore = useOcrStore();
 const props = defineProps({
   dependentId: {
     type: Number,
-    required: true
-  }
+    required: null,
+  },
 });
-
 
 // ✅ OCR 데이터 저장 함수
 
 const saveOcrData = async () => {
-  if (!ocrStore.dependentId) {
-    console.error("❌ dependentId가 없습니다.");
-    // return;
+  try {
+    // ✅ `dependentId`가 없으면 `null`을 설정
+    const dependentIdToSend = props.dependentId ?? null;
+
+    console.log(`📤 [DEBUG] OCR 데이터 저장 시작 - dependentId: ${dependentIdToSend}`);
+
+    // ✅ `dependentIdToSend`를 `ocrStore`에 전달
+    await ocrStore.saveOcrDataToDB(dependentIdToSend);
+  } catch (error) {
+    console.error('❌ [ERROR] saveOcrData() 실행 중 오류 발생:', error);
   }
-  console.log(`📤 [DEBUG] OCR 데이터 저장 시작 - dependentId: ${ocrStore.dependentId}`);
-  await ocrStore.saveOcrDataToDB();
 };
 
 // ✅ 전체 체크박스 상태 저장
@@ -75,7 +98,7 @@ const overallCheck = reactive({
   breakfast: false,
   lunch: false,
   dinner: false,
-  bedtime: false
+  bedtime: false,
 });
 
 // ✅ 데이터 초기화 함수
@@ -84,12 +107,12 @@ const initializeMedicationData = () => {
     ocrStore.results = [];
   }
 
-  ocrStore.results = ocrStore.results.map(med => ({
+  ocrStore.results = ocrStore.results.map((med) => ({
     matched_drug: med.matched_drug || '',
     breakfast: med.breakfast ?? false,
     lunch: med.lunch ?? false,
     dinner: med.dinner ?? false,
-    bedtime: med.bedtime ?? false
+    bedtime: med.bedtime ?? false,
   }));
 
   updateOverallCheck(); // 전체 선택 체크박스 상태 업데이트
@@ -97,7 +120,7 @@ const initializeMedicationData = () => {
 
 // ✅ 전체 선택 토글
 const toggleAll = (time, checked) => {
-  ocrStore.results.forEach(med => {
+  ocrStore.results.forEach((med) => {
     med[time] = checked;
   });
   updateOverallCheck();
@@ -105,10 +128,10 @@ const toggleAll = (time, checked) => {
 
 // ✅ 개별 체크 시 전체 체크박스 상태 업데이트
 const updateOverallCheck = () => {
-  overallCheck.breakfast = ocrStore.results.every(med => med.breakfast);
-  overallCheck.lunch = ocrStore.results.every(med => med.lunch);
-  overallCheck.dinner = ocrStore.results.every(med => med.dinner);
-  overallCheck.bedtime = ocrStore.results.every(med => med.bedtime);
+  overallCheck.breakfast = ocrStore.results.every((med) => med.breakfast);
+  overallCheck.lunch = ocrStore.results.every((med) => med.lunch);
+  overallCheck.dinner = ocrStore.results.every((med) => med.dinner);
+  overallCheck.bedtime = ocrStore.results.every((med) => med.bedtime);
 };
 
 // ✅ 컴포넌트 마운트 시 데이터 초기화 실행
@@ -209,7 +232,7 @@ onMounted(() => {
   width: 100px;
 }
 
-.medication-row input[type="checkbox"] {
+.medication-row input[type='checkbox'] {
   transform: scale(1.3);
   display: flex;
   align-items: center;
