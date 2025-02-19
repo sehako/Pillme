@@ -63,6 +63,7 @@ public class ChatRoomService {
         ChatRoom newChatRoom = new ChatRoom();
 
         newChatRoom.updateChatRoom(sendUser, receiveUser);
+        newChatRoom= chatRoomRepository.save(newChatRoom);
         return ChatRoomResponse.from(newChatRoom,0,"",new Date().getTime());
     }
 
