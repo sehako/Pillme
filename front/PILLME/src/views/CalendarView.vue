@@ -13,66 +13,68 @@
       />
     </div>
 
-    <!-- 글로벌 sticky 영역: 현재 복용중인 약 + 시간대별 글로벌 체크박스 -->
-    <div class="sticky top-0 z-45 bg-white">
-      <!-- 헤더: 현재 복용중인 약 -->
-      <div class="px-4 py-3 border-b bg-gray-100 text-gray-700">
-        <h2 class="font-semibold text-lg">현재 복용중인 약</h2>
-      </div>
-      <!-- 글로벌 시간대별 체크박스 -->
-      <div class="px-4 py-3 border-b bg-gray-50 text-gray-700">
-        <div class="flex flex-wrap gap-4">
-          <button
-            class="flex items-center space-x-1"
-            @click="confirmGlobalCheck('morning')"
-          >
-            <span class="text-xs">아침</span>
-            <img 
-              v-if="globalChecks.morning" 
-              :src="CheckCircle" 
-              alt="Checked" 
-              class="w-4 h-4"
-            />
-          </button>
-          <button
-            class="flex items-center space-x-1"
-            @click="confirmGlobalCheck('lunch')"
-          >
-            <span class="text-xs">점심</span>
-            <img 
-              v-if="globalChecks.lunch" 
-              :src="CheckCircle" 
-              alt="Checked" 
-              class="w-4 h-4"
-            />
-          </button>
-          <button
-            class="flex items-center space-x-1"
-            @click="confirmGlobalCheck('dinner')"
-          >
-            <span class="text-xs">저녁</span>
-            <img 
-              v-if="globalChecks.dinner" 
-              :src="CheckCircle" 
-              alt="Checked" 
-              class="w-4 h-4"
-            />
-          </button>
-          <button
-            class="flex items-center space-x-1"
-            @click="confirmGlobalCheck('sleep')"
-          >
-            <span class="text-xs">자기 전</span>
-            <img 
-              v-if="globalChecks.sleep" 
-              :src="CheckCircle" 
-              alt="Checked" 
-              class="w-4 h-4"
-            />
-          </button>
-        </div>
-      </div>
+<!-- 글로벌 sticky 영역: 현재 복용중인 약 + 시간대별 글로벌 체크박스 -->
+<div class="sticky top-0 z-45 bg-white">
+  <!-- 헤더: 현재 복용중인 약 -->
+  <div class="px-4 py-3 border-b bg-gray-100 text-gray-700">
+    <h2 class="font-semibold text-lg">현재 복용중인 약</h2>
+  </div>
+  <!-- 글로벌 시간대별 체크박스 (오른쪽 정렬 및 '전체체크:' 라벨 추가) -->
+  <div class="px-4 py-3 border-b bg-gray-50 text-gray-700">
+    <div class="flex items-center justify-end gap-4">
+      <span class="text-sm font-medium">전체체크:</span>
+      <button
+        class="flex items-center space-x-1"
+        @click="confirmGlobalCheck('morning')"
+      >
+        <span class="text-xs">아침</span>
+        <img 
+
+          :src="CheckCircle" 
+          alt="Checked" 
+          class="w-4 h-4"
+        />
+      </button>
+      <button
+        class="flex items-center space-x-1"
+        @click="confirmGlobalCheck('lunch')"
+      >
+        <span class="text-xs">점심</span>
+        <img 
+
+          :src="CheckCircle" 
+          alt="Checked" 
+          class="w-4 h-4"
+        />
+      </button>
+      <button
+        class="flex items-center space-x-1"
+        @click="confirmGlobalCheck('dinner')"
+      >
+        <span class="text-xs">저녁</span>
+        <img 
+
+          :src="CheckCircle" 
+          alt="Checked" 
+          class="w-4 h-4"
+        />
+      </button>
+      <button
+        class="flex items-center space-x-1"
+        @click="confirmGlobalCheck('sleep')"
+      >
+        <span class="text-xs">자기 전</span>
+        <img 
+
+          :src="CheckCircle" 
+          alt="Checked" 
+          class="w-4 h-4"
+        />
+      </button>
     </div>
+  </div>
+</div>
+
 
     <!-- 처방전 그룹 목록 -->
     <div class="flex-col p-4">
@@ -311,6 +313,9 @@ async function confirmGlobalCheck(timeSlot) {
         medication[timeSlot + "Taking"] = true;
       });
 
+      // 성공 메시지 출력
+      alert("복용 처리가 완료되었습니다.");
+      
     } catch (error) {
       console.error("[toggleGlobal] API 호출 실패:", error);
       // 실패 시 체크 상태 롤백
@@ -319,6 +324,7 @@ async function confirmGlobalCheck(timeSlot) {
     }
   }
 }
+
 
 // 그룹 헤더 클릭 시 해당 그룹으로 스크롤 이동 (scrollContainer 기준)
 function scrollToGroup(prescriptionIndex) {
