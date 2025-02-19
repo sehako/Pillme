@@ -47,7 +47,9 @@
         <div class="flex w-full gap-2">
           <BaseButton
             class="!min-w-28"
-            :overrideClass="formData.gender === 'M' ? '!bg-[#EF7C8E] text-white' : 'bg-gray-300 text-gray-700'"
+            :overrideClass="
+              formData.gender === 'M' ? '!bg-[#EF7C8E] text-white' : 'bg-gray-300 text-gray-700'
+            "
             type="button"
             @click="formData.gender = 'M'"
           >
@@ -55,7 +57,9 @@
           </BaseButton>
           <BaseButton
             class="!min-w-28"
-            :overrideClass="formData.gender === 'F' ? '!bg-[#EF7C8E] text-white' : 'bg-gray-300 text-gray-700'"
+            :overrideClass="
+              formData.gender === 'F' ? '!bg-[#EF7C8E] text-white' : 'bg-gray-300 text-gray-700'
+            "
             type="button"
             @click="formData.gender = 'F'"
           >
@@ -101,11 +105,11 @@
           </BaseButton>
         </div>
         <p
-          v-if="phoneMessage"
+          v-if="verificationMessage"
           class="text-xs mt-1"
-          :class="{ 'text-green-500': isPhoneValid, 'text-red-500': !isPhoneValid }"
+          :class="{ 'text-green-500': showVerification, 'text-red-500': !showVerification }"
         >
-          {{ phoneMessage }}
+          {{ verificationMessage }}
         </p>
       </div>
 
@@ -179,10 +183,15 @@ import BaseText from '../components/BaseText.vue';
 import BaseInput from '../components/BaseInput.vue';
 import BaseButton from '../components/BaseButton.vue';
 import logoSrc from '../assets/logi_nofont.svg';
-import Datepicker from "vue3-datepicker";
-import { ko } from "date-fns/locale";
-import { isDuplicateNickname, isDuplicatePhone } from '../api/auth';
-import { saveAccessToken } from '../utils/localForage'
+import Datepicker from 'vue3-datepicker';
+import { ko } from 'date-fns/locale';
+import {
+  isDuplicateNickname,
+  isDuplicatePhone,
+  requestSmsVerification,
+  verifySmsCode,
+} from '../api/auth';
+import { saveAccessToken } from '../utils/localForage';
 
 const router = useRouter();
 const route = useRoute();
@@ -342,39 +351,49 @@ const isFormValid = computed(() => {
 
 // 날짜 포맷 지정 함수 (Datepicker에서 사용)
 const formatDate = (date) => {
-  if (!date) return "";
+  if (!date) return '';
   const yyyy = date.getFullYear();
-  const mm = String(date.getMonth() + 1).padStart(2, "0");
-  const dd = String(date.getDate()).padStart(2, "0");
+  const mm = String(date.getMonth() + 1).padStart(2, '0');
+  const dd = String(date.getDate()).padStart(2, '0');
   return `${yyyy}-${mm}-${dd}`;
 };
 
 // 전화번호 인증번호 발송
 const sendVerificationCode = async () => {
+  isSending.value = true;
+  verificationMessage.value = null;
   try {
-    isSending.value = true;
-    // TODO: 전화번호 인증 API 호출
-    await new Promise((resolve) => setTimeout(resolve, 1000)); // 임시 딜레이
-    showVerification.value = true;
-    verificationMessage.value = '인증번호가 발송되었습니다.';
+    const success = await requestSmsVerification(formData.value.phone); // phone.value -> formData.value.phone
+    if (success) {
+      verificationMessage.value = 'SMS 인증번호 발송 성공';
+      showVerification.value = true; // 인증번호 입력 필드 표시
+    } else {
+      throw new Error('SMS 인증번호 요청 실패');
+    }
   } catch (error) {
-    verificationMessage.value = '인증번호 발송에 실패했습니다.';
+    console.error('🚨 SMS 인증번호 요청 실패:', error);
+    verificationMessage.value = 'SMS 인증번호 전송 실패. 다시 시도해주세요.';
   } finally {
     isSending.value = false;
   }
 };
 
-// 인증번호 확인
+// 인증번호 확인 함수
 const verifyCode = async () => {
+  isVerifying.value = true;
+  authVerificationMessage.value = null;
   try {
-    isVerifying.value = true;
-    // TODO: 인증번호 확인 API 호출
-    await new Promise((resolve) => setTimeout(resolve, 1000)); // 임시 딜레이
-    authVerificationSuccess.value = true;
-    authVerificationMessage.value = '인증이 완료되었습니다.';
+    const success = await verifySmsCode(formData.value.phone, authCode.value); // phone.value -> formData.value.phone
+    if (success) {
+      authVerificationSuccess.value = true;
+      authVerificationMessage.value = '전화번호 인증이 완료되었습니다.';
+    } else {
+      throw new Error('휴대폰 인증 실패');
+    }
   } catch (error) {
+    console.error('🚨 인증번호 확인 실패:', error);
     authVerificationSuccess.value = false;
-    authVerificationMessage.value = '인증번호가 올바르지 않습니다.';
+    authVerificationMessage.value = '인증에 실패하였습니다. 다시 시도해주세요.';
   } finally {
     isVerifying.value = false;
   }
@@ -396,10 +415,11 @@ const handleSubmit = async () => {
 
   try {
     // Datepicker가 Date 객체를 반환하는 경우 formatDate를 이용하여 문자열로 변환
-    const formattedBirthday = typeof formData.value.birthday === "object"
-      ? formatDate(formData.value.birthday).replace(/-/g, '')
-      : formData.value.birthday.replace(/-/g, '');
-      
+    const formattedBirthday =
+      typeof formData.value.birthday === 'object'
+        ? formatDate(formData.value.birthday).replace(/-/g, '')
+        : formData.value.birthday.replace(/-/g, '');
+
     const response = await oauthSignUp(
       {
         email: formData.value.email,
@@ -416,7 +436,10 @@ const handleSubmit = async () => {
     if (response?.result?.accessToken && response?.result?.refreshToken) {
       localStorage.setItem('accessToken', response.result.accessToken);
       saveAccessToken(response.result.accessToken);
-      Cookies.set('refreshToken', response.result.refreshToken, { secure: true, sameSite: 'Strict' });
+      Cookies.set('refreshToken', response.result.refreshToken, {
+        secure: true,
+        sameSite: 'Strict',
+      });
       await router.push('/');
     } else {
       throw new Error('토큰 정보를 찾을 수 없습니다');
