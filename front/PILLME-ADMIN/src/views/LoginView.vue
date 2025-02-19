@@ -28,8 +28,8 @@ import BaseInput from '../components/BaseInput.vue'
 import BaseLogo from '../components/BaseLogo.vue'
 import logoSrc from '../assets/logi_nofont.svg'
 import textLogoSrc from '../assets/Logi_font.svg'
-import emailIcon from '../assets/email.png'
-import passwordIcon from '../assets/key.png'
+import emailIcon from '../assets/email.svg'
+import passwordIcon from '../assets/key.svg'
 
 const email = ref('')
 const password = ref('')
