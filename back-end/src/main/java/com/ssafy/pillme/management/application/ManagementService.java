@@ -153,17 +153,16 @@ public class ManagementService {
         Member reader = authService.findById(request.reader());
 
         Information information = request.toInformation(writer, reader);
+        informationRepository.save(information);
 
         // 작성자와 읽는 사람이 의존관계에 있는 경우
-        if (!writer.getId().equals(reader.getId())) {
-            if (!dependencyService.isDependencyExist(writer, reader)) {
-                throw new NotProtectorException(MEMBER_NOT_PROTECTOR);
-            }
-
-            informationRepository.save(information);
-            notificationService.sendTakingInformationNotification(writer, reader, information.getDiseaseName());
-            information.requested();
-        }
+//        if (!writer.getId().equals(reader.getId())) {
+//            if (!dependencyService.isDependencyExist(writer, reader)) {
+//                throw new NotProtectorException(MEMBER_NOT_PROTECTOR);
+//            }
+//            notificationService.sendTakingInformationNotification(writer, reader, information.getDiseaseName());
+//            information.requested();
+//        }
 
         for (TakingSettingItem medication : request.medications()) {
             saveManagement(medication, information);
@@ -384,7 +383,7 @@ public class ManagementService {
         Member writer = information.getWriter();
 
         try {
-            checkWriterValidation(member, information);
+//            checkWriterValidation(member, information);
 
             List<Long> managementList = request.managementList();
             List<Management> managements = managementRepository.findManagementList(managementList, infoId);

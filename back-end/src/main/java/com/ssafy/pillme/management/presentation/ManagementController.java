@@ -202,7 +202,7 @@ public class ManagementController {
             @PathVariable(value = "reader-id") final Long readerId,
             @Auth final Member member
     ) {
-        managementService.acceptDependentDeleteRequest(readerId, member);
+        managementService.rejectDependentDeleteRequest(readerId, member);
         return ResponseEntity.ok(
                 JSONResponse.of(INFORMATION_DELETE_REQUEST_REJECT_SUCCESS)
         );
