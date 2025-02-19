@@ -80,9 +80,7 @@ const modalClass = computed(() => {
 const menuItems = ref([
   "알림 설정",
   "복용 기록",
-  "약물 관리",
   "가족 및 관리자",
-  "커뮤니티 활동"
 ]);
 
 // ✅ 복용 기록 모달 관리
