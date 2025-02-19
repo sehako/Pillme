@@ -101,6 +101,30 @@ public class Management extends BaseEntity {
         }
     }
 
+    public void checkMorningTaking() {
+        if (this.morning) {
+            this.morningTaking = true;
+        }
+    }
+
+    public void checkLunchTaking() {
+        if (this.lunch) {
+            this.lunchTaking = true;
+        }
+    }
+
+    public void checkDinnerTaking() {
+        if (this.dinner) {
+            this.dinnerTaking = true;
+        }
+    }
+
+    public void checkSleepTaking() {
+        if (this.sleep) {
+            this.sleepTaking = true;
+        }
+    }
+
     public void resetTakingInformation() {
         this.morningTaking = false;
         this.lunchTaking = false;

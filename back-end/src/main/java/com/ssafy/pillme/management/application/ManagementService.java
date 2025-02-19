@@ -363,7 +363,7 @@ public class ManagementService {
                 .findManagementsByInformationDateAndReaderIdFetch(member.getId());
 
         for (Management management : managements) {
-            checkMedicationTaking(management, request.time());
+            checkAllMedicationTaking(management, request.time());
         }
     }
 
@@ -373,6 +373,16 @@ public class ManagementService {
             case LUNCH -> management.toggleLunchTaking();
             case DINNER -> management.toggleDinnerTaking();
             case SLEEP -> management.toggleSleepTaking();
+            default -> throw new InvalidTimeSelectException(INVALID_TIME_REQUEST);
+        }
+    }
+
+    private void checkAllMedicationTaking(final Management management, TakingType time) {
+        switch (time) {
+            case MORNING -> management.checkMorningTaking();
+            case LUNCH -> management.checkLunchTaking();
+            case DINNER -> management.checkDinnerTaking();
+            case SLEEP -> management.checkSleepTaking();
             default -> throw new InvalidTimeSelectException(INVALID_TIME_REQUEST);
         }
     }
