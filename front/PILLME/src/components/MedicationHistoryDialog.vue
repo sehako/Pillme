@@ -105,7 +105,7 @@ import { useRouter, useRoute } from 'vue-router'; // ✅ useRoute 추가
 import WhiteCard from '../layout/WhiteCard.vue';
 import BaseCalendar from '../components/BaseCalendar.vue';
 import { fetchFormattedManagementInfo } from '../api/drugmanagement.js';
-import navPlusIcon from '../assets/navplus.png';
+import navPlusIcon from '../assets/navplus.svg';
 import { useOcrStore } from '../stores/ocrStore.js'; // ✅ OCR Store 추가
 
 const emit = defineEmits(['close']);

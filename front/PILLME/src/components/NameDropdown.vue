@@ -1,11 +1,16 @@
 <template>
   <div class="relative">
     <!-- ✅ 사용자 이름과 드롭다운 버튼 -->
-    <button @click="toggleModal" class="flex items-center space-x-1">
-      <p class="text-center whitespace-nowrap text-2xl font-base">{{ username }}</p>
+    <button 
+      @click="toggleModal" 
+      class="flex items-center space-x-1"
+      aria-expanded="isOpen"
+      aria-haspopup="true"
+      :aria-label="`${username} 메뉴 열기`">
+      <p class="text-center whitespace-nowrap text-2xl font-base">{{ username || '사용자' }}</p>
       <img
         src="../assets/namedropdown.svg"
-        alt=""
+        alt="드롭다운 메뉴 아이콘"
         class="w-4 h-4 transition-transform duration-300"
         :class="{ 'rotate-180': isOpen }"
       />
@@ -59,7 +64,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, onMounted, onUnmounted, watch } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import FamilyAddModal from '../components/FamilyAddModal.vue';
 import { fetchUsername } from '../api/username';
@@ -74,6 +79,9 @@ const isMedicationDialogOpen = ref(false);
 const selectedDependent = ref(null); // ✅ selectedDependent 정의
 const router = useRouter();
 const route = useRoute();
+
+const isLoading = ref(false);
+const error = ref(null);
 
 // ✅ 모달 토글 (드롭다운 열 때 가족 목록 새로고침)
 const toggleModal = async (event) => {
@@ -112,20 +120,49 @@ const openMedicationDialog = (dependent) => {
   isOpen.value = false;
 };
 
-// ✅ 초기 데이터 불러오기
-onMounted(async () => {
+// 데이터 로딩 상태 관리를 위한 함수
+const loadData = async () => {
+  isLoading.value = true;
+  error.value = null;
+  
   try {
-    await loadDependents(); // ✅ 가족 목록 초기 로드
-    username.value = await fetchUsername();
-  } catch (error) {
-    console.error('초기 데이터 불러오기 실패:', error);
+    await Promise.all([
+      (async () => {
+        username.value = await fetchUsername();
+      })(),
+      loadDependents()
+    ]);
+  } catch (err) {
+    error.value = err;
+    console.error('데이터 로딩 실패:', err);
+  } finally {
+    isLoading.value = false;
   }
+};
 
-  window.addEventListener('click', closeModal);
+// 드롭다운이 열릴 때마다 데이터 새로고침
+watch(isOpen, async (newValue) => {
+  if (newValue) {
+    await loadDependents();
+  }
 });
 
-// ✅ 이벤트 제거 (컴포넌트 언마운트 시)
+// ESC 키로 드롭다운 닫기
+const handleKeydown = (event) => {
+  if (event.key === 'Escape' && isOpen.value) {
+    isOpen.value = false;
+  }
+};
+
+onMounted(() => {
+  loadData();
+  window.addEventListener('click', closeModal);
+  window.addEventListener('keydown', handleKeydown);
+});
+
 onUnmounted(() => {
   window.removeEventListener('click', closeModal);
+  window.removeEventListener('keydown', handleKeydown);
 });
+
 </script>
