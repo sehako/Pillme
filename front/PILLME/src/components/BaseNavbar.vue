@@ -14,7 +14,7 @@
     </nav>
 
     <div v-if="isDropdownOpen" class="absolute bottom-16 left-0 w-full flex justify-center" @click.self="isDropdownOpen = false">
-      <div class="bg-white shadow-lg rounded-xl p-2 flex flex-col w-64 border border-gray-200 transition-all duration-300">
+      <div class="bg-white rounded-xl p-2 flex flex-col w-64 border border-gray-200 transition-all duration-300">
         <button @click="openCamera" class="py-3 text-center text-gray-700 hover:bg-gray-100">처방전 촬영</button>
         <button @click="triggerFileInput" class="py-3 text-center text-gray-700 hover:bg-gray-100">사진 업로드</button>
         <button @click="handleDirectAdd" class="py-3 text-center text-gray-700 hover:bg-gray-100">직접 추가하기</button>
@@ -27,11 +27,11 @@
 <script setup>
 import { ref } from "vue";
 import { useRouter } from "vue-router";
-import navHomeIcon from "../assets/navhome.png";
-import navCalendarIcon from "../assets/navcalendar.png";
-import navChatIcon from "../assets/navchat.png";
-import navMypageIcon from "../assets/navmypage.png";
-import navPlusIcon from "../assets/navplus.png";
+import navHomeIcon from "../assets/navhome.svg";
+import navCalendarIcon from "../assets/navcalendar.svg";
+import navChatIcon from "../assets/navchat.svg";
+import navMypageIcon from "../assets/navmypage.svg";
+import navPlusIcon from "../assets/navplus.svg";
 import { useOcrStore } from "../stores/ocrStore";
 
 const isOcrDialogOpen = ref(false);

@@ -28,9 +28,9 @@ export const fetchManagementData = async () => {
 
 
 // 복약 상세정보 가져오기 + memberId 반환
-export const fetchFormattedManagementInfo = async (userId) => {
+export const fetchFormattedManagementInfo = async () => {
   const userStore = useUserStore();
-  const memberId = userId != null? userId : await userStore.getMemberId();
+  const memberId = await userStore.getMemberId();
 
   console.log("🔍 [DEBUG] 요청 memberId:", memberId);
   if (!memberId) {
@@ -203,8 +203,16 @@ export const transformManagementDetails = (apiResponse) => {
   apiResponse.forEach((prescription, index) => {
     if (prescription.code === 2000 && prescription.isSuccess && prescription.result) {
       const { diseaseName, startDate, endDate, hospital, medications } = prescription.result;
+      const currentDate = new Date();
 
-      medications.forEach(med => {
+      medications.filter(med => {
+      // startDate와 endDate가 올바른 날짜 형식이어야 함
+      const start = new Date(startDate);
+      const end = new Date(endDate);
+
+      // 현재 날짜가 startDate와 endDate 사이에 있는지 체크
+      return currentDate >= start && currentDate <= end;
+    }).forEach(med => {
         transformedData.push({
           prescriptionIndex: index, // ✅ 처방전 번호 추가 (0, 1, 2...)
           diseaseName,
@@ -233,4 +241,3 @@ export const transformManagementDetails = (apiResponse) => {
   console.log("📋 [DEBUG] 변환된 Medication 리스트:", transformedData);
   return transformedData;
 };
-

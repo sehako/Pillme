@@ -34,8 +34,8 @@ import BaseText from "../components/BaseText.vue"; // ✅ 추가
 
 // 이미지 경로를 import로 가져오기
 import logoSrc from "../assets/logi_nofont.svg";
-import googleIcon from "../assets/Google_Login.png";
-import emailIcon from "../assets/Email_Login.png";
+import googleIcon from "../assets/Google_Login.svg";
+import emailIcon from "../assets/Email_Login.svg";
 
 // ✅ Vue Router 인스턴스 가져오기
 const router = useRouter();
