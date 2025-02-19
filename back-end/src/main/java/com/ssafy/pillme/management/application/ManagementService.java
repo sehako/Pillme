@@ -44,7 +44,6 @@ import com.ssafy.pillme.notification.application.service.NotificationService;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -257,7 +256,7 @@ public class ManagementService {
 //        List<Information> currentInformation = informationRepository
 //                .findCurrentDateAndReaderId(targetId);
         List<Information> currentInformation = informationRepository
-                .findAllByDate(LocalDate.now(), targetId);
+                .findAllByDate(targetId);
         Member targetMember = authService.findById(targetId);
 
         return currentInformation
