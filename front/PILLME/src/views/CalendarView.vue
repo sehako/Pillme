@@ -22,42 +22,54 @@
       <!-- 글로벌 시간대별 체크박스 -->
       <div class="px-4 py-3 border-b bg-gray-50 text-gray-700">
         <div class="flex flex-wrap gap-4">
-          <label class="flex items-center space-x-1">
-            <input
-              type="checkbox"
-              class="form-checkbox h-5 w-5"
-              @change="toggleGlobal('morning')"
-              :checked="globalChecks.morning"
-            />
+          <button
+            class="flex items-center space-x-1"
+            @click="confirmGlobalCheck('morning')"
+          >
             <span class="text-xs">아침</span>
-          </label>
-          <label class="flex items-center space-x-1">
-            <input
-              type="checkbox"
-              class="form-checkbox h-5 w-5"
-              @change="toggleGlobal('lunch')"
-              :checked="globalChecks.lunch"
+            <img 
+              v-if="globalChecks.morning" 
+              :src="CheckCircle" 
+              alt="Checked" 
+              class="w-4 h-4"
             />
+          </button>
+          <button
+            class="flex items-center space-x-1"
+            @click="confirmGlobalCheck('lunch')"
+          >
             <span class="text-xs">점심</span>
-          </label>
-          <label class="flex items-center space-x-1">
-            <input
-              type="checkbox"
-              class="form-checkbox h-5 w-5"
-              @change="toggleGlobal('dinner')"
-              :checked="globalChecks.dinner"
+            <img 
+              v-if="globalChecks.lunch" 
+              :src="CheckCircle" 
+              alt="Checked" 
+              class="w-4 h-4"
             />
+          </button>
+          <button
+            class="flex items-center space-x-1"
+            @click="confirmGlobalCheck('dinner')"
+          >
             <span class="text-xs">저녁</span>
-          </label>
-          <label class="flex items-center space-x-1">
-            <input
-              type="checkbox"
-              class="form-checkbox h-5 w-5"
-              @change="toggleGlobal('sleep')"
-              :checked="globalChecks.sleep"
+            <img 
+              v-if="globalChecks.dinner" 
+              :src="CheckCircle" 
+              alt="Checked" 
+              class="w-4 h-4"
             />
+          </button>
+          <button
+            class="flex items-center space-x-1"
+            @click="confirmGlobalCheck('sleep')"
+          >
             <span class="text-xs">자기 전</span>
-          </label>
+            <img 
+              v-if="globalChecks.sleep" 
+              :src="CheckCircle" 
+              alt="Checked" 
+              class="w-4 h-4"
+            />
+          </button>
         </div>
       </div>
     </div>
@@ -179,6 +191,7 @@ import {
 } from "../api/drugmanagement";
 import { updateCheckTaking, fetchAllDrugCheck } from "../api/drugcheck";
 import { useRouter } from "vue-router";
+import CheckCircle from "../assets/CheckCircle.svg";
 const router = useRouter();
 
 // 스크롤 컨테이너 ref
@@ -271,24 +284,41 @@ const globalChecks = ref({
   sleep: false,
 });
 
-async function toggleGlobal(timeSlot) {
-  // 글로벌 체크 상태 토글
-  globalChecks.value[timeSlot] = !globalChecks.value[timeSlot];
-  console.log(`[DEBUG] 글로벌 ${timeSlot} 체크:`, globalChecks.value[timeSlot]);
+// 글로벌 체크 확인 함수
+async function confirmGlobalCheck(timeSlot) {
+  if (globalChecks.value[timeSlot]) {
+    return; // 이미 체크된 경우 아무 동작 하지 않음
+  }
 
-  // 모든 약의 개별 체크 상태 업데이트 (예: 'morningTaking')
-  medicationsList.value.forEach((medication) => {
-    medication[timeSlot + "Taking"] = globalChecks.value[timeSlot];
-  });
+  const timeSlotKorean = {
+    morning: '아침',
+    lunch: '점심',
+    dinner: '저녁',
+    sleep: '자기 전'
+  }[timeSlot];
 
-  try {
-    const result = await fetchAllDrugCheck(timeSlot);
-    console.log("[toggleGlobal] API 응답:", result);
-  } catch (error) {
-    console.error("[toggleGlobal] API 호출 실패:", error);
+  if (confirm(`${timeSlotKorean} 시간대의 모든 약을 복용 처리하시겠습니까?`)) {
+    try {
+      // 글로벌 체크 상태 업데이트
+      globalChecks.value[timeSlot] = true;
+
+      // 서버에 복용 처리 요청
+      const result = await fetchAllDrugCheck(timeSlot);
+      console.log("[toggleGlobal] API 응답:", result);
+
+      // 개별 약물 체크 상태도 업데이트
+      medicationsList.value.forEach((medication) => {
+        medication[timeSlot + "Taking"] = true;
+      });
+
+    } catch (error) {
+      console.error("[toggleGlobal] API 호출 실패:", error);
+      // 실패 시 체크 상태 롤백
+      globalChecks.value[timeSlot] = false;
+      alert("복용 처리에 실패했습니다.");
+    }
   }
 }
-
 
 // 그룹 헤더 클릭 시 해당 그룹으로 스크롤 이동 (scrollContainer 기준)
 function scrollToGroup(prescriptionIndex) {

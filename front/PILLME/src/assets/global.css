@@ -1,0 +1,8 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* 기본 폰트 설정 (원하는 Nanum Gothic 계열 선택) */
+body {
+  font-family: 'NanumGothic', sans-serif;
+}
