@@ -53,7 +53,7 @@
         </div>
 
         <!-- ✅ "약 추가" 버튼 (하단 중앙) -->
-        <div class="absolute bottom-4 left-1/2 -translate-x-1/2 z-50">
+        <div class="fixed bottom-12 left-1/2 -translate-x-1/2 z-50">
           <button
             @click="toggleDropdown"
             class="rounded-full bg-white shadow-lg p-3 border border-gray-300"
@@ -71,13 +71,19 @@
               @click="openCamera"
               class="py-2 text-left w-full text-gray-700 hover:bg-gray-100"
             >
-              📷 처방전 촬영
+              처방전 촬영
             </button>
             <button
               @click="triggerFileInput"
               class="py-2 text-left w-full text-gray-700 hover:bg-gray-100"
             >
-              🖼 사진 업로드
+              사진 업로드
+            </button>
+            <button
+              @click="handleDirectAdd"
+              class="py-2 text-left w-full text-gray-700 hover:bg-gray-100"
+            >
+              직접 추가하기
             </button>
             <input
               type="file"
@@ -133,9 +139,9 @@ const triggerFileInput = () => {
 };
 
 // ✅ 선택한 가족의 복용 내역 가져오기
-const loadMedicationData = async () => {
+const loadMedicationData = async (dependentId) => {
   try {
-    const { prescriptions } = await fetchFormattedManagementInfo();
+    const { prescriptions } = await fetchFormattedManagementInfo(dependentId);
     prescriptionList.value = prescriptions || [];
   } catch (error) {
     console.error('❌ 복용 내역 불러오기 실패:', error);
@@ -154,11 +160,19 @@ const saveOcrResultsForDependent = async () => {
 
   try {
     await ocrStore.saveOcrDataToDB(props.dependent.dependentId); // ✅ 피보호자 ID 전달
-    await loadMedicationData(); // ✅ 복약 내역 새로고침
+    await loadMedicationData(props.dependent.dependentId); // ✅ 복약 내역 새로고침
     console.log('✅ [DEBUG] OCR 데이터 저장 완료');
   } catch (error) {
     console.error('❌ OCR 결과 저장 실패:', error);
   }
+};
+
+// ✅ 직접 추가 버튼 클릭 시 OCR 초기화 후 다이얼로그 열기
+const handleDirectAdd = () => {
+  isDropdownOpen.value = false;
+  ocrStore.resetOcrState(); // ✅ OCR 결과 초기화
+  ocrStore.setDependentId(props.dependent?.dependentId); // ✅ 선택한 피보호자 ID 저장
+  ocrStore.showResultsDialog = true; // ✅ 다이얼로그 직접 띄우기
 };
 
 const handleFileChange = (event) => {
@@ -202,7 +216,7 @@ watch(
 
 // ✅ 컴포넌트 마운트 시 데이터 로드
 onMounted(() => {
-  loadMedicationData();
+  loadMedicationData(props.dependent.dependentId);
   if (props.dependent?.dependentId) {
     ocrStore.setDependentId(props.dependent.dependentId); // ✅ OCR Store에 보호자 ID 저장
   }
