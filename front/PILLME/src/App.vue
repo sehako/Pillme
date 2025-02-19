@@ -10,15 +10,15 @@
           <h4>{{ notification.title }}</h4>
           <button class="close-button" @click="removeNotification(notification.id)">×</button>
         </div>
-        <p>{{ notification.body }}</p>
+        <p v-if="notification.body && notification.body.trim()">{{ notification.body }}</p>
         <div v-if="
           notification.data?.code &&
           ['DEPENDENCY_REQUEST', 'MEDICINE_REQUEST', 'DEPENDENCY_DELETE_REQUEST'].includes(
             notification.data.code
           )
         " class="actions">
-          <button class="accept-button" @click="() => handleAccept(notification)">동의</button>
-          <button class="reject-button" @click="() => handleReject(notification)">거절</button>
+          <BaseButton class="accept-button" overrideClass="!min-w-0 w-1/2" @click="() => handleAccept(notification)">동의</BaseButton>
+          <BaseButton class="reject-button" overrideClass="!min-w-0 w-1/2 hover:bg-[#b91c1c]" @click="() => handleReject(notification)">거절</BaseButton>
         </div>
       </div>
     </div>
@@ -78,6 +78,7 @@
 <script setup>
 import { ref, onMounted, onUnmounted, watch } from 'vue';
 import { useOcrStore } from './stores/ocrStore';
+import BaseButton from './components/BaseButton.vue';
 
 import BaseTopbar from './components/BaseTopbar.vue';
 import BaseNavbar from './components/BaseNavbar.vue';
@@ -199,12 +200,14 @@ onUnmounted(() => {
 
 .notification {
   width: 300px;
-  padding: 15px;
-  background: white;
+  background: transparent;
   border-radius: 8px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   transform: translateX(120%);
   transition: transform 0.3s ease;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 .notification.show {
@@ -216,20 +219,34 @@ onUnmounted(() => {
   color: white;
 }
 
+.notification.toast p {
+  background: white;
+  color: black;
+}
+
 .notification-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 8px;
+  background: #FFE2E2;
+  padding: 12px 15px;
+  width: 100%;
 }
 
 .notification-header h4 {
   margin: 0;
   font-weight: 600;
+  color: #000;
+}
+
+.notification p {
+  padding: 15px;
+  margin: 0;
+  background: white;
 }
 
 .notification.toast .notification-header h4 {
-  color: white;
+  background: #FFE2E2;
 }
 
 .close-button {
@@ -237,28 +254,37 @@ onUnmounted(() => {
   border: none;
   font-size: 20px;
   cursor: pointer;
-  padding: 0 5px;
+  color: #000;
 }
 
 .notification.toast .close-button {
-  color: white;
+  color: #000;
 }
 
 .actions {
+  padding: 15px;
   display: flex;
   gap: 10px;
-  margin-top: 10px;
+  width: 100%;
+  box-sizing: border-box;
+  background: white;
+}
+
+.notification p + .actions {
+  padding-top: 0;
+}
+
+.actions button {
+  flex: 1;
 }
 
 .accept-button,
 .reject-button {
-  flex: 1;
-  padding: 8px;
-  border-radius: 4px;
-  border: none;
-  cursor: pointer;
-  font-weight: 500;
-  transition: opacity 0.2s;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px;
+  border-radius: 100px;
+  font-weight: 600;
 }
 
 .accept-button {
