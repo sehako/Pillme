@@ -75,6 +75,8 @@
     </div>
   </div>
 </YellowCard>
+
+
 <div class="m-4 flex flex-col">
     <!-- 헤더 영역 -->
     <div class="flex justify-between items-center mb-2">
@@ -84,36 +86,30 @@
       </button>
     </div>
   <!-- 가로 스크롤 가능한 화이트카드 영역 -->
-  <div class="scroll-container flex overflow-x-auto space-x-4 p-2">
-    <WhiteCard 
-  v-for="(info, index) in managementInfoList" 
+  <div class="scroll-container flex overflow-x-auto space-x-4">
+   <WhiteCard
+  v-for="(info, index) in managementInfoList"
   :key="index"
-  overrideClass="bg-white min-w-[300px] max-w-[300px] flex-shrink-0 relative p-4 overflow-hidden">
-  <!-- 병원 정보 (오른쪽 상단, 회색 & 작은 글씨) -->
-  <p class="absolute top-2 right-3 text-xs text-gray-400 truncate max-w-[150px]">
-    {{ info.hospital || "병원 정보 없음" }}
+  overrideClass="bg-white min-w-[300px] max-w-[300px] flex-shrink-0 relative overflow-hidden grid grid-cols-[1fr_auto] grid-rows-[auto_1fr_auto]"  >
+  <p class="absolute top-2 right-3 text-xs text-gray-400 truncate max-w-[150px] col-span-2"> {{ info.hospital || "병원 정보 없음" }}
   </p>
-  <div class="flex flex-row items-center">
-    <img src="../assets/logi_nofont.svg" alt="알약이미지" class="w-16 h-16">
+
+  <div class="flex flex-row items-center col-span-2"> <img src="../assets/logi_nofont.svg" alt="알약이미지" class="w-16 h-16">
     <div class="flex flex-col ml-4 max-w-[200px]">
-      <!-- 병명이 없으면 "병명 미등록" -->
       <p class="font-bold text-lg truncate max-w-[200px]">
         {{ info.diseaseName || "병명 미등록" }}
       </p>
-      <!-- 날짜 (회색 & 작은 글씨) -->
       <p class="text-xs text-gray-500 truncate max-w-[200px]">
         {{ info.medicationPeriod }}
       </p>
-      <!-- 약 이름 (회색 & 작은 글씨) -->
-      <p class="text-xs text-gray-500 mt-1 truncate max-w-[200px]">
-        {{ info.medications || "약 정보 없음" }}
+      <p class="text-xs text-gray-500 mt-1 truncate max-w-[200px] medication-name">  {{ info.medications || "약 정보 없음" }}
       </p>
     </div>
   </div>
-  <!-- 오른쪽 하단 수정하기 버튼 -->
-  <div class="absolute bottom-2 right-3">
-    <button 
-      class="text-xs text-gray-500 hover:underline" 
+
+  <div class="justify-self-end">  
+    <button
+      class="text-xs text-gray-500 hover:underline whitespace-nowrap"
       @click="openEditModal(info, modalClass)"
     >
       수정하기
