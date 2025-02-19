@@ -75,6 +75,8 @@
     </div>
   </div>
 </YellowCard>
+
+
 <div class="m-4 flex flex-col">
     <!-- 헤더 영역 -->
     <div class="flex justify-between items-center mb-2">
@@ -84,43 +86,55 @@
       </button>
     </div>
   <!-- 가로 스크롤 가능한 화이트카드 영역 -->
-  <div class="scroll-container flex overflow-x-auto space-x-4 p-2">
-    <WhiteCard 
-  v-for="(info, index) in managementInfoList" 
-  :key="index"
-  overrideClass="bg-white min-w-[300px] max-w-[300px] flex-shrink-0 relative p-4 overflow-hidden">
-  <!-- 병원 정보 (오른쪽 상단, 회색 & 작은 글씨) -->
-  <p class="absolute top-2 right-3 text-xs text-gray-400 truncate max-w-[150px]">
-    {{ info.hospital || "병원 정보 없음" }}
-  </p>
-  <div class="flex flex-row items-center">
-    <img src="../assets/logi_nofont.svg" alt="알약이미지" class="w-16 h-16">
-    <div class="flex flex-col ml-4 max-w-[200px]">
-      <!-- 병명이 없으면 "병명 미등록" -->
-      <p class="font-bold text-lg truncate max-w-[200px]">
+<!-- 가로 스크롤 가능한 화이트카드 영역 -->
+<div class="scroll-container flex overflow-x-auto space-x-4">
+  <WhiteCard
+    v-for="(info, index) in managementInfoList"
+    :key="index"
+    class="bg-white border border-gray-200 rounded-lg
+           w-[300px] min-w-[300px] max-w-[300px] h-[109.143px]
+           p-4 flex-shrink-0 transition-all duration-300 ease-in-out
+           grid"
+    style="grid-template-columns: 166.857px 100px;"
+  >
+    <!-- 왼쪽 (1,2,3) -->
+    <div class="grid grid-rows-[auto_auto_1fr] gap-2">
+      <!-- (1) 병명 -->
+      <p class="font-bold text-lg truncate">
         {{ info.diseaseName || "병명 미등록" }}
       </p>
-      <!-- 날짜 (회색 & 작은 글씨) -->
-      <p class="text-xs text-gray-500 truncate max-w-[200px]">
+
+      <!-- (2) 날짜 -->
+      <p class="text-xs text-gray-500">
         {{ info.medicationPeriod }}
       </p>
-      <!-- 약 이름 (회색 & 작은 글씨) -->
-      <p class="text-xs text-gray-500 mt-1 truncate max-w-[200px]">
+
+      <!-- (3) 약 정보 (2줄 초과 시 ... 처리, 클릭 시 모달로 전체 보기) -->
+      <p
+        class="text-xs text-gray-500 line-clamp-2 break-words whitespace-normal cursor-pointer "
+        @click="openMedicationModal(info)"
+      >
         {{ info.medications || "약 정보 없음" }}
       </p>
     </div>
-  </div>
-  <!-- 오른쪽 하단 수정하기 버튼 -->
-  <div class="absolute bottom-2 right-3">
-    <button 
-      class="text-xs text-gray-500 hover:underline" 
-      @click="openEditModal(info, modalClass)"
-    >
-      수정하기
-    </button>
-  </div>
-</WhiteCard>
-  </div>
+
+    <!-- 오른쪽 (4,5) -->
+    <div class="grid grid-rows-2">
+      <!-- (4) 병원이름 (오른쪽 상단) -->
+      <p class="text-xs text-gray-500 hover:underline whitespace-nowrap justify-self-end self-start">
+        {{ info.hospital || "병원 정보 없음" }}
+      </p>
+      <!-- (5) 수정하기 (오른쪽 하단) -->
+      <button
+        class="text-xs text-gray-500 hover:underline whitespace-nowrap justify-self-end self-end"
+        @click="openEditModal(info, modalClass)"
+      >
+        수정하기
+      </button>
+    </div>
+  </WhiteCard>
+</div>
+
 </div>
       <!-- 캘린더 (예시) -->
       <div class="m-4 flex flex-col">
@@ -153,8 +167,27 @@
     @close="closeEditModal"
       />
     </Teleport>
-
-
+ <!-- 약 정보 모달 -->
+ <div
+    v-if="showMedicationModal"
+    class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
+  >
+    <div class="bg-white p-6 rounded-lg max-w-lg w-full">
+      <h2 class="text-xl font-bold mb-4">약 정보 전체보기</h2>
+      <!-- 반점(,)으로 구분된 약 정보를 리스트로 정리 -->
+      <ul class="list-disc list-inside text-sm text-gray-700">
+        <li v-for="(med, index) in medicationList" :key="index">
+          {{ med }}
+        </li>
+      </ul>
+      <button
+        class="mt-4 text-blue-500 hover:underline"
+        @click="closeMedicationModal"
+      >
+        닫기
+      </button>
+    </div>
+  </div>
 </template>
 
 <script setup>
@@ -202,12 +235,15 @@ const isAlarmModalOpen = ref(false);
 const medSearchDialog = ref(null);
 const isEditModalOpen = ref(false);
 const selectedInfo = ref(null);
-
+const showMedicationModal = ref(false)
 //알림모달크기조절
 const modalSize = ref("md"); // "sm", "md", "lg"
 
 // 오늘의 복약 내역(약물 리스트)을 담는 ref
 const todaysMedications = ref([]);
+
+// 생략된 약 정보를 보여주는 ref
+const selectedMedication = ref('')
 
 // ✅ `managementInfoList` 추가 (처방전 데이터 저장)
 const managementInfoList = ref([]);
@@ -219,6 +255,15 @@ const modalClass = computed(() => {
     lg: "w-[80%] max-w-lg"
   }[modalSize.value];
 });
+
+// selectedMedication를 콤마로 구분하여 배열로 변환한 computed 변수
+const medicationList = computed(() => {
+  if (!selectedMedication.value) return []
+  return selectedMedication.value
+    .split(',')
+    .map(item => item.trim())
+    .filter(item => item)
+})
 
 // 현재 시간대를 계산하는 computed 속성 (설정된 알림 시간만 기준으로)
 const currentTimePeriod = computed(() => {
@@ -300,6 +345,17 @@ const closeEditModal = async () => {
   await fetchData(); // 최신 데이터 리패칭
   await fetchTodaysMedications(); // 오늘의 복약 내역 리패칭
 };
+
+// 약 정보 모달 열기
+function openMedicationModal(info) {
+  selectedMedication.value = info.medications
+  showMedicationModal.value = true
+}
+
+// 약 정보 모달 닫기
+function closeMedicationModal() {
+  showMedicationModal.value = false
+}
 
 // 수정하기 버튼 클릭 시 호출하는 함수
 const openEditModal = (info) => {
@@ -479,5 +535,12 @@ onMounted(async () => {
 
 .scroll-container::-webkit-scrollbar-track {
   background-color: transparent;
+}
+
+.multiline-ellipsis {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 </style>
