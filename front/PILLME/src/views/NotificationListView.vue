@@ -80,7 +80,7 @@
         :id="selectedNotification?.senderId"
         :dependencyId="selectedNotification?.dependencyId"
         :notificationId="selectedNotification?.notificationId"
-        @close="close"
+        @closess="handleClose"
         @deleteAccept="handleDeleteAccept"
         @deleteReject="handleDeleteReject"
       />
@@ -218,7 +218,9 @@ const handleReject = async ({ id }) => {
     console.error("❌ 알림 삭제 실패");
   }
 };
-
+const handleClose = async () => {
+  isDeleteDialogOpen.value = false;
+  }
 const handleAccept = async ({ id }) => {
   console.log("✅ 승인된 관리자 요청 senderId:", id);
 
