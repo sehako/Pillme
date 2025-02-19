@@ -40,11 +40,11 @@
       </div>
     </div>
 
-    <!-- 관리자 요청 다이얼로그 -->
-    <div 
-      v-if="isDialogOpen"
+     <!-- ✅ 관리자 요청 다이얼로그 -->
+     <div 
+      v-if="isAdminDialogOpen"
       class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-30"
-      @click.self="isDialogOpen = false"
+      @click.self="close"
     >
       <AdminRequestDialog
         class="absolute transition-transform duration-300 bg-white rounded-lg p-6 shadow-lg"
@@ -56,9 +56,33 @@
         }"
         :username="selectedNotification?.content"
         :id="selectedNotification?.senderId"
-        @close="isDialogOpen = false"
+        @close="close"
         @accept="handleAccept"
         @reject="handleReject"
+      />
+    </div>
+
+    <!-- ✅ 가족 삭제 요청 다이얼로그 추가 -->
+    <div 
+      v-if="isDeleteDialogOpen"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-30"
+      @click.self="close"
+    >
+      <DeleteRequestDialog
+        class="absolute transition-transform duration-300 bg-white rounded-lg p-6 shadow-lg"
+        :style="{ 
+          width: dialogSize.width, 
+          maxWidth: '90%', 
+          top: `${dialogPosition.top}px`, 
+          left: `${dialogPosition.left}px` 
+        }"
+        :username="selectedNotification?.content"
+        :id="selectedNotification?.senderId"
+        :dependencyId="selectedNotification?.dependencyId"
+        :notificationId="selectedNotification?.notificationId"
+        @closess="handleClose"
+        @deleteAccept="handleDeleteAccept"
+        @deleteReject="handleDeleteReject"
       />
     </div>
   </div>
@@ -66,14 +90,17 @@
  
 <script setup>
 import { ref, onMounted, onUnmounted, nextTick } from "vue";
+import { useRouter } from "vue-router";
 import { fetchNotifications, deleteNotification, markNotificationAsRead, deleteAllNotifications } from "../api/notify";
-import { refreshAccessTokenAPI } from "../api/auth";
 import NotificationItem from "../components/NotificationItem.vue";
 import AdminRequestItem from "../components/AdminRequestItem.vue";
 import AdminRequestDialog from "../components/AdminRequestDialog.vue";
+import DeleteRequestDialog from "../components/DeleteRequestDialog.vue"; // ✅ 추가
 
+const router = useRouter();
 const notifications = ref([]);
-const isDialogOpen = ref(false);
+const isAdminDialogOpen = ref(false);
+const isDeleteDialogOpen = ref(false);
 const dialogPosition = ref({ top: 0, left: 0 });
 const dialogSize = ref({ width: "320px" });
 const selectedNotification = ref(null);
@@ -81,6 +108,7 @@ let activeNotificationRect = null;
 
 const loadNotifications = async () => {
   notifications.value = await fetchNotifications();
+  notifications.value.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
   console.log("📌 Fetched Notifications:", JSON.stringify(notifications.value, null, 2));
 };
 
@@ -139,8 +167,6 @@ const handleMarkAsRead = async (notificationId) => {
   }
 };
 
-
-
 //알림 삭제(단일)
 const handleDelete = async (notificationId) => {
   if (!notificationId) {
@@ -192,7 +218,9 @@ const handleReject = async ({ id }) => {
     console.error("❌ 알림 삭제 실패");
   }
 };
-
+const handleClose = async () => {
+  isDeleteDialogOpen.value = false;
+  }
 const handleAccept = async ({ id }) => {
   console.log("✅ 승인된 관리자 요청 senderId:", id);
 
@@ -262,15 +290,24 @@ const openDialog = async (notification, index, event) => {
 
   activeNotificationRect = event.currentTarget.getBoundingClientRect();
   selectedNotification.value = notification;
-  isDialogOpen.value = true;
+   
+  // ✅ 알림 타입에 따라 다이얼로그 분기
+    if (notification.code === "DEPENDENCY_DELETE_REQUEST") {
+    isDeleteDialogOpen.value = true;
+    isAdminDialogOpen.value = false;
+  } else {
+    isAdminDialogOpen.value = true;
+    isDeleteDialogOpen.value = false;
+  }
+
+  
 
   await nextTick();
   updateDialogPosition();
 };
 
-// 다이얼로그 위치 업데이트
 const updateDialogPosition = () => {
-  if (!isDialogOpen.value || !activeNotificationRect) return;
+  if ((!isAdminDialogOpen.value && !isDeleteDialogOpen.value) || !activeNotificationRect) return;
 
   const rect = activeNotificationRect;
   const maxDialogWidth = Math.min(window.innerWidth * 0.9, 400);
@@ -284,6 +321,43 @@ const updateDialogPosition = () => {
   left = Math.max(20, Math.min(left, window.innerWidth - maxDialogWidth - 20));
 
   dialogPosition.value = { top, left };
+};
+
+
+// ✅ 가족 관계 삭제 요청 수락
+const handleDeleteAccept = async ({ id, dependencyId, notificationId }) => {
+  console.log("✅ 가족 삭제 요청 수락:", id);
+
+  // 알림 삭제
+  const notificationIds = notifications.value
+    .filter(n => n.senderId === id)
+    .map(n => n.notificationId);
+
+  
+  const success = await deleteNotification(notificationIds);
+  if (success) {
+    notifications.value = notifications.value.filter(n => !notificationIds.includes(n.notificationId));
+    await loadNotifications();
+  }
+
+  isDeleteDialogOpen.value = false;
+};
+
+// ✅ 가족 관계 삭제 요청 거절
+const handleDeleteReject = async ({ id, dependencyId, notificationId }) => {
+  console.log("❌ 가족 삭제 요청 거절:", id);
+
+  // 알림 삭제
+  const notificationIds = notifications.value
+    .filter(n => n.senderId === id)
+    .map(n => n.notificationId);
+
+  const success = await deleteNotification(notificationIds);
+  if (success) {
+    notifications.value = notifications.value.filter(n => !notificationIds.includes(n.notificationId));
+  }
+
+  isDeleteDialogOpen.value = false;
 };
 
 onMounted(() => {

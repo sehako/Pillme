@@ -3,8 +3,7 @@
     <div class="flex flex-col w-full">
       <!-- 상단 안내 메시지 -->
       <div
-        class="w-full flex items-center justify-between bg-[#9DBB9F80] p-3 rounded-b-sm shadow-md"
-      >
+        class="w-full flex items-center justify-between bg-[#9DBB9F80] p-3 rounded-b-sm shadow-md">
         <h2 class="text-lg font-bold text-green-900">오늘 복약 하셔야 하는 분들입니다.</h2>
         <button class="text-green-700 text-xl">⚙️</button>
       </div>
@@ -13,32 +12,65 @@
       <div class="overflow-x-auto w-full whitespace-nowrap px-1.5 py-2">
         <div class="w-48 sm:w-56 md:w-64 lg:w-72 flex flex-nowrap space-x-4">
           <GreenCard
-            v-for="user in chatStore.users"
-            :key="user.id"
-            class="flex flex-col min-w-[200px] p-1 rounded-lg bg-9DBB9F80"
-          >
-            <div class="flex flex-col items-center justify-between">
-              <p class="font-bold text-lg text-nowrap">{{ user.name }}</p>
-              <div class="flex flex-row items-center space-x-2">
-                <div class="flex flex-col items-center justify-center">
-                  <div class="bg-[#9DBB9F80] rounded-full p-1">아침</div>
-                  <img src="../assets/CheckCircle.svg" alt="약물복용체크" />
-                </div>
-                <div class="flex flex-col items-center justify-center">
-                  <div class="bg-[#FFE2E2] rounded-full p-1">점심</div>
-                  <img src="../assets/CheckCircle.svg" alt="약물복용체크" />
-                </div>
-                <div class="flex flex-col items-center justify-center">
-                  <div class="bg-[#EF7C8E] rounded-full p-1">저녁</div>
-                  <img src="../assets/CheckCircle.svg" alt="약물복용체크" />
-                </div>
-                <div class="flex flex-col items-center justify-center">
-                  <div class="bg-[#888585] rounded-full p-1">자기 전</div>
-                  <img src="../assets/CheckCircle.svg" alt="약물복용체크" />
-                </div>
-              </div>
-            </div>
-          </GreenCard>
+  v-for="user in dependents"
+  :key="user.dependentId"
+  class="flex flex-col min-w-[200px] p-1 rounded-lg bg-9DBB9F80"
+>
+  <div class="flex flex-col items-center justify-between">
+    <p class="font-bold text-lg text-nowrap">{{ user.dependentName }}</p>
+
+<!-- 처방전이 있을 때만 체크박스 영역 표시 -->
+<div
+  v-if="processedManagementData[user.dependentId] && processedManagementData[user.dependentId].hasPrescription"
+  class="flex flex-row items-center justify-between"
+>
+  <!-- 아침 영역 -->
+  <div
+    v-if="aggregateStatus(processedManagementData[user.dependentId].data, 'morning') !== '처방없음'"
+    class="flex flex-col items-center justify-center flex-1"
+  >
+    <div class="bg-[#9DBB9F80] rounded-full p-1">아침</div>
+    <img :src="getIcon(user.dependentId, 'morning')" alt="아침 복약체크" />
+  </div>
+
+  <!-- 점심 영역 -->
+  <div
+    v-if="aggregateStatus(processedManagementData[user.dependentId].data, 'lunch') !== '처방없음'"
+    class="flex flex-col items-center justify-center flex-1"
+  >
+    <div class="bg-[#FFE2E2] rounded-full p-1">점심</div>
+    <img :src="getIcon(user.dependentId, 'lunch')" alt="점심 복약체크" />
+  </div>
+
+  <!-- 저녁 영역 -->
+  <div
+    v-if="aggregateStatus(processedManagementData[user.dependentId].data, 'dinner') !== '처방없음'"
+    class="flex flex-col items-center justify-center flex-1"
+  >
+    <div class="bg-[#EF7C8E] rounded-full p-1">저녁</div>
+    <img :src="getIcon(user.dependentId, 'dinner')" alt="저녁 복약체크" />
+  </div>
+
+  <!-- 자기 전 영역 -->
+  <div
+    v-if="aggregateStatus(processedManagementData[user.dependentId].data, 'sleep') !== '처방없음'"
+    class="flex flex-col items-center justify-center flex-1"
+  >
+    <div class="bg-[#888585] rounded-full p-1">수면</div>
+    <img :src="getIcon(user.dependentId, 'sleep')" alt="자기 전 복약체크" />
+  </div>
+</div>
+
+
+
+    <!-- 처방전이 없는 경우 -->
+    <div v-else class="flex flex-nowrap items-center justify-center p-2 rounded-lg bg-[#9DBB9F80]">
+      <span>처방전이<br>없습니다.</span>
+    </div>
+  </div>
+</GreenCard>
+
+
         </div>
       </div>
       <hr class="border-t border-[#9DBB9F80]" />
@@ -61,12 +93,12 @@
         </div>
 
         <div v-else class="space-y-2">
-          <div
-            v-for="room in chatRooms"
-            :key="room.chatRoomId"
-            class="flex items-center justify-between p-4 bg-[#9DBB9F26] rounded-lg shadow-md cursor-pointer hover:bg-[#B5CCB7] transition"
-            @click="enterChat(room.opponentId)"
-          >
+<div
+  v-for="room in filteredChatRooms"
+  :key="room.chatRoomId"
+  class="flex items-center justify-between p-4 bg-[#9DBB9F26] rounded-lg shadow-md cursor-pointer hover:bg-[#B5CCB7] transition"
+  @click="enterChat(room.opponentId)"
+>
             <!-- 왼쪽: 상대방 프로필 및 이름 -->
             <div class="flex items-center space-x-2">
               <div
@@ -82,11 +114,11 @@
 
             <!-- 오른쪽: 안 읽은 메시지 수 표시 -->
             <div class="flex items-center space-x-2">
-              <button class="text-gray-600">🔍</button>
+              <span class="text-gray-500 text-xs">{{ formatTime(room.lastMessageTime) }}</span>
               <span
                 v-if="room.unreadMessageCount > 0"
                 class="bg-red-500 text-white text-xs font-semibold px-2 py-1 rounded-full"
-              >
+                >
                 {{ room.unreadMessageCount }}
               </span>
             </div>
@@ -106,6 +138,13 @@ import { getChatRoomList, enterChatRoom } from '../api/chatRoom';
 import { decodeToken } from "../utils/jwt"; // ✅ JWT 디코딩 유틸 추가
 import SockJS from 'sockjs-client/dist/sockjs.min.js'
 import Stomp from "stompjs";
+import { useDependents } from '../composables/useDependents';
+import { fetchManagementData } from '../api/drugmanagement_dependency';
+import CheckDoneboxes from '../assets/CheckDoneboxes.svg';
+import Checkboxes from '../assets/Checkboxes.svg';
+
+const { dependents, loadDependents } = useDependents();
+
 const chatStore = useChatStore();
 const router = useRouter();
 
@@ -115,6 +154,116 @@ const myId = tokenId ? tokenId : null;
 
 const searchQuery = ref('');
 const chatRooms = ref([]);
+
+// 특정 dependent의 시간대별 aggregated 상태에 따른 아이콘을 반환하는 함수
+const getIcon = (dependentId, timeKey) => {
+  const data = processedManagementData.value[dependentId];
+  // 만약 복용중인 처방전이 없다면 기본 아이콘 (예: 미복용 아이콘) 반환
+  if (!data || !data.hasPrescription) {
+    return Checkboxes;
+  }
+  // data.data 배열 안의 개별 약들에 대해 aggregate 상태를 계산
+  const status = aggregateStatus(data.data, timeKey);
+  // "복용완료"이면 체크 완료 아이콘, 그 외(일부/완전 미복용)이면 미체크 아이콘 반환
+  return status === "복용완료" ? CheckDoneboxes : Checkboxes;
+};
+
+//시간 포맷
+function formatTime(timestamp) {
+        const date = new Date(timestamp);
+        const now = new Date();
+    
+        const hours = date.getHours().toString().padStart(2, "0"); // 2자리 숫자 유지
+        const minutes = date.getMinutes().toString().padStart(2, "0");
+        const month = (date.getMonth() + 1).toString().padStart(2, "0"); // 월 (0부터 시작하므로 +1)
+        const day = date.getDate().toString().padStart(2, "0");
+    
+        // 오늘 날짜와 비교하여 'Today' 표시
+        const isToday =
+            date.getFullYear() === now.getFullYear() &&
+            date.getMonth() === now.getMonth() &&
+            date.getDate() === now.getDate();
+    
+        return isToday
+            ? `Today ${hours}:${minutes}` // 오늘이면 'Today HH:MM'
+            : `${month}-${day} ${hours}:${minutes}`; // 아니면 'MM-DD HH:MM'
+    }
+
+// 각 가족의 개별 복약 데이터를 저장 (dependentId가 key)
+const processedManagementData = ref({});
+
+/**
+ * 각 약의 시간대별 복용 상태를 처리
+ * 만약 처방이 없으면 "처방없음"
+ * 처방이 있으면
+ * - "복용완료"와 "미복용" 상태만 고려 (처방없음은 제외)
+ * - 복용완료가 하나 이상이고 미복용이 하나 이상이면 "일부 미복용"
+ * - 복용완료만 있으면 "복용완료"
+ * - 미복용만 있으면 "완전 미복용"
+ */
+const aggregateStatus = (meds, key) => {
+  // key는 "morning", "lunch", "dinner", "sleep"
+  const statuses = meds.map(med => med[key]).filter(status => status !== "처방없음");
+  if (statuses.length === 0) return "처방없음";
+  const hasTaken = statuses.includes("복용완료");
+  const hasNot = statuses.includes("미복용");
+  if (hasNot) {
+    return hasTaken ? "일부 미복용" : "완전 미복용";
+  }
+  return "복용완료";
+};
+
+// 기존의 API 응답을 시간별로 가공하는 함수
+const processMedicationData = (managementResult) => {
+  if (!managementResult || managementResult.length === 0) {
+    return { hasPrescription: false, message: "현재 복용중인 처방전이 없습니다." };
+  }
+  const processed = managementResult.map((med) => ({
+    managementId: med.managementId,
+    medicationName: med.medicationName,
+    morning: med.morning ? (med.morningTaking ? "복용완료" : "미복용") : "처방없음",
+    lunch: med.lunch ? (med.lunchTaking ? "복용완료" : "미복용") : "처방없음",
+    dinner: med.dinner ? (med.dinnerTaking ? "복용완료" : "미복용") : "처방없음",
+    sleep: med.sleep ? (med.sleepTaking ? "복용완료" : "미복용") : "처방없음"
+  }));
+  return { hasPrescription: true, data: processed };
+};
+
+// 모든 dependent에 대해 관리 데이터를 요청하고 가공하는 함수
+const loadAllManagementData = async () => {
+  try {
+    // 먼저 dependents 데이터를 불러옴
+    await loadDependents();
+    const managementPromises = dependents.value.map(async (dependent) => {
+      const response = await fetchManagementData(dependent.dependentId);
+      const processedData = processMedicationData(response.result);
+      return { dependentId: dependent.dependentId, data: processedData };
+    });
+    const results = await Promise.all(managementPromises);
+    results.forEach(item => {
+      processedManagementData.value[item.dependentId] = item.data;
+    });
+    console.log("각 사용자별 가공된 복약 데이터:", processedManagementData.value);
+
+    // 각 사용자의 aggregate 상태를 계산하여 콘솔에 출력
+    for (const dependentId in processedManagementData.value) {
+      const userData = processedManagementData.value[dependentId];
+      if (!userData.hasPrescription) {
+        console.log(`Dependent ${dependentId}: 현재 복용중인 처방전이 없습니다.`);
+      } else {
+        const meds = userData.data;
+        const morningStatus = aggregateStatus(meds, "morning");
+        const lunchStatus = aggregateStatus(meds, "lunch");
+        const dinnerStatus = aggregateStatus(meds, "dinner");
+        const sleepStatus = aggregateStatus(meds, "sleep");
+        console.log(`Dependent ${dependentId} - 아침: ${morningStatus}, 점심: ${lunchStatus}, 저녁: ${dinnerStatus}, 자기 전: ${sleepStatus}`);
+      }
+    }
+  } catch (error) {
+    console.error("모든 관리 데이터 요청 실패:", error);
+  }
+};
+
 
 
 let stompClient = null;
@@ -175,7 +324,9 @@ const loadChatRooms = async () => {
   }
 };
 
+
 onMounted(() => {
+  loadAllManagementData(); // 모든 가족의 복약 데이터를 불러와 처리
   loadChatRooms();
   connectWebSocket();
 });
@@ -193,6 +344,9 @@ const enterChat = async (receiverId) => {
       name: "ChatIndividualView",
       query: { info: JSON.stringify(chatRoomData)}
 });
+  setTimeout(() => {
+    window.history.replaceState({}, document.title, router.currentRoute.value.path)
+    }, 100);
   } catch (error) {
     alert("채팅방 입장에 실패했습니다.");
   }

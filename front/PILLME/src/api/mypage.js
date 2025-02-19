@@ -136,8 +136,8 @@ export const changeNickname = async (nickname) => {
 // 현재 비밀번호 체크
 export const checkCurrentPassword = async (currentPassword) => {
   try {
-    const response = await apiClient.get('/api/v1/members/me/password', {
-      params: { currentPassword },
+    const response = await apiClient.post('/api/v1/members/me/password/verify', {
+      password: currentPassword,
     });
     return { isCurrentPasswordValid: response.data.result };
   } catch (error) {
@@ -148,10 +148,8 @@ export const checkCurrentPassword = async (currentPassword) => {
 // 비밀번호 유효성 검증
 export const checkPassword = async (newPassword) => {
   try {
-    const response = await apiClient.get('/api/v1/members/me/check/password', {
-      params: {
-        newPassword: newPassword,
-      },
+    const response = await apiClient.post('/api/v1/members/me/check/password', {
+      password: newPassword,
     });
     return { isNewPasswordValid: response.data.result };
   } catch (error) {

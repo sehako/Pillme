@@ -1,20 +1,24 @@
 <template>
   <div v-if="ocrStore.showNextDialog" class="dialog-overlay">
     <div class="dialog-box">
-      <h2 class="text-lg font-semibold mb-2 text-center">📄 추가 정보 입력</h2>
-
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-lg font-semibold">추가 정보 입력</h2>
+        <button @click="ocrStore.closeDialog()" class="text-gray-500 hover:text-gray-700 text-xl">
+          ✕
+        </button>
+      </div>
       <div class="mb-4">
-        <label class="text-gray-700 font-semibold">🏥 병원 이름 (선택)</label>
+        <label class="text-gray-700 font-semibold">병원 이름 (선택)</label>
         <input v-model="ocrStore.hospitalName" type="text" class="input-field" />
       </div>
 
       <div class="mb-4">
-        <label class="text-gray-700 font-semibold">💊 병명 (선택)</label>
+        <label class="text-gray-700 font-semibold">병명 (선택)</label>
         <input v-model="ocrStore.diseaseName" type="text" class="input-field" />
       </div>
 
       <div class="mb-4">
-        <label class="text-gray-700 font-semibold">📅 복용 기간 설정(필수)</label>
+        <label class="text-gray-700 font-semibold">복용 기간 설정(필수)</label>
         <VueDatePicker
           v-model="ocrStore.dateRange"
           range
@@ -24,12 +28,20 @@
           class="w-full"
         />
         <p class="text-gray-600 mt-2">총 복용 일수: {{ ocrStore.totalDays }}일</p>
-        <p v-if="showErrorMessage" class="text-red-500 mt-2">❗ 복용 기간은 필수 입력 사항입니다.</p>
+        <p v-if="showErrorMessage" class="text-red-500 mt-2">
+          ❗ 복용 기간은 필수 입력 사항입니다.
+        </p>
       </div>
 
       <div class="button-group">
         <button @click="ocrStore.goBackToResultDialog" class="secondary-btn">이전</button>
-        <button @click="ocrStore.openMedicationDialog" class="primary-btn" :disabled="!isDateRangeValid">다음</button>
+        <button
+          @click="ocrStore.openMedicationDialog"
+          class="primary-btn"
+          :disabled="!isDateRangeValid"
+        >
+          다음
+        </button>
       </div>
     </div>
   </div>
@@ -71,7 +83,6 @@ const validateDateRange = () => {
 const isDateRangeValid = computed(() => {
   return ocrStore.dateRange && ocrStore.dateRange.length === 2;
 });
-
 </script>
 
 <style scoped>

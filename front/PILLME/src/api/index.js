@@ -1,6 +1,7 @@
 import axios from 'axios';
 import router from '../router';
 import Cookies from 'js-cookie';
+import {deleteAccessToken} from '../utils/localForage'
 
 const apiClient = axios.create({
   baseURL: import.meta.env.VITE_API_URL.replace(/\/$/, ""), // ✅ 끝에 '/' 제거
@@ -59,6 +60,7 @@ apiClient.interceptors.response.use(
 
         // ✅ Refresh Token도 만료된 경우 → 강제 로그아웃
         localStorage.removeItem('accessToken');
+        deleteAccessToken();
         Cookies.remove('refreshToken');
         router.push('/start'); // ✅ 로그인 페이지로 이동
       }

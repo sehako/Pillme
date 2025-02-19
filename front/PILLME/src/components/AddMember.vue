@@ -111,7 +111,7 @@ import { ref } from 'vue';
 import { addLocalMember } from '../api/addlocalmember';
 import { addMemberAlarm } from '../api/addmember';
 
-const emit = defineEmits(["add"]);
+const emit = defineEmits(["addmember"]);
 
 // 회원/비회원 선택
 const type = ref("guest");
@@ -161,7 +161,7 @@ const submitForm = async () => {
       });
 
       alert("비회원 추가가 완료되었습니다.");
-      emit("add");
+      emit("close");
     } catch (error) {
       console.error("❌ 비회원 추가 실패:", error);
       alert("비회원 추가에 실패했습니다. 다시 시도해주세요.");
@@ -187,6 +187,7 @@ const verifyPhone = async () => {
     console.log("📨 회원 추가 알림 요청:", memberPhone.value);
     await addMemberAlarm(dataToSend);
     alert("상대방이 요청을 수락하면 나의 가족 목록에서 확인하실 수 있습니다.");
+    emit("close");
   } catch (error) {
     console.error("❌ 회원 추가 알림 실패:", error);
     alert("회원 추가 알림 요청에 실패했습니다. 다시 시도해주세요.");

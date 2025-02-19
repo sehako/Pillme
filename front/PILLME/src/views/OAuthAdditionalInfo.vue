@@ -191,6 +191,7 @@ import {
   requestSmsVerification,
   verifySmsCode,
 } from '../api/auth';
+import { saveAccessToken } from '../utils/localForage';
 
 const router = useRouter();
 const route = useRoute();
@@ -434,7 +435,11 @@ const handleSubmit = async () => {
     // response.result에서 토큰 정보 접근
     if (response?.result?.accessToken && response?.result?.refreshToken) {
       localStorage.setItem('accessToken', response.result.accessToken);
-      localStorage.setItem('refreshToken', response.result.refreshToken);
+      saveAccessToken(response.result.accessToken);
+      Cookies.set('refreshToken', response.result.refreshToken, {
+        secure: true,
+        sameSite: 'Strict',
+      });
       await router.push('/');
     } else {
       throw new Error('토큰 정보를 찾을 수 없습니다');

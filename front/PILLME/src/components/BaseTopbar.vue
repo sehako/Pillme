@@ -1,5 +1,5 @@
 <template>
-  <div class="w-full flex justify-between items-center bg-[#A3BFA5] px-4 h-16">
+  <div class="w-full flex justify-between items-center bg-[#A3BFA5] px-4 h-16 filter saturate-105 contrast-140">
     <!-- ✅ PILLME 로고 (임시 텍스트) -->
     <span @click="gohome" class="text-xl font-bold cursor-pointer text-[#385B38]">PILLME</span>
 

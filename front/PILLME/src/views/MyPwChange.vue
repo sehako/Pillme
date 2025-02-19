@@ -10,7 +10,8 @@
           v-model="passwords.current"
           type="password"
           placeholder="현재 비밀번호"
-          @blur="validateCurrentPassword"
+          autocomplete="current-password"
+          @input="validateCurrentPassword"
           class="border border-gray-300 rounded w-full p-2 outline-none focus:ring-2 focus:ring-[#3D5A3F]"
         />
         <p
@@ -31,6 +32,7 @@
           v-model="passwords.new"
           type="password"
           placeholder="새 비밀번호"
+          autocomplete="new-password"
           @input="validateNewPassword"
           class="border border-gray-300 rounded w-full p-2 outline-none focus:ring-2 focus:ring-[#3D5A3F]"
         />
@@ -77,6 +79,7 @@
 
 <script setup>
 import { ref, computed } from 'vue';
+import { debounce } from 'lodash';
 import { useRouter } from 'vue-router';
 import BackButton from '../components/BackButton.vue';
 import { checkCurrentPassword, checkPassword, changePassword } from '../api/mypage';
@@ -131,7 +134,7 @@ const validateCurrentPassword = async () => {
 };
 
 // 새 비밀번호 검증
-const validateNewPassword = async () => {
+const validateNewPassword = debounce(async () => {
   if (!passwords.value.new) {
     validationMessages.value.new = '새 비밀번호를 입력해주세요';
     validationStates.value.newValid = false;
@@ -148,7 +151,7 @@ const validateNewPassword = async () => {
     validationMessages.value.new = error.message;
     validationStates.value.newValid = false;
   }
-};
+}, 500); // 500ms 디바운스
 
 // 새 비밀번호 확인 검증
 const validateConfirmPassword = () => {
