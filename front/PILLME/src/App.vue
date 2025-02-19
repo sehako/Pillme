@@ -23,24 +23,38 @@
       </div>
     </div>
 
-    <!-- 왼쪽 (PC 전용) -->
-    <div
-      class="hidden md:flex flex-col w-1/2 bg-white items-center justify-center border-r border-gray-200 shadow-md p-6">
-      <img :src="logo" alt="로고" class="w-1/2 h-auto mb-8" />
+    <!-- <div>
+    <p>현재 글씨 크기: {{ fontSize }}px</p>
+    <button @click="fontSize += 2">글씨 키우기</button>
+    <button @click="fontSize -= 2">글씨 줄이기</button>
+  </div> -->
 
-      <h1 class="text-xl sm:text-2xl font-bold text-gray-800 flex flex-wrap items-center justify-center gap-2">
-        <span class="mx-0">모바일에서</span>
-        <img :src="textLogoSrc" alt="PILLME" class="h-6 inline-block object-contain" />
-        <span class="mx-0">를 만나보세요!</span>
-      </h1>
 
-      <div class="w-40 h-auto mt-8">
-        <img src="./assets/fillmeqr.svg" alt="QR 코드" class="w-full h-auto" />
-      </div>
-    </div>
+<!-- 배경을 부모 컨테이너에서 적용 -->
+<div class="flex flex-col md:flex-row w-full md:w-2/4 relative bg-gradient-to-r from-[#D4EAD7] from-10% to-slate-[#D4EAD7] via-[#D4EAD7] via-20%">
+
+<!-- 왼쪽 배경 공간 (모바일 전체, PC 50%) -->
+<div class="w-full md:w-1/2"></div>
+
+<!-- 왼쪽 (PC 전용) -->
+<div class="hidden md:flex flex-col w-1/2 items-center justify-center border-r border-gray-200 p-6">
+  <img :src="logo" alt="로고" class="w-1/2 h-auto mb-8" />
+
+  <h1 class="text-xl sm:text-2xl font-bold text-gray-800 flex flex-wrap items-center justify-center gap-2">
+    <span class="mx-0">모바일에서</span>
+    <img :src="textLogoSrc" alt="PILLME" class="h-6 inline-block object-contain" />
+    <span class="mx-0">를 만나보세요!</span>
+  </h1>
+
+  <div class="w-40 h-auto mt-8">
+    <img src="./assets/fillmeqr.svg" alt="QR 코드" class="w-full h-auto !rounded-lg" />
+  </div>
+</div>
+</div>
+
 
     <!-- 오른쪽 (모바일 전체) -->
-    <div class="flex flex-col w-full md:w-1/2 relative">
+    <div class="flex flex-col w-full md:w-1/4 relative">
       <div v-if="isLoggedIn" ref="topbarRef" class="relative z-10 items-start">
         <BaseTopbar />
       </div>
@@ -72,6 +86,10 @@
         <BaseNavbar />
       </div>
     </div>
+
+    <div class="md:w-1/4 relative border-l border-gray-200">
+
+    </div>
   </div>
 </template>
 
@@ -89,6 +107,14 @@ import MedicationScheduleDialog from './components/MedicationScheduleDialog.vue'
 
 import logo from './assets/Logo_font.svg';
 import textLogoSrc from './assets/Logi_font.svg';
+
+
+// import { useCssVar } from "@vueuse/core";
+
+// const fontSize = useCssVar("--global-font-size", document.documentElement);
+
+// 기본 글씨 크기 설정
+// fontSize.value = fontSize.value || "16px";
 
 // 컴포저블 import
 import { useAuth } from './composables/useAuth';
@@ -179,6 +205,12 @@ onUnmounted(() => {
 </script>
 
 <style>
+/* 전역 글씨 크기 적용 */
+html {
+  font-size: var(--global-font-size, 16px);
+}
+
+
 .h-screen-custom {
   height: 100vh; /* 기본값 */
   height: -webkit-fill-available; /* iOS Safari 대응 */

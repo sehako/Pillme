@@ -33,11 +33,10 @@
           />
         </div>
         <p
-          v-if="nicknameMessage"
           class="text-xs mt-1"
           :class="{ 'text-green-500': isNicknameValid, 'text-red-500': !isNicknameValid }"
         >
-          {{ nicknameMessage }}
+          {{ nicknameMessage || '닉네임을 입력해주세요' }}
         </p>
       </div>
 
@@ -105,11 +104,10 @@
           </BaseButton>
         </div>
         <p
-          v-if="verificationMessage"
           class="text-xs mt-1"
           :class="{ 'text-green-500': showVerification, 'text-red-500': !showVerification }"
         >
-          {{ verificationMessage }}
+          {{ verificationMessage || '전화번호를 입력해주세요' }}
         </p>
       </div>
 
@@ -135,14 +133,13 @@
           </BaseButton>
         </div>
         <p
-          v-if="authVerificationMessage"
           class="text-xs mt-1"
           :class="{
             'text-green-500': authVerificationSuccess,
-            'text-red-500': !authVerificationSuccess,
+            'text-red-500': !authVerificationSuccess
           }"
         >
-          {{ authVerificationMessage }}
+          {{ authVerificationMessage || '인증번호를 입력해주세요' }}
         </p>
       </div>
 
