@@ -45,6 +45,7 @@ const props = defineProps({
 const handleReject = async () => {
   if (!props.id) {
     console.error("❌ 거절할 알림 ID가 없습니다.");
+    emit("close");
     return;
   }
 
@@ -55,12 +56,14 @@ const handleReject = async () => {
     emit("close"); // ✅ 다이얼로그 닫기 **중복인지확인하기위해주석처리리
   } else {
     console.error("❌ 알림 거절 실패");
+    emit("close");
   }
 };
 
 const handleAccept = async () => {
   if (!props.id) {
     console.error("❌ 승인할 알림 ID가 없습니다.");
+    emit("close");
     return;
   }
 
@@ -71,6 +74,7 @@ const handleAccept = async () => {
     emit("close"); // ✅ 다이얼로그 닫기 **중복인지확인하기위해주석처리
   } else {
     console.error("❌ 알림 승인 실패");
+    emit("close");
   }
 };
 
