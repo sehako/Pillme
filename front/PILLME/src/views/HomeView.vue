@@ -27,48 +27,56 @@
     <main>
 <!-- 오늘의 복약 내역 카드 -->
 <YellowCard class="m-4 flex flex-col">
-  <div class="flex flex-row items-end">
-    <p class="text-sm font-bold">오늘의 복약 내역</p>
-    <span class="text-xs ml-2">
-      <div v-if="fetchFailed">
-        알림 설정을 활성화해야 오늘의 복약 알림을 받을 수 있습니다.
-      </div>
+  <!-- 헤더 영역 -->
+  <div class="flex flex-col sm:flex-row sm:items-end gap-1 sm:gap-2">
+    <p class="text-sm font-bold whitespace-nowrap">오늘의 복약 내역</p>
+    <span class="text-xs">
+<div v-if="fetchFailed" class="text-wrap sm:text-nowrap text-xs">
+  알림 설정을 활성화해야
+  <br class="sm:hidden" />
+  오늘의 복약 알림을 받을 수 있습니다.
+</div>
     </span>
   </div>
-  <div class="flex flex-col items-left">
-    <p class="font-bold text-lg">
+
+  <!-- 컨텐츠 영역 -->
+  <div class="flex flex-col mt-2">
+    <p class="font-bold text-base sm:text-lg break-keep">
       {{ fetchFailed ? '' : `${currentTimePeriod} 약을 드셨나요?` }}
     </p>
-    <p v-if="!fetchFailed && todaysMedications" class="text-sm text-gray-700 mt-1">
+    <p 
+      v-if="!fetchFailed && todaysMedications" 
+      class="text-sm text-gray-700 mt-1 break-words"
+    >
       {{ todaysMedications }}
     </p>
 
-    <!-- ✅ 체크박스 + 텍스트 (오른쪽 정렬) -->
-    <div class="flex justify-left items-center -ml-4">
-      <!-- ✅ 체크 아이콘 -->
+    <!-- 체크박스 영역 -->
+    <div class="flex items-center gap-2 mt-2">
       <img 
         v-if="!fetchFailed" 
         :src="isMedicationCompleted ? CheckDoneboxes : Checkboxes"
         alt="약물복용체크"
         @click="completeMedications"
-        class="cursor-pointer transition duration-300 transform hover:scale-110 hover:opacity-80"
+        class="cursor-pointer transition duration-300 transform hover:scale-110 hover:opacity-80 w-8 h-8 -ml-1"
       />
-      <!-- ✅ 오른쪽에 텍스트 추가 -->
-      <span 
-        v-if="!fetchFailed && !isMedicationCompleted"
-        class="text-sm text-gray-500 opacity-80 transition-opacity duration-300"
-      >
-        클릭해서 복약 완료!
-      </span>
-      <!-- ✅ 완료 후 텍스트 (✅로 변경되면 표시) -->
-      <transition name="slide-fade">
+      <!-- 상태 텍스트 -->
+      <div class="flex-shrink">
         <span 
-          v-if="!fetchFailed && isMedicationCompleted" 
-          class="text-green-600 font-bold text-sm transition-opacity duration-500 ease-in-out"
+          v-if="!fetchFailed && !isMedicationCompleted"
+          class="text-sm text-gray-500 whitespace-nowrap"
         >
-          복약 완료!
+          클릭해서 복약 완료!
         </span>
-      </transition>
+        <transition name="slide-fade">
+          <span 
+            v-if="!fetchFailed && isMedicationCompleted" 
+            class="text-green-600 font-bold text-sm whitespace-nowrap"
+          >
+            복약 완료!
+          </span>
+        </transition>
+      </div>
     </div>
   </div>
 </YellowCard>
@@ -76,7 +84,7 @@
 
 <div class="m-4 flex flex-col">
     <!-- 헤더 영역 -->
-    <div class="flex justify-between items-center mb-2">
+    <div class="flex justify-between items-center !mb-2">
       <p class="text-xl font-bold">현재 복용 중인 처방전</p>
       <button @click="fetchPrescriptionHistory" class="text-sm text-gray-500 hover:underline self-end">
         전체 복용내역 조회 ▷
@@ -88,7 +96,7 @@
   <WhiteCard
     v-for="(info, index) in managementInfoList"
     :key="index"
-    class="bg-white border border-gray-200 rounded-lg
+    class="bg-white border border-gray-300 rounded-lg
            w-[300px] min-w-[300px] max-w-[300px] h-[109.143px]
            p-4 flex-shrink-0 transition-all duration-300 ease-in-out
            grid"
@@ -108,11 +116,11 @@
 
       <!-- (3) 약 정보 (2줄 초과 시 ... 처리, 클릭 시 모달로 전체 보기) -->
       <p
-        class="text-xs text-gray-500 line-clamp-2 break-words whitespace-normal cursor-pointer "
-        @click="openMedicationModal(info)"
-      >
-        {{ info.medications || "약 정보 없음" }}
-      </p>
+  class="text-xs text-gray-500 line-clamp-1 break-words whitespace-normal cursor-pointer"
+  @click="openMedicationModal(info)"
+>
+  {{ formatMedications(info.medications) }}
+</p>
     </div>
 
     <!-- 오른쪽 (4,5) -->
@@ -252,7 +260,13 @@ const modalClass = computed(() => {
     lg: "w-[80%] max-w-lg"
   }[modalSize.value];
 });
-
+// 약 이름 포맷팅 유틸리티 함수 추가
+const formatMedications = (medications) => {
+  if (!medications || medications === "약 정보 없음") return "약 정보 없음";
+  return medications.includes('|||')
+    ? medications.split('|||').join(' • ')
+    : medications.split(',').join(' • ');
+};
 // selectedMedication를 콤마로 구분하여 배열로 변환한 computed 변수
 const medicationList = computed(() => {
   if (!selectedMedication.value) return []
@@ -375,29 +389,23 @@ const handleClickOutside = (event) => {
 // ----------------- API 데이터 가져오는 함수 (비동기) -----------------
 
 const fetchTodaysMedications = async () => {
-  try {
-    const data = await fetchManagementData();
-    if (data.result) {
-      const periodMap = {
-        "아침": "morning",
-        "점심": "lunch",
-        "저녁": "dinner",
-        "자기전": "sleep"
-      };
-      const currentPeriodKey = periodMap[currentTimePeriod.value]; // 현재 시간대에 해당하는 key (morning, lunch 등)
-      if (currentPeriodKey) {
-        // 현재 시간대에 복용해야 하는 약들만 필터링
-        const medicationsForCurrentPeriod = data.result.filter(med => med[currentPeriodKey]);
-        // ✅ UI 상태 초기화: 서버에서 복약 완료 여부 받아와서 초기 상태 설정 (필요한 경우)
-        // isMedicationCompleted.value = medicationsForCurrentPeriod.length > 0 &&
-        //     medicationsForCurrentPeriod.every(med => med[currentTakingKey]);
-        // 📌 fetchTodaysMedications 시에는 UI 상태를 초기화하지 않고,
-        //    completeMedications() 함수에서 UI 상태를 변경하도록 수정 (아래 참고)
-        if (medicationsForCurrentPeriod.length > 0) {
-          todaysMedications.value = medicationsForCurrentPeriod
-            .map(med => med.medicationName)
-            .join(", ");
-        } else {
+  try {
+    const data = await fetchManagementData();
+    if (data.result) {
+      const periodMap = {
+        "아침": "morning",
+        "점심": "lunch",
+        "저녁": "dinner",
+        "자기전": "sleep"
+      };
+      const currentPeriodKey = periodMap[currentTimePeriod.value];
+      if (currentPeriodKey) {
+        const medicationsForCurrentPeriod = data.result.filter(med => med[currentPeriodKey]);
+        if (medicationsForCurrentPeriod.length > 0) {
+          todaysMedications.value = medicationsForCurrentPeriod
+            .map(med => med.medicationName)
+            .join(' • '); // 가독성을 위해 ' • ' 구분자 사용
+        } else {
           todaysMedications.value = "약 정보 없음"; // 현재 시간대에 약 정보가 없을 경우
         }
 
@@ -540,4 +548,26 @@ onMounted(async () => {
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
+
+
+/* 슬라이드 페이드 애니메이션 */
+.slide-fade-enter-active {
+  transition: all 0.3s ease;
+}
+.slide-fade-leave-active {
+  transition: all 0.3s cubic-bezier(1, 0.5, 0.8, 1);
+}
+.slide-fade-enter-from,
+.slide-fade-leave-to {
+  transform: translateX(10px);
+  opacity: 0;
+}
+
+/* 모바일 최적화 */
+@media (max-width: 640px) {
+  :deep(.yellow-card) {
+    padding: 1rem;
+  }
+}
+
 </style>

@@ -92,49 +92,49 @@ export const fetchFormattedManagementInfo = async (userId) => {
 
           // ✅ 5단계: 데이터 정돈 후 리스트에 추가
           return {
-            informationId: prescription.informationId,  // ✅ 추가
+            informationId: prescription.informationId,
             diseaseName: response.data.result.diseaseName || "정보 없음",
             medicationPeriod: `${startDate} ~ ${endDate}`,
             medications: response.data.result.medications.length > 0
-              ? response.data.result.medications.map(med => med.medicationName).join(", ")
+              ? response.data.result.medications.map(med => med.medicationName).join("|||")
               : "약 정보 없음",
             medicationsId: response.data.result.medications.length > 0
             ? response.data.result.medications.map(med => med.managementId).join(", ")
             : "약 정보 없음",
             hospital: response.data.result.hospital || "병원 정보 없음",
-  // ✅ 각 약물별로 morning, lunch, dinner, sleep 값 개별 반환
-  morning: response.data.result.medications.length > 0
-    ? response.data.result.medications.map(med => med.morning ? "true" : "false").join(", ")
-    : "정보 없음",
+            // ✅ 각 약물별로 morning, lunch, dinner, sleep 값 개별 반환
+            morning: response.data.result.medications.length > 0
+              ? response.data.result.medications.map(med => med.morning ? "true" : "false").join(", ")
+              : "정보 없음",
 
-  lunch: response.data.result.medications.length > 0
-    ? response.data.result.medications.map(med => med.lunch ? "true" : "false").join(", ")
-    : "정보 없음",
+            lunch: response.data.result.medications.length > 0
+              ? response.data.result.medications.map(med => med.lunch ? "true" : "false").join(", ")
+              : "정보 없음",
 
-  dinner: response.data.result.medications.length > 0
-    ? response.data.result.medications.map(med => med.dinner ? "true" : "false").join(", ")
-    : "정보 없음",
+            dinner: response.data.result.medications.length > 0
+              ? response.data.result.medications.map(med => med.dinner ? "true" : "false").join(", ")
+              : "정보 없음",
 
-  sleep: response.data.result.medications.length > 0
-    ? response.data.result.medications.map(med => med.sleep ? "true" : "false").join(", ")
-    : "정보 없음",
-// ✅ 각 시간대별 Taking (약 복용 여부) 추가
-morningTaking: response.data.result.medications.length > 0
-? response.data.result.medications.map(med => med.morningTaking ? "true" : "false").join(", ")
-: "정보 없음",
+            sleep: response.data.result.medications.length > 0
+              ? response.data.result.medications.map(med => med.sleep ? "true" : "false").join(", ")
+              : "정보 없음",
+          // ✅ 각 시간대별 Taking (약 복용 여부) 추가
+          morningTaking: response.data.result.medications.length > 0
+          ? response.data.result.medications.map(med => med.morningTaking ? "true" : "false").join(", ")
+          : "정보 없음",
 
-lunchTaking: response.data.result.medications.length > 0
-? response.data.result.medications.map(med => med.lunchTaking ? "true" : "false").join(", ")
-: "정보 없음",
+          lunchTaking: response.data.result.medications.length > 0
+          ? response.data.result.medications.map(med => med.lunchTaking ? "true" : "false").join(", ")
+          : "정보 없음",
 
-dinnerTaking: response.data.result.medications.length > 0
-? response.data.result.medications.map(med => med.dinnerTaking ? "true" : "false").join(", ")
-: "정보 없음",
+          dinnerTaking: response.data.result.medications.length > 0
+          ? response.data.result.medications.map(med => med.dinnerTaking ? "true" : "false").join(", ")
+          : "정보 없음",
 
-sleepTaking: response.data.result.medications.length > 0
-? response.data.result.medications.map(med => med.sleepTaking ? "true" : "false").join(", ")
-: "정보 없음",
-};
+          sleepTaking: response.data.result.medications.length > 0
+          ? response.data.result.medications.map(med => med.sleepTaking ? "true" : "false").join(", ")
+          : "정보 없음",
+          };
         } catch (error) {
           console.error(`❌ [DEBUG] (${idx + 1}) Management 정보 요청 실패 (infoId: ${prescription.informationId}):`, error);
           return null;
