@@ -15,8 +15,9 @@
 
     <div v-if="isDropdownOpen" class="absolute bottom-16 left-0 w-full flex justify-center" @click.self="isDropdownOpen = false">
       <div class="bg-white shadow-lg rounded-xl p-2 flex flex-col w-64 border border-gray-200 transition-all duration-300">
-        <button @click="openCamera" class="py-3 text-center text-gray-700 hover:bg-gray-100">📷 처방전 촬영</button>
-        <button @click="triggerFileInput" class="py-3 text-center text-gray-700 hover:bg-gray-100">🖼 사진 업로드</button>
+        <button @click="openCamera" class="py-3 text-center text-gray-700 hover:bg-gray-100">처방전 촬영</button>
+        <button @click="triggerFileInput" class="py-3 text-center text-gray-700 hover:bg-gray-100">사진 업로드</button>
+        <button @click="handleDirectAdd" class="py-3 text-center text-gray-700 hover:bg-gray-100">직접 추가하기</button>
         <input type="file" ref="fileInputRef" @change="handleFileChange" accept="image/*" class="hidden"/>
       </div>
     </div>
@@ -31,10 +32,13 @@ import navCalendarIcon from "../assets/navcalendar.png";
 import navChatIcon from "../assets/navchat.png";
 import navMypageIcon from "../assets/navmypage.png";
 import navPlusIcon from "../assets/navplus.png";
+import { useOcrStore } from "../stores/ocrStore";
 
+const isOcrDialogOpen = ref(false);
 const isDropdownOpen = ref(false);
 const router = useRouter();
 const fileInputRef = ref(null);
+const ocrStore = useOcrStore();
 
 const navItems = [
   { name: "홈", icon: navHomeIcon, route: "/" },
@@ -85,6 +89,13 @@ const handleFileChange = (event) => {
     });
   };
   reader.readAsDataURL(file); // ✅ Base64 변환 실행
+};
+
+// ✅ 직접 추가 버튼 클릭 시 다이얼로그 직접 열기 (imageanalysis 페이지 생략)
+const handleDirectAdd = () => {
+  isDropdownOpen.value = false;
+  ocrStore.resetOcrState(); // ✅ OCR 결과 리스트 초기화
+  ocrStore.showResultsDialog = true; // ✅ OCR 결과 다이얼로그 직접 띄우기
 };
 
 </script>
