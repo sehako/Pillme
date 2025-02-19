@@ -58,14 +58,12 @@ public class ChatRoomService {
         Member receiveUser = authService.findById(chatRoomRequest.receiveUserId());
         Optional<ChatRoom> chatRoom = chatRoomRepository.findByUsers(sendUser, receiveUser);
         if(chatRoom.isPresent()){
-            chatRedisService.enterChatRoom(chatRoom.get().getId(), myId);   //myId로 바꿔야됨
             return ChatRoomResponse.from(chatRoom.get(),0,"", new Date().getTime());
         }
         ChatRoom newChatRoom = new ChatRoom();
 
         newChatRoom.updateChatRoom(sendUser, receiveUser);
         newChatRoom= chatRoomRepository.save(newChatRoom);
-        chatRedisService.enterChatRoom(newChatRoom.getId(), myId);   //myId로 바꿔야됨
         return ChatRoomResponse.from(newChatRoom,0,"",new Date().getTime());
     }
 
