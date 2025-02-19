@@ -42,7 +42,12 @@ import NotificationListView from '../views/NotificationListView.vue';
 import CameraCapture from '../components/CameraCapture.vue';
 import ImageAnalysis from '../components/ImageAnalysis.vue';
 
-import { deleteAccessToken} from '../utils/localForage'
+import { deleteAccessToken } from '../utils/localForage'
+import { useUserStore } from '../stores/user';  // useUserStore import 추가
+import localforage from 'localforage';
+import { getAccessToken } from '../utils/localForage';
+
+console.log('[Router] getAccessToken 함수 확인:', typeof getAccessToken);
 
 const routes = [
   // 👉 게스트 전용 페이지 (비로그인 사용자만 접근)
@@ -95,6 +100,8 @@ const router = createRouter({
 });
 
 router.beforeEach(async (to, from, next) => {
+  console.log('[Route Guard] 시작:', to.path);
+
   const guestPages = [
     '/start', '/login', '/signinselection', '/loginselection',
     '/accountsearchselection', '/afteraccount', '/idsearch',
@@ -103,78 +110,42 @@ router.beforeEach(async (to, from, next) => {
     '/oauth/additional-info',
   ];
 
-  const accessToken = localStorage.getItem('accessToken');
-  const refreshToken = Cookies.get('refreshToken');
-  let isAccessTokenValid = false;
+  try {
+    // 먼저 토큰 확인
+    let accessToken = await getAccessToken();
+    console.log('[Route Guard] localForage 토큰:', accessToken);
 
-  if (accessToken) {
-    try {
-      // ✅ decodeToken이 비동기 함수일 경우 `await` 사용
-      const decodedToken = await decodeToken(accessToken);
-  
-      // ✅ exp 필드가 존재하고, 유효한 숫자인지 확인
-      if (decodedToken?.exp && typeof decodedToken.exp === "number") {
-        isAccessTokenValid = decodedToken.exp * 1000 > Date.now();
-      } else {
-        console.warn("⚠️ accessToken의 exp 값이 유효하지 않음:", decodedToken);
-        isAccessTokenValid = false;
-      }
-    } catch (error) {
-      console.error("❌ accessToken 디코딩 실패:", error);
-      isAccessTokenValid = false;
-    }
-  }
-
-  // ✅ 1. 게스트 페이지 접근 처리
-  if (guestPages.includes(to.path)) {
+    // 토큰이 있는 경우 (로그인된 상태)
     if (accessToken) {
-      if (!isAccessTokenValid && refreshToken) {
-        try {
-          await refreshAccessTokenAPI();
-          return next('/');
-        } catch (error) {
-          console.error('[Route Guard] 게스트 페이지 접근 시 토큰 재발급 실패:', error);
-          localStorage.removeItem('accessToken');
-          deleteAccessToken();
-          Cookies.remove('refreshToken');
-        }
+      // 게스트 페이지 접근 시도하면
+      if (guestPages.includes(to.path)) {
+        console.log('[Route Guard] 로그인 상태에서 게스트 페이지 접근 시도 → 홈으로 이동');
+        return next('/');  // 홈으로 리다이렉트
       }
-      if (isAccessTokenValid) return next('/');
+      
+      // 토큰 유효성 검사
+      const decodedToken = await decodeToken(accessToken);
+      const isAccessTokenValid = decodedToken?.exp * 1000 > Date.now();
+      
+      if (isAccessTokenValid) {
+        localStorage.setItem('accessToken', accessToken);
+        return next();
+      }
     }
-    return next();
-  }
 
-  // ✅ 2. 보호된 페이지 접근 처리
-  if (!accessToken) {
-    console.warn('[Route Guard] 보호된 페이지 접근 시 토큰 없음 → /start로 이동');
+    // 토큰이 없는 경우 (비로그인 상태)
+    if (guestPages.includes(to.path)) {
+      return next();  // 게스트 페이지 접근 허용
+    }
+
+    // 보호된 페이지는 로그인 페이지로
+    console.warn('[Route Guard] 토큰 없음 → /start로 이동');
+    return next('/start');
+
+  } catch (error) {
+    console.error('[Route Guard] 오류 발생:', error);
     return next('/start');
   }
-
-  if (!isAccessTokenValid && refreshToken) {
-    try {
-      await refreshAccessTokenAPI();
-
-      // ✅ 토큰 갱신 후 유저 정보 업데이트
-      const userInfo = decodeAccessToken();
-      if (userInfo) useUserStore().setUser(userInfo);
-
-      console.info('[Route Guard] 토큰 갱신 성공');
-      return next();
-    } catch (error) {
-      console.error('[Route Guard] 보호된 페이지 접근 시 토큰 재발급 실패:', error);
-      localStorage.removeItem('accessToken');
-      deleteAccessToken();
-      Cookies.remove('refreshToken');
-      return next('/start');
-    }
-  }
-
-  if (!isAccessTokenValid) {
-    console.warn('[Route Guard] 유효하지 않은 토큰 → /start로 이동');
-    return next('/start');
-  }
-
-  return next();
 });
 
 export default router;

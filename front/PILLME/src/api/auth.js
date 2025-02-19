@@ -4,6 +4,7 @@ import { decodeToken } from '../utils/jwt'; // ✅ JWT 디코딩 유틸 추가
 import Cookies from 'js-cookie'; // ✅ js-cookie 라이브러리 추가
 import axios from 'axios';
 import {getAccessToken, saveAccessToken, deleteAccessToken} from '../utils/localForage';
+import { useAuthStore } from '../stores/auth';
 // ===========================
 // 인증 관련 API 함수들
 // ===========================
@@ -51,39 +52,48 @@ export const login = async (credentials) => {
   }
 };
 
+// 토큰 갱신을 위한 별도 axios 인스턴스
+const refreshClient = axios.create({
+  baseURL: import.meta.env.VITE_API_URL.replace(/\/$/, ""),
+  headers: { 'Content-Type': 'application/json' },
+  withCredentials: true,
+});
+
 //액세스 토큰 갱신 API (JWT 디코딩 포함)
 export const refreshAccessTokenAPI = async () => {
   try {
-    const refreshToken = Cookies.get('refreshToken'); // 쿠키에서 refreshToken 가져오기
-    const accessToken = localStorage.getItem('accessToken'); // localStorage에서 accessToken 가져오기
-    const response = await axios.post(
-      // ✅ apiClient가 아니라 axios 인스턴스 직접 사용
-      `${import.meta.env.VITE_API_URL}/api/v1/auth/refresh`,
-      {},
-      {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          refreshToken: refreshToken,
-          'Content-Type': 'application/json',
-        },
-      }
-    );
-    localStorage.setItem('accessToken', response.data.result.accessToken);
-    saveAccessToken(response.data.result.accessToken);
-    Cookies.set('refreshToken', response.data.result.refreshToken, {
-      secure: true,
-      sameSite: 'Strict',
+    const refreshToken = Cookies.get('refreshToken');
+    const accessToken = await getAccessToken();
+    
+    // apiClient 대신 refreshClient 사용
+    const response = await refreshClient.post('/api/v1/auth/refresh', {}, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        refreshToken: refreshToken,
+        'Content-Type': 'application/json',
+      },
     });
 
-    // Access Token 디코딩 → 유저 정보 업데이트
-    const authStore = useUserStore();
-    const userInfo = decodeToken(response.data.result.accessToken);
-    authStore.setUser(userInfo);
+    const { accessToken: newAccessToken, refreshToken: newRefreshToken } = response.data.result;
+    
+    // 새 토큰 저장
+    await saveAccessToken(newAccessToken);
+    localStorage.setItem('accessToken', newAccessToken);
+    Cookies.set('refreshToken', newRefreshToken, {
+      secure: true,
+      sameSite: 'Strict'
+    });
+
+    // 스토어 업데이트
+    const userStore = useUserStore();
+    const authStore = useAuthStore();
+    const userInfo = decodeToken(newAccessToken);
+    userStore.setUser(userInfo);
+    authStore.checkLoginStatus();
 
     return response.data;
   } catch (error) {
     console.error('❌ 액세스 토큰 갱신 실패:', error);
-    // handleLogout(); // 토큰 만료 시 자동 로그아웃
     throw error;
   }
 };

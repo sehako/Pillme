@@ -1,6 +1,10 @@
 <template>
   <!-- 이 부분은 스크롤이있어야한다고 생각 -->
-  <div ref="scrollContainer" class="flex flex-col w-full h-full overflow-y-scroll">
+  <div 
+  ref="scrollContainer" 
+  class="flex flex-col w-full h-full overflow-y-auto" 
+  :class="{ 'scroll-smooth': isScrolling }"
+>
     <!-- 달력 영역 -->
     <div class="flex-none h-auto min-h-0 flex">
       <BaseCalendar 
@@ -10,7 +14,7 @@
     </div>
 
     <!-- 글로벌 sticky 영역: 현재 복용중인 약 + 시간대별 글로벌 체크박스 -->
-    <div class="sticky top-0 z-50 bg-white">
+    <div class="sticky top-0 z-45 bg-white">
       <!-- 헤더: 현재 복용중인 약 -->
       <div class="px-4 py-3 border-b bg-gray-100 text-gray-700">
         <h2 class="font-semibold text-lg">현재 복용중인 약</h2>
@@ -68,7 +72,7 @@
       >
         <!-- 그룹 sticky 헤더 (글로벌 영역 아래에 고정되며, 클릭 시 해당 그룹으로 스크롤) -->
         <div
-          class="sticky top-24 z-40 bg-white cursor-pointer"
+          class="sticky top-24 z-10 bg-white cursor-pointer"
           @click="scrollToGroup(group.prescriptionIndex)"
         >
           <h2 class="font-semibold text-lg py-2 px-4 border-b">
@@ -87,12 +91,6 @@
             <WhiteCard
               :overrideClass="`${getCardColor(medication.prescriptionIndex)} rounded-lg p-4 shadow-md flex items-center`"
             >
-              <!-- 약물 이미지 -->
-              <img
-                src="../assets/logi_nofont.svg"
-                alt="알약이미지"
-                class="w-12 h-12 rounded-full mr-4"
-              />
 
               <!-- 약물 정보 -->
               <div class="flex-1">
@@ -307,6 +305,8 @@ function scrollToGroup(prescriptionIndex) {
   }
 }
 
+
+
 onMounted(async () => {
   try {
     console.log("📡 [DEBUG] 처방전 데이터 불러오는 중...");
@@ -327,7 +327,7 @@ onMounted(async () => {
     medicationsList.value = transformManagementDetails(managementDetails);
     // medicationsList.value = medicationList.result;
     console.log(
-      "📋 [DEBUG] 최종 변환된 Medication 리스트:",
+      // "📋 [DEBUG] 최종 변환된 Medication 리스트:",
       medicationsList.value
     );
   } catch (error) {

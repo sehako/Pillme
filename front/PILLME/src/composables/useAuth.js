@@ -1,27 +1,19 @@
-import { ref } from 'vue';
+import { useAuthStore } from '../stores/auth';
+import { computed } from 'vue';
 
 export function useAuth() {
-  const isLoggedIn = ref(false);
-
-  const checkLoginStatus = () => {
-    isLoggedIn.value = !!localStorage.getItem('accessToken');
-  };
-
-  const onStorageChange = () => {
-    checkLoginStatus();
-  };
+  const authStore = useAuthStore();
 
   const initAuth = () => {
-    checkLoginStatus();
-    window.addEventListener('storage', onStorageChange);
+    authStore.init();
   };
 
   const cleanUpAuth = () => {
-    window.removeEventListener('storage', onStorageChange);
+    authStore.cleanup();
   };
 
   return {
-    isLoggedIn,
+    isLoggedIn: computed(() => authStore.isLoggedIn),
     initAuth,
     cleanUpAuth,
   };
