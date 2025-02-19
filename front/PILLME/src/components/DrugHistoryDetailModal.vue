@@ -40,8 +40,8 @@
         ref="tableContainer"
         class="overflow-x-auto max-h-[60vh] border rounded-lg"
       >
-        <table class="w-full border-collapse" style="border-collapse: collapse;">
-          <thead class="sticky top-0 z-10 bg-gray-100">
+        <table class="w-fit border-collapse" style="border-collapse: collapse;">
+          <thead class="sticky top-0 z-30 bg-gray-100">
             <tr>
               <th
                 class="border border-gray-200 text-center min-w-[120px] p-2 sticky left-0 bg-gray-100"
@@ -68,7 +68,7 @@
               :key="medName"
             >
               <td
-                class="border border-gray-200 font-bold text-center bg-white sticky left-0 p-2 max-w-[150px] word-break-keep"
+                class="border border-gray-200 font-bold text-center bg-white sticky left-0 z-40 p-2 max-w-[150px]"
               >
                 {{ medName }}
               </td>
