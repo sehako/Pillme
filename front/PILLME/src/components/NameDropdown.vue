@@ -3,22 +3,28 @@
     <!-- ✅ 사용자 이름과 드롭다운 버튼 -->
     <button @click="toggleModal" class="flex items-center space-x-1">
       <p class="text-center whitespace-nowrap text-2xl font-base">{{ username }}</p>
-      <img src="../assets/namedropdown.svg" alt=""
-           class="w-4 h-4 transition-transform duration-300"
-           :class="{ 'rotate-180': isOpen }">
+      <img
+        src="../assets/namedropdown.svg"
+        alt=""
+        class="w-4 h-4 transition-transform duration-300"
+        :class="{ 'rotate-180': isOpen }"
+      />
     </button>
 
     <!-- ✅ 드롭다운 (사용자 이름 아래 중앙 정렬) -->
-    <div v-if="isOpen" 
-         class="absolute left-1/2 transform -translate-x-1/2 top-full mt-1 
-                w-max min-w-[150px] bg-white border border-gray-300 shadow-lg rounded-lg p-2 z-50"
-         @click.stop>
+    <div
+      v-if="isOpen"
+      class="absolute left-1/2 transform -translate-x-1/2 top-full mt-1 w-max min-w-[150px] bg-white border border-gray-300 shadow-lg rounded-lg p-2 z-50"
+      @click.stop
+    >
       <ul class="space-y-2 text-sm text-center">
         <!-- ✅ 가족 목록 -->
         <template v-if="dependents.length">
-          <li v-for="dependent in dependents" :key="dependent.dependentId"
-              class="cursor-pointer hover:bg-gray-100 p-2 rounded border-t"
-              @click="switchToDependent(dependent)">
+          <li
+            v-for="dependent in dependents"
+            :key="dependent.dependentId"
+            class="cursor-pointer hover:bg-gray-100 p-2 rounded border-t"
+            @click="openMedicationDialog(dependent)">
             {{ dependent.dependentName }}
           </li>
         </template>
@@ -30,8 +36,10 @@
 
         <!-- ✅ 가족 추가 버튼 -->
         <li class="border-t mt-2">
-          <button @click="openFamilyModal" 
-                  class="w-full text-[#3D5A3F] hover:bg-gray-100 p-2 rounded">
+          <button
+            @click="openFamilyModal"
+            class="w-full text-[#3D5A3F] hover:bg-gray-100 p-2 rounded"
+          >
             가족 추가하기
           </button>
         </li>
@@ -39,10 +47,13 @@
     </div>
 
     <!-- ✅ 가족 추가 모달 -->
-    <FamilyAddModal 
-      :isOpen="isFamilyModalOpen" 
-      @close="handleModalClose" 
-      @add="handleModalClose"
+    <FamilyAddModal :isOpen="isFamilyModalOpen" @close="handleModalClose" @add="handleModalClose" />
+
+    <!-- ✅ 복용 내역 Dialog -->
+    <MedicationHistoryDialog
+      v-if="isMedicationDialogOpen"
+      :dependent="selectedDependent"
+      @close="isMedicationDialogOpen = false"
     />
   </div>
 </template>
@@ -53,19 +64,21 @@ import { useRouter, useRoute } from 'vue-router';
 import FamilyAddModal from '../components/FamilyAddModal.vue';
 import { fetchUsername } from '../api/username';
 import { useDependents } from '../composables/useDependents';
-
+import MedicationHistoryDialog from './MedicationHistoryDialog.vue';
 // ✅ 컴포저블에서 상태 가져오기
 const { dependents, loadDependents } = useDependents();
 const isOpen = ref(false);
 const isFamilyModalOpen = ref(false);
 const username = ref('');
+const isMedicationDialogOpen = ref(false); 
+const selectedDependent = ref(null); // ✅ selectedDependent 정의
 const router = useRouter();
 const route = useRoute();
 
 // ✅ 모달 토글 (드롭다운 열 때 가족 목록 새로고침)
 const toggleModal = async (event) => {
   event.stopPropagation();
-  
+
   if (!isOpen.value) {
     await loadDependents(); // ✅ 가족 목록 새로고침
   }
@@ -92,15 +105,22 @@ const closeModal = (event) => {
   }
 };
 
+// ✅ 복용 내역 Dialog 열기
+const openMedicationDialog = (dependent) => {
+  selectedDependent.value = dependent;
+  isMedicationDialogOpen.value = true;
+  isOpen.value = false;
+};
+
 // ✅ 초기 데이터 불러오기
 onMounted(async () => {
   try {
     await loadDependents(); // ✅ 가족 목록 초기 로드
     username.value = await fetchUsername();
   } catch (error) {
-    console.error("초기 데이터 불러오기 실패:", error);
+    console.error('초기 데이터 불러오기 실패:', error);
   }
-  
+
   window.addEventListener('click', closeModal);
 });
 
