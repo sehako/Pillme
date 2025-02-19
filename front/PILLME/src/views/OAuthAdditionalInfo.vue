@@ -147,25 +147,24 @@
       </div>
 
       <!-- 버튼 -->
-      <div class="flex flex-row w-full justify-center mt-4 gap-4">
+ <div class="flex flex-col sm:flex-row w-full gap-3 sm:gap-4 mt-6">
         <BaseButton
-          class="flex-1 !min-w-full"
+          class="w-full sm:flex-1"
           textColor="text-gray-700"
           size="md"
           @click="goBack"
-          overrideClass="!bg-[#D1D5DB] hover:!bg-[#6B7280]"
+          overrideClass="!bg-[#D1D5DB] hover:!bg-[#6B7280] !min-w-0"
         >
           이전
         </BaseButton>
 
         <BaseButton
-          class="flex-1 !min-w-full"
+          class="w-full sm:flex-1"
           textColor="text-white"
           size="md"
           type="submit"
           :disabled="!isFormValid || isSubmitting"
-          overrideClass="!bg-[#EF7C8E] hover:!bg-[#E96C7E]"
-          @click="handleSubmit"
+          overrideClass="!bg-[#EF7C8E] hover:!bg-[#E96C7E] !min-w-0"
         >
           가입하기
         </BaseButton>
@@ -192,6 +191,8 @@ import {
   verifySmsCode,
 } from '../api/auth';
 import { saveAccessToken } from '../utils/localForage';
+import Cookies from 'js-cookie';
+
 
 const router = useRouter();
 const route = useRoute();
@@ -409,16 +410,15 @@ const isSubmitting = ref(false);
 // 폼 제출 처리 (생년월일이 선택되었는지 체크)
 const handleSubmit = async () => {
   if (isSubmitting.value) return;
-  // isFormValid에서 birthday가 필수임을 체크하므로,
-  // 생년월일이 없는 경우 제출이 되지 않음
   isSubmitting.value = true;
 
+
+
   try {
-    // Datepicker가 Date 객체를 반환하는 경우 formatDate를 이용하여 문자열로 변환
-    const formattedBirthday =
+    const formattedBirthday = 
       typeof formData.value.birthday === 'object'
-        ? formatDate(formData.value.birthday).replace(/-/g, '')
-        : formData.value.birthday.replace(/-/g, '');
+      ? formatDate(formData.value.birthday).replace(/-/g, '')
+      : formData.value.birthday.replace(/-/g, '');
 
     const response = await oauthSignUp(
       {
@@ -432,20 +432,39 @@ const handleSubmit = async () => {
       formData.value.provider
     );
 
-    // response.result에서 토큰 정보 접근
-    if (response?.result?.accessToken && response?.result?.refreshToken) {
-      localStorage.setItem('accessToken', response.result.accessToken);
-      saveAccessToken(response.result.accessToken);
-      Cookies.set('refreshToken', response.result.refreshToken, {
-        secure: true,
-        sameSite: 'Strict',
-      });
-      await router.push('/');
-    } else {
-      throw new Error('토큰 정보를 찾을 수 없습니다');
+    // ✅ 응답 검증 강화
+    if (!response?.result) {
+      throw new Error('서버 응답이 올바르지 않습니다');
     }
+
+    const { accessToken, refreshToken } = response.result;
+    if (!accessToken || !refreshToken) {
+      throw new Error('토큰 정보가 누락되었습니다');
+    }
+
+    // ✅ 토큰 저장 순서 보장
+    await Promise.all([
+      saveAccessToken(accessToken),
+      new Promise(resolve => {
+        localStorage.setItem('accessToken', accessToken);
+        Cookies.set('refreshToken', refreshToken, {
+          secure: true,
+          sameSite: 'Strict'
+        });
+        resolve();
+      })
+    ]);
+
+    // ✅ 라우팅 전 토큰 저장 확인
+    const savedToken = localStorage.getItem('accessToken');
+    if (!savedToken) {
+      throw new Error('토큰 저장에 실패했습니다');
+    }
+
+    await router.push('/');
   } catch (error) {
     console.error('회원가입 실패:', error);
+    alert(error.message || '회원가입 처리 중 오류가 발생했습니다');
   } finally {
     isSubmitting.value = false;
   }

@@ -73,7 +73,8 @@
           @click="scrollToGroup(group.prescriptionIndex)"
         >
           <h2 class="font-semibold text-lg py-2 px-4 border-b">
-            현재 복용중인 처방전 {{ Number(group.prescriptionIndex) + 1 }}
+            <!-- 현재 복용중인 처방전 {{ Number(group.prescriptionIndex) + 1 }} -->
+            {{ group.medications[0].diseaseName }}
           </h2>
         </div>
 
@@ -177,6 +178,7 @@ import {
   fetchFormattedManagementInfo,
   fetchAllManagementDetails,
   transformManagementDetails,
+  fetchManagementData,
 } from "../api/drugmanagement";
 import { updateCheckTaking, fetchAllDrugCheck } from "../api/drugcheck";
 import { useRouter } from "vue-router";
@@ -311,6 +313,11 @@ onMounted(async () => {
     console.log("📡 [DEBUG] 처방전 데이터 불러오는 중...");
     const { memberId: fetchedMemberId, prescriptions } =
       await fetchFormattedManagementInfo();
+    
+    const medicationList = await fetchManagementData();
+
+    console.log(medicationList);
+
     memberId.value = fetchedMemberId;
     managementInfoList.value = prescriptions;
 
@@ -319,6 +326,7 @@ onMounted(async () => {
       memberId.value
     );
     medicationsList.value = transformManagementDetails(managementDetails);
+    // medicationsList.value = medicationList.result;
     console.log(
       "📋 [DEBUG] 최종 변환된 Medication 리스트:",
       medicationsList.value
