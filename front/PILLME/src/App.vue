@@ -148,7 +148,16 @@ onUnmounted(() => {
 
 <style>
 .h-screen-custom {
-  height: 100vh;
+  height: 100vh; /* 기본값 */
+  height: -webkit-fill-available; /* iOS Safari 대응 */
+  height: calc(var(--vh, 1vh) * 100); /* 계산된 값 (우선순위 높음) */
+}
+
+@supports (-webkit-touch-callout: none) {
+  /* iOS 디바이스만 적용 */
+  .h-screen-custom {
+    min-height: -webkit-fill-available;
+  }
 }
 
 @media (max-width: 768px) {
