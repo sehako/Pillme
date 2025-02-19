@@ -1,15 +1,17 @@
 import localforage from 'localforage';
 
-// ✅ localForage 설정 (IndexedDB를 기본 저장소로 사용)
-localforage.config({
-    name: "authDB",
-    storeName: "tokens"
+// 토큰 저장소 설정
+const tokenStore = localforage.createInstance({
+    name: 'authDB',
+    storeName: 'tokens'
 });
 
 // ✅ Access Token 저장
-export const saveAccessToken = async (accessToken) => {
+export const saveAccessToken = async (token) => {
     try {
-        await localforage.setItem("accessToken", accessToken);
+        await tokenStore.setItem('accessToken', token);
+        // localStorage도 함께 사용 (빠른 접근용)
+        localStorage.setItem('accessToken', token);
         console.log("✅ Access Token 저장 완료");
     } catch (error) {
         console.error("❌ Access Token 저장 중 오류 발생:", error);
@@ -18,18 +20,22 @@ export const saveAccessToken = async (accessToken) => {
 
 // ✅ Access Token 가져오기 (빠르게 가져옴)
 export const getAccessToken = async () => {
+    console.log('[localForage] getAccessToken 호출');
     try {
-        return await localforage.getItem("accessToken");
+        const token = await tokenStore.getItem('accessToken');
+        console.log('[localForage] 토큰 조회 결과:', token);
+        return token;
     } catch (error) {
-        console.error("❌ Access Token 조회 중 오류 발생:", error);
-        return null;
+        console.error('[localForage] 토큰 조회 실패:', error);
+        throw error;
     }
 };
 
 // ✅ Access Token 삭제
 export const deleteAccessToken = async () => {
     try {
-        await localforage.removeItem("accessToken");
+        await tokenStore.removeItem('accessToken');
+        localStorage.removeItem('accessToken');
         console.log("✅ Access Token 삭제 완료");
     } catch (error) {
         console.error("❌ Access Token 삭제 중 오류 발생:", error);

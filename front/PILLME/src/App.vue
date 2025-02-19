@@ -78,11 +78,11 @@
 <script setup>
 import { ref, onMounted, onUnmounted, watch } from 'vue';
 import { useOcrStore } from './stores/ocrStore';
+import { useAuthStore } from './stores/auth'; 
 import BaseButton from './components/BaseButton.vue';
 
 import BaseTopbar from './components/BaseTopbar.vue';
 import BaseNavbar from './components/BaseNavbar.vue';
-import BaseLogo from './components/BaseLogo.vue';
 import OcrResultDialog from './components/OcrResultDialog.vue';
 import AdditionalInfoDialog from './components/AdditionalInfoDialog.vue';
 import MedicationScheduleDialog from './components/MedicationScheduleDialog.vue';
@@ -103,16 +103,36 @@ const ocrStore = useOcrStore();
 const isRouteReady = ref(true);
 
 // 컴포저블 설정
+const authStore = useAuthStore();
 const { isLoggedIn, initAuth, cleanUpAuth } = useAuth();
 const { initRealVH, cleanUpRealVH } = useRealVH();
 const { isScrollAllowed } = useScrollControl(['/afteraccount', '/', '/notificationlist','/calendar','/chat']);
 const { navbarHeight } = useNavbarHeight(navbarRef);
 const { notifications, removeNotification, handleAccept, handleReject, initializeFCM, cleanupFCM } = useFCM();
 
+// visibility 변경 감지 핸들러
+const handleVisibilityChange = async () => {
+  if (document.visibilityState === 'visible') {
+    console.log('앱이 포그라운드로 전환됨');
+    if (isLoggedIn.value) {
+      try {
+        await authStore.checkAndRefreshToken();
+      } catch (error) {
+        console.error('토큰 갱신 실패:', error);
+        // 토큰 갱신 실패 시 로그아웃 처리
+        cleanUpAuth();
+      }
+    }
+  }
+};
+
 onMounted(() => {
   initAuth();
   initRealVH();
   ocrStore.loadFromLocalStorage();
+  
+  // visibility 이벤트 리스너 추가
+  document.addEventListener('visibilitychange', handleVisibilityChange);
 
   // OCR 관련 상태 초기화
   watch(
@@ -133,22 +153,43 @@ onMounted(() => {
 });
 
 // 로그인 상태 변경 시, fcm 초기화
-watch(isLoggedIn, (newValue) => {
-  if (newValue === true) {
-    initializeFCM();
-  }
-});
-
+watch(
+  isLoggedIn,
+  async (newValue) => {
+    if (newValue === true) {
+      try {
+        await initializeFCM();
+        // 토큰 유효성 즉시 체크 추가
+        await authStore.checkAndRefreshToken();
+      } catch (error) {
+        console.error('초기화 실패:', error);
+        cleanUpAuth();
+      }
+    }
+  },
+  { immediate: true } // 즉시 실행 옵션 추가
+);
 onUnmounted(() => {
   cleanUpAuth();
   cleanUpRealVH();
   cleanupFCM();
+  // visibility 이벤트 리스너 제거 추가
+  document.removeEventListener('visibilitychange', handleVisibilityChange);
 });
 </script>
 
 <style>
 .h-screen-custom {
-  height: 100vh;
+  height: 100vh; /* 기본값 */
+  height: -webkit-fill-available; /* iOS Safari 대응 */
+  height: calc(var(--vh, 1vh) * 100); /* 계산된 값 (우선순위 높음) */
+}
+
+@supports (-webkit-touch-callout: none) {
+  /* iOS 디바이스만 적용 */
+  .h-screen-custom {
+    min-height: -webkit-fill-available;
+  }
 }
 
 @media (max-width: 768px) {

@@ -13,7 +13,7 @@
       </router-link>
     </nav>
 
-    <div v-if="isDropdownOpen" class="absolute bottom-16 left-0 w-full flex justify-center" @click.self="isDropdownOpen = false">
+    <div v-if="isDropdownOpen" class="absolute bottom-16 left-0 w-full flex justify-center z-50" @click.self="isDropdownOpen = false">
       <div class="bg-white rounded-xl p-2 flex flex-col w-64 border border-gray-200 transition-all duration-300">
         <button @click="openCamera" class="py-3 text-center text-gray-700 hover:bg-gray-100">처방전 촬영</button>
         <button @click="triggerFileInput" class="py-3 text-center text-gray-700 hover:bg-gray-100">사진 업로드</button>
