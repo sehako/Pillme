@@ -253,8 +253,10 @@ public class ManagementService {
     public List<CurrentTakingPrescriptionResponse> selectCurrentTakingPrescription(
             final Long targetId
     ) {
+//        List<Information> currentInformation = informationRepository
+//                .findCurrentDateAndReaderId(targetId);
         List<Information> currentInformation = informationRepository
-                .findCurrentDateAndReaderId(targetId);
+                .findAllByDate(targetId);
         Member targetMember = authService.findById(targetId);
 
         return currentInformation
