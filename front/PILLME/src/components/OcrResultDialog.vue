@@ -53,7 +53,7 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue';
+import { ref, watch, nextTick } from 'vue';
 import { searchMedications } from '../api/search';
 import { useOcrStore } from '../stores/ocrStore';
 
@@ -80,14 +80,18 @@ const onChange = (event) => {
   fetchMedications(); // API 요청 실행
 };
 
-// ✅ `watch`를 사용하여 `searchQuery`가 변경될 때 `fetchMedications` 실행
-watch(searchQuery, fetchMedications);
 
-// ✅ 검색된 약물 선택 시 추가
-const selectDrug = (med) => {
-  ocrStore.results.push({ matched_drug: med.name });
-  searchQuery.value = ""; // 검색 필드 초기화
-  medications.value = []; // 검색 결과 초기화
+const selectDrug = async (med) => {
+  ocrStore.results = [...ocrStore.results, { matched_drug: med.name }]; // 🔥 새로운 배열로 업데이트
+
+  searchQuery.value = ""; // 🔥 검색 필드 즉시 초기화
+  medications.value = []; // 🔥 즉시 검색 결과 초기화
+  
+  await nextTick(); // 🔥 Vue의 반응성 강제 업데이트 후 실행
+
+  setTimeout(() => {
+    medications.value = []; // 🔥 Vue의 이벤트 루프에서 강제 삭제
+  }, 10);
 };
 
 // ✅ 직접 입력하여 추가
@@ -97,6 +101,10 @@ const addDrug = () => {
     searchQuery.value = ""; // 입력 필드 초기화
   }
 };
+
+// ✅ `watch`를 사용하여 `searchQuery`가 변경될 때 `fetchMedications` 실행
+watch(searchQuery, fetchMedications);
+
 
 
 // ✅ 약물 삭제 기능
