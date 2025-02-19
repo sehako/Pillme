@@ -128,7 +128,9 @@ const closeModal = () => {
 
 const splitField = (field) => {
   if (!field) return [];
-  return field.split(',').map(item => item.trim());
+  return field.includes('|||') 
+    ? field.split('|||').map(item => item.trim())
+    : field.split(',').map(item => item.trim());
 };
 
 // medications와 medicationIds를 함께 처리
@@ -158,36 +160,46 @@ const allMedicationsChecked = computed(() => {
 });
 
 const handleIndividualToggle = (medicationId, timeSlot, value) => {
-  // 현재 medicationList에서 해당 약물의 인덱스를 찾음
   const idx = medicationList.value.findIndex(med => med.id == medicationId);
-  if (idx === -1) return; // 해당 약물을 찾지 못하면 종료
+  if (idx === -1) return;
 
-  // 실제 medicationsId 배열을 직접 생성 (예: ["12", "13", "14"])
+  // actualIds 배열 생성 및 유효성 검사
   const actualIds = splitField(props.info.medicationsId);
   
-  // ✅ 현재 모든 약물 상태를 반영하여 업데이트된 `medications` 생성
-  const medications = medicationList.value.map((med, index) => ({
-    // actualIds 배열에서 실제 약물 id를 가져옴
-    managementId: Number(actualIds[index]),
-    morning: index === idx && timeSlot === 'morning' ? value : morningToggles.value[index],
-    lunch: index === idx && timeSlot === 'lunch' ? value : lunchToggles.value[index],
-    dinner: index === idx && timeSlot === 'dinner' ? value : dinnerToggles.value[index],
-    sleep: index === idx && timeSlot === 'sleep' ? value : sleepToggles.value[index]
-  }));
+  // ✅ 실제 약물 데이터가 있는 경우만 매핑
+  const medications = medicationList.value
+    .filter((med, index) => actualIds[index]) // 유효한 ID가 있는 항목만 필터링
+    .map((med, index) => {
+      const currentToggles = {
+        morning: morningToggles.value[index] ?? false,
+        lunch: lunchToggles.value[index] ?? false,
+        dinner: dinnerToggles.value[index] ?? false,
+        sleep: sleepToggles.value[index] ?? false
+      };
 
-  const infoId = props.info.informationId;
+      // 선택된 약물인 경우에만 해당 시간대 값을 업데이트
+      if (index === idx) {
+        currentToggles[timeSlot] = value;
+      }
+
+      return {
+        managementId: Number(actualIds[index]),
+        ...currentToggles
+      };
+    })
+    .filter(med => !isNaN(med.managementId)); // NaN 값을 가진 항목 제거
+
   console.log("📌 개별 토글 - 전송할 medications:", medications);
+  
+  const ifid = props.info.informationId;
+  emit('thisdrugcheck', medications, ifid);
 
-  // ✅ 부모로 `medications` 객체 배열 전달
-  emit('thisdrugcheck', medications, infoId);
-
-  // ✅ UI 상태 업데이트 (변경된 값 반영)
-  morningToggles.value[idx] = medications[idx].morning;
-  lunchToggles.value[idx] = medications[idx].lunch;
-  dinnerToggles.value[idx] = medications[idx].dinner;
-  sleepToggles.value[idx] = medications[idx].sleep;
+  // UI 상태 업데이트
+  if (timeSlot === 'morning') morningToggles.value[idx] = value;
+  if (timeSlot === 'lunch') lunchToggles.value[idx] = value;
+  if (timeSlot === 'dinner') dinnerToggles.value[idx] = value;
+  if (timeSlot === 'sleep') sleepToggles.value[idx] = value;
 };
-
 
 // 전체 복약 토글 핸들러
 const handleAllMedicationsToggle = (value) => {
