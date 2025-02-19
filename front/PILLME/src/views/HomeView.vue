@@ -121,7 +121,7 @@
     <!-- 오른쪽 (4,5) -->
     <div class="grid grid-rows-2">
       <!-- (4) 병원이름 (오른쪽 상단) -->
-      <p class="text-xs text-gray-500 hover:underline whitespace-nowrap justify-self-end self-start">
+      <p class="text-xs text-gray-500 whitespace-nowrap justify-self-end self-start">
         {{ info.hospital || "병원 정보 없음" }}
       </p>
       <!-- (5) 수정하기 (오른쪽 하단) -->

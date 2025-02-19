@@ -28,9 +28,9 @@ export const fetchManagementData = async () => {
 
 
 // 복약 상세정보 가져오기 + memberId 반환
-export const fetchFormattedManagementInfo = async () => {
+export const fetchFormattedManagementInfo = async (userId) => {
   const userStore = useUserStore();
-  const memberId = await userStore.getMemberId();
+  const memberId = userId != null? userId : await userStore.getMemberId();
 
   console.log("🔍 [DEBUG] 요청 memberId:", memberId);
   if (!memberId) {
@@ -237,7 +237,6 @@ export const transformManagementDetails = (apiResponse) => {
       });
     }
   });
-
   console.log("📋 [DEBUG] 변환된 Medication 리스트:", transformedData);
   return transformedData;
 };
