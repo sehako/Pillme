@@ -1,9 +1,9 @@
 <template>
-  <div class="flex flex-row h-screen">
+  <div class="flex flex-row !overflow-hidden">
     <!-- 왼쪽 메뉴 (대분류) -->
     <aside 
       class="left-0 top-0 p-4 flex flex-col border-r border-gray-200"
-      :style="{ height: `calc(100vh - ${navbarHeight * 1.6}px)`, width: '33.33%' }"
+ style="height: 100vh; width: 33.33%;"
     >
       <!-- ✅ 검색창 (검색어 입력 시 모든 세부 메뉴에서 필터링) -->
       <div class="pb-4 border-b border-gray-300">

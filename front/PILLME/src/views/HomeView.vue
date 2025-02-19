@@ -1,13 +1,13 @@
 <template>
   <div class="flex flex-col w-full">
     <div class="grid gap-4 grid-cols-3 p-4">
-      <BaseButton class="whitespace-nowrap text-lg font-base" @click="openFamilyModal">
+      <BaseButton class="whitespace-nowrap text-lg font-base !rounded-2xl" @click="openFamilyModal">
         인원추가
       </BaseButton>
-      <BaseButton class="whitespace-nowrap text-lg font-base" @click="openSearchDialog">
+      <BaseButton class="whitespace-nowrap text-lg font-base !rounded-2xl" @click="openSearchDialog">
         약정보검색
       </BaseButton>
-      <BaseButton class="whitespace-nowrap text-lg font-base" @click="openSetAlarmModal">
+      <BaseButton class="whitespace-nowrap text-lg font-base !rounded-2xl" @click="openSetAlarmModal">
   알림설정
 </BaseButton>
     </div>
@@ -29,7 +29,7 @@
   <!-- 컨텐츠 영역 -->
   <div class="flex flex-col mt-2">
     <p class="font-bold text-base sm:text-lg break-keep">
-      {{ fetchFailed ? '' : `${currentTimePeriod} 약을 드셨나요?` }}
+      {{ fetchFailed ? '' : `${nextNotificationPeriod} 약을 드셨나요?` }}
     </p>
     <!-- 약 정보 표시 부분 수정 -->
     <p 
@@ -194,7 +194,7 @@
 >
   <div class="bg-white p-6 rounded-lg max-w-lg w-full">
     <h2 class="text-xl font-bold mb-4">오늘의 복약 내역</h2>
-    <p class="text-lg mb-4">{{ currentTimePeriod }} 복용 약</p>
+    <p class="text-lg mb-4">{{ nextNotificationPeriod }} 복용 약</p>
     <ul class="list-disc list-inside text-sm text-gray-700">
       <li v-for="(med, index) in todaysMedicationList" :key="index">
         {{ med }}
@@ -300,62 +300,52 @@ const medicationList = computed(() => {
     .filter(item => item);
 });
 
-// 현재 시간대를 계산하는 computed 속성 (설정된 알림 시간만 기준으로)
-const currentTimePeriod = computed(() => {
-  const now = new Date();
-  const currentMinutes = now.getHours() * 60 + now.getMinutes();
+// 다음 예정 알림을 계산하는 computed 속성
+const nextNotificationPeriod = computed(() => {
+  const now = new Date();
+  const currentMinutes = now.getHours() * 60 + now.getMinutes();
 
-  // 문자열 "HH:MM"을 분 단위로 변환하는 함수
-  const parseTime = (timeStr) => {
-    if (!timeStr) return null;
-    const [hour, minute] = timeStr.split(':').map(Number);
-    return hour * 60 + minute;
-  };
+  // 문자열 "HH:MM"을 분 단위로 변환하는 함수
+  const parseTime = (timeStr) => {
+    if (!timeStr) return null;
+    const [hour, minute] = timeStr.split(':').map(Number);
+    return hour * 60 + minute;
+  };
 
-  // 설정된 시간대만 객체 배열로 생성 (null인 값은 제외)
-  const periods = [];
-  const morning = parseTime(notificationSettings.morning);
-  if (morning !== null) {
-    periods.push({ label: "아침", minutes: morning });
-  }
-  const lunch = parseTime(notificationSettings.lunch);
-  if (lunch !== null) {
-    periods.push({ label: "점심", minutes: lunch });
-  }
-  const dinner = parseTime(notificationSettings.dinner);
-  if (dinner !== null) {
-    periods.push({ label: "저녁", minutes: dinner });
-  }
-  const sleep = parseTime(notificationSettings.sleep);
-  if (sleep !== null) {
-    periods.push({ label: "자기전", minutes: sleep });
-  }
+  // 설정된 시간대만 객체 배열로 생성 (null인 값은 제외)
+  const periods = [];
+  const morning = parseTime(notificationSettings.morning);
+  if (morning !== null) {
+    periods.push({ label: "아침", minutes: morning });
+  }
+  const lunch = parseTime(notificationSettings.lunch);
+  if (lunch !== null) {
+    periods.push({ label: "점심", minutes: lunch });
+  }
+  const dinner = parseTime(notificationSettings.dinner);
+  if (dinner !== null) {
+    periods.push({ label: "저녁", minutes: dinner });
+  }
+  const sleep = parseTime(notificationSettings.sleep);
+  if (sleep !== null) {
+    periods.push({ label: "자기전", minutes: sleep });
+  }
 
-  // 설정된 시간대가 하나도 없으면 빈 문자열 반환
-  if (periods.length === 0) return "";
+  // 설정된 시간대가 하나도 없으면 빈 문자열 반환
+  if (periods.length === 0) return "";
 
-  // 시간 순서대로 정렬 (오름차순)
-  periods.sort((a, b) => a.minutes - b.minutes);
+  // 시간 순서대로 정렬 (오름차순)
+  periods.sort((a, b) => a.minutes - b.minutes);
 
-  // 현재 시간이 첫 번째 설정된 시간보다 빠르면 첫 번째 시간대 반환
-  if (currentMinutes < periods[0].minutes) {
-    return periods[0].label;
-  }
+  // 다음 예정 알림 찾기
+  for (let i = 0; i < periods.length; i++) {
+    if (periods[i].minutes > currentMinutes) {
+      return periods[i].label; // 현재 시간보다 이후의 첫 번째 알림 반환
+    }
+  }
 
-  // 설정된 시간대 중에서 현재 시간에 해당하는 시간대를 찾음
-  for (let i = 0; i < periods.length; i++) {
-    // 마지막 요소인 경우
-    if (i === periods.length - 1) {
-      return periods[i].label;
-    }
-    // 현재 시간이 두 시간대 사이에 있으면 앞쪽 시간대를 반환
-    if (currentMinutes >= periods[i].minutes && currentMinutes < periods[i + 1].minutes) {
-      return periods[i].label;
-    }
-  }
-
-  // 기본적으로 마지막 시간대를 반환 (이론상 도달하지 않음)
-  return periods[periods.length - 1].label;
+  // 모든 알림이 지나간 경우 빈 문자열 반환
+  return "";
 });
 
 // ----------------- 모달 제어 함수 (열고 닫기) -----------------
@@ -468,7 +458,7 @@ const fetchTodaysMedications = async () => {
         "저녁": "dinner",
         "자기전": "sleep"
       };
-      const currentPeriodKey = periodMap[currentTimePeriod.value];
+      const currentPeriodKey = periodMap[nextNotificationPeriod.value];
       if (currentPeriodKey) {
         const medicationsForCurrentPeriod = data.result.filter(med => med[currentPeriodKey]);
         if (medicationsForCurrentPeriod.length > 0) {
@@ -480,7 +470,7 @@ const fetchTodaysMedications = async () => {
         }
 
         // ✅ 복약 완료 상태 업데이트 (수정된 부분 반영)
-        const currentTakingKey = periodMap[currentTimePeriod.value] + "Taking"; // 예: morningTaking
+        const currentTakingKey = periodMap[nextNotificationPeriod.value] + "Taking"; // 예: morningTaking
         isMedicationCompleted.value = medicationsForCurrentPeriod.length > 0 &&
           medicationsForCurrentPeriod.every(med => med[currentTakingKey]);
 
@@ -538,7 +528,7 @@ const completeMedications = async () => {
         }
 
         const periodMap = { "아침": "morning", "점심": "lunch", "저녁": "dinner", "자기전": "sleep" };
-        const timePeriod = periodMap[currentTimePeriod.value];
+        const timePeriod = periodMap[nextNotificationPeriod.value];
 console.log(timePeriod)
         if (!timePeriod) {
             alert("현재 시간대를 인식할 수 없습니다.");
@@ -562,9 +552,9 @@ console.log(timePeriod)
 
 // -----------------  watchEffect: 현재 시간대 변경 감지 및 복약 정보 업데이트 -----------------
 watchEffect(() => {
-  if (currentTimePeriod.value) { // ✅ 값이 존재하는지 확인
-    console.log("✅ 현재 시간대:", currentTimePeriod.value);
-    fetchTodaysMedications(); // ✅ `currentTimePeriod.value`가 설정된 후 실행
+  if (nextNotificationPeriod.value) { // ✅ 값이 존재하는지 확인
+    console.log("✅ 현재 시간대:", nextNotificationPeriod.value);
+    fetchTodaysMedications(); // ✅ `nextNotificationPeriod.value`가 설정된 후 실행
   }
 });
 

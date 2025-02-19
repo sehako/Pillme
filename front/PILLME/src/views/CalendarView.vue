@@ -13,54 +13,68 @@
       />
     </div>
 
-    <!-- 글로벌 sticky 영역: 현재 복용중인 약 + 시간대별 글로벌 체크박스 -->
-    <div class="sticky top-0 z-45 bg-white">
-      <!-- 헤더: 현재 복용중인 약 -->
-      <div class="px-4 py-3 border-b bg-gray-100 text-gray-700">
-        <h2 class="font-semibold text-lg">현재 복용중인 약</h2>
-      </div>
-      <!-- 글로벌 시간대별 체크박스 -->
-      <div class="px-4 py-3 border-b bg-gray-50 text-gray-700">
-        <div class="flex flex-wrap gap-4">
-          <label class="flex items-center space-x-1">
-            <input
-              type="checkbox"
-              class="form-checkbox h-5 w-5"
-              @change="toggleGlobal('morning')"
-              :checked="globalChecks.morning"
-            />
-            <span class="text-xs">아침</span>
-          </label>
-          <label class="flex items-center space-x-1">
-            <input
-              type="checkbox"
-              class="form-checkbox h-5 w-5"
-              @change="toggleGlobal('lunch')"
-              :checked="globalChecks.lunch"
-            />
-            <span class="text-xs">점심</span>
-          </label>
-          <label class="flex items-center space-x-1">
-            <input
-              type="checkbox"
-              class="form-checkbox h-5 w-5"
-              @change="toggleGlobal('dinner')"
-              :checked="globalChecks.dinner"
-            />
-            <span class="text-xs">저녁</span>
-          </label>
-          <label class="flex items-center space-x-1">
-            <input
-              type="checkbox"
-              class="form-checkbox h-5 w-5"
-              @change="toggleGlobal('sleep')"
-              :checked="globalChecks.sleep"
-            />
-            <span class="text-xs">자기 전</span>
-          </label>
-        </div>
-      </div>
+<!-- 글로벌 sticky 영역: 현재 복용중인 약 + 시간대별 글로벌 체크박스 -->
+<div class="sticky top-0 z-45 bg-white">
+  <!-- 헤더: 현재 복용중인 약 -->
+  <div class="px-4 py-3 border-b bg-gray-100 text-gray-700">
+    <h2 class="font-semibold text-lg">현재 복용중인 약</h2>
+  </div>
+  <!-- 글로벌 시간대별 체크박스 (오른쪽 정렬 및 '전체체크:' 라벨 추가) -->
+  <div class="px-4 py-3 border-b bg-gray-50 text-gray-700">
+    <div class="flex items-center justify-end gap-4">
+      <span class="text-sm font-medium">전체체크:</span>
+      <button
+        class="flex items-center space-x-1"
+        @click="confirmGlobalCheck('morning')"
+      >
+        <span class="text-xs">아침</span>
+        <img 
+
+          :src="CheckCircle" 
+          alt="Checked" 
+          class="w-4 h-4"
+        />
+      </button>
+      <button
+        class="flex items-center space-x-1"
+        @click="confirmGlobalCheck('lunch')"
+      >
+        <span class="text-xs">점심</span>
+        <img 
+
+          :src="CheckCircle" 
+          alt="Checked" 
+          class="w-4 h-4"
+        />
+      </button>
+      <button
+        class="flex items-center space-x-1"
+        @click="confirmGlobalCheck('dinner')"
+      >
+        <span class="text-xs">저녁</span>
+        <img 
+
+          :src="CheckCircle" 
+          alt="Checked" 
+          class="w-4 h-4"
+        />
+      </button>
+      <button
+        class="flex items-center space-x-1"
+        @click="confirmGlobalCheck('sleep')"
+      >
+        <span class="text-xs">자기 전</span>
+        <img 
+
+          :src="CheckCircle" 
+          alt="Checked" 
+          class="w-4 h-4"
+        />
+      </button>
     </div>
+  </div>
+</div>
+
 
     <!-- 처방전 그룹 목록 -->
     <div class="flex-col p-4">
@@ -179,6 +193,7 @@ import {
 } from "../api/drugmanagement";
 import { updateCheckTaking, fetchAllDrugCheck } from "../api/drugcheck";
 import { useRouter } from "vue-router";
+import CheckCircle from "../assets/CheckCircle.svg";
 const router = useRouter();
 
 // 스크롤 컨테이너 ref
@@ -271,21 +286,42 @@ const globalChecks = ref({
   sleep: false,
 });
 
-async function toggleGlobal(timeSlot) {
-  // 글로벌 체크 상태 토글
-  globalChecks.value[timeSlot] = !globalChecks.value[timeSlot];
-  console.log(`[DEBUG] 글로벌 ${timeSlot} 체크:`, globalChecks.value[timeSlot]);
+// 글로벌 체크 확인 함수
+async function confirmGlobalCheck(timeSlot) {
+  if (globalChecks.value[timeSlot]) {
+    return; // 이미 체크된 경우 아무 동작 하지 않음
+  }
 
-  // 모든 약의 개별 체크 상태 업데이트 (예: 'morningTaking')
-  medicationsList.value.forEach((medication) => {
-    medication[timeSlot + "Taking"] = globalChecks.value[timeSlot];
-  });
+  const timeSlotKorean = {
+    morning: '아침',
+    lunch: '점심',
+    dinner: '저녁',
+    sleep: '자기 전'
+  }[timeSlot];
 
-  try {
-    const result = await fetchAllDrugCheck(timeSlot);
-    console.log("[toggleGlobal] API 응답:", result);
-  } catch (error) {
-    console.error("[toggleGlobal] API 호출 실패:", error);
+  if (confirm(`${timeSlotKorean} 시간대의 모든 약을 복용 처리하시겠습니까?`)) {
+    try {
+      // 글로벌 체크 상태 업데이트
+      globalChecks.value[timeSlot] = true;
+
+      // 서버에 복용 처리 요청
+      const result = await fetchAllDrugCheck(timeSlot);
+      console.log("[toggleGlobal] API 응답:", result);
+
+      // 개별 약물 체크 상태도 업데이트
+      medicationsList.value.forEach((medication) => {
+        medication[timeSlot + "Taking"] = true;
+      });
+
+      // 성공 메시지 출력
+      alert("복용 처리가 완료되었습니다.");
+      
+    } catch (error) {
+      console.error("[toggleGlobal] API 호출 실패:", error);
+      // 실패 시 체크 상태 롤백
+      globalChecks.value[timeSlot] = false;
+      alert("복용 처리에 실패했습니다.");
+    }
   }
 }
 
