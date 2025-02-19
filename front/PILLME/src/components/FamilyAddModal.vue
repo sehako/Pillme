@@ -1,7 +1,9 @@
 <template>
-  <!-- ✅ 오버레이 추가 (모달 활성화 시) -->
-  <div v-if="isOpen" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50">
-    
+  <div 
+    v-if="isOpen" 
+    class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-20"
+    @click.self="closeModal"
+  >
     <!-- ✅ 반응형 팝업 모달 (현재 화면 비율 고려) -->
     <div class="bg-white shadow-lg rounded-lg p-6 w-[90vw] max-w-[480px] min-w-[300px]">
       

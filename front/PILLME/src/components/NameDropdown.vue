@@ -52,7 +52,7 @@
     </div>
 
     <!-- ✅ 가족 추가 모달 -->
-    <FamilyAddModal :isOpen="isFamilyModalOpen" @close="handleModalClose" @add="handleModalClose" />
+    <FamilyAddModal :isOpen="isFamilyModalOpen" @close="closeFamilyModal" @add="handleModalClose" />
 
     <!-- ✅ 복용 내역 Dialog -->
     <MedicationHistoryDialog
@@ -105,10 +105,17 @@ const handleModalClose = async () => {
   isFamilyModalOpen.value = false;
   await loadDependents(); // ✅ 가족 목록 새로고침
 };
-
+// ✅ 단순히 모달만 닫는 함수
+const closeFamilyModal = () => {
+  isFamilyModalOpen.value = false;
+};
 // ✅ 외부 클릭 감지 → 모달 닫기
 const closeModal = (event) => {
-  if (isOpen.value && !event.target.closest('.relative')) {
+  // 드롭다운 메뉴와 버튼 영역을 제외한 클릭 처리
+  const isClickInsideButton = event.target.closest('button');
+  const isClickInsideDropdown = event.target.closest('.absolute');
+  
+  if (isOpen.value && !isClickInsideButton && !isClickInsideDropdown) {
     isOpen.value = false;
   }
 };
