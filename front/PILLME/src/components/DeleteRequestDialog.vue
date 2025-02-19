@@ -40,7 +40,8 @@
   const props = defineProps({
     username: String,
     id: Number, // ✅ 삭제 요청을 보낸 senderId
-    dependencyId: Number // 삭제할 dependencyId
+    dependencyId: Number, // 삭제할 dependencyId
+    notificationId: Number
   });
   
   const handleReject = async () => {
@@ -50,7 +51,7 @@
       return;
     }
   
-    const success = await rejectDependencyDelete(props.id, props.dependencyId); // ✅ 관계 삭제 요청 거절
+    const success = await rejectDependencyDelete(props.id, props.dependencyId, props.notificationId); // ✅ 관계 삭제 요청 거절
     if (success) {
       alert("🚀 관계 삭제 요청 거절 성공:", props.id);
       emit("deleteReject", { id: props.id, dependencyId: props.dependencyId }); // ✅ 거절 이벤트 전송
@@ -68,7 +69,7 @@
       return;
     }
   
-    const success = await acceptDependencyDelete(props.id, props.dependencyId); // ✅ 관계 삭제 요청 수락
+    const success = await acceptDependencyDelete(props.id, props.dependencyId, props.notificationId); // ✅ 관계 삭제 요청 수락
     if (success) {
       alert("관계 삭제 요청 수락 성공:");
       emit("deleteAccept", { id: props.id, dependencyId: props.dependencyId }); // ✅ 수락 이벤트 전송

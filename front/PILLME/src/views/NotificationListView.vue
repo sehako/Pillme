@@ -78,7 +78,9 @@
         }"
         :username="selectedNotification?.content"
         :id="selectedNotification?.senderId"
-  @close="handleClose"
+        :dependencyId="selectedNotification?.dependencyId"
+        :notificationId="selectedNotification?.notificationId"
+        @close="close"
         @deleteAccept="handleDeleteAccept"
         @deleteReject="handleDeleteReject"
       />
@@ -331,7 +333,7 @@ const updateDialogPosition = () => {
 
 
 // ✅ 가족 관계 삭제 요청 수락
-const handleDeleteAccept = async ({ id }) => {
+const handleDeleteAccept = async ({ id, dependencyId, notificationId }) => {
   console.log("✅ 가족 삭제 요청 수락:", id);
 
   // 알림 삭제
@@ -350,7 +352,7 @@ const handleDeleteAccept = async ({ id }) => {
 };
 
 // ✅ 가족 관계 삭제 요청 거절
-const handleDeleteReject = async ({ id }) => {
+const handleDeleteReject = async ({ id, dependencyId, notificationId }) => {
   console.log("❌ 가족 삭제 요청 거절:", id);
 
   // 알림 삭제
