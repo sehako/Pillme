@@ -90,7 +90,7 @@
             id="phoneNumber"
             v-model="formData.phone"
             type="tel"
-            placeholder="01000000000 형식으로 입력"
+            placeholder="01000000000 형식"
             @blur="handlePhoneBlur"
             class="flex-grow"
           />

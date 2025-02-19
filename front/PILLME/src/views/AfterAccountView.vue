@@ -75,7 +75,7 @@
             id="phoneNumber"
             v-model="phone"
             type="tel"
-            placeholder="01000000000 형식으로 입력"
+            placeholder="01000000000 형식"
             class="flex-grow"
           />
           <BaseButton

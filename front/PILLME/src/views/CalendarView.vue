@@ -6,7 +6,6 @@
       <BaseCalendar 
         :prescriptions="managementInfoList" 
 
-         class="pointer-events-none"
       />
     </div>
 
@@ -320,7 +319,7 @@ onMounted(async () => {
 
     memberId.value = fetchedMemberId;
     managementInfoList.value = prescriptions;
-
+    
     const managementDetails = await fetchAllManagementDetails(
       managementInfoList.value.map((med) => med.informationId),
       memberId.value

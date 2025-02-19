@@ -33,9 +33,6 @@
       <div v-if="fetchFailed">
         알림 설정을 활성화해야 오늘의 복약 알림을 받을 수 있습니다.
       </div>
-      <!-- <div v-else>
-        {{ todaysMedications ? todaysMedications : "약정보 없음" }}
-      </div> -->
     </span>
   </div>
   <div class="flex flex-col items-left">
@@ -58,7 +55,7 @@
       />
       <!-- ✅ 오른쪽에 텍스트 추가 -->
       <span 
-        v-if="!isMedicationCompleted"
+        v-if="!fetchFailed && !isMedicationCompleted"
         class="text-sm text-gray-500 opacity-80 transition-opacity duration-300"
       >
         클릭해서 복약 완료!
@@ -66,7 +63,7 @@
       <!-- ✅ 완료 후 텍스트 (✅로 변경되면 표시) -->
       <transition name="slide-fade">
         <span 
-          v-if="isMedicationCompleted" 
+          v-if="!fetchFailed && isMedicationCompleted" 
           class="text-green-600 font-bold text-sm transition-opacity duration-500 ease-in-out"
         >
           복약 완료!
