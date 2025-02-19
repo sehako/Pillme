@@ -64,7 +64,7 @@ const props = defineProps({
 const saveOcrData = async () => {
   if (!ocrStore.dependentId) {
     console.error("❌ dependentId가 없습니다.");
-    return;
+    // return;
   }
   console.log(`📤 [DEBUG] OCR 데이터 저장 시작 - dependentId: ${ocrStore.dependentId}`);
   await ocrStore.saveOcrDataToDB();
