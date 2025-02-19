@@ -16,13 +16,11 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
 
 @Entity
 @Getter
 @Table(name = "information")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@ToString
 public class Information extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
