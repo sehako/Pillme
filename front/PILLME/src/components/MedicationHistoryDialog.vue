@@ -200,19 +200,19 @@ const handleFileChange = (event) => {
 };
 
 
-watch(
-  () => route.query,
-  async (newQuery) => {
-    console.log(`🔄 [DEBUG] route.query 변경 감지:`, newQuery);
+// watch(
+//   () => route.query,
+//   async (newQuery) => {
+//     console.log(`🔄 [DEBUG] route.query 변경 감지:`, newQuery);
 
-    if (newQuery.dependentId && newQuery.image) {
-      console.log(
-        `🔄 [DEBUG] OCR 분석 완료 후 복약 내역 저장 실행 - dependentId: ${newQuery.dependentId}`
-      );
-      await saveOcrResultsForDependent(props.dependent.dependentId);
-    }
-  }
-);
+//     if (newQuery.dependentId && newQuery.image) {
+//       console.log(
+//         `🔄 [DEBUG] OCR 분석 완료 후 복약 내역 저장 실행 - dependentId: ${newQuery.dependentId}`
+//       );
+//       await saveOcrResultsForDependent(props.dependent.dependentId);
+//     }
+//   }
+// );
 
 // ✅ 컴포넌트 마운트 시 데이터 로드
 onMounted(() => {

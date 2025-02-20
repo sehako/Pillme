@@ -171,7 +171,17 @@ export const useOcrStore = defineStore('ocr', {
       this.diseaseName = '';
       this.dateRange = [];
       this.totalDays = 0;
-      this.saveToLocalStorage();
+    
+      // ✅ 기존 OCR 관련 데이터 삭제
+      localStorage.removeItem('ocrResults');
+      localStorage.removeItem('ocrHospitalName');
+      localStorage.removeItem('ocrDiseaseName');
+      localStorage.removeItem('ocrDateRange');
+      localStorage.removeItem('ocrIsLoading');
+      localStorage.removeItem('ocrShowResultsDialog');
+      localStorage.removeItem('ocrShowNextDialog');
+      localStorage.removeItem('ocrShowMedicationDialog');
+    
     },
 
     /** ✅ OCR 데이터 저장 */
