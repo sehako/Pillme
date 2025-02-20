@@ -13,15 +13,17 @@
     </form>
 
     <p class="mt-6 back-login md:mt-8">
-      <a href="/loginselection" class="text-[#4E7351] hover:underline">로그인 페이지로 돌아가기</a>
+      <router-link to="/start" class="text-[#4E7351] hover:underline">
+        로그인 페이지로 돌아가기
+      </router-link>
     </p>
   </div>
 </template>
 
 <script setup>
 import { ref } from "vue";
-import { login } from "../api/auth.js";
-import { handleLoginSuccess } from "../api/auth.js";
+import { useRouter } from 'vue-router';
+import { login, handleLoginSuccess } from "../api/auth.js";
 import BaseButton from "../components/BaseButton.vue";
 import BaseInput from "../components/BaseInput.vue";
 import BaseLogo from "../components/BaseLogo.vue";
@@ -30,13 +32,12 @@ import logoSrc from "../assets/logi_nofont.svg";
 import emailIcon from "../assets/email.svg";
 import passwordIcon from "../assets/key.svg";
 
+const router = useRouter();
 const email = ref("");
 const password = ref("");
 const isLoading = ref(false);
 
 const handleLogin = async () => {
-  // console.log('handleLogin 함수 실행됨'); 
-
   if (!email.value || !password.value) {
     alert("이메일과 비밀번호를 입력해주세요.");
     return;
@@ -49,18 +50,12 @@ const handleLogin = async () => {
       password: password.value,
     });
 
-    // console.log("🔍 로그인 API 응답:", response); // ✅ API 응답 구조 확인
-    // console.log("🔍 response.result:", response.result);
-
     if (!response || !response.result) {
       throw new Error("서버에서 예상치 못한 응답을 받았습니다.");
     }
     
-    // ✅ `response` 자체를 handleLoginSuccess()에 전달
     handleLoginSuccess(response);
-    
-    // alert("로그인 성공!"); << 이 부분은 삭제
-    window.location.replace("/");
+    router.replace('/');
   } catch (error) {
     console.error("❌ 로그인 오류:", error);
     alert("로그인 실패. 이메일과 비밀번호를 확인해주세요.");
@@ -68,8 +63,6 @@ const handleLogin = async () => {
     isLoading.value = false;
   }
 };
-
-
 </script>
 
 <style scoped>

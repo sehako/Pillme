@@ -1,9 +1,9 @@
 <template>
-  <div class="flex flex-row !overflow-hidden">
+  <div class="flex flex-row h-[calc(100vh-var(--navbar-height))] overflow-hidden">
     <!-- 왼쪽 메뉴 (대분류) -->
     <aside 
-      class="left-0 top-0 p-4 flex flex-col border-r border-gray-200"
- style="height: 100vh; width: 33.33%;"
+      class="left-0 top-0 p-4 flex flex-col border-r border-gray-200 overflow-y-auto"
+      style="width: 33.33%; height: calc(100vh - var(--navbar-height));"
     >
       <!-- ✅ 검색창 (검색어 입력 시 모든 세부 메뉴에서 필터링) -->
       <div class="pb-4 border-b border-gray-300">
@@ -31,8 +31,8 @@
     </aside>
 
     <!-- 오른쪽 콘텐츠 (검색 결과 / 세부 메뉴) -->
-    <div class="flex-1 flex flex-col justify-start items-start border-l border-gray-200 p-4"
-         :style="{ width: '66.66%' }">
+    <div class="flex-1 flex flex-col justify-start items-start border-l border-gray-200 p-4 overflow-y-auto"
+         style="width: 66.66%; height: calc(100vh - var(--navbar-height));">
       <h1 class="text-xl font-bold mb-4">
         {{ searchQuery ? "검색 결과" : selectedMenu || "메뉴 선택" }}
       </h1>
@@ -66,13 +66,17 @@
 </template>
 
 <script setup>
-import { ref, computed} from 'vue';
+import { ref, computed, onMounted } from 'vue';
 
 const props = defineProps({
   navbarHeight: {
     type: Number,
     required: true
   }
+});
+
+onMounted(() => {
+  document.documentElement.style.setProperty('--navbar-height', `${props.navbarHeight}px`);
 });
 
 // ✅ 대분류 메뉴

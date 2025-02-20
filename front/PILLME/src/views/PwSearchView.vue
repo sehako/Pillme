@@ -116,15 +116,38 @@ const isEmailVerified = ref(false);
 const emailError = ref('');
 const verificationSuccess = ref(false);
 
+const validateEmail = (email) => {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+};
+
 const handleEmailVerification = async () => {
   try {
+    // 이메일 유효성 검사
+    if (!email.value) {
+      emailError.value = '이메일을 입력해주세요.';
+      return;
+    }
+    
+    if (!validateEmail(email.value)) {
+      emailError.value = '올바른 이메일 형식이 아닙니다.';
+      return;
+    }
+
     isLoading.value = true;
     emailError.value = '';
     await requestPasswordResetVerification(email.value);
     isEmailSent.value = true;
+    alert('인증번호가 발송되었습니다. 이메일을 확인해주세요.');
   } catch (error) {
     console.error('인증 메일 발송 실패:', error);
-    emailError.value = '인증번호 발송에 실패했습니다.';
+    if (error.response?.status === 404) {
+      emailError.value = '등록되지 않은 이메일입니다.';
+    } else if (error.response?.status === 400) {
+      emailError.value = '이메일 인증에 실패했습니다.';
+    } else {
+      emailError.value = '인증번호 발송에 실패했습니다. 다시 시도해주세요.';
+    }
     isEmailSent.value = false;
   } finally {
     isLoading.value = false;
@@ -133,13 +156,24 @@ const handleEmailVerification = async () => {
 
 const handleVerifyCode = async () => {
   try {
+    if (!authCode.value) {
+      emailError.value = '인증번호를 입력해주세요.';
+      return;
+    }
+
     isLoading.value = true;
     await verifyEmailCode(email.value, authCode.value);
     isEmailVerified.value = true;
     isEmailSent.value = false;
+    emailError.value = '';
+    alert('이메일 인증이 완료되었습니다.');
   } catch (error) {
     console.error('인증 코드 인증 실패:', error);
-    emailError.value = '인증번호가 일치하지 않습니다.';
+    if (error.response?.status === 400) {
+      emailError.value = '잘못된 인증번호입니다.';
+    } else {
+      emailError.value = '인증번호 확인에 실패했습니다. 다시 시도해주세요.';
+    }
   } finally {
     isLoading.value = false;
   }
@@ -147,17 +181,24 @@ const handleVerifyCode = async () => {
 
 const handleSubmit = async () => {
   try {
+    if (!phoneNumber.value) {
+      alert('전화번호를 입력해주세요.');
+      return;
+    }
+
     isLoading.value = true;
     await requestTemporaryPassword(email.value, phoneNumber.value);
-
-    // 성공 메시지 표시
     alert('임시 비밀번호가 발급되었습니다. 이메일을 확인해주세요.');
-
-    // 로그인 페이지로 리다이렉션
-    router.push('/loginselection');
+    router.push('/start');
   } catch (error) {
     console.error('임시 비밀번호 발급 실패:', error);
-    alert('임시 비밀번호 발급에 실패했습니다. 다시 시도해주세요.');
+    if (error.response?.status === 400) {
+      alert('등록된 전화번호와 일치하지 않습니다.');
+    } else if (error.response?.status === 403) {
+      alert('소셜 로그인 회원은 비밀번호를 변경할 수 없습니다.');
+    } else {
+      alert('임시 비밀번호 발급에 실패했습니다. 다시 시도해주세요.');
+    }
   } finally {
     isLoading.value = false;
   }

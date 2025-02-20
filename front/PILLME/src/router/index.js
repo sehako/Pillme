@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import Cookies from 'js-cookie';
 import { decodeToken } from "../utils/jwt";
-import { refreshAccessTokenAPI } from '../api/auth';
+import { refreshAccessTokenAPI, handleLogout } from '../api/auth';
 // import { getAccessTokenFromDB } from './utils/indexedDBUtils'; // ✅ import
 
 // ✅ 라우트 목록
@@ -111,16 +111,14 @@ router.beforeEach(async (to, from, next) => {
   ];
 
   try {
-    // 먼저 토큰 확인
     let accessToken = await getAccessToken();
     console.log('[Route Guard] localForage 토큰:', accessToken);
 
     // 토큰이 있는 경우 (로그인된 상태)
     if (accessToken) {
-      // 게스트 페이지 접근 시도하면
       if (guestPages.includes(to.path)) {
         console.log('[Route Guard] 로그인 상태에서 게스트 페이지 접근 시도 → 홈으로 이동');
-        return next('/');  // 홈으로 리다이렉트
+        return next('/');
       }
       
       // 토큰 유효성 검사
@@ -130,20 +128,27 @@ router.beforeEach(async (to, from, next) => {
       if (isAccessTokenValid) {
         localStorage.setItem('accessToken', accessToken);
         return next();
+      } else {
+        // 토큰이 만료된 경우 로그아웃 처리
+        console.warn('[Route Guard] 토큰 만료 → 로그아웃 처리');
+        await handleLogout();
+        return next('/start');
       }
     }
 
-    // 토큰이 없는 경우 (비로그인 상태)
+    // 토큰이 없는 경우
     if (guestPages.includes(to.path)) {
-      return next();  // 게스트 페이지 접근 허용
+      return next();
     }
 
-    // 보호된 페이지는 로그인 페이지로
-    console.warn('[Route Guard] 토큰 없음 → /start로 이동');
+    // 보호된 페이지 접근 시도 시 로그아웃 처리
+    console.warn('[Route Guard] 토큰 없음 → 로그아웃 처리');
+    await handleLogout();
     return next('/start');
 
   } catch (error) {
     console.error('[Route Guard] 오류 발생:', error);
+    await handleLogout(); // 에러 발생 시에도 로그아웃 처리
     return next('/start');
   }
 });

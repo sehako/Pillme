@@ -13,18 +13,19 @@
     </div>
     <main>
 <!-- 오늘의 복약 내역 카드 -->
-<YellowCard class="m-4 flex flex-col">
+<YellowCard class="m-4 p-4 flex flex-col">
   <!-- 헤더 영역 -->
-  <div class="flex flex-col sm:flex-row sm:items-end gap-1 sm:gap-2">
-    <p class="text-sm font-bold whitespace-nowrap">오늘의 복약 내역</p>
-    <span class="text-xs">
-      <div v-if="fetchFailed" class="text-wrap sm:text-nowrap text-xs">
+  <div class="flex flex-col sm:items-end gap-1 sm:gap-2">
+    <p class="text-sm font-bold whitespace-nowrap self-start">오늘의 복약 내역</p>
+    <span class="text-xs self-start">
+      <div v-if="fetchFailed" class="text-wrap sm:text-nowrap text-xs break-keep">
         알림 설정을 활성화해야
-        <br class="sm:hidden" />
+        <br class="xs:hidden" />
         오늘의 복약 알림을 받을 수 있습니다.
       </div>
     </span>
   </div>
+
 
   <!-- 컨텐츠 영역 -->
   <div class="flex flex-col mt-2">
