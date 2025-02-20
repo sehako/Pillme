@@ -41,8 +41,10 @@ import FullCalendar from "@fullcalendar/vue3";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import { transformPrescriptionsToEvents } from "../composables/useCalendarEvents";
+import { useUserStore } from "../stores/user";
+import axios from "axios";
+import { fetchCalendarPrescriptions } from "../api/calendarview";
 
-// props 정의: mode, prescriptions, viewMode ("month" 또는 "week")
 const props = defineProps({
   mode: {
     type: String,
@@ -105,11 +107,9 @@ function closeModal() {
   selectedDate.value = null;
 }
 
-const calendarEvents = computed(() => {
-  return transformPrescriptionsToEvents(props.prescriptions, { mode: props.mode });
-});
+const emit = defineEmits(['update:prescriptions']);
 
-// FullCalendar 옵션: viewMode에 따라 initialView와 버튼 텍스트 변경
+// FullCalendar 옵션 수정
 const calendarOptions = computed(() => ({
   plugins: [dayGridPlugin, interactionPlugin],
   locale: "ko",
@@ -130,14 +130,49 @@ const calendarOptions = computed(() => ({
   dateClick: onDateClick,
   eventClick: onEventClick,
   dayCellDidMount: onDayCellDidMount,
+  datesSet: async (dateInfo) => {
+    try {
+      console.log("🔄 달력 날짜 변경됨");
+      const start = dateInfo.view.currentStart;
+      const year = start.getFullYear();
+      const month = String(start.getMonth() + 1).padStart(2, '0');
+      const formattedDate = `${year}-${month}-01`;
+      console.log("📅 요청할 날짜:", formattedDate);
+      
+      // API 호출하여 해당 월의 처방전 데이터 가져오기
+      console.log("📡 처방전 데이터 요청 시작");
+      const prescriptions = await fetchCalendarPrescriptions(formattedDate);
+      console.log("📦 받은 처방전 데이터:", prescriptions);
+      
+      // 부모 컴포넌트 업데이트
+      console.log("🔄 부모 컴포넌트 처방전 데이터 업데이트");
+      emit('update:prescriptions', prescriptions);
+      
+      // 캘린더 이벤트 업데이트 확인
+      console.log("📊 현재 캘린더 이벤트:", calendarEvents.value);
+    } catch (error) {
+      console.error("❌ 달력 데이터 업데이트 중 오류 발생:", error);
+    }
+  }
 }));
 
+// 캘린더 이벤트 computed 속성
+const calendarEvents = computed(() => {
+  console.log("🎯 처방전 데이터로 이벤트 변환 시작");
+  console.log("📋 현재 처방전 데이터:", props.prescriptions);
+  const events = transformPrescriptionsToEvents(props.prescriptions, { mode: props.mode });
+  console.log("✨ 변환된 캘린더 이벤트:", events);
+  return events;
+});
+
 onMounted(() => {
+  console.log("🔵 캘린더 컴포넌트 마운트됨");
   window.addEventListener("resize", updateCalendarSize);
   updateCalendarSize();
 });
 
 onUnmounted(() => {
+  console.log("🔴 캘린더 컴포넌트 언마운트됨");
   window.removeEventListener("resize", updateCalendarSize);
 });
 </script>

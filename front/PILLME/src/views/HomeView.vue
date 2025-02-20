@@ -1,24 +1,24 @@
 <template>
   <div class="flex flex-col w-full">
     <div class="grid gap-4 grid-cols-3 p-4">
-      <BaseButton class="whitespace-nowrap text-lg font-base !rounded-2xl" @click="openFamilyModal">
+      <BaseButton class="whitespace-nowrap text-base sm:text-lg font-base !rounded-2xl" @click="openFamilyModal">
         인원추가
       </BaseButton>
-      <BaseButton class="whitespace-nowrap text-lg font-base !rounded-2xl" @click="openSearchDialog">
+      <BaseButton class="whitespace-nowrap text-base sm:text-lg font-base !rounded-2xl" @click="openSearchDialog">
         약정보검색
       </BaseButton>
-      <BaseButton class="whitespace-nowrap text-lg font-base !rounded-2xl" @click="openSetAlarmModal">
-  알림설정
-</BaseButton>
+      <BaseButton class="whitespace-nowrap text-base sm:text-lg font-base !rounded-2xl" @click="openSetAlarmModal">
+        알림설정
+      </BaseButton>
     </div>
     <main>
 <!-- 오늘의 복약 내역 카드 -->
 <YellowCard class="m-4 p-4 flex flex-col">
   <!-- 헤더 영역 -->
   <div class="flex flex-col sm:items-end gap-1 sm:gap-2">
-    <p class="text-sm font-bold whitespace-nowrap self-start">오늘의 복약 내역</p>
-    <span class="text-xs self-start">
-      <div v-if="fetchFailed" class="text-wrap sm:text-nowrap text-xs break-keep">
+    <p class="text-base sm:text-lg font-bold whitespace-nowrap self-start">오늘의 복약 내역</p>
+    <span class="text-[10px] sm:text-xs self-start">
+      <div v-if="fetchFailed" class="text-wrap sm:text-nowrap text-[10px] sm:text-xs break-keep">
         알림 설정을 활성화해야
         <br class="xs:hidden" />
         오늘의 복약 알림을 받을 수 있습니다.
@@ -35,7 +35,7 @@
     <!-- 약 정보 표시 부분 수정 -->
     <p 
       v-if="!fetchFailed && todaysMedications" 
-      class="text-sm text-gray-700 mt-1 break-words line-clamp-1 cursor-pointer"
+      class="text-xs sm:text-sm text-gray-700 mt-1 break-words line-clamp-1 cursor-pointer"
       @click="openTodaysMedicationModal"
     >
       {{ formatMedications(todaysMedications) }}
@@ -75,8 +75,8 @@
 <div class="m-4 flex flex-col">
     <!-- 헤더 영역 -->
     <div class="flex justify-between items-center !mb-2">
-      <p class="text-xl font-bold">현재 복용 중인 처방전</p>
-      <button @click="fetchPrescriptionHistory" class="text-sm text-gray-500 hover:underline self-end">
+      <p class="text-lg sm:text-xl font-bold">현재 복용 중인 처방전</p>
+      <button @click="fetchPrescriptionHistory" class="text-xs sm:text-sm text-gray-500 hover:underline self-end">
         전체 복용내역 조회 ▷
       </button>
     </div>
@@ -169,15 +169,15 @@
     class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
   >
     <div class="bg-white p-6 rounded-lg max-w-lg w-full">
-      <h2 class="text-xl font-bold mb-4">약 정보 전체보기</h2>
+      <h2 class="text-lg sm:text-xl font-bold mb-4">약 정보 전체보기</h2>
       <!-- 반점(,)으로 구분된 약 정보를 리스트로 정리 -->
-      <ul class="list-disc list-inside text-sm text-gray-700">
+      <ul class="list-disc list-inside text-xs sm:text-sm text-gray-700">
         <li v-for="(med, index) in medicationList" :key="index">
           {{ med }}
         </li>
       </ul>
       <button
-        class="mt-4 text-blue-500 hover:underline"
+        class="mt-4 text-sm sm:text-base text-blue-500 hover:underline"
         @click="closeMedicationModal"
       >
         닫기
@@ -192,15 +192,15 @@
   class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
 >
   <div class="bg-white p-6 rounded-lg max-w-lg w-full">
-    <h2 class="text-xl font-bold mb-4">오늘의 복약 내역</h2>
-    <p class="text-lg mb-4">{{ nextNotificationPeriod }} 복용 약</p>
-    <ul class="list-disc list-inside text-sm text-gray-700">
+    <h2 class="text-lg sm:text-xl font-bold mb-4">오늘의 복약 내역</h2>
+    <p class="text-base sm:text-lg mb-4">{{ nextNotificationPeriod }} 복용 약</p>
+    <ul class="list-disc list-inside text-xs sm:text-sm text-gray-700">
       <li v-for="(med, index) in todaysMedicationList" :key="index">
         {{ med }}
       </li>
     </ul>
     <button
-      class="mt-4 text-blue-500 hover:underline"
+      class="mt-4 text-sm sm:text-base text-blue-500 hover:underline"
       @click="closeTodaysMedicationModal"
     >
       닫기
@@ -619,8 +619,12 @@ onMounted(async () => {
 
 /* 모바일 최적화 */
 @media (max-width: 640px) {
+  .scroll-container {
+    padding: 0.5rem;
+  }
+  
   :deep(.yellow-card) {
-    padding: 1rem;
+    padding: 0.75rem;
   }
 }
 

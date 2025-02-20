@@ -16,6 +16,38 @@ export default defineConfig({
       devOptions: {
         enabled: true,
       },
+      workbox: {
+        clientsClaim: true,
+        skipWaiting: false,
+        cleanupOutdatedCaches: true,
+        navigationPreload: true,
+        additionalManifestEntries: [
+          { url: '/index.html', revision: null }
+        ],
+        runtimeCaching: [
+          {
+            urlPattern: /^https:\/\/pillme\.site\/.*/i,
+            handler: 'NetworkFirst',
+            options: {
+              cacheName: 'api-cache',
+              networkTimeoutSeconds: 20,
+              cacheableResponse: {
+                statuses: [0, 200]
+              }
+            }
+          }
+        ]
+      },
+      injectRegister: 'auto',
+      strategies: 'injectManifest',
+      // 업데이트 알림 비활성화
+      injectManifest: {
+        injectionPoint: undefined,
+        rollupFormat: 'iife',
+        maximumFileSizeToCacheInBytes: 3000000,
+      },
+      // 서비스 워커 업데이트 관련 알림 비활성화
+      registerType: 'autoUpdate',
       manifest: {
         name: "PILLME",
         short_name: "PILLME",
@@ -86,6 +118,12 @@ export default defineConfig({
           { src: "/icons/windows11/LargeTile.scale-400.png", sizes: "1240x1240", type: "image/png" }
         ],
       },
+      // 알림 관련 추가 설정
+      useNotifications: false,  // 알림 기능 비활성화
+      notifications: {
+        onUpdate: null,  // 업데이트 알림 비활성화
+        onInstall: null  // 설치 알림 비활성화
+      }
     }),
 
   ],
