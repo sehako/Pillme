@@ -1,5 +1,5 @@
-importScripts('https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js');
-importScripts('https://www.gstatic.com/firebasejs/9.0.0/firebase-messaging-compat.js');
+importScripts('https://www.gstatic.com/firebasejs/11.3.0/firebase-app-compat.js');
+importScripts('https://www.gstatic.com/firebasejs/11.3.0/firebase-messaging-compat.js');
 importScripts("https://cdnjs.cloudflare.com/ajax/libs/localforage/1.10.0/localforage.min.js");
 const firebaseConfig = {
   apiKey: "AIzaSyCKU41WUvCo9DU7GWOuWqVJ-SURbeyl0Es",
@@ -71,9 +71,53 @@ async function handleApiRequest(code, action, senderId, dependencyId) {
   return response;
 }
 
+// 알림 중복 체크를 위한 함수
+async function isDuplicateNotification(payload) {
+  const { code, messageId, senderId } = payload.data;
+  
+  // 채팅 메시지의 경우 messageId로 정확한 중복 체크
+  if (code === 'CHAT_MESSAGE') {
+    if (!messageId) return false;
+    const recentChatMessages = await localforage.getItem('recentChatMessages') || [];
+    
+    const isDuplicate = recentChatMessages.includes(messageId);
+    if (!isDuplicate) {
+      // 새 메시지 ID 저장 (최근 50개만 유지)
+      recentChatMessages.push(messageId);
+      await localforage.setItem('recentChatMessages', recentChatMessages.slice(-50));
+    }
+    return isDuplicate;
+  }
+  
+  // 채팅 외 다른 알림들은 시간 기반 중복 체크
+  const notificationId = `${code}_${senderId}_${Date.now()}`;
+  const recentNotifications = await localforage.getItem('recentNotifications') || [];
+  
+  const isDuplicate = recentNotifications.some(notification => {
+    const timeDiff = Date.now() - notification.timestamp;
+    return notification.id.includes(`${code}_${senderId}`) && timeDiff < 3000;
+  });
+
+  if (!isDuplicate) {
+    recentNotifications.push({
+      id: notificationId,
+      timestamp: Date.now()
+    });
+    await localforage.setItem('recentNotifications', recentNotifications.slice(-10));
+  }
+
+  return isDuplicate;
+}
+
 // 백그라운드 메시지 처리
-messaging.onBackgroundMessage((payload) => {
+messaging.onBackgroundMessage(async (payload) => {
   console.log('백그라운드 메시지 수신:', payload);
+
+  // 중복 알림 체크
+  if (await isDuplicateNotification(payload)) {
+    console.log('중복 알림 감지됨, 무시합니다.');
+    return;
+  }
 
   if (payload.data) {
     const notificationOptions = {
