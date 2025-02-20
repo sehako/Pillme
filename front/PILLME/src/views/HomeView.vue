@@ -332,6 +332,11 @@ const nextNotificationPeriod = computed(() => {
 
   // 설정된 시간대가 하나도 없으면 빈 문자열 반환
   if (periods.length === 0) return "";
+  
+  // 알림이 하나만 설정된 경우 해당 알림 시간대 반환
+  if (periods.length === 1) {
+    return periods[0].label;
+  }
 
   // 시간 순서대로 정렬 (오름차순)
   periods.sort((a, b) => a.minutes - b.minutes);
@@ -339,12 +344,12 @@ const nextNotificationPeriod = computed(() => {
   // 다음 예정 알림 찾기
   for (let i = 0; i < periods.length; i++) {
     if (periods[i].minutes > currentMinutes) {
-      return periods[i].label; // 현재 시간보다 이후의 첫 번째 알림 반환
+      return periods[i].label;
     }
   }
 
-  // 모든 알림이 지나간 경우 빈 문자열 반환
-  return "";
+  // 모든 알림이 지나간 경우 첫 번째 알림으로 순환
+  return periods[0].label;
 });
 
 // ----------------- 모달 제어 함수 (열고 닫기) -----------------
