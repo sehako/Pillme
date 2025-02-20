@@ -7,7 +7,7 @@
       aria-expanded="isOpen"
       aria-haspopup="true"
       :aria-label="`${username} 메뉴 열기`">
-      <p class="text-center whitespace-nowrap text-2xl font-base">{{ username || '사용자' }}</p>
+      <p class="text-center whitespace-nowrap text-2xl font-base">{{ username || '⠀⠀⠀⠀⠀' }}</p>
       <img
         src="../assets/namedropdown.svg"
         alt="드롭다운 메뉴 아이콘"
@@ -82,6 +82,8 @@ const route = useRoute();
 
 const isLoading = ref(false);
 const error = ref(null);
+
+const LOGOUT_INDICATOR = '⠀⠀⠀⠀⠀'; // 점자 공백 문자 5개
 
 // ✅ 모달 토글 (드롭다운 열 때 가족 목록 새로고침)
 const toggleModal = async (event) => {
@@ -160,6 +162,18 @@ const handleKeydown = (event) => {
     isOpen.value = false;
   }
 };
+
+watch(username, async (newValue) => {
+  if (newValue === LOGOUT_INDICATOR) {
+    try {
+      // 토큰 갱신 시도
+      await refreshAccessTokenAPI();
+    } catch (error) {
+      console.error('토큰 갱신 실패, 로그아웃 처리:', error);
+      await handleLogout();
+    }
+  }
+});
 
 onMounted(() => {
   loadData();

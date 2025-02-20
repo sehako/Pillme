@@ -11,7 +11,7 @@ export function useScrollControl(alwaysScrollablePages = []) {
       isScrollAllowed.value =
         alwaysScrollablePages.includes(current) || current.startsWith('/mypage');
 
-      if (!isScrollAllowed.value) {
+      if (!isScrollAllowed.value && !current.startsWith('/mypage')) {
         document.documentElement.style.overflow = 'hidden';
         document.body.style.overflow = 'hidden';
         window.scrollTo(0, 0);

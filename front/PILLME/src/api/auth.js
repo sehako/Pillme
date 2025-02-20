@@ -120,24 +120,52 @@ export const handleLoginSuccess = (responseData) => {
   Cookies.set('refreshToken', refreshToken, { secure: true, sameSite: 'Strict' });
 
   // ✅ JWT 디코딩 후 Pinia 업데이트
-  const authStore = useUserStore();
+  const userStore = useUserStore();
+  const authStore = useAuthStore();
   const userInfo = decodeToken(accessToken);
-  authStore.setUser(userInfo);
+  userStore.setUser(userInfo);
+  authStore.checkLoginStatus();
+
+  // 토큰 체크 초기화
+  authStore.lastTokenCheck = Date.now();
+  authStore.isTokenChecking = false;
 };
 
-// ✅ 로그아웃 처리 함수 (js-cookie 사용, 자동 로그아웃 포함)
-export const handleLogout = () => {
-  localStorage.removeItem('accessToken');
-  deleteAccessToken();
-  Cookies.remove('refreshToken');
+// ✅ 로그아웃 처리 함수 수정
+export const handleLogout = async () => {
+  try {
+    // 1. 모든 토큰 제거
+    localStorage.removeItem('accessToken');
+    await deleteAccessToken();
+    Cookies.remove('refreshToken');
+    
+    // 2. 모든 스토어 초기화
+    const userStore = useUserStore();
+    const authStore = useAuthStore();
+    
+    userStore.clearUser();
+    await authStore.logout();
+    
+    // 3. 모든 상태 초기화
+    authStore.lastTokenCheck = null;
+    authStore.isTokenChecking = false;
+    authStore.isLoggedIn = false;
 
-  // ✅ 유저 정보 초기화
-  const authStore = useUserStore();
-  authStore.clearUser();
+    // 4. 캐시된 API 응답 초기화
+    if (window.caches) {
+      const cacheNames = await caches.keys();
+      await Promise.all(
+        cacheNames.map(cacheName => caches.delete(cacheName))
+      );
+    }
 
-  // ✅ 로그인 페이지로 이동
-  window.location.href = '/start';
-  // window.location.reload();
+    // 5. 강제 페이지 새로고침으로 리다이렉션
+    window.location.href = '/start';
+  } catch (error) {
+    console.error('로그아웃 처리 중 오류 발생:', error);
+    // 6. 오류 발생시에도 강제 리다이렉션
+    window.location.replace('/start');
+  }
 };
 
 // ✅ 닉네임 중복 검사

@@ -23,13 +23,6 @@
       </div>
     </div>
 
-    <!-- <div>
-    <p>현재 글씨 크기: {{ fontSize }}px</p>
-    <button @click="fontSize += 2">글씨 키우기</button>
-    <button @click="fontSize -= 2">글씨 줄이기</button>
-  </div> -->
-
-
 <!-- 배경을 부모 컨테이너에서 적용 -->
 <div class="hidden md:flex flex-col md:flex-row w-full md:w-2/4 relative bg-gradient-to-r from-[#D4EAD7] from-10% to-slate-[#D4EAD7] via-[#D4EAD7] via-20%">
 
@@ -42,8 +35,8 @@
 
   <h1 class="text-xl sm:text-2xl font-bold text-gray-800 flex flex-wrap items-center justify-center gap-2">
     <span class="mx-0">모바일에서</span>
-    <img :src="textLogoSrc" alt="PILLME" class="h-6 inline-block object-contain" />
-    <span class="mx-0">를 만나보세요!</span>
+  
+    <span class="mx-0">만나보세요!</span>
   </h1>
 
   <div class="w-40 h-auto mt-8">
@@ -106,7 +99,7 @@ import AdditionalInfoDialog from './components/AdditionalInfoDialog.vue';
 import MedicationScheduleDialog from './components/MedicationScheduleDialog.vue';
 
 import logo from './assets/Logo_font.svg';
-import textLogoSrc from './assets/Logi_font.svg';
+// import textLogoSrc from './assets/Logi_font.svg';
 
 
 // import { useCssVar } from "@vueuse/core";
