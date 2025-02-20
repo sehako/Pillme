@@ -47,7 +47,7 @@ export default defineConfig({
         background_color: "#ffffff",
         lang: "ko",
         scope: "/",
-        theme_color: "#9DBB9F",
+        theme_color: "#A3BFA5",
         description: "💊복약 관리의 새로운 방법, PILLME",
         icons: [
           // Android Icons
