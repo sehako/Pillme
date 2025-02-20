@@ -43,6 +43,7 @@ public class ChatMessageService {
     }
 
     public void markMessageAsRead(Long chatRoomId, Long userId){
+        chatRedisService.enterChatRoom(chatRoomId, userId); //사용자 채팅방 입장 처리
         List<ChatMessage> unreadMessages = chatMessageRepository.findByChatRoomIdAndReceiverIdAndReadFalse(chatRoomId, userId);
         if (!unreadMessages.isEmpty()) {
             for (ChatMessage message : unreadMessages) {
