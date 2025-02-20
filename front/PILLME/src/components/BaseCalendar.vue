@@ -1,5 +1,9 @@
 <template>
+  
   <div class="full-calendar-container relative">
+    <div class="px-4 py-1 border-b bg-gray-100 text-gray-700">
+    <h2 class="font-semibold text-lg">현재 복용중인 처방전</h2>
+  </div>
     <FullCalendar
       ref="calendarRef"
       :options="calendarOptions"
@@ -41,8 +45,6 @@ import FullCalendar from "@fullcalendar/vue3";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import { transformPrescriptionsToEvents } from "../composables/useCalendarEvents";
-import { useUserStore } from "../stores/user";
-import axios from "axios";
 import { fetchCalendarPrescriptions } from "../api/calendarview";
 
 const props = defineProps({
@@ -113,45 +115,46 @@ const emit = defineEmits(['update:prescriptions']);
 const calendarOptions = computed(() => ({
   plugins: [dayGridPlugin, interactionPlugin],
   locale: "ko",
-  initialView: props.viewMode === "week" ? "dayGridWeek" : "dayGridMonth",
+  initialView: "dayGridWeek",
+views: {
+  dayGridWeek: {
+    duration: { weeks: 2 }, // 현재 주 포함 3주 표시
+  }
+},
+
   height: "auto",
   aspectRatio: 1.5,
   headerToolbar: {
-    left: "prev",
-    center: "title",
-    right: "next",
-  },
-  buttonText: {
-    prev: props.viewMode === "week" ? "이전 주" : "이전",
-    next: props.viewMode === "week" ? "다음 주" : "다음",
+    left: "",
+    center: "",
+    right: "",
   },
   events: calendarEvents.value,
   eventDisplay: "block",
-  dateClick: onDateClick,
   eventClick: onEventClick,
   dayCellDidMount: onDayCellDidMount,
   datesSet: async (dateInfo) => {
     try {
-      console.log("🔄 달력 날짜 변경됨");
+      // console.log("🔄 달력 날짜 변경됨");
       const start = dateInfo.view.currentStart;
       const year = start.getFullYear();
       const month = String(start.getMonth() + 1).padStart(2, '0');
       const formattedDate = `${year}-${month}-01`;
-      console.log("📅 요청할 날짜:", formattedDate);
+      // console.log("📅 요청할 날짜:", formattedDate);
       
       // API 호출하여 해당 월의 처방전 데이터 가져오기
-      console.log("📡 처방전 데이터 요청 시작");
+      // console.log("📡 처방전 데이터 요청 시작");
       const prescriptions = await fetchCalendarPrescriptions(formattedDate);
-      console.log("📦 받은 처방전 데이터:", prescriptions);
+      // console.log("📦 받은 처방전 데이터:", prescriptions);
       
       // 부모 컴포넌트 업데이트
-      console.log("🔄 부모 컴포넌트 처방전 데이터 업데이트");
+      // console.log("🔄 부모 컴포넌트 처방전 데이터 업데이트");
       emit('update:prescriptions', prescriptions);
       
       // 캘린더 이벤트 업데이트 확인
-      console.log("📊 현재 캘린더 이벤트:", calendarEvents.value);
+      // console.log("📊 현재 캘린더 이벤트:", calendarEvents.value);
     } catch (error) {
-      console.error("❌ 달력 데이터 업데이트 중 오류 발생:", error);
+      // console.error("❌ 달력 데이터 업데이트 중 오류 발생:", error);
     }
   }
 }));
@@ -178,16 +181,6 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
-.full-calendar-container {
-  @apply w-full flex flex-col items-center;
-  min-height: 300px;
-}
-
-/* 날짜 클릭 시 하이라이트 */
-.bg-yellow-200 {
-  background-color: rgb(253 230 138 / 0.8) !important;
-}
-
 /* 모달 스타일 */
 .modal-backdrop {
   @apply fixed inset-0 bg-black/30 flex items-center justify-center z-50;
@@ -196,15 +189,12 @@ onUnmounted(() => {
   @apply bg-white rounded p-4 max-w-xs w-full;
 }
 
-/* FullCalendar 버튼 스타일 오버라이드 */
-:deep() .fc-button {
-  background-color: #FFFDEC !important;
-  border: 1px solid #9DBB9F !important;
-  color: #4E7351 !important;
+:deep() .fc-toolbar-title {
+  font-size: 1rem !important; /* 원하는 크기로 조절 */
+  font-weight: 500;
 }
-:deep() .fc-button:hover {
-  background-color: #9DBB9F !important;
-  border-color: #9DBB9F !important;
-  color: #FFFDEC !important;
+
+.full-calendar {
+  margin-top: -18px !important; /* FullCalendar의 위쪽 여백 제거 */
 }
 </style>

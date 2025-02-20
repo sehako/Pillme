@@ -40,7 +40,10 @@ import { ref, computed, onMounted, onUnmounted, nextTick, watch } from "vue";
 import FullCalendar from "@fullcalendar/vue3";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import interactionPlugin from "@fullcalendar/interaction";
-import { fetchCalendarPrescriptions } from "../api/calendarview";
+import { fetchSelfCalendarPrescriptions } from "../api/calendarview";
+import { useUserStore } from "../stores/user";
+
+const userStore = useUserStore();
 
 const props = defineProps({
   mode: {
@@ -134,8 +137,8 @@ const calendarOptions = computed(() => ({
     right: "next",
   },
   buttonText: {
-    prev: props.viewMode === "week" ? "이전 주" : "이전",
-    next: props.viewMode === "week" ? "다음 주" : "다음",
+    prev: props.viewMode === "week" ? "이전 주" : "<",
+    next: props.viewMode === "week" ? "다음 주" : ">",
   },
   events: calendarEvents.value,
   eventDisplay: "block",
@@ -156,11 +159,8 @@ const calendarOptions = computed(() => ({
       const year = start.getFullYear();
       const month = String(start.getMonth() + 1).padStart(2, '0');
       const formattedDate = `${year}-${month}-01`;
-      
-      const targetId = props.dependentId;
-      console.log("📅 요청할 날짜:", formattedDate, "대상 피부양자 ID:", targetId);
-      
-      const response = await fetchCalendarPrescriptions(formattedDate, targetId);
+      const targetId = await userStore.getMemberId();
+      const response = await fetchSelfCalendarPrescriptions(formattedDate, targetId);
       
       if (response.isSuccess && response.result) {
         // 새로운 데이터 형식에 맞게 처리
@@ -261,15 +261,58 @@ onUnmounted(() => {
   @apply bg-white rounded p-4 max-w-xs w-full;
 }
 
-/* FullCalendar 버튼 스타일 오버라이드 */
-:deep() .fc-button {
-  background-color: #FFFDEC !important;
-  border: 1px solid #9DBB9F !important;
-  color: #4E7351 !important;
+/* 헤더 툴바 스타일 */
+.fc-toolbar {
+  background-color: #4E7351 !important; /* 헤더 배경색 */
+  border: none; /* 테두리 제거 */
+  padding: 10px; /* 패딩 조정 */
 }
-:deep() .fc-button:hover {
-  background-color: #9DBB9F !important;
-  border-color: #9DBB9F !important;
-  color: #FFFDEC !important;
+
+/* 버튼 스타일 */
+.fc-button {
+  background-color: #4E7351 !important; /* 버튼 배경색 */
+  color: white; /* 버튼 텍스트 색상 */
+  border: none; /* 버튼 테두리 제거 */
+  padding: 5px 10px; /* 버튼 패딩 */
+  border-radius: 5px; /* 버튼 모서리 둥글게 */
+}
+
+.fc-button:hover {
+  background-color: #4E7351 !important; /* 버튼 호버 시 배경색 */
+}
+
+/* 제목 스타일 */
+:deep() .fc-toolbar-title {
+  font-size: 1.2rem; /* 제목 크기 */
+  font-weight: bold; /* 제목 두께 */
+  color: gray-700; /* 제목 색상 */
+}
+
+/* 이전 버튼 스타일 */
+:deep() .fc-prev-button {
+  background-color: #4E7351; /* 이전 버튼 배경색 */
+  color: white; /* 이전 버튼 텍스트 색상 */
+  border: none; /* 이전 버튼 테두리 제거 */
+  padding: 4px 10px; /* 이전 버튼 패딩 */
+  border-radius: 4px; /* 이전 버튼 모서리 둥글게 */
+  margin-left: 72px;
+}
+
+:deep() .fc-prev-button:hover {
+  background-color: #4E7351; /* 이전 버튼 호버 시 배경색 */
+}
+
+/* 다음 버튼 스타일 */
+:deep() .fc-next-button {
+  background-color: #4E7351 !important;; /* 다음 버튼 배경색 */
+  color: white; /* 다음 버튼 텍스트 색상 */
+  border: none; /* 다음 버튼 테두리 제거 */
+  padding: 4px 10px; /* 다음 버튼 패딩 */
+  border-radius: 4px; /* 다음 버튼 모서리 둥글게 */
+  margin-right: 72px;
+}
+
+:deep() .fc-next-button:hover {
+  background-color: #4E7351; /* 다음 버튼 호버 시 배경색 */
 }
 </style>

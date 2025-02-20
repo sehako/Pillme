@@ -82,7 +82,7 @@
     </div>
   <!-- 가로 스크롤 가능한 화이트카드 영역 -->
 <!-- 가로 스크롤 가능한 화이트카드 영역 -->
-<div class="scroll-container flex overflow-x-auto">
+<div class="scroll-container flex overflow-x-auto -m-4">
   <WhiteCard
     v-for="(info, index) in managementInfoList"
     :key="index"
@@ -131,7 +131,7 @@
 </div>
       <!-- 캘린더 (예시) -->
       <div class="m-4 flex flex-col">
-        <BaseCalendar :prescriptions="managementInfoList" />
+        <BaseHomeCalendar :prescriptions="managementInfoList" />
       </div>
     </main>
   </div>
@@ -215,13 +215,11 @@ import { fetchAllDrugCheck } from '../api/drugcheck';
 import BaseButton from '../components/BaseButton.vue';
 import YellowCard from '../layout/YellowCard.vue';
 import WhiteCard from '../layout/WhiteCard.vue';
-import HamBugerMenu from '../components/HamBugerMenu.vue';
-import NameDropdown from '../components/NameDropdown.vue';
 import FamilyAddModal from '../components/FamilyAddModal.vue';
 import MedicationSearchDialog from '../components/MedicationSearchDialog.vue';
-import BaseCalendar from '../components/BaseCalendar.vue';
+import BaseHomeCalendar from '../components/BaseHomeCalendar.vue';
 import { defineAsyncComponent } from 'vue';
-import { fetchManagementData, fetchFormattedManagementInfo  } from '../api/drugmanagement';
+import { fetchManagementData, fetchFormattedManagementInfo } from '../api/drugmanagement';
 import HistoryModal from '../components/HistoryModal.vue'; // 모달 컴포넌트 import
 import CheckDoneboxes from '../assets/CheckDoneboxes.svg';
 import Checkboxes from '../assets/Checkboxes.svg';
@@ -246,7 +244,7 @@ const MyAlarmModal = defineAsyncComponent(() => import('../views/My_Alarm.vue'))
 
 // -----------------  Props 정의 -----------------
 defineProps({
-  navbarHeight: Number, //  props 정의
+ navbarHeight: Number, //  props 정의
 });
 
 // -----------------  Ref 및 Computed 속성 선언 (상태 변수 관리) -----------------
