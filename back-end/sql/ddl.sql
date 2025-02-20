@@ -41,9 +41,9 @@ CREATE TABLE `management`
     `lunch_taking`    TINYINT      NULL,
     `dinner_taking`   TINYINT      NULL,
     `sleep_taking`    TINYINT      NULL,
-    `created_at`      TIMESTAMP    NULL,
-    `modified_at`     TIMESTAMP    NULL,
-    `deleted`         TINYINT      NULL
+    `created_at`      TIMESTAMP    NULL DEFAULT NOW(),
+    `modified_at`     TIMESTAMP    NULL DEFAULT NOW(),
+    `deleted`         TINYINT      NULL DEFAULT false
 );
 
 DROP TABLE IF EXISTS `comment`;
@@ -63,9 +63,9 @@ CREATE TABLE `fcm_token`
     `id`          BIGINT       NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `member_id`   BIGINT       NOT NULL,
     `token`       VARCHAR(255) NULL,
-    `created_at`  TIMESTAMP    NULL,
-    `modified_at` TIMESTAMP    NULL,
-    `deleted`     TINYINT      NULL
+    `created_at`  TIMESTAMP    NULL DEFAULT NOW(),
+    `modified_at` TIMESTAMP    NULL DEFAULT NOW(),
+    `deleted`     TINYINT      NULL DEFAULT false
 );
 
 DROP TABLE IF EXISTS `information`;
@@ -80,9 +80,9 @@ CREATE TABLE `information`
     `end_date`     DATE         NULL,
     `disease_name` VARCHAR(255) NULL,
     `requested`    TINYINT      NULL,
-    `created_at`   TIMESTAMP    NULL,
-    `modified_at`  TIMESTAMP    NULL,
-    `deleted`      TINYINT      NULL
+    `created_at`   TIMESTAMP    NULL DEFAULT NOW(),
+    `modified_at`  TIMESTAMP    NULL DEFAULT NOW(),
+    `deleted`      TINYINT      NULL DEFAULT false
 );
 
 DROP TABLE IF EXISTS `fcm_log`;
@@ -107,9 +107,9 @@ CREATE TABLE `community`
     `member_id`   BIGINT       NOT NULL,
     `title`       VARCHAR(150) NULL,
     `content`     TEXT         NULL,
-    `created_at`  TIMESTAMP    NULL,
-    `modified_at` TIMESTAMP    NULL,
-    `deleted`     TINYINT      NULL
+    `created_at`  TIMESTAMP    NULL DEFAULT NOW(),
+    `modified_at` TIMESTAMP    NULL DEFAULT NOW(),
+    `deleted`     TINYINT      NULL DEFAULT false
 );
 
 DROP TABLE IF EXISTS `notification_setting`;
@@ -134,9 +134,9 @@ CREATE TABLE `notification`
     `code`        VARCHAR(60)  NULL,
     `content`     VARCHAR(255) NULL,
     `confirm`     TINYINT      NULL,
-    `created_at`  TIMESTAMP    NULL,
-    `modified_at` TIMESTAMP    NULL,
-    `deleted`     TINYINT      NULL
+    `created_at`  TIMESTAMP    NULL DEFAULT NOW(),
+    `modified_at` TIMESTAMP    NULL DEFAULT NOW(),
+    `deleted`     TINYINT      NULL DEFAULT false
 );
 
 DROP TABLE IF EXISTS `chat_room`;
@@ -165,9 +165,9 @@ CREATE TABLE `dependency`
     `id`           BIGINT    NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `protector_id` BIGINT    NOT NULL,
     `dependent_id` BIGINT    NOT NULL,
-    `created_at`   TIMESTAMP NULL,
-    `modified_at`  TIMESTAMP NULL,
-    `deleted`      TINYINT   NULL
+    `created_at`   TIMESTAMP NULL DEFAULT NOW(),
+    `modified_at`  TIMESTAMP NULL DEFAULT NOW(),
+    `deleted`      TINYINT   NULL DEFAULT false
 );
 
 DROP TABLE IF EXISTS `image`;
@@ -191,9 +191,9 @@ CREATE TABLE `member`
     `role`        VARCHAR(50)  NULL,
     `gender`      VARCHAR(1)   NULL,
     `phone`       VARCHAR(30)  NULL,
-    `created_at`  TIMESTAMP    NULL,
-    `modified_at` TIMESTAMP    NULL,
-    `deleted`     TINYINT      NULL,
+    `created_at`  TIMESTAMP    NULL DEFAULT NOW(),
+    `modified_at` TIMESTAMP    NULL DEFAULT NOW(),
+    `deleted`     TINYINT      NULL DEFAULT false,
     `oauth`       TINYINT      NULL,
     `birthday`    VARCHAR(10)  NULL,
     `provider`    VARCHAR(50)  NULL
@@ -217,8 +217,20 @@ CREATE TABLE `history`
     `dinner_taking`  TINYINT   NULL,
     `sleep_taking`   TINYINT   NULL,
     `taking_date`    DATE      NULL,
-    `created_at`     TIMESTAMP NULL,
-    `modified_at`    TIMESTAMP NULL,
-    `deleted`        TINYINT   NULL
+    `created_at`     TIMESTAMP NULL DEFAULT NOW(),
+    `modified_at`    TIMESTAMP NULL DEFAULT NOW(),
+    `deleted`        TINYINT   NULL DEFAULT false
 );
 
+SELECT *
+FROM member;
+
+INSERT INTO member (email, password, name, nickname, role, gender, phone, deleted, oauth, birthday, provider)
+VALUES ('parent@naver.com', '$2a$10$JIZkqHg8UeFe1KzE4/URyu3g3NrF3jM44w0vGQ8SnXmoA0D4qT2Bm', '피보호자', '피보호자', 'USER', 'F',
+        '01011111111', false, false, '19600324', 'FORM');
+INSERT INTO member (email, password, name, nickname, role, gender, phone, deleted, oauth, birthday, provider)
+VALUES ('child@naver.com', '$2a$10$JIZkqHg8UeFe1KzE4/URyu3g3NrF3jM44w0vGQ8SnXmoA0D4qT2Bm', '보호자', '보호자', 'USER', 'F',
+        '01022222222', false, false, '19871211', 'FORM');
+INSERT INTO member (email, password, name, nickname, role, gender, phone, deleted, oauth, birthday, provider)
+VALUES ('test@naver.com', '$2a$10$JIZkqHg8UeFe1KzE4/URyu3g3NrF3jM44w0vGQ8SnXmoA0D4qT2Bm', '테스트', '테스트', 'USER', 'F',
+        '01033333333', false, false, '19871211', 'FORM');
