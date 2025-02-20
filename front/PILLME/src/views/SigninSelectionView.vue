@@ -16,6 +16,11 @@
         이메일로 가입하기
       </SocialLoginButton>
     </div>
+
+    <!-- 로그인 페이지로 돌아가기 버튼 추가 -->
+    <p class="mt-4 text-sm">
+      <a href="/start" class="text-[#4E7351] hover:underline">로그인 페이지로 돌아가기</a>
+    </p>
   </div>
 </template>
 

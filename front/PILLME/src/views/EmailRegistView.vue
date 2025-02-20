@@ -1,5 +1,12 @@
 <template>
   <div class="flex flex-col justify-center items-center p-4">
+    <!-- 뒤로가기 버튼 추가 -->
+    <div class="self-start mb-4">
+      <a href="/start" class="text-[#000000] flex items-center">
+        <span class="text-xl mr-1">‹</span> <!-- 꺽쇠 추가 -->
+      </a>
+    </div>
+
     <BaseLogo :src="logoSrc" size="md" />
     <BaseText highlightText="PILLME 이메일 회원가입" textBefore="" />
 

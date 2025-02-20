@@ -86,9 +86,7 @@
   <WhiteCard
     v-for="(info, index) in managementInfoList"
     :key="index"
-    class="bg-white border border-gray-300 rounded-lg
-           w-[300px] min-w-[300px] max-w-[300px] h-[109.143px]
-           p-4 flex-shrink-0 transition-all duration-300 ease-in-out
+    class="w-[300px] min-w-[300px] max-w-[300px] h-[109.143px] m-2 flex-shrink-0 transition-all duration-300 ease-in-out
            grid"
     style="grid-template-columns: 166.857px 100px;"
   >

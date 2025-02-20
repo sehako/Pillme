@@ -1,5 +1,12 @@
 <template>
   <div class="flex flex-col justify-center items-center p-4">
+    <!-- 뒤로가기 버튼 추가 -->
+    <div class="self-start mb-4">
+      <a @click.prevent="handleBackClick" class="text-[#000000] flex items-center cursor-pointer">
+        <span class="text-xl mr-1">‹</span>
+      </a>
+    </div>
+
     <!-- 로고, BaseText 등 UI 컴포넌트 -->
     <BaseLogo :src="logoSrc" size="md" />
     <BaseText highlightText="PILLME" textBefore="이메일 인증 완료" />
@@ -189,6 +196,13 @@ const authVerificationSuccess = ref(false);
 // 뒤로 가기 함수
 const goBack = () => {
   router.back();
+};
+
+// 뒤로가기 처리 함수 추가
+const handleBackClick = () => {
+  if (confirm('작성 중인 내용이 모두 사라집니다. 정말 나가시겠습니까?')) {
+    window.location.href = '/start';
+  }
 };
 
 onMounted(() => {
