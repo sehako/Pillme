@@ -58,7 +58,7 @@ public class SecurityConfig {
                                 "/api/v1/auth/check/**",
                                 "/admin",
                                 "/api/v1/admin/**",
-                                "/ws-chat/**"
+                                "api/v1/ws-chat/**"
                         )
                         .permitAll()
                         .anyRequest().authenticated()
