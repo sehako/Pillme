@@ -252,11 +252,11 @@ public class ManagementService {
 
     @Transactional(readOnly = true)
     public List<TakingPrescriptionResponse> selectTakingPrescription(
-            final Long targetId,
-            final LocalDate date
+            final Long targetId
+//            final LocalDate date
     ) {
         List<Information> currentInformation = informationRepository
-                .findAllByDate(targetId, date);
+                .findAllByDate(targetId, LocalDate.now());
         Member targetMember = authService.findById(targetId);
 
         return currentInformation

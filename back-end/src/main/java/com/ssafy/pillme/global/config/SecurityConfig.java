@@ -57,7 +57,8 @@ public class SecurityConfig {
                                 "/api/v1/auth/oauth2/**",
                                 "/api/v1/auth/check/**",
                                 "/admin",
-                                "/api/v1/admin/**"
+                                "/api/v1/admin/**",
+                                "/ws-chat/**"
                         )
                         .permitAll()
                         .anyRequest().authenticated()
