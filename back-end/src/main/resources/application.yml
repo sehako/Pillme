@@ -15,3 +15,5 @@ spring:
       - classpath:application-mongo.yml
       - classpath:application-elastic.yml
       - optional:file:.env[.properties]
+
+request-url: ${REQUEST_URL}

@@ -26,7 +26,7 @@ public class SecurityConfig {
     private final String requestUrl;
 
     public SecurityConfig(
-            @Value("${REQUEST_URL}") String requestUrl,
+            @Value("${request-url}") String requestUrl,
             JwtAuthenticationFilter jwtAuthenticationFilter,
             CustomMemberDetailsService userDetailsService) {
         this.requestUrl = requestUrl;
