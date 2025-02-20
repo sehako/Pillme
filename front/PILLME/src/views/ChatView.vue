@@ -87,7 +87,7 @@
 
       <!-- ✅ 채팅 목록 -->
       <div>
-        <div v-if="chatRooms.length == 0" class="text-gray-500">
+        <div v-if="chatRooms.length == 0" class="text-gray-500 ml-4">
           친구 추가된 사용자와의 채팅방이 없습니다.
         </div>
 
