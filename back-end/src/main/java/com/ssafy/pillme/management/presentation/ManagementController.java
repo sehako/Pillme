@@ -13,9 +13,9 @@ import com.ssafy.pillme.auth.annotation.Auth;
 import com.ssafy.pillme.auth.domain.entity.Member;
 import com.ssafy.pillme.global.response.JSONResponse;
 import com.ssafy.pillme.management.application.ManagementService;
-import com.ssafy.pillme.management.application.response.CurrentTakingPrescriptionResponse;
 import com.ssafy.pillme.management.application.response.CurrentTakingResponse;
 import com.ssafy.pillme.management.application.response.TakingDetailResponse;
+import com.ssafy.pillme.management.application.response.TakingPrescriptionResponse;
 import com.ssafy.pillme.management.domain.Information;
 import com.ssafy.pillme.management.presentation.request.AddTakingInformationRequest;
 import com.ssafy.pillme.management.presentation.request.AllTakingCheckRequest;
@@ -26,9 +26,11 @@ import com.ssafy.pillme.management.presentation.request.DeleteManagementRequest;
 import com.ssafy.pillme.management.presentation.request.SingleTakingCheckRequest;
 import com.ssafy.pillme.management.presentation.request.TakingInformationRegisterRequest;
 import java.net.URI;
+import java.time.LocalDate;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -114,11 +116,15 @@ public class ManagementController {
     }
 
     @GetMapping("/prescription")
-    public ResponseEntity<JSONResponse<List<CurrentTakingPrescriptionResponse>>> currentTakingPrescription(
-            @RequestParam("target") final Long targetId
+    public ResponseEntity<JSONResponse<List<TakingPrescriptionResponse>>> getTakingPrescription(
+            @RequestParam("target") final Long targetId,
+            @RequestParam("date")
+            @DateTimeFormat(
+                    iso = DateTimeFormat.ISO.DATE,
+                    pattern = "yyyy-MM-dd") final LocalDate date
     ) {
         return ResponseEntity.ok(
-                JSONResponse.onSuccess(managementService.selectCurrentTakingPrescription(targetId))
+                JSONResponse.onSuccess(managementService.selectTakingPrescription(targetId, date))
         );
     }
 

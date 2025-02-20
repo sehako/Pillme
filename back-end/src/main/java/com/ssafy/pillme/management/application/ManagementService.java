@@ -19,9 +19,9 @@ import com.ssafy.pillme.management.application.exception.MemberIsNotWriterExcept
 import com.ssafy.pillme.management.application.exception.NoInformationException;
 import com.ssafy.pillme.management.application.exception.NoManagementException;
 import com.ssafy.pillme.management.application.exception.NotProtectorException;
-import com.ssafy.pillme.management.application.response.CurrentTakingPrescriptionResponse;
 import com.ssafy.pillme.management.application.response.CurrentTakingResponse;
 import com.ssafy.pillme.management.application.response.TakingDetailResponse;
+import com.ssafy.pillme.management.application.response.TakingPrescriptionResponse;
 import com.ssafy.pillme.management.application.util.RegistrationStatusCalculator;
 import com.ssafy.pillme.management.domain.Information;
 import com.ssafy.pillme.management.domain.Management;
@@ -44,6 +44,7 @@ import com.ssafy.pillme.notification.application.service.NotificationService;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -250,18 +251,17 @@ public class ManagementService {
     }
 
     @Transactional(readOnly = true)
-    public List<CurrentTakingPrescriptionResponse> selectCurrentTakingPrescription(
-            final Long targetId
+    public List<TakingPrescriptionResponse> selectTakingPrescription(
+            final Long targetId,
+            final LocalDate date
     ) {
-//        List<Information> currentInformation = informationRepository
-//                .findCurrentDateAndReaderId(targetId);
         List<Information> currentInformation = informationRepository
-                .findAllByDate(targetId);
+                .findAllByDate(targetId, date);
         Member targetMember = authService.findById(targetId);
 
         return currentInformation
                 .stream()
-                .map(information -> CurrentTakingPrescriptionResponse
+                .map(information -> TakingPrescriptionResponse
                         .of(information, RegistrationStatusCalculator.calculateStatus(information, targetMember)))
                 .collect(Collectors.toList());
     }

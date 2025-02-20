@@ -5,7 +5,7 @@ import com.ssafy.pillme.management.domain.Information;
 import com.ssafy.pillme.management.domain.type.RegistrationType;
 import java.time.LocalDate;
 
-public record CurrentTakingPrescriptionResponse(
+public record TakingPrescriptionResponse(
         Long informationId,
         RegistrationType registrationType,
         String diseaseName,
@@ -15,11 +15,11 @@ public record CurrentTakingPrescriptionResponse(
         @JsonFormat(pattern = "yyyy-MM-dd")
         LocalDate endDate
 ) {
-    public static CurrentTakingPrescriptionResponse of(
+    public static TakingPrescriptionResponse of(
             final Information information,
             final RegistrationType registrationType
     ) {
-        return new CurrentTakingPrescriptionResponse(
+        return new TakingPrescriptionResponse(
                 information.getId(),
                 registrationType,
                 information.getDiseaseName(),
