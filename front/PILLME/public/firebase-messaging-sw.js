@@ -113,6 +113,15 @@ async function isDuplicateNotification(payload) {
 messaging.onBackgroundMessage(async (payload) => {
   console.log('백그라운드 메시지 수신:', payload);
 
+  // 업데이트 관련 알림인지 확인 (title이나 body에 '업데이트' 문자열이 포함된 경우)
+  if (
+    payload.data?.title?.includes('업데이트') || 
+    payload.data?.body?.includes('업데이트')
+  ) {
+    console.log('업데이트 알림 필터링됨');
+    return;
+  }
+
   // 중복 알림 체크
   if (await isDuplicateNotification(payload)) {
     console.log('중복 알림 감지됨, 무시합니다.');
