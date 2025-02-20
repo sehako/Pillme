@@ -7,9 +7,13 @@ public record AnalyzeImageRequest(
         Long readerId,
         String hospital,
         String diseaseName,
-        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE, pattern = "yyyy-MM-dd")
+        @DateTimeFormat(
+                iso = DateTimeFormat.ISO.DATE,
+                pattern = "yyyy-MM-dd")
         LocalDate startDate,
-        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE, pattern = "yyyy-MM-dd")
+        @DateTimeFormat(
+                iso = DateTimeFormat.ISO.DATE,
+                pattern = "yyyy-MM-dd")
         LocalDate endDate
 ) {
 }
