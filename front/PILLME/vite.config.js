@@ -12,6 +12,7 @@ export default defineConfig({
   plugins: [
     vue(),
     vueDevTools(),
+    // mkcert(),
     // mkcert(), // ✅ HTTPS 지원을 위한 mkcert 플러그인 추가
     VitePWA({
       registerType: "autoUpdate",
