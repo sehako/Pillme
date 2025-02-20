@@ -47,9 +47,12 @@
           </div>
         </div>
 
-        <!-- ✅ 캘린더 -->
+        <!-- ✅ BaseDependentCalendar 사용 -->
         <div class="m-4 flex flex-col">
-          <BaseCalendar :prescriptions="prescriptionList" />
+          <BaseDependentCalendar 
+            :prescriptions="prescriptionList" 
+            :dependentId="dependent.dependentId"
+          />
         </div>
 
         <!-- ✅ "약 추가" 버튼 (하단 중앙) -->
@@ -107,6 +110,7 @@ import BaseCalendar from '../components/BaseCalendar.vue';
 import { fetchFormattedManagementInfo } from '../api/drugmanagement.js';
 import navPlusIcon from '../assets/navplus.svg';
 import { useOcrStore } from '../stores/ocrStore.js'; // ✅ OCR Store 추가
+import BaseDependentCalendar from '../components/BaseDependentCalendar.vue';
 
 const emit = defineEmits(['close']);
 
@@ -199,6 +203,33 @@ const handleFileChange = (event) => {
   reader.readAsDataURL(file);
 };
 
+// ✅ 과거 복용내역 조회 함수 추가
+const fetchMedicationHistory = async () => {
+  try {
+    if (!props.dependent?.dependentId) {
+      console.error('❌ 피부양자 ID가 없습니다.');
+      return;
+    }
+
+    console.log(`🔍 피부양자(${props.dependent.dependentId})의 과거 복용내역 조회 시작`);
+    
+    // ✅ 현재 날짜 기준 이전 달의 첫째 날 구하기
+    const today = new Date();
+    const lastMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+    const formattedDate = `${lastMonth.getFullYear()}-${String(lastMonth.getMonth() + 1).padStart(2, '0')}-01`;
+
+    // ✅ 피부양자 ID로 과거 복용내역 조회
+    const { prescriptions } = await fetchFormattedManagementInfo(
+      props.dependent.dependentId,
+      formattedDate
+    );
+    
+    prescriptionList.value = prescriptions || [];
+    console.log('✅ 과거 복용내역 조회 완료:', prescriptions);
+  } catch (error) {
+    console.error('❌ 과거 복용내역 조회 실패:', error);
+  }
+};
 
 // watch(
 //   () => route.query,

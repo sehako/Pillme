@@ -22,8 +22,8 @@
           <li v-for="(item, index) in menuItems" 
               :key="index" 
               @click="selectedMenu = item"
-              class="py-2 px-2 rounded cursor-pointer text-[clamp(12px,2vw,16px)] whitespace-nowrap"
-              :class="{ 'font-bold text-[#3D5A3F] bg-[#A3BFA5]': selectedMenu === item }">
+              class="py-3 rounded cursor-pointer text-[clamp(16px,2.5vw,24px)] whitespace-nowrap"
+              :class="{ 'font-bold text-[#3D5A3F]': selectedMenu === item }">
             {{ item }}
           </li>
         </ul>
@@ -31,17 +31,17 @@
     </aside>
 
     <!-- 오른쪽 콘텐츠 (검색 결과 / 세부 메뉴) -->
-    <div class="flex-1 flex flex-col justify-start items-start border-l border-gray-200 p-4 overflow-y-auto"
+    <div class="flex-1 flex flex-col justify-start items-start border-l border-gray-200 p-6 overflow-y-auto"
          style="width: 66.66%; height: calc(100vh - var(--navbar-height));">
-      <h1 class="text-xl font-bold mb-4">
+      <h1 class="text-2xl font-bold mb-6">
         {{ searchQuery ? "검색 결과" : selectedMenu || "메뉴 선택" }}
       </h1>
 
       <!-- ✅ 검색 결과가 있을 때 -->
-      <ul v-if="searchQuery && filteredSubMenus.length > 0" class="space-y-4">
+      <ul v-if="searchQuery && filteredSubMenus.length > 0" class="space-y-5">
         <li v-for="(menu, index) in filteredSubMenus" 
             :key="index"
-            class="cursor-pointer text-lg hover:text-[#3D5A3F]"
+            class="cursor-pointer text-xl hover:text-[#3D5A3F] transition-colors duration-200"
             @click="$router.push(menu.route)">
           {{ menu.name }}
         </li>
@@ -80,7 +80,7 @@ onMounted(() => {
 });
 
 // ✅ 대분류 메뉴
-const menuItems = ["계정 및 보안", "설정", "고객 지원"];
+const menuItems = ["계정 및 보안", "설정"];
 const selectedMenu = ref(null); // 선택된 대분류 메뉴
 
 // ✅ 세부 메뉴 목록 (라우트 포함)
@@ -92,11 +92,7 @@ const subMenus = ref({
   ],
   "설정": [
     { name: "알림 설정", route: "/mypage/alarm" },
-    { name: "디스플레이 설정", route: "/mypage/display-settings" }
-  ],
-  "고객 지원": [
-    { name: "문의하기", route: "/mypage/support" },
-    { name: "FAQ", route: "/mypage/faq" }
+    // { name: "디스플레이 설정", route: "/mypage/display-settings" }
   ]
 });
 

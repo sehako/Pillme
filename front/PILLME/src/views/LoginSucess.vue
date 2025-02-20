@@ -27,8 +27,19 @@ import {saveAccessToken} from '../utils/localForage'
 const router = useRouter()
 const error = ref('')
 
-const goToLogin = () => {
-  router.push('/login')
+const goToLogin = async () => {
+  try {
+    // 이동 전 기존 토큰 정리
+    localStorage.clear();
+    Cookies.remove('refreshToken');
+    
+    await router.push('/login');
+    console.log('로그인 페이지 이동 성공');
+  } catch (error) {
+    console.error('로그인 페이지 이동 실패:', error);
+    // 강제로 페이지 이동
+    window.location.href = '/login';
+  }
 }
 
 onMounted(async () => {
@@ -51,33 +62,35 @@ onMounted(async () => {
 
     // JWT 토큰 디코딩
     try {
-      const tokenParts = accessToken.split('.');
-      const tokenPayload = JSON.parse(atob(tokenParts[1]));
-      const expiryTime = tokenPayload.exp * 1000;
-      const currentTime = Date.now();
+      // const tokenParts = accessToken.split('.');
+      // const tokenPayload = JSON.parse(atob(tokenParts[1]));
+      // const expiryTime = tokenPayload.exp * 1000;
+      // const currentTime = Date.now();
       
       console.log('토큰 정보:', {
-        만료시간: new Date(expiryTime).toLocaleString(),
-        현재시간: new Date(currentTime).toLocaleString(),
-        유효여부: expiryTime > currentTime
+        // 만료시간: new Date(expiryTime).toLocaleString(),
+        // 현재시간: new Date(currentTime).toLocaleString(),
+        // 유효여부: expiryTime > currentTime
       });
 
-      // 토큰 저장
-      // localStorage.clear(); // 기존 토큰 정보 초기화
+      // 토큰 저장 전 기존 데이터 정리
+      localStorage.clear(); // 기존 localStorage 데이터 초기화
+      Cookies.remove('refreshToken'); // 기존 리프레시 토큰 제거
+
+      // 새로운 토큰 저장
       localStorage.setItem('accessToken', accessToken);
-      saveAccessToken(accessToken);
       // localStorage.setItem('accessTokenExpiry', expiryTime.toString());
-      // Cookies.remove('refreshToken'); // 기존 쿠키 제거
+      saveAccessToken(accessToken);
       Cookies.set('refreshToken', refreshToken);
 
       // 저장된 값 확인
       const savedAccessToken = localStorage.getItem('accessToken');
-      const savedExpiry = localStorage.getItem('accessTokenExpiry');
+      // const savedExpiry = localStorage.getItem('accessTokenExpiry');
       const savedRefreshToken = Cookies.get('refreshToken');
 
       console.log('저장된 값 확인:', {
         accessToken: savedAccessToken ? '저장됨' : '실패',
-        accessTokenExpiry: savedExpiry,
+        // accessTokenExpiry: savedExpiry,
         refreshToken: savedRefreshToken ? '저장됨' : '실패'
       });
 

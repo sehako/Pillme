@@ -24,13 +24,27 @@ export const useUserStore = defineStore("user", {
       Cookies.remove("refreshToken"); // ✅ 추가
     },
     async getMemberId() {
+      // 현재 저장된 유저 정보가 있는 경우
       if (this.user?.memberId) {
         console.log("🔍 [DEBUG] 기존 memberId 반환:", this.user.memberId);
         return this.user.memberId;
       }
 
-      // console.warn("⚠️ [DEBUG] memberId 없음. 액세스 토큰 갱신 시도...");
+      // 현재 액세스 토큰을 확인하고 디코딩 시도
+      const currentToken = localStorage.getItem("accessToken");
+      if (currentToken) {
+        try {
+          const decodedToken = decodeToken(currentToken);
+          if (decodedToken?.memberId) {
+            this.setUser(decodedToken);
+            return decodedToken.memberId;
+          }
+        } catch (error) {
+          console.warn("⚠️ [DEBUG] 현재 토큰 디코딩 실패:", error);
+        }
+      }
 
+      // 액세스 토큰이 없거나 유효하지 않은 경우, 리프레시 시도
       try {
         const newTokenData = await refreshAccessTokenAPI();
 

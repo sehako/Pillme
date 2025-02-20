@@ -39,8 +39,8 @@
     <span class="mx-0">만나보세요!</span>
   </h1>
 
-  <div class="w-40 h-auto mt-8">
-    <img src="./assets/fillmeqr.svg" alt="QR 코드" class="w-full h-auto !rounded-lg" />
+  <div class="w-40 h-auto">
+    <img src="./assets/fillmeqr.png" alt="QR 코드" class="w-full h-auto !rounded-lg" />
   </div>
 </div>
 </div>
