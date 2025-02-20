@@ -113,18 +113,28 @@ export const logoutAPI = async () => {
 // 토큰 관리 및 저장 관련 헬퍼 함수들
 // ===========================
 
-export const handleLoginSuccess = (responseData) => {
+export const handleLoginSuccess = async (responseData) => {
   const { accessToken, refreshToken } = responseData.result;
-  localStorage.setItem('accessToken', accessToken);
-  saveAccessToken(accessToken);
-  Cookies.set('refreshToken', refreshToken, { secure: true, sameSite: 'Strict' });
+  
+  // 토큰 저장 (병렬 처리)
+  await Promise.all([
+    saveAccessToken(accessToken),
+    new Promise(resolve => {
+      localStorage.setItem('accessToken', accessToken);
+      Cookies.set('refreshToken', refreshToken, { secure: true, sameSite: 'Strict' });
+      resolve();
+    })
+  ]);
 
-  // ✅ JWT 디코딩 후 Pinia 업데이트
+  // JWT 디코딩 및 스토어 업데이트
   const userStore = useUserStore();
   const authStore = useAuthStore();
   const userInfo = decodeToken(accessToken);
-  userStore.setUser(userInfo);
-  authStore.checkLoginStatus();
+  
+  await Promise.all([
+    userStore.setUser(userInfo),
+    authStore.checkLoginStatus()
+  ]);
 
   // 토큰 체크 초기화
   authStore.lastTokenCheck = Date.now();

@@ -249,29 +249,49 @@ export function useFCM() {
     console.log('포그라운드 메시지 수신:', payload);
 
     if (document.visibilityState === 'visible') {
-      // 고유 ID 생성 (타임스탬프 + 랜덤값)
-      const uniqueId = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-      
-      // 이미 표시된 알림인지 확인
-      if (notifications.value.some(n => n.id === uniqueId)) {
-        return; // 중복 알림 방지
+      let notificationData;
+
+      // data 메시지 처리
+      if (payload.data) {
+        notificationData = {
+          id: Date.now(),
+          title: payload.data.title,
+          body: payload.data.body,
+          data: {
+            code: payload.data.code,
+            senderId: payload.data.senderId,
+            dependencyId: payload.data.dependencyId
+          }
+        };
+      }
+      // notification 메시지 처리
+      else if (payload.notification) {
+        notificationData = {
+          id: Date.now(),
+          title: payload.notification.title || 'PILLME 알림',
+          body: payload.notification.body || '',
+          data: {}
+        };
       }
 
-      let notificationData = {
-        id: uniqueId,
-        title: payload.data?.title || payload.notification?.title || 'PILLME 알림',
-        body: payload.data?.body || payload.notification?.body || '',
-        data: payload.data || {},
+      // 알림 표시
+      const notification = {
+        ...notificationData,
         show: true
       };
+      notifications.value.push(notification);
 
-      notifications.value.push(notificationData);
-
-      // REQUEST 타입이 아닌 경우에만 자동 제거
-      if (!payload.data?.code || 
-          !['DEPENDENCY_REQUEST', 'MEDICINE_REQUEST', 'DEPENDENCY_DELETE_REQUEST'].includes(payload.data.code)) {
+      // REQUEST 타입이 아닌 경우 자동 제거
+      if (!payload.data?.code ||
+        !['DEPENDENCY_REQUEST', 'MEDICINE_REQUEST', 'DEPENDENCY_DELETE_REQUEST'].includes(payload.data.code)) {
         setTimeout(() => {
-          removeNotification(uniqueId);
+          const index = notifications.value.findIndex(n => n.id === notification.id);
+          if (index !== -1) {
+            notifications.value[index].show = false;
+            setTimeout(() => {
+              removeNotification(notification.id);
+            }, 300);
+          }
         }, 5000);
       }
     }

@@ -1,15 +1,14 @@
 <template>
   <!-- 이 부분은 스크롤이있어야한다고 생각 -->
   <div 
-  ref="scrollContainer" 
-  class="flex flex-col w-full h-full overflow-y-auto" 
-  :class="{ 'scroll-smooth': isScrolling }"
->
+    ref="scrollContainer" 
+    class="flex flex-col w-full h-full overflow-y-auto hide-scrollbar" 
+    :class="{ 'scroll-smooth': isScrolling }"
+  >
     <!-- 달력 영역 -->
     <div class="flex-none h-auto min-h-0 flex">
       <BaseCalendar 
         :prescriptions="managementInfoList" 
-
       />
     </div>
 
@@ -29,7 +28,6 @@
       >
         <span class="text-xs">아침</span>
         <img 
-
           :src="CheckCircle" 
           alt="Checked" 
           class="w-4 h-4"
@@ -41,7 +39,6 @@
       >
         <span class="text-xs">점심</span>
         <img 
-
           :src="CheckCircle" 
           alt="Checked" 
           class="w-4 h-4"
@@ -53,7 +50,6 @@
       >
         <span class="text-xs">저녁</span>
         <img 
-
           :src="CheckCircle" 
           alt="Checked" 
           class="w-4 h-4"
@@ -65,7 +61,6 @@
       >
         <span class="text-xs">자기 전</span>
         <img 
-
           :src="CheckCircle" 
           alt="Checked" 
           class="w-4 h-4"
@@ -108,13 +103,13 @@
 
               <!-- 약물 정보 -->
               <div class="flex-1">
-                <p class="font-bold text-lg">
+                <p class="font-bold text-base sm:text-lg">
                   {{ medication.medicationName || "약 이름 없음" }}
                 </p>
-                <p class="text-sm text-gray-500">
+                <p class="text-xs sm:text-sm text-gray-500">
                   {{ medication.diseaseName || "병명 없음" }}
                 </p>
-                <p class="text-sm text-gray-600">
+                <p class="text-xs sm:text-sm text-gray-600">
                   {{ medication.startDate }} ~ {{ medication.endDate }}
                 </p>
                 <p class="text-xs text-gray-500">
@@ -375,5 +370,14 @@ onMounted(async () => {
 <style scoped>
 .flex-auto {
   @apply overflow-y-auto;
+}
+
+.hide-scrollbar {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
 }
 </style>
