@@ -31,7 +31,7 @@
 
 
 <!-- 배경을 부모 컨테이너에서 적용 -->
-<div class="flex flex-col md:flex-row w-full md:w-2/4 relative bg-gradient-to-r from-[#D4EAD7] from-10% to-slate-[#D4EAD7] via-[#D4EAD7] via-20%">
+<div class="hidden md:flex flex-col md:flex-row w-full md:w-2/4 relative bg-gradient-to-r from-[#D4EAD7] from-10% to-slate-[#D4EAD7] via-[#D4EAD7] via-20%">
 
 <!-- 왼쪽 배경 공간 (모바일 전체, PC 50%) -->
 <div class="w-full md:w-1/2"></div>
@@ -87,8 +87,8 @@
       </div>
     </div>
 
-    <div class="md:w-1/4 relative border-l border-gray-200">
-
+    <!-- 맨 오른쪽 여백 섹션 -->
+    <div class="hidden md:block md:w-1/4 relative border-l border-gray-200">
     </div>
   </div>
 </template>
