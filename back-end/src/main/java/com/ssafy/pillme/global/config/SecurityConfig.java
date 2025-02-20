@@ -55,7 +55,9 @@ public class SecurityConfig {
                                 "/api/v1/auth/find-email",
                                 "/api/v1/auth/reset-password/**",
                                 "/api/v1/auth/oauth2/**",
-                                "/api/v1/auth/check/**"
+                                "/api/v1/auth/check/**",
+                                "/admin",
+                                "/api/v1/admin/**"
                         )
                         .permitAll()
                         .anyRequest().authenticated()
