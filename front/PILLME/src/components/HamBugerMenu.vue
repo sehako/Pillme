@@ -134,7 +134,7 @@ const handleLogoutEvent = async () => {
     // ✅ 로그아웃 API 요청
     await logoutAPI();
     handleLogout();
-    alert("✅ 로그아웃 성공!");
+    alert("로그아웃 되었습니다.");
   } catch (error) {
     console.error("❌ 로그아웃 오류:", error);
     alert("❌ 로그아웃 실패. 다시 시도해주세요.");

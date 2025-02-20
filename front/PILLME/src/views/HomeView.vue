@@ -82,7 +82,7 @@
     </div>
   <!-- 가로 스크롤 가능한 화이트카드 영역 -->
 <!-- 가로 스크롤 가능한 화이트카드 영역 -->
-<div class="scroll-container flex overflow-x-auto space-x-4">
+<div class="scroll-container flex overflow-x-auto">
   <WhiteCard
     v-for="(info, index) in managementInfoList"
     :key="index"
@@ -333,18 +333,33 @@ const nextNotificationPeriod = computed(() => {
   // 설정된 시간대가 하나도 없으면 빈 문자열 반환
   if (periods.length === 0) return "";
 
+  // 알림이 1개만 설정되어 있으면 무조건 그 값을 반환
+  if (periods.length === 1) {
+    return periods[0].label;
+  }
+
   // 시간 순서대로 정렬 (오름차순)
   periods.sort((a, b) => a.minutes - b.minutes);
+
+  const GRACE_PERIOD = 15; // 15분의 여유 시간
+
+  // 현재 시간이 알림 시간 이후이지만 15분 이내인 경우를 먼저 체크
+  for (let i = 0; i < periods.length; i++) {
+    const timeDiff = currentMinutes - periods[i].minutes;
+    if (timeDiff >= 0 && timeDiff <= GRACE_PERIOD) {
+      return periods[i].label;
+    }
+  }
 
   // 다음 예정 알림 찾기
   for (let i = 0; i < periods.length; i++) {
     if (periods[i].minutes > currentMinutes) {
-      return periods[i].label; // 현재 시간보다 이후의 첫 번째 알림 반환
+      return periods[i].label;
     }
   }
 
-  // 모든 알림이 지나간 경우 빈 문자열 반환
-  return "";
+  // 모든 알림이 지나간 경우, 다음 날의 첫 번째 알림 반환
+  return periods[0].label;
 });
 
 // ----------------- 모달 제어 함수 (열고 닫기) -----------------
@@ -356,8 +371,9 @@ const openSetAlarmModal = () => {
   isAlarmModalOpen.value = true;
 };
 
-const closeSetAlarmModal = () => {
-  isAlarmModalOpen.value = false;
+const closeSetAlarmModal = async () => {
+  isAlarmModalOpen.value = false;
+  await loadNotificationSettings();
 };
 
 const openSearchDialog = () => {
