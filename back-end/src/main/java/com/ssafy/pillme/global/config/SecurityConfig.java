@@ -56,6 +56,7 @@ public class SecurityConfig {
                                 "/api/v1/auth/reset-password/**",
                                 "/api/v1/auth/oauth2/**",
                                 "/api/v1/auth/check/**",
+                                "/api/v1/search",
                                 "/admin",
                                 "/api/v1/admin/**",
                                 "api/v1/ws-chat/**"
