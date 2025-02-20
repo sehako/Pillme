@@ -82,6 +82,9 @@ const handleFileChange = (event) => {
 
 // ✅ OCR 분석 실행
 const analyzeImage = async () => {
+  
+  ocrStore.resetOcrState();
+
   if (!selectedFile.value || ocrStore.isLoading) return; // ✅ 중복 요청 방지
 
   ocrStore.error = null;
