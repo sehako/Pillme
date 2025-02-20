@@ -74,12 +74,12 @@ async function handleApiRequest(code, action, senderId, dependencyId) {
 // 알림 중복 체크를 위한 함수
 async function isDuplicateNotification(payload) {
   const { code, messageId, senderId } = payload.data;
-  
+
   // 채팅 메시지의 경우 messageId로 정확한 중복 체크
   if (code === 'CHAT_MESSAGE') {
     if (!messageId) return false;
     const recentChatMessages = await localforage.getItem('recentChatMessages') || [];
-    
+
     const isDuplicate = recentChatMessages.includes(messageId);
     if (!isDuplicate) {
       // 새 메시지 ID 저장 (최근 50개만 유지)
@@ -88,11 +88,11 @@ async function isDuplicateNotification(payload) {
     }
     return isDuplicate;
   }
-  
+
   // 채팅 외 다른 알림들은 시간 기반 중복 체크
   const notificationId = `${code}_${senderId}_${Date.now()}`;
   const recentNotifications = await localforage.getItem('recentNotifications') || [];
-  
+
   const isDuplicate = recentNotifications.some(notification => {
     const timeDiff = Date.now() - notification.timestamp;
     return notification.id.includes(`${code}_${senderId}`) && timeDiff < 3000;
@@ -111,11 +111,16 @@ async function isDuplicateNotification(payload) {
 
 // 백그라운드 메시지 처리
 messaging.onBackgroundMessage(async (payload) => {
-  console.log('백그라운드 메시지 수신:', payload);
+  console.log('[Service Worker] 백그라운드 메시지 수신:', payload);
+
+  if (payload.notification) {
+    console.log('Firebase notification 페이로드 감지, 추가 알림 표시하지 않음');
+    return;
+  }
 
   // 업데이트 관련 알림인지 확인 (title이나 body에 '업데이트' 문자열이 포함된 경우)
   if (
-    payload.data?.title?.includes('업데이트') || 
+    payload.data?.title?.includes('업데이트') ||
     payload.data?.body?.includes('업데이트')
   ) {
     console.log('업데이트 알림 필터링됨');
