@@ -39,15 +39,6 @@ export default defineConfig({
         ]
       },
       injectRegister: 'auto',
-      strategies: 'injectManifest',
-      // 업데이트 알림 비활성화
-      injectManifest: {
-        injectionPoint: undefined,
-        rollupFormat: 'iife',
-        maximumFileSizeToCacheInBytes: 3000000,
-      },
-      // 서비스 워커 업데이트 관련 알림 비활성화
-      registerType: 'autoUpdate',
       manifest: {
         name: "PILLME",
         short_name: "PILLME",
