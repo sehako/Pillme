@@ -52,20 +52,24 @@
     </div>
 
     <!-- ✅ 가족 추가 모달 -->
-    <FamilyAddModal :isOpen="isFamilyModalOpen" @close="closeFamilyModal" @add="handleModalClose" />
+    <Teleport to="body">
+      <FamilyAddModal :isOpen="isFamilyModalOpen" @close="closeFamilyModal" @add="handleModalClose"/>
+    </Teleport>
 
     <!-- ✅ 복용 내역 Dialog -->
-    <MedicationHistoryDialog
-      v-if="isMedicationDialogOpen"
-      :dependent="selectedDependent"
-      @close="isMedicationDialogOpen = false"
-    />
+    <Teleport to="body">
+      <MedicationHistoryDialog
+        v-if="isMedicationDialogOpen"
+        :dependent="selectedDependent"
+        @close="isMedicationDialogOpen = false"
+      />
+    </Teleport>
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted, onUnmounted, watch } from 'vue';
-import { useRouter, useRoute } from 'vue-router';
+// import { useRouter, useRoute } from 'vue-router';
 import FamilyAddModal from '../components/FamilyAddModal.vue';
 import { fetchUsername } from '../api/username';
 import { useDependents } from '../composables/useDependents';
@@ -77,8 +81,8 @@ const isFamilyModalOpen = ref(false);
 const username = ref('');
 const isMedicationDialogOpen = ref(false); 
 const selectedDependent = ref(null); // ✅ selectedDependent 정의
-const router = useRouter();
-const route = useRoute();
+// const router = useRouter();
+// const route = useRoute();
 
 const isLoading = ref(false);
 const error = ref(null);

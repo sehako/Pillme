@@ -23,6 +23,11 @@
     <p class="mt-4 text-sm text-gray-600 forgot-account">
       <a href="/accountsearchselection" class="hover:underline">계정이 기억나지 않아요</a>
     </p>
+
+    <!-- 로그인 페이지로 돌아가기 버튼 추가 -->
+    <p class="mt-4 text-sm text-gray-600">
+      <a href="/start" class=" hover:underline">로그인 페이지로 돌아가기</a>
+    </p>
   </div>
 </template>
 
@@ -76,7 +81,5 @@ const handleGoogleLogin = () => {
   @apply mt-4 text-sm text-gray-600;
 }
 
-.forgot-account a {
-  @apply text-[#4E7351] no-underline hover:underline;
-}
+
 </style>

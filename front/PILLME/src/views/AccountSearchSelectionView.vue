@@ -32,7 +32,7 @@
 
     <!-- ✅ 로그인 링크 -->
     <p class="back-login">
-      <a href="/loginselection" class="text-[#4E7351] hover:underline">로그인 페이지로 돌아가기</a>
+      <a href="/start" class="text-[#000000] hover:underline">로그인 페이지로 돌아가기</a>
     </p>
   </div>
 </template>

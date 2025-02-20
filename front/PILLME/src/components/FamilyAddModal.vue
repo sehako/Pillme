@@ -1,7 +1,7 @@
 <template>
   <div 
     v-if="isOpen" 
-    class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-20"
+    class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-30"
     @click.self="closeModal"
   >
     <!-- ✅ 반응형 팝업 모달 (현재 화면 비율 고려) -->
@@ -13,8 +13,10 @@
         <button @click="closeModal" class="text-gray-500 hover:text-gray-800 text-lg">✕</button>
       </div>
 
-      <!-- ✅ 인원 추가 컴포넌트 사용 -->
-      <AddMember @close="closeModal" />
+      <!-- ✅ 인원 추가 컴포넌트를 div로 감싸고 click.self 추가 -->
+      <div @click.self="closeModal">
+        <AddMember @close="closeModal" />
+      </div>
 
     </div>
   </div>
