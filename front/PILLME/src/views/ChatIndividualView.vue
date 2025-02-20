@@ -74,7 +74,7 @@ const isAtBottom = ref(true);
 let headers = {Authorization : localStorage.getItem('accessToken')};
 // ✅ WebSocket 연결
 const connectWebSocket = (chatRoomId) => {
-  const socket = new SockJS(`${import.meta.env.VITE_API_URL}/ws-chat`);
+  const socket = new SockJS(`${import.meta.env.VITE_API_URL}/api/v1/ws-chat`);
   stompClient = Stomp.over(socket);
   
 

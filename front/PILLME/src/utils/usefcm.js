@@ -112,12 +112,9 @@ export function useFCM() {
   // 토큰 서버 등록
   const registerTokenToServer = async (token) => {
     try {
-      // 기존 토큰과 비교
-      const existingToken = localStorage.getItem('fcmToken');
-      if (existingToken === token) {
-        console.log('이미 등록된 토큰입니다.');
-        return;
-      }
+      console.log('서버 URL:', import.meta.env.VITE_API_URL);
+      console.log('토큰:', token);
+      console.log('accessToken:', localStorage.getItem('accessToken'));
 
       const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/fcm`, {
         method: 'POST',
@@ -126,18 +123,16 @@ export function useFCM() {
           'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
         },
         body: JSON.stringify({ token })
-      });
+      })
 
       if (!response.ok) {
-        throw new Error('토큰 등록 실패');
+        throw new Error('토큰 등록 실패')
       }
 
-      // 성공 시 로컬 스토리지에 저장
-      localStorage.setItem('fcmToken', token);
-      console.log('FCM 토큰이 서버에 등록되었습니다.');
+      console.log('FCM 토큰이 서버에 등록되었습니다.')
     } catch (error) {
-      console.error('토큰 서버 등록 중 오류 발생:', error);
-      throw error;
+      console.error('토큰 서버 등록 중 오류 발생:', error)
+      throw error
     }
   }
 

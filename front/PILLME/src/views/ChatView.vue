@@ -269,7 +269,7 @@ let stompClient = null;
 let headers = {Authorization : localStorage.getItem('accessToken')};
 // ✅ WebSocket 연결 (새 메시지 업데이트)
 const connectWebSocket = () => {
-  const socket = new SockJS(`${import.meta.env.VITE_API_URL}/ws-chat`);
+  const socket = new SockJS(`${import.meta.env.VITE_API_URL}/api/v1/ws-chat`);
   stompClient = Stomp.over(socket);
 
   stompClient.connect(headers, () => {
