@@ -44,24 +44,24 @@ public class SecurityConfig {
                 )
                 .userDetailsService(userDetailsService)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(
-                                "/api/v1/auth/signup",
-                                "/api/v1/auth/login",
-                                "/api/v1/auth/logout",
-                                "/api/v1/auth/email/verification",
-                                "/api/v1/auth/email/verify",
-                                "/api/v1/auth/sms/verification",
-                                "/api/v1/auth/sms/verify",
-                                "/api/v1/auth/find-email",
-                                "/api/v1/auth/reset-password/**",
-                                "/api/v1/auth/oauth2/**",
-                                "/api/v1/auth/check/**",
-                                "/admin",
-                                "/api/v1/admin/**",
-                                "/ws-chat/**"
-                        )
-                        .permitAll()
-                        .anyRequest().authenticated()
+                                .requestMatchers(
+                                        "/api/v1/auth/signup",
+                                        "/api/v1/auth/login",
+                                        "/api/v1/auth/logout",
+                                        "/api/v1/auth/email/verification",
+                                        "/api/v1/auth/email/verify",
+                                        "/api/v1/auth/sms/verification",
+                                        "/api/v1/auth/sms/verify",
+                                        "/api/v1/auth/find-email",
+                                        "/api/v1/auth/reset-password/**",
+                                        "/api/v1/auth/oauth2/**",
+                                        "/api/v1/auth/check/**",
+                                        "/admin",
+                                        "/api/v1/admin/**"
+//                                "/ws-chat/**"
+                                )
+                                .permitAll()
+                                .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
