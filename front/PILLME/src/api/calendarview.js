@@ -1,6 +1,5 @@
 import { useUserStore } from "../stores/user";
 import apiClient from "./index";
-import axios from "axios";
 
 // 달력 날짜 변경 시 처방전 조회 API
 export const fetchCalendarPrescriptions = async (date, target) => {
@@ -38,23 +37,17 @@ export const fetchCalendarPrescriptions = async (date, target) => {
 
 
 // 본인 처방전 조회 API
-export const fetchSelfCalendarPrescriptions = async (date, memberId) => {
-  if (!memberId) {
-    throw new Error('회원 ID가 필요합니다.');
-  }
-
+export const fetchSelfCalendarPrescriptions = async (date, target) => {
   try {
     const response = await apiClient.get(`/api/v1/management/prescription`, {
       params: {
-        memberId,  // 본인 ID
+        target,
         date
       }
     });
     
-    // 응답 데이터가 배열인지 확인
-    if (!Array.isArray(response.data)) {
-      console.error("❌ API 응답이 배열이 아닙니다:", response.data);
-      return []; // 빈 배열 반환
+    if (!response.data) {
+      throw new Error('처방전 데이터가 없습니다.');
     }
     
     return response.data;

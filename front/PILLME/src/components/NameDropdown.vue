@@ -3,7 +3,7 @@
     <!-- ✅ 사용자 이름과 드롭다운 버튼 -->
     <button 
       @click="toggleModal" 
-      class="flex items-center space-x-1"
+      class="flex items-center space-x-1 font-extrabold"
       aria-expanded="isOpen"
       aria-haspopup="true"
       :aria-label="`${username} 메뉴 열기`">
