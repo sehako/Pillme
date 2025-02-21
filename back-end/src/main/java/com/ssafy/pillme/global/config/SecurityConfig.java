@@ -26,7 +26,7 @@ public class SecurityConfig {
     private final String requestUrl;
 
     public SecurityConfig(
-            @Value("${request-url}") String requestUrl,
+            @Value("${REQUEST_URL}") String requestUrl,
             JwtAuthenticationFilter jwtAuthenticationFilter,
             CustomMemberDetailsService userDetailsService) {
         this.requestUrl = requestUrl;
@@ -72,7 +72,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOriginPatterns(Collections.singletonList("*")); // 프론트엔드 URL
+        configuration.setAllowedOriginPatterns(Collections.singletonList(requestUrl)); // 프론트엔드 URL
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);
