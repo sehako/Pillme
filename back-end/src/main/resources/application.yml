@@ -13,7 +13,7 @@ spring:
       - classpath:application-mysql.yml
       - classpath:application-firebase.yml
       - classpath:application-mongo.yml
-#      - classpath:application-elastic.yml
+      - classpath:application-elastic.yml
       - optional:file:.env[.properties]
 
 request-url: ${REQUEST_URL}
