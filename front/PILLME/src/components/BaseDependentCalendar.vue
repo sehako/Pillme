@@ -198,19 +198,26 @@ const calendarEvents = computed(() => {
   const prescriptions = internalPrescriptions.value || [];
   
   try {
-    const events = prescriptions.map(prescription => ({
-      title: prescription.diseaseName || '병명 미등록',
-      start: prescription.startDate,
-      end: prescription.endDate,
-      backgroundColor: '#9DBB9F',
-      borderColor: '#9DBB9F',
-      textColor: '#FFFDEC',
-      extendedProps: {
-        hospital: prescription.hospital,
-        registrationType: prescription.registrationType
-      }
-    }));
-    
+    const events = prescriptions.map(prescription => {
+      // endDate를 하루 추가
+      const endDateObj = new Date(prescription.endDate);
+      endDateObj.setDate(endDateObj.getDate() + 1);
+      const adjustedEndDate = endDateObj.toISOString().split('T')[0]; // YYYY-MM-DD 형식 변환
+
+      return {
+        title: prescription.diseaseName || '병명 미등록',
+        start: prescription.startDate,
+        end: adjustedEndDate, // 하루 추가된 endDate 적용
+        backgroundColor: '#9DBB9F',
+        borderColor: '#9DBB9F',
+        textColor: '#FFFDEC',
+        extendedProps: {
+          hospital: prescription.hospital,
+          registrationType: prescription.registrationType
+        }
+      };
+    });
+
     console.log("✨ 변환된 캘린더 이벤트:", events);
     return events;
   } catch (error) {
@@ -218,6 +225,8 @@ const calendarEvents = computed(() => {
     return [];
   }
 });
+
+
 
 onMounted(async () => {
   console.log("🔵 피부양자 캘린더 컴포넌트 마운트됨");
@@ -231,8 +240,8 @@ onMounted(async () => {
     calendar.prev(); // 이전 버튼 클릭
     setTimeout(() => {
       calendar.next(); // 다음 버튼 클릭
-    }, 10);
-  }, 10);
+    }, 50);
+  }, 50);
 });
 
 onUnmounted(() => {

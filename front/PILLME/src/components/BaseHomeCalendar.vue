@@ -239,8 +239,8 @@ onMounted(async () => {
     calendar.prev(); // 이전 버튼 클릭
     setTimeout(() => {
       calendar.next(); // 다음 버튼 클릭
-    }, 10);
-  }, 10);
+    }, 50);
+  }, 50);
 });
 
 onUnmounted(() => {
