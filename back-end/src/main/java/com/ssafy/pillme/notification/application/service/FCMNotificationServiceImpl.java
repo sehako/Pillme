@@ -149,7 +149,6 @@ public class FCMNotificationServiceImpl implements FCMNotificationService {
             Message message = buildSendNotificationMessage(token.getToken(), title, body);
 
             try {
-                log.info("Send message to protector: {}", token.getToken());
                 firebaseMessaging.sendAsync(message);
             } catch (Exception e) {
                 handleExceptionForSendMessage(e, token);

@@ -9,7 +9,6 @@ import com.ssafy.pillme.chat.presentation.request.ChatRoomRequest;
 import com.ssafy.pillme.global.code.SuccessCode;
 import com.ssafy.pillme.global.response.JSONResponse;
 import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -20,7 +19,6 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1/chat/rooms")
 @AllArgsConstructor
-@Slf4j
 public class ChatRoomController {
 
     private final ChatRoomService chatRoomService;

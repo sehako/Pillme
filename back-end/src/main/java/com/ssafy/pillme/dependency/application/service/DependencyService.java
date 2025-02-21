@@ -16,7 +16,6 @@ import com.ssafy.pillme.dependency.presentation.request.*;
 import com.ssafy.pillme.global.code.ErrorCode;
 import com.ssafy.pillme.notification.application.service.NotificationService;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,7 +25,6 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @Transactional
-@Slf4j
 public class DependencyService {
     private final RedisTemplate<String, String> redisTemplate;
     private final DependencyRepository dependencyRepository;
@@ -35,7 +33,6 @@ public class DependencyService {
     private final ChatRoomService chatRoomService;
 
     private static final String DEPENDENCY_DELETE_REQUEST_KEY = "dependency:delete:request:";
-    private static final long DEPENDENCY_DELETE_REQUEST_EXPIRE = 7; // 7일
 
     public void requestDependency(DependentPhoneRequest request, Member protector) {
         // 피보호자 정보 조회

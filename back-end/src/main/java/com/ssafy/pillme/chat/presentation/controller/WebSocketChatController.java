@@ -1,6 +1,5 @@
 package com.ssafy.pillme.chat.presentation.controller;
 
-import com.ssafy.pillme.auth.annotation.Auth;
 import com.ssafy.pillme.auth.application.service.AuthService;
 import com.ssafy.pillme.auth.domain.entity.Member;
 import com.ssafy.pillme.auth.util.JwtUtil;
@@ -9,10 +8,7 @@ import com.ssafy.pillme.chat.application.service.ChatMessageService;
 import com.ssafy.pillme.chat.application.service.ChatRoomService;
 import com.ssafy.pillme.chat.domain.entity.ChatMessage;
 import com.ssafy.pillme.notification.application.service.NotificationService;
-import com.ssafy.pillme.notification.domain.vo.NotificationCode;
-import com.ssafy.pillme.notification.presentation.request.NotificationRequest;
 import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
@@ -24,7 +20,6 @@ import java.util.Objects;
 
 @Controller
 @AllArgsConstructor
-@Slf4j
 public class WebSocketChatController {
 
     private final ChatMessageService chatMessageService;
@@ -45,12 +40,11 @@ public class WebSocketChatController {
         Member receiver = authService.findById(receiveId);
         int unreadCount = chatRoomService.countNotReadMessages(message.getChatRoomId(), receiveId);
         String lastMessage = chatRoomService.getLastChatMessage(message.getChatRoomId());
-        log.info("Before sending chatMessage is Read : {}", chatMessage.isRead());
+
         if(!chatMessage.isRead()){
-            log.info("sending FCM Push Notification");
             notificationService.sendChatNotification(message.getChatRoomId(), sender, receiver, message.getMessage(), message.getTimestamp());
         }
-        log.info("Sending Chatting lst");
+
         messagingTemplate.convertAndSend("/subscribe/chat/list/" + receiveId,
                 new ChatRoomUpdateResponse(message.getChatRoomId(), unreadCount, new Date().getTime(), lastMessage));
         return message;

@@ -13,11 +13,8 @@ import com.ssafy.pillme.chat.presentation.request.ChatRoomRequest;
 import com.ssafy.pillme.global.code.ErrorCode;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -26,7 +23,6 @@ import java.util.stream.Collectors;
 @Service
 @AllArgsConstructor
 @Transactional
-@Slf4j
 public class ChatRoomService {
     private final ChatRoomRepository chatRoomRepository;
     private final ChatMessageRepository chatMessageRepository;
