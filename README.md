@@ -30,7 +30,17 @@
 
 ### ✔️Front-end
 
-<img src="https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=JavaScript&logoColor=black"><img src="https://img.shields.io/badge/Vue.js-4FC08D?style=for-the-badge&logo=Vue.js&logoColor=white">
+<p>
+  <img src="https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=JavaScript&logoColor=black">
+  <img src="https://img.shields.io/badge/Vue.js-4FC08D?style=for-the-badge&logo=Vue.js&logoColor=white">
+  <img src="https://img.shields.io/badge/TailwindCSS-06B6D4?style=for-the-badge&logo=TailwindCSS&logoColor=white">
+  <img src="https://img.shields.io/badge/Pinia-FFD700?style=for-the-badge&logo=Pinia&logoColor=black">
+  <img src="https://img.shields.io/badge/FullCalendar-3A87AD?style=for-the-badge&logo=FullCalendar&logoColor=white">
+  <img src="https://img.shields.io/badge/Firebase-FFCA28?style=for-the-badge&logo=Firebase&logoColor=black">
+  <img src="https://img.shields.io/badge/SockJS-333333?style=for-the-badge&logo=SockJS&logoColor=white">
+  <img src="https://img.shields.io/badge/STOMP-000000?style=for-the-badge&logo=STOMP&logoColor=white">
+  <img src="https://img.shields.io/badge/Datepicker-42B883?style=for-the-badge&logo=Datepicker&logoColor=white">
+</p>
 
 ### ✔️Back-end
 
