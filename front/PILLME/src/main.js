@@ -33,6 +33,6 @@ if (import.meta.env.MODE === 'development') {
 
 // 🚨 배포 시 주석 처리 필요: 새로고침 전에 사용자 입력 정보 저장 기능
 window.addEventListener('beforeunload', () => {
-  console.log('[PWA] 사용자가 페이지를 떠나기 전에 데이터를 저장해야 할 수도 있음.');
+  // console.log('[PWA] 사용자가 페이지를 떠나기 전에 데이터를 저장해야 할 수도 있음.');
   // TODO: 사용자가 입력하던 데이터를 로컬스토리지에 저장하는 기능 추가 가능
 });
