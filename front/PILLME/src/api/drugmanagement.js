@@ -180,7 +180,7 @@ export const fetchAllManagementDetails = async (informationIdList, memberId) => 
         params: { reader: memberId }
       });
 
-      console.log("[DEBUG] 응답 데이터:", response.data);
+      // console.log("[DEBUG] 응답 데이터:", response.data);
 
       // 응답 데이터 저장
       results.push(response.data);
