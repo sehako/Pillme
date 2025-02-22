@@ -417,7 +417,7 @@ function closeMedicationModal() {
 // 수정하기 버튼 클릭 시 호출하는 함수
 const openEditModal = (info) => {
     selectedInfo.value = info; // 수정할 정보 저장
-    console.log("📌 수정할 정보:", info);
+    // console.log("📌 수정할 정보:", info);
     isEditModalOpen.value = true; // 모달 열기
 };
 

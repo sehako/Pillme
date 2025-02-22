@@ -158,9 +158,9 @@ const saveOcrResultsForDependent = async () => {
     return;
   }
 
-  console.log(
-    `📤 [DEBUG] 피보호자 OCR 데이터 저장 시작 - dependentId: ${props.dependent.dependentId}`
-  );
+  // console.log(
+  //   `📤 [DEBUG] 피보호자 OCR 데이터 저장 시작 - dependentId: ${props.dependent.dependentId}`
+  // );
 
   try {
     await ocrStore.saveOcrDataToDB(props.dependent.dependentId); // ✅ 피보호자 ID 전달
@@ -253,7 +253,7 @@ onMounted(() => {
   }
   // ✅ 페이지 이동 후 OCR 결과 저장
   if (route.query.dependentId && route.query.image) {
-    console.log('🔄 [DEBUG] OCR 분석 결과 자동 저장 실행');
+    // console.log('🔄 [DEBUG] OCR 분석 결과 자동 저장 실행');
     saveOcrResultsForDependent(props.dependent.dependentId);
   }
 });

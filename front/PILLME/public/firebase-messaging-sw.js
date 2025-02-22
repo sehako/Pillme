@@ -111,10 +111,10 @@ async function isDuplicateNotification(payload) {
 
 // 백그라운드 메시지 처리
 messaging.onBackgroundMessage(async (payload) => {
-  console.log('[Service Worker] 백그라운드 메시지 수신:', payload);
+  // console.log('[Service Worker] 백그라운드 메시지 수신:', payload);
 
   if (payload.notification) {
-    console.log('Firebase notification 페이로드 감지, 추가 알림 표시하지 않음');
+    // console.log('Firebase notification 페이로드 감지, 추가 알림 표시하지 않음');
     return;
   }
 
@@ -123,13 +123,13 @@ messaging.onBackgroundMessage(async (payload) => {
     payload.data?.title?.includes('업데이트') ||
     payload.data?.body?.includes('업데이트')
   ) {
-    console.log('업데이트 알림 필터링됨');
+    // console.log('업데이트 알림 필터링됨');
     return;
   }
 
   // 중복 알림 체크
   if (await isDuplicateNotification(payload)) {
-    console.log('중복 알림 감지됨, 무시합니다.');
+    // console.log('중복 알림 감지됨, 무시합니다.');
     return;
   }
 

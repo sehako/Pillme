@@ -177,7 +177,7 @@ const handleWithdrawal = () => {
 };
 
 onMounted(() => {
-  console.log('Component mounted, isOauthUser:', props.isOauthUser);
+  // console.log('Component mounted, isOauthUser:', props.isOauthUser);
   if (props.isOauthUser) {
     currentStep.value = 2;
   }

@@ -13,11 +13,11 @@ export const useUserStore = defineStore("user", {
       if (!userData?.memberId) {
         console.warn("⚠️ [DEBUG] 유저 데이터에 memberId 없음:", userData);
       }
-      console.log("✅ [DEBUG] Pinia에 유저 정보 저장됨:", userData);
+      // console.log("✅ [DEBUG] Pinia에 유저 정보 저장됨:", userData);
       this.user = userData;
     },
     clearUser() {
-      console.log("🚫 [DEBUG] 유저 정보 초기화");
+      // console.log("🚫 [DEBUG] 유저 정보 초기화");
       this.user = null;
       localStorage.removeItem("accessToken"); // ✅ 추가
       deleteAccessToken();
@@ -26,7 +26,7 @@ export const useUserStore = defineStore("user", {
     async getMemberId() {
       // 현재 저장된 유저 정보가 있는 경우
       if (this.user?.memberId) {
-        console.log("🔍 [DEBUG] 기존 memberId 반환:", this.user.memberId);
+        // console.log("🔍 [DEBUG] 기존 memberId 반환:", this.user.memberId);
         return this.user.memberId;
       }
 

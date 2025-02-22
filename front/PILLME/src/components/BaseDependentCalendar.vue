@@ -145,20 +145,20 @@ const calendarOptions = computed(() => ({
   datesSet: async (dateInfo) => {
     // 최초 렌더링 시에는 API를 호출하지 않고 props의 데이터를 사용
     if (apiCallCount.value === 0) {
-      console.log("📌 최초 렌더링: props의 처방전 데이터 사용");
+      // console.log("최초 렌더링: props의 처방전 데이터 사용");
       apiCallCount.value++;
       return;
     }
 
     try {
-      console.log("🔄 달력 날짜 변경됨");
+      // console.log("달력 날짜 변경됨");
       const start = dateInfo.view.currentStart;
       const year = start.getFullYear();
       const month = String(start.getMonth() + 1).padStart(2, '0');
       const formattedDate = `${year}-${month}-01`;
       
       const targetId = props.dependentId;
-      console.log("📅 요청할 날짜:", formattedDate, "대상 피부양자 ID:", targetId);
+      console.log("요청할 날짜:", formattedDate, "대상 피부양자 ID:", targetId);
       
       const response = await fetchCalendarPrescriptions(formattedDate, targetId);
       
@@ -174,18 +174,18 @@ const calendarOptions = computed(() => ({
           registrationType: item.registrationType
         }));
         
-        console.log("📦 변환된 처방전 데이터:", prescriptions);
+        // console.log("변환된 처방전 데이터:", prescriptions);
         internalPrescriptions.value = prescriptions;
         emit('update:prescriptions', prescriptions);
       } else {
-        console.warn("❗ 유효하지 않은 응답:", response);
+        // console.warn("유효하지 않은 응답:", response);
         internalPrescriptions.value = [];
         emit('update:prescriptions', []);
       }
       
-      console.log("📊 현재 캘린더 이벤트:", calendarEvents.value);
+      // console.log("현재 캘린더 이벤트:", calendarEvents.value);
     } catch (error) {
-      console.error("❌ 달력 데이터 업데이트 중 오류 발생:", error);
+      // console.error("달력 데이터 업데이트 중 오류 발생:", error);
       internalPrescriptions.value = [];
       emit('update:prescriptions', []);
     }
@@ -194,7 +194,7 @@ const calendarOptions = computed(() => ({
 
 // ✅ calendarEvents computed 속성에 안전장치 추가
 const calendarEvents = computed(() => {
-  console.log("🎯 처방전 데이터로 이벤트 변환 시작");
+  // console.log("처방전 데이터로 이벤트 변환 시작");
   const prescriptions = internalPrescriptions.value || [];
   
   try {
@@ -218,10 +218,10 @@ const calendarEvents = computed(() => {
       };
     });
 
-    console.log("✨ 변환된 캘린더 이벤트:", events);
+    // console.log("변환된 캘린더 이벤트:", events);
     return events;
   } catch (error) {
-    console.error("❌ 이벤트 변환 중 오류 발생:", error);
+    console.error("이벤트 변환 중 오류 발생:", error);
     return [];
   }
 });
@@ -229,7 +229,7 @@ const calendarEvents = computed(() => {
 
 
 onMounted(async () => {
-  console.log("🔵 피부양자 캘린더 컴포넌트 마운트됨");
+  // console.log("🔵 피부양자 캘린더 컴포넌트 마운트됨");
   window.addEventListener("resize", updateCalendarSize);
   updateCalendarSize();
 
@@ -245,7 +245,7 @@ onMounted(async () => {
 });
 
 onUnmounted(() => {
-  console.log("🔴 피부양자 캘린더 컴포넌트 언마운트됨");
+  // console.log("🔴 피부양자 캘린더 컴포넌트 언마운트됨");
   window.removeEventListener("resize", updateCalendarSize);
   apiCallCount.value = 0; // 컴포넌트 언마운트 시 카운트 초기화
 });

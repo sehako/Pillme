@@ -94,7 +94,7 @@ const loadMembers = async () => {
       })),
     ];
 
-    console.log("✅ 불러온 가족 목록:", members.value);
+    // console.log("✅ 불러온 가족 목록:", members.value);
   } catch (error) {
     console.error("❌ 가족 목록을 불러오는 중 오류 발생:", error);
   }

@@ -16,13 +16,13 @@ export const useAuthStore = defineStore('auth', {
     async checkAndRefreshToken() {
       // 중복 체크 방지
       if (this.isTokenChecking) {
-        console.log('토큰 체크 중...');
+        // console.log('토큰 체크 중...');
         return;
       }
       
       // 마지막 체크로부터 1분 이내면 스킵
       if (this.lastTokenCheck && Date.now() - this.lastTokenCheck < 60000) {
-        console.log('최근 체크 완료, 스킵');
+        // console.log('최근 체크 완료, 스킵');
         return;
       }
 
@@ -40,7 +40,7 @@ export const useAuthStore = defineStore('auth', {
         
         // 토큰 만료 10분 전부터 갱신
         if (Date.now() > expirationTime - 600000) {
-          console.log('토큰 갱신 필요');
+          // console.log('토큰 갱신 필요');
           await this.refreshToken();
         }
 

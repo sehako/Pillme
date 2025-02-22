@@ -47,7 +47,7 @@ import { useUserStore } from '../stores/user';  // useUserStore import 추가
 import localforage from 'localforage';
 import { getAccessToken } from '../utils/localForage';
 
-console.log('[Router] getAccessToken 함수 확인:', typeof getAccessToken);
+// console.log('[Router] getAccessToken 함수 확인:', typeof getAccessToken);
 
 const routes = [
   // 👉 게스트 전용 페이지 (비로그인 사용자만 접근)
@@ -100,7 +100,7 @@ const router = createRouter({
 });
 
 router.beforeEach(async (to, from, next) => {
-  console.log('[Route Guard] 시작:', to.path);
+  // console.log('[Route Guard] 시작:', to.path);
 
   const guestPages = [
     '/start', '/login', '/signinselection', '/loginselection',
@@ -112,12 +112,12 @@ router.beforeEach(async (to, from, next) => {
 
   try {
     let accessToken = await getAccessToken();
-    console.log('[Route Guard] localForage 토큰:', accessToken);
+    // console.log('[Route Guard] localForage 토큰:', accessToken);
 
     // 토큰이 있는 경우 (로그인된 상태)
     if (accessToken) {
       if (guestPages.includes(to.path)) {
-        console.log('[Route Guard] 로그인 상태에서 게스트 페이지 접근 시도 → 홈으로 이동');
+        // console.log('[Route Guard] 로그인 상태에서 게스트 페이지 접근 시도 → 홈으로 이동');
         return next('/');
       }
       

@@ -134,7 +134,7 @@ const { notifications, removeNotification, handleAccept, handleReject, initializ
 // visibility 변경 감지 핸들러
 const handleVisibilityChange = async () => {
   if (document.visibilityState === 'visible') {
-    console.log('앱이 포그라운드로 전환됨');
+    // console.log('앱이 포그라운드로 전환됨');
     if (isLoggedIn.value) {
       try {
         await authStore.checkAndRefreshToken();

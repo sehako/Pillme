@@ -243,8 +243,8 @@ async function loadPrescriptionDetails() {
     const infoId = props.prescription.informationId;
     const historyDetails = await fetchPrescriptionDetails(infoId);
     historyDetailsList.value = historyDetails;
-    console.log("📌 상세 정보 로드:", historyDetails);
-    console.log("📌 처방전 정보:", props.prescription);
+    // console.log("📌 상세 정보 로드:", historyDetails);
+    // console.log("📌 처방전 정보:", props.prescription);
     dateList.value = generateDateList(
       props.prescription.startDate,
       props.prescription.endDate
@@ -259,10 +259,10 @@ async function loadPrescriptionDetails() {
     });
 
     groupedByMedication.value = groups;
-    console.log("📌 그룹화된 데이터:", groups);
+    // console.log("📌 그룹화된 데이터:", groups);
     originalMedicationData.value = structuredClone(groups); // ✅ 깊은 복사로 초기 데이터 저장
   } catch (error) {
-    console.error("❌ 상세 정보 로드 실패:", error);
+    console.error("    상세 정보 로드 실패:", error);
   }
 }
 
@@ -274,7 +274,7 @@ async function deleteMedication(medicationNameToDelete) { // ✅ Receive medicat
   }
 
   if (!historyDetailsList.value || !Array.isArray(historyDetailsList.value)) { // ✅ historyDetailsList validation
-    console.error("❌ historyDetailsList가 유효하지 않습니다.");
+    console.error("    historyDetailsList가 유효하지 않습니다.");
     alert("데이터 로딩 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
     emit("close");
     return;
@@ -283,14 +283,14 @@ async function deleteMedication(medicationNameToDelete) { // ✅ Receive medicat
   const historyItemToDelete = historyDetailsList.value.find(item => item.medicationName === medicationNameToDelete); // ✅ Find item by medicationName
 
   if (!historyItemToDelete || !historyItemToDelete.historyId) { // ✅ Check if historyItem and historyId are found
-    console.error("❌ 삭제할 약품 정보를 찾을 수 없습니다.");
+    console.error("    삭제할 약품 정보를 찾을 수 없습니다.");
     alert("약품 정보 삭제에 실패했습니다. 약품 정보를 찾을 수 없습니다.");
     emit("close");
     return;
   }
 
   const historyIdToDelete = historyItemToDelete.historyId; // ✅ Extract historyId
-  console.log("📌 삭제할 약품 ID:", historyIdToDelete);
+  // console.log("📌 삭제할 약품 ID:", historyIdToDelete);
   if (confirm("약을 삭제하시겠습니까?")) {
     try {
       await deleteHistory(historyIdToDelete);
@@ -298,7 +298,7 @@ async function deleteMedication(medicationNameToDelete) { // ✅ Receive medicat
       loadPrescriptionDetails();
       emit("close");
     } catch (error) {
-      console.error("❌ 약 삭제 실패:", error);
+      console.error("    약 삭제 실패:", error);
       alert("약 삭제에 실패했습니다.");
       emit("close");
     }
@@ -342,7 +342,7 @@ async function saveMedicationHistory() { // ✅ "저장" 버튼 클릭 시 호�
   }
 
   // ✅ modifyList  생성 후 콘솔에 출력하여 확인 (디버깅 용도)
-  console.log("📌 modifyList (API 요청 Body):", modifyList);
+  // console.log("📌 modifyList (API 요청 Body):", modifyList);
 
   try {
     await updateHistoryDetails(props.prescription.informationId, modifyList);
@@ -350,7 +350,7 @@ async function saveMedicationHistory() { // ✅ "저장" 버튼 클릭 시 호�
     loadPrescriptionDetails(); // 데이터 다시 로드
     isEditMode.value = false; // 수정 모드 비활성화
   } catch (error) {
-    console.error("❌ 복약 정보 수정 실패:", error);
+    console.error("    복약 정보 수정 실패:", error);
     alert("복약 정보 수정에 실패했습니다.");
   }
 }

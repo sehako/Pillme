@@ -161,21 +161,21 @@ views: {
 
 // 캘린더 이벤트 computed 속성
 const calendarEvents = computed(() => {
-  console.log("🎯 처방전 데이터로 이벤트 변환 시작");
-  console.log("📋 현재 처방전 데이터:", props.prescriptions);
+  // console.log("처방전 데이터로 이벤트 변환 시작");
+  // console.log("현재 처방전 데이터:", props.prescriptions);
   const events = transformPrescriptionsToEvents(props.prescriptions, { mode: props.mode });
-  console.log("✨ 변환된 캘린더 이벤트:", events);
+  // console.log("변환된 캘린더 이벤트:", events);
   return events;
 });
 
 onMounted(() => {
-  console.log("🔵 캘린더 컴포넌트 마운트됨");
+  // console.log("🔵 캘린더 컴포넌트 마운트됨");
   window.addEventListener("resize", updateCalendarSize);
   updateCalendarSize();
 });
 
 onUnmounted(() => {
-  console.log("🔴 캘린더 컴포넌트 언마운트됨");
+  // console.log("🔴 캘린더 컴포넌트 언마운트됨");
   window.removeEventListener("resize", updateCalendarSize);
 });
 </script>

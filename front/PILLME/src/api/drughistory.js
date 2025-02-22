@@ -87,7 +87,7 @@ export async function fetchPrescriptionDetails(infoId) {
     const response = await apiClient.get(`/api/v1/history/${infoId}`, {
       params: { target: memberId }
     });
-    console.log("✅ 처방전 상세 응답 데이터:", response.data.result);
+    // console.log("처방전 상세 응답 데이터:", response.data.result);
     return response.data.result;
   } catch (error) {
     console.error("❌ 처방전 상세 API 요청 실패:", error);

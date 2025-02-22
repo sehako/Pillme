@@ -84,7 +84,7 @@ const saveOcrData = async () => {
     // ✅ `dependentId`가 없으면 `null`을 설정
     const dependentIdToSend = props.dependentId ?? null;
 
-    console.log(`📤 [DEBUG] OCR 데이터 저장 시작 - dependentId: ${dependentIdToSend}`);
+    // console.log(`📤 [DEBUG] OCR 데이터 저장 시작 - dependentId: ${dependentIdToSend}`);
 
     // ✅ `dependentIdToSend`를 `ocrStore`에 전달
     await ocrStore.saveOcrDataToDB(dependentIdToSend);

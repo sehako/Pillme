@@ -10,7 +10,7 @@ const firebaseConfig = {
   appId: "1:256685141880:web:8fe6c1e8c62513a0e6628d",       // 앱 ID - 공개 정보
 };
 
-console.log("FCM", firebaseConfig);
+// console.log("FCM", firebaseConfig);
 
 export const app = initializeApp(firebaseConfig);
 export const messaging = getMessaging(app);

@@ -98,7 +98,7 @@ const sendMessage = () => {
     message: newMessage.value,
     timestamp: Date.now()
   };
-  console.log(messageData);
+  // console.log(messageData);
   // WebSocket을 통해 메시지 전송
   stompClient.send(`/publish/chat.${chatRoomData.chatRoomId}`, headers, JSON.stringify(messageData));
 
@@ -107,7 +107,7 @@ const sendMessage = () => {
 
 // ✅ 메시지 수신 처리
 const receiveMessage = (message) => {
-  console.log(message)
+  // console.log(message)
   messages.value.push(message);
   if (isAtBottom.value) {
     nextTick(scrollToBottom);
