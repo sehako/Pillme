@@ -529,7 +529,7 @@ const fetchData = async () => {
 
 // -----------------  복약 체크 및 완료 처리 함수 -----------------
 const handleAllDrugCheck = (medications,ifid) => {
-    console.log("모든 약 복용 체크",medications,ifid);
+    // console.log("모든 약 복용 체크",medications,ifid);
     prescriptionAllCheck(medications,ifid);
 };
 
@@ -544,7 +544,7 @@ const completeMedications = async () => {
 
         const periodMap = { "아침": "morning", "점심": "lunch", "저녁": "dinner", "자기전": "sleep" };
         const timePeriod = periodMap[nextNotificationPeriod.value];
-console.log(timePeriod)
+// console.log(timePeriod)
         if (!timePeriod) {
             alert("현재 시간대를 인식할 수 없습니다.");
             return;
@@ -568,7 +568,7 @@ console.log(timePeriod)
 // -----------------  watchEffect: 현재 시간대 변경 감지 및 복약 정보 업데이트 -----------------
 watchEffect(() => {
   if (nextNotificationPeriod.value) { // ✅ 값이 존재하는지 확인
-  console.log("✅ 현재 시간대:", nextNotificationPeriod.value);
+  // console.log("✅ 현재 시간대:", nextNotificationPeriod.value);
   fetchTodaysMedications(); // ✅ `nextNotificationPeriod.value`가 설정된 후 실행
   }
 });
@@ -577,9 +577,9 @@ watchEffect(() => {
 //----------------------약물 추가 후 자동 업데이트
 const handleRefresh = async() => {
   // 새로고침 로직 구현 (예: API 호출, 데이터 갱신 등)
-  console.log('HomeView 새로고침 이벤트 수신');
+  // console.log('HomeView 새로고침 이벤트 수신');
   await fetchData();
-  console.log(managementInfoList);
+  // console.log(managementInfoList);
   // 알림 설정 불러오기
   await loadNotificationSettings(); // Composable 함수 호출
 };
@@ -603,7 +603,7 @@ onUnmounted(() => {
 onMounted(async () => {
 
   await fetchData();
-  console.log(managementInfoList);
+  // console.log(managementInfoList);
   // 알림 설정 불러오기
   await loadNotificationSettings(); // Composable 함수 호출
 

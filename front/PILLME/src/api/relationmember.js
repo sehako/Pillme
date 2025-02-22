@@ -4,7 +4,7 @@ import apiClient from "./index";
 export const fetchRelationships = async () => {
   try {
     const response = await apiClient.get("/api/v1/dependency/relationships");
-    console.log("🔹 API 응답 데이터:", response.data.result);
+    // console.log("🔹 API 응답 데이터:", response.data.result);
 
     if (!response.data.result) {
       console.warn("⚠️ 응답 데이터에 result가 없습니다.");

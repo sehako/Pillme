@@ -181,7 +181,7 @@ const verifyPhone = async () => {
   const dataToSend = { phone: memberPhone.value };
   
   // 디버깅 로그: 전송할 데이터 출력
-  console.log("디버깅 로그 - addMemberAlarm에 보내는 데이터:", dataToSend);
+  // console.log("디버깅 로그 - addMemberAlarm에 보내는 데이터:", dataToSend);
 
   try {
     console.log("📨 회원 추가 알림 요청:", memberPhone.value);

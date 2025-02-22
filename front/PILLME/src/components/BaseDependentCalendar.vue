@@ -158,7 +158,7 @@ const calendarOptions = computed(() => ({
       const formattedDate = `${year}-${month}-01`;
       
       const targetId = props.dependentId;
-      console.log("요청할 날짜:", formattedDate, "대상 피부양자 ID:", targetId);
+      // console.log("요청할 날짜:", formattedDate, "대상 피부양자 ID:", targetId);
       
       const response = await fetchCalendarPrescriptions(formattedDate, targetId);
       
