@@ -105,7 +105,9 @@ import logo from './assets/Logo_font.svg';
 // import { useCssVar } from "@vueuse/core";
 import eventBus from './eventBus';
 // const fontSize = useCssVar("--global-font-size", document.documentElement);
+import { useRoute } from 'vue-router';
 
+const route = useRoute();
 // 기본 글씨 크기 설정
 // fontSize.value = fontSize.value || "16px";
 
