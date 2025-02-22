@@ -103,7 +103,7 @@ import logo from './assets/Logo_font.svg';
 
 
 // import { useCssVar } from "@vueuse/core";
-
+import eventBus from './eventBus';
 // const fontSize = useCssVar("--global-font-size", document.documentElement);
 
 // 기본 글씨 크기 설정
@@ -188,6 +188,21 @@ watch(
   },
   { immediate: true } // 즉시 실행 옵션 추가
 );
+
+watch(
+  () => ocrStore.showMedicationDialog,
+  (newVal, oldVal) => {
+    // MedicationScheduleDialog가 닫혔을 때 (true -> false)
+    if (oldVal === true && newVal === false) {
+      // 현재 라우트가 HomeView라면 (라우트 이름은 라우터 설정에 따라 달라질 수 있습니다)
+      if (route.name === 'HomeView') {
+        // HomeView에 새로고침 이벤트 전달
+        eventBus.emit('refresh-home');
+      }
+    }
+  }
+);
+
 onUnmounted(() => {
   cleanUpAuth();
   cleanUpRealVH();
