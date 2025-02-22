@@ -1,29 +1,21 @@
 import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
-import vueDevTools from 'vite-plugin-vue-devtools';
 import { VitePWA } from 'vite-plugin-pwa';
 
 export default defineConfig({
   server: {
     allowedHosts: "all",
   },
-  
   plugins: [
     vue(),
-    vueDevTools(),
     VitePWA({
       registerType: "autoUpdate",
-      devOptions: {
-        enabled: true,
-      },
       workbox: {
         clientsClaim: true,
         skipWaiting: false,
         cleanupOutdatedCaches: true,
         navigationPreload: true,
-        additionalManifestEntries: [
-          { url: '/index.html', revision: null }
-        ],
+        // additionalManifestEntries: [{ url: '/index.html', revision: null }],
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/pillme\.site\/.*/i,
@@ -31,9 +23,7 @@ export default defineConfig({
             options: {
               cacheName: 'api-cache',
               networkTimeoutSeconds: 20,
-              cacheableResponse: {
-                statuses: [0, 200]
-              }
+              cacheableResponse: { statuses: [0, 200] }
             }
           }
         ]
@@ -109,59 +99,11 @@ export default defineConfig({
           { src: "/icons/windows11/LargeTile.scale-400.png", sizes: "1240x1240", type: "image/png" }
         ],
       },
-      // 알림 관련 추가 설정
-      useNotifications: false,  // 알림 기능 비활성화
+      useNotifications: false,
       notifications: {
-        onUpdate: null,  // 업데이트 알림 비활성화
-        onInstall: null  // 설치 알림 비활성화
+        onUpdate: null,
+        onInstall: null
       }
     }),
-
   ],
-  
 });
-
-/**
- * 🚨 [개발 중에만 사용해야 하는 코드] 🚨
- *
- * - `devOptions.enabled = true` → 개발 중에도 PWA 테스트 가능 (배포 시 false로 변경 또는 삭제)
- * - `devOptions.type = "module"` → 개발 서버에서 서비스 워커 모듈 방식으로 실행 (배포 시 삭제)
- * - `devOptions.selfDestroying = true` → 개발 중 캐시 자동 초기화 (배포 시 삭제)
- *
- * 🎯 배포 전 주석 처리해야 하는 이유:
- * - `enabled: true`를 유지하면 PWA가 개발 모드로 실행되므로 실제 배포 환경에서 예상과 다르게 동작할 수 있음.
- * - `selfDestroying: true`가 있으면, 배포 후에도 새로고침 시마다 캐시가 초기화되어 PWA의 오프라인 기능이 비활성화됨.
- * - `type: "module"`은 Vite 개발 서버에서는 필요하지만, 프로덕션 빌드에서는 사용되지 않음.
- */
-
-/**
- * 🛠 [PWA 관련 주요 문제 및 디버깅 방법] 🛠
- *
- * 1️⃣ **PWA가 설치되지 않음**
- *    🔹 해결 방법:
- *       - `devOptions.enabled = true`로 설정 후 확인 (`npm run dev`)
- *       - `vite-plugin-pwa`가 정상적으로 동작하는지 확인 (`Application > Service Workers` 탭에서 상태 체크)
- *
- * 2️⃣ **오프라인 상태에서 캐싱된 페이지가 안 뜸**
- *    🔹 해결 방법:
- *       - `chrome://serviceworker-internals/`에 들어가서 서비스 워커 상태 확인
- *       - DevTools > Application > Cache Storage에서 `allowed-pages` 캐시가 제대로 등록되었는지 확인
- *       - `vite.config.js`에서 `globPatterns`이 올바르게 설정되었는지 점검
- *
- * 3️⃣ **PWA 업데이트 후 변경 사항이 반영되지 않음**
- *    🔹 해결 방법:
- *       - `Application > Service Workers > Update on reload` 체크 후 새로고침
- *       - Chrome DevTools에서 `Unregister` 후 다시 방문하여 서비스 워커 재등록
- *       - `registerType: 'autoUpdate'`가 설정되어 있는지 확인
- *
- * 4️⃣ **새로운 페이지를 추가했지만, PWA에서 인식하지 못함**
- *    🔹 해결 방법:
- *       - `vite.config.js`의 `runtimeCaching`에 새로운 경로 추가
- *       - `npm run build && npx serve -s dist`로 PWA 다시 배포 후 테스트
- *
- * 5️⃣ **서비스 워커가 예상과 다르게 동작함**
- *    🔹 해결 방법:
- *       - `chrome://serviceworker-internals/`에서 서비스 워커 로그 확인
- *       - `navigator.serviceWorker.getRegistrations()` 실행하여 등록된 서비스 워커 확인
- *       - `navigator.serviceWorker.register('/sw.js', { scope: '/' })` 실행 후 정상 등록되는지 확인
- */
