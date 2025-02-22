@@ -195,7 +195,7 @@ watch(
     // MedicationScheduleDialog가 닫혔을 때 (true -> false)
     if (oldVal === true && newVal === false) {
       // 현재 라우트가 HomeView라면 (라우트 이름은 라우터 설정에 따라 달라질 수 있습니다)
-      if (route.name === 'HomeView') {
+      if (route.name === 'Home') {
         // HomeView에 새로고침 이벤트 전달
         eventBus.emit('refresh-home');
       }
