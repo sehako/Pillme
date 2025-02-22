@@ -210,7 +210,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted,watchEffect } from 'vue';
+import { ref, computed, onMounted,watchEffect, onUnmounted } from 'vue';
 import { fetchAllDrugCheck } from '../api/drugcheck';
 import BaseButton from '../components/BaseButton.vue';
 import YellowCard from '../layout/YellowCard.vue';
