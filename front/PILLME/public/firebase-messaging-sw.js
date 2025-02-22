@@ -255,3 +255,17 @@ self.addEventListener('notificationclick', async (event) => {
     })()
   );
 });
+
+self.addEventListener('fetch', (event) => {
+  if (event.preloadResponse) {
+    event.respondWith(
+      (async () => {
+        const preloadResp = await event.preloadResponse;
+        if (preloadResp) {
+          return preloadResp;
+        }
+        return fetch(event.request);
+      })()
+    );
+  }
+});
