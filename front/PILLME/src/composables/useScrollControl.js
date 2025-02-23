@@ -9,9 +9,11 @@ export function useScrollControl(alwaysScrollablePages = []) {
     () => route.path,
     (current) => {
       isScrollAllowed.value =
-        alwaysScrollablePages.includes(current) || current.startsWith('/mypage');
+        alwaysScrollablePages.includes(current) ||
+        current.startsWith('/mypage') ||
+        current.startsWith('/oauth/additional-info');
 
-      if (!isScrollAllowed.value && !current.startsWith('/mypage')) {
+      if (!isScrollAllowed.value) {
         document.documentElement.style.overflow = 'hidden';
         document.body.style.overflow = 'hidden';
         window.scrollTo(0, 0);

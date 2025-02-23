@@ -162,7 +162,7 @@ const filteredInquiries = computed(() => {
 // 이벤트 핸들러
 const handleViewDetail = (inquiry) => {
   // 상세보기 구현
-  console.log('상세보기:', inquiry)
+  // console.log('상세보기:', inquiry)
   alert(`상세보기 - ${inquiry.title}`)
 }
 
