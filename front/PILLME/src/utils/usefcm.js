@@ -51,14 +51,14 @@ export function useFCM() {
 
       // Service Worker 등록 상태 확인
       const registration = await navigator.serviceWorker.getRegistration('/firebase-messaging-sw.js');
-      console.log('Service Worker registration:', registration);
+      // console.log('Service Worker registration:', registration);
 
       let token = ''
       // 알림 권한 확인
       if (Notification.permission !== 'granted') {
         const permission = await Notification.requestPermission();
         if (permission !== 'granted') {
-          console.log('알림 권한이 거부되었습니다.');
+          // console.log('알림 권한이 거부되었습니다.');
           return;
         }
       }
@@ -86,22 +86,22 @@ export function useFCM() {
   // FCM 토큰 발급
   const getFCMToken = async () => {
     try {
-      console.log('현재 알림 권한:', Notification.permission);
+      // console.log('현재 알림 권한:', Notification.permission);
       const permission = await Notification.requestPermission()
-      console.log('요청 후 알림 권한:', permission);
+      // console.log('요청 후 알림 권한:', permission);
 
       if (permission === 'granted') {
         const token = await getToken(messaging, {
           vapidKey: import.meta.env.VITE_FIREBASE_VAPID_KEY
         })
-        console.log('FCM 토큰:', token);
+        // console.log('FCM 토큰:', token);
 
         fcmToken.value = token
         await registerTokenToServer(token)
         return token
       }
 
-      console.log('알림 권한이 거부되었습니다.')
+      // console.log('알림 권한이 거부되었습니다.')
       return null
     } catch (error) {
       console.error('FCM 토큰 발급 중 오류 발생:', error)
@@ -112,9 +112,9 @@ export function useFCM() {
   // 토큰 서버 등록
   const registerTokenToServer = async (token) => {
     try {
-      console.log('서버 URL:', import.meta.env.VITE_API_URL);
-      console.log('토큰:', token);
-      console.log('accessToken:', localStorage.getItem('accessToken'));
+      // console.log('서버 URL:', import.meta.env.VITE_API_URL);
+      // console.log('토큰:', token);
+      // console.log('accessToken:', localStorage.getItem('accessToken'));
 
       const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/fcm`, {
         method: 'POST',
@@ -129,7 +129,7 @@ export function useFCM() {
         throw new Error('토큰 등록 실패')
       }
 
-      console.log('FCM 토큰이 서버에 등록되었습니다.')
+      // console.log('FCM 토큰이 서버에 등록되었습니다.')
     } catch (error) {
       console.error('토큰 서버 등록 중 오류 발생:', error)
       throw error
@@ -145,7 +145,7 @@ export function useFCM() {
       });
 
       if (!token) {
-        console.log('삭제할 FCM 토큰이 없습니다.');
+        // console.log('삭제할 FCM 토큰이 없습니다.');
         return;
       }
 
@@ -241,7 +241,7 @@ export function useFCM() {
 
   // 포그라운드 메시지 핸들러
   const handleForegroundMessage = (payload) => {
-    console.log('포그라운드 메시지 수신:', payload);
+    // console.log('포그라운드 메시지 수신:', payload);
 
     if (document.visibilityState === 'visible') {
       let notificationData;

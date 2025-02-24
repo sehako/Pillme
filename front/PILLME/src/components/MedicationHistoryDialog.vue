@@ -158,14 +158,14 @@ const saveOcrResultsForDependent = async () => {
     return;
   }
 
-  console.log(
-    `📤 [DEBUG] 피보호자 OCR 데이터 저장 시작 - dependentId: ${props.dependent.dependentId}`
-  );
+  // console.log(
+  //   `📤 [DEBUG] 피보호자 OCR 데이터 저장 시작 - dependentId: ${props.dependent.dependentId}`
+  // );
 
   try {
     await ocrStore.saveOcrDataToDB(props.dependent.dependentId); // ✅ 피보호자 ID 전달
     await loadMedicationData(props.dependent.dependentId); // ✅ 복약 내역 새로고침
-    console.log('✅ [DEBUG] OCR 데이터 저장 완료');
+    // console.log('✅ [DEBUG] OCR 데이터 저장 완료');
   } catch (error) {
     console.error('❌ OCR 결과 저장 실패:', error);
   }
@@ -190,7 +190,7 @@ const handleFileChange = (event) => {
   reader.onload = (e) => {
     const base64Image = e.target.result;
 
-    console.log(`📤 [DEBUG] 이미지 분석 페이지 이동 - dependentId: ${props.dependent?.dependentId}`);
+    // console.log(`📤 [DEBUG] 이미지 분석 페이지 이동 - dependentId: ${props.dependent?.dependentId}`);
 
     router.push({
       path: "/imageanalysis",
@@ -211,7 +211,7 @@ const fetchMedicationHistory = async () => {
       return;
     }
 
-    console.log(`🔍 피부양자(${props.dependent.dependentId})의 과거 복용내역 조회 시작`);
+    // console.log(`🔍 피부양자(${props.dependent.dependentId})의 과거 복용내역 조회 시작`);
     
     // ✅ 현재 날짜 기준 이전 달의 첫째 날 구하기
     const today = new Date();
@@ -225,7 +225,7 @@ const fetchMedicationHistory = async () => {
     );
     
     prescriptionList.value = prescriptions || [];
-    console.log('✅ 과거 복용내역 조회 완료:', prescriptions);
+    // console.log('✅ 과거 복용내역 조회 완료:', prescriptions);
   } catch (error) {
     console.error('❌ 과거 복용내역 조회 실패:', error);
   }
@@ -253,7 +253,7 @@ onMounted(() => {
   }
   // ✅ 페이지 이동 후 OCR 결과 저장
   if (route.query.dependentId && route.query.image) {
-    console.log('🔄 [DEBUG] OCR 분석 결과 자동 저장 실행');
+    // console.log('🔄 [DEBUG] OCR 분석 결과 자동 저장 실행');
     saveOcrResultsForDependent(props.dependent.dependentId);
   }
 });

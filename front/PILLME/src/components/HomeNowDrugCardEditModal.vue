@@ -186,7 +186,7 @@ const handleIndividualToggle = (medicationId, timeSlot, value) => {
     })
     .filter(med => !isNaN(med.managementId)); // NaN 값을 가진 항목 제거
 
-  console.log("📌 개별 토글 - 전송할 medications:", medications);
+  // console.log("📌 개별 토글 - 전송할 medications:", medications);
   
   const ifid = props.info.informationId;
   emit('thisdrugcheck', medications, ifid);
@@ -212,7 +212,7 @@ const handleAllMedicationsToggle = (value) => {
     sleep: value
   }));
   const ifid = props.info.informationId;
-  console.log("📌 전체 토글 - 전송할 medications:", medications);
+  // console.log("📌 전체 토글 - 전송할 medications:", medications);
 
   // ✅ 부모로 `medications` 객체 배열 전달
   emit('alldrugcheck', medications, ifid);

@@ -102,7 +102,7 @@ const handleclose = () => {
 
 // ✅ 카드 클릭 시 상세 모달로 전환
 const handleCardClick = (prescription) => {
-  console.log("📌 선택한 처방전:", prescription);
+  // console.log("📌 선택한 처방전:", prescription);
   selectedPrescription.value = prescription;
 };
 </script>

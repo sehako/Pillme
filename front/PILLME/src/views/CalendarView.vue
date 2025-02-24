@@ -255,19 +255,19 @@ async function toggleMedication(medication, timeSlot) {
 
   // 로컬 상태 업데이트 (옵티미스틱 업데이트)
   medication[property] = !medication[property];
-  console.log(
-    `[DEBUG] ${timeSlot} 토글됨: `,
-    medication[property],
-    "managementId:",
-    medication.managementId
-  );
+  // console.log(
+  //   `[DEBUG] ${timeSlot} 토글됨: `,
+  //   medication[property],
+  //   "managementId:",
+  //   medication.managementId
+  // );
 
   try {
     const result = await updateCheckTaking({
       managementId: medication.managementId,
       time: timeSlot,
     });
-    console.log("[API Response]", result);
+    // console.log("[API Response]", result);
   } catch (error) {
     console.error("Error updating check-taking:", error);
   }
@@ -301,7 +301,7 @@ async function confirmGlobalCheck(timeSlot) {
 
       // 서버에 복용 처리 요청
       const result = await fetchAllDrugCheck(timeSlot);
-      console.log("[toggleGlobal] API 응답:", result);
+      // console.log("[toggleGlobal] API 응답:", result);
 
       // 개별 약물 체크 상태도 업데이트
       medicationsList.value.forEach((medication) => {
@@ -340,13 +340,13 @@ function scrollToGroup(prescriptionIndex) {
 
 onMounted(async () => {
   try {
-    console.log("📡 [DEBUG] 처방전 데이터 불러오는 중...");
+    // console.log("📡 [DEBUG] 처방전 데이터 불러오는 중...");
     const { memberId: fetchedMemberId, prescriptions } =
       await fetchFormattedManagementInfo();
     
     const medicationList = await fetchManagementData();
 
-    console.log(medicationList);
+    // console.log(medicationList);
 
     memberId.value = fetchedMemberId;
     managementInfoList.value = prescriptions;
@@ -357,10 +357,10 @@ onMounted(async () => {
     );
     medicationsList.value = transformManagementDetails(managementDetails);
     // medicationsList.value = medicationList.result;
-    console.log(
-      // "📋 [DEBUG] 최종 변환된 Medication 리스트:",
-      medicationsList.value
-    );
+    // console.log(
+    //   // "📋 [DEBUG] 최종 변환된 Medication 리스트:",
+    //   medicationsList.value
+    // );
   } catch (error) {
     console.error("❌ [DEBUG] Management 정보 로드 실패:", error);
   }

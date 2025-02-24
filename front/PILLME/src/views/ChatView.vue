@@ -242,20 +242,20 @@ const loadAllManagementData = async () => {
     results.forEach(item => {
       processedManagementData.value[item.dependentId] = item.data;
     });
-    console.log("각 사용자별 가공된 복약 데이터:", processedManagementData.value);
+    // console.log("각 사용자별 가공된 복약 데이터:", processedManagementData.value);
 
     // 각 사용자의 aggregate 상태를 계산하여 콘솔에 출력
     for (const dependentId in processedManagementData.value) {
       const userData = processedManagementData.value[dependentId];
       if (!userData.hasPrescription) {
-        console.log(`Dependent ${dependentId}: 현재 복용중인 처방전이 없습니다.`);
+        // console.log(`Dependent ${dependentId}: 현재 복용중인 처방전이 없습니다.`);
       } else {
         const meds = userData.data;
         const morningStatus = aggregateStatus(meds, "morning");
         const lunchStatus = aggregateStatus(meds, "lunch");
         const dinnerStatus = aggregateStatus(meds, "dinner");
         const sleepStatus = aggregateStatus(meds, "sleep");
-        console.log(`Dependent ${dependentId} - 아침: ${morningStatus}, 점심: ${lunchStatus}, 저녁: ${dinnerStatus}, 자기 전: ${sleepStatus}`);
+        // console.log(`Dependent ${dependentId} - 아침: ${morningStatus}, 점심: ${lunchStatus}, 저녁: ${dinnerStatus}, 자기 전: ${sleepStatus}`);
       }
     }
   } catch (error) {
@@ -273,12 +273,12 @@ const connectWebSocket = () => {
   stompClient = Stomp.over(socket);
 
   stompClient.connect(headers, () => {
-    console.log("✅ WebSocket 연결됨");
+    // console.log("✅ WebSocket 연결됨");
 
     // ✅ 실시간 채팅방 목록 업데이트 구독
     stompClient.subscribe(`/subscribe/chat/list/${myId}`, (message) => {
       const updatedRoom = JSON.parse(message.body);
-      console.log(message)
+      // console.log(message)
       // ✅ 기존 채팅방 목록에서 업데이트된 채팅방 찾기
       const index = chatRooms.value.findIndex(room => room.chatRoomId === updatedRoom.chatRoomId);
       if (index !== -1) {
@@ -306,7 +306,7 @@ const loadChatRooms = async () => {
     chatRooms.value = rooms.map((room) => {
       // 내 ID와 일치하지 않는 ID를 상대방(opponent)으로 설정
       const isSender = room.sendUserId === myId;
-      console.log(room)
+      // console.log(room)
       return {
         chatRoomId: room.chatRoomId,
         opponentId: isSender ? room.receiveUserId : room.sendUserId,

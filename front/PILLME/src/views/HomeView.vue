@@ -210,7 +210,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted,watchEffect } from 'vue';
+import { ref, computed, onMounted,watchEffect, onUnmounted } from 'vue';
 import { fetchAllDrugCheck } from '../api/drugcheck';
 import BaseButton from '../components/BaseButton.vue';
 import YellowCard from '../layout/YellowCard.vue';
@@ -227,6 +227,8 @@ import { useNotificationSettings } from '../composables/useNotificationSettings'
 import { usePrescriptionHistory } from "../composables/usePrescriptionHistory";
 import HomeNowDrugCardEditModal from '../components/HomeNowDrugCardEditModal.vue'; // 모달 컴포넌트
 import { prescriptionAllCheck } from '../api/drugtaking';
+import eventBus from '../eventBus';
+
 
 // ----------------- Composable import 및 초기화 -----------------
 // ✅ Composable 사용
@@ -239,19 +241,19 @@ const {
 } = usePrescriptionHistory();
 
 // ----------------- 동적 컴포넌트 import -----------------
-//  My_Alarm.vue를 동적으로 import (모달에서만 로드)
+//    My_Alarm.vue를 동적으로 import (모달에서만 로드)
 const MyAlarmModal = defineAsyncComponent(() => import('../views/My_Alarm.vue'));
 
 // -----------------  Props 정의 -----------------
 defineProps({
- navbarHeight: Number, //  props 정의
+ navbarHeight: Number, //    props 정의
 });
 
 // -----------------  Ref 및 Computed 속성 선언 (상태 변수 관리) -----------------
 // ✅ 복약 완료 상태
 const isMedicationCompleted = ref(false);
 
-//  모달 상태 관리
+//    모달 상태 관리
 const isFamilyModalOpen = ref(false);
 const isAlarmModalOpen = ref(false);
 const medSearchDialog = ref(null);
@@ -271,11 +273,11 @@ const selectedMedication = ref('')
 const managementInfoList = ref([]);
 
 const modalClass = computed(() => {
-  return {
-    sm: "w-[300px] h-[400px]",
-    md: "w-[500px] h-[600px]",
-    lg: "w-[80%] max-w-lg"
-  }[modalSize.value];
+    return {
+     sm: "w-[300px] h-[400px]",
+     md: "w-[500px] h-[600px]",
+     lg: "w-[80%] max-w-lg"
+    }[modalSize.value];
 });
 
 // 약 이름 포맷팅 유틸리티 함수
@@ -362,11 +364,11 @@ const nextNotificationPeriod = computed(() => {
 
 // ----------------- 모달 제어 함수 (열고 닫기) -----------------
 const openFamilyModal = () => {
-  isFamilyModalOpen.value = true;
+    isFamilyModalOpen.value = true;
 };
 
 const openSetAlarmModal = () => {
-  isAlarmModalOpen.value = true;
+    isAlarmModalOpen.value = true;
 };
 
 const closeSetAlarmModal = async () => {
@@ -375,13 +377,13 @@ const closeSetAlarmModal = async () => {
 };
 
 const openSearchDialog = () => {
-  medSearchDialog.value.openDialog();
+    medSearchDialog.value.openDialog();
 };
 
 const closeEditModal = async () => {
-  isEditModalOpen.value = false;
-  await fetchData(); // 최신 데이터 리패칭
-  await fetchTodaysMedications(); // 오늘의 복약 내역 리패칭
+    isEditModalOpen.value = false;
+    await fetchData(); // 최신 데이터 리패칭
+    await fetchTodaysMedications(); // 오늘의 복약 내역 리패칭
 };
 const openTodaysMedicationModal = () => {
   showTodaysMedicationModal.value = true;
@@ -414,20 +416,20 @@ function closeMedicationModal() {
 
 // 수정하기 버튼 클릭 시 호출하는 함수
 const openEditModal = (info) => {
-  selectedInfo.value = info; // 수정할 정보 저장
-  console.log("📌 수정할 정보:", info);
-  isEditModalOpen.value = true; // 모달 열기
+    selectedInfo.value = info; // 수정할 정보 저장
+    // console.log("📌 수정할 정보:", info);
+    isEditModalOpen.value = true; // 모달 열기
 };
 
 // ----------------- 외부 클릭 감지 함수 (모달 닫기) -----------------
 const handleClickOutside = (event) => {
-  // 예를 들어 특정 모달이 열려 있을 때, 모달 외부를 클릭하면 닫히도록 처리 가능
-  if (isFamilyModalOpen.value) {
-    const modal = document.querySelector('.modal-class'); // 실제 모달 클래스에 맞게 변경
-    if (modal && !modal.contains(event.target)) {
-      isFamilyModalOpen.value = false;
-    }
-  }
+    // 예를 들어 특정 모달이 열려 있을 때, 모달 외부를 클릭하면 닫히도록 처리 가능
+    if (isFamilyModalOpen.value) {
+     const modal = document.querySelector('.modal-class'); // 실제 모달 클래스에 맞게 변경
+     if (modal && !modal.contains(event.target)) {
+       isFamilyModalOpen.value = false;
+     }
+    }
 };
 
 
@@ -482,53 +484,53 @@ const fetchTodaysMedications = async () => {
           todaysMedications.value = "약 정보 없음";
         }
 
-        // ✅ 복약 완료 상태 업데이트 (수정된 부분 반영)
-        const currentTakingKey = periodMap[nextNotificationPeriod.value] + "Taking"; // 예: morningTaking
-        isMedicationCompleted.value = medicationsForCurrentPeriod.length > 0 &&
-          medicationsForCurrentPeriod.every(med => med[currentTakingKey]);
+         // ✅ 복약 완료 상태 업데이트 (수정된 부분 반영)
+         const currentTakingKey = periodMap[nextNotificationPeriod.value] + "Taking"; // 예: morningTaking
+         isMedicationCompleted.value = medicationsForCurrentPeriod.length > 0 &&
+          medicationsForCurrentPeriod.every(med => med[currentTakingKey]);
 
 
-      } else {
-        todaysMedications.value = "약 정보 없음"; // 현재 시간대에 해당하는 정보가 없을 경우 (예상치 못한 상황)
-      }
-    } else {
-      todaysMedications.value = "약 정보 없음"; // 데이터 결과가 없을 경우
-    }
-  } catch (error) {
-    console.error("❌ [DEBUG] 복약 리스트 가져오기 실패:", error);
-    todaysMedications.value = "데이터 불러오기 실패";
-  }
+       } else {
+         todaysMedications.value = "약 정보 없음"; // 현재 시간대에 해당하는 정보가 없을 경우 (예상치 못한 상황)
+       }
+     } else {
+       todaysMedications.value = "약 정보 없음"; // 데이터 결과가 없을 경우
+     }
+    } catch (error) {
+     console.error("❌ [DEBUG] 복약 리스트 가져오기 실패:", error);
+     todaysMedications.value = "데이터 불러오기 실패";
+    }
 };
 
 // ✅ API에서 `managementInfoList` 가져오는 함수
 const fetchData = async () => {
-  try {
-    const data = await fetchFormattedManagementInfo();
+    try {
+     const data = await fetchFormattedManagementInfo();
 
-    managementInfoList.value = data.prescriptions.length > 0
-      ? data.prescriptions.map(prescription => {
-          // ✅ medicationPeriod에서날짜 형식의 날짜 추출
-          const periodMatch = prescription.medicationPeriod.match(/(\d{4}-\d{2}-\d{2})/g);
-          const startDate = periodMatch?.[0] || null;
-          const endDate = periodMatch?.[1] || null;
-          
-          return {
-            ...prescription,
-            startDate,
-            endDate
-          };
-        })
-      : [{ diseaseName: "복용 내역 없음", medicationPeriod: "", medications: "", hospital: "", startDate: null, endDate: null }];
-  } catch (error) {
-    console.error("❌ [DEBUG] Management 정보 로드 실패:", error);
-    managementInfoList.value = [{ diseaseName: "데이터 불러오기 실패", medicationPeriod: "", medications: "", hospital: "", startDate: null, endDate: null }];
-  }
+     managementInfoList.value = data.prescriptions.length > 0
+       ? data.prescriptions.map(prescription => {
+          // ✅ medicationPeriod에서날짜 형식의 날짜 추출
+          const periodMatch = prescription.medicationPeriod.match(/(\d{4}-\d{2}-\d{2})/g);
+          const startDate = periodMatch?.[0] || null;
+          const endDate = periodMatch?.[1] || null;
+           
+          return {
+            ...prescription,
+            startDate,
+            endDate
+          };
+         })
+       : [{ diseaseName: "복용 내역 없음", medicationPeriod: "", medications: "", hospital: "", startDate: null, endDate: null }];
+    } catch (error) {
+     console.error("❌ [DEBUG] Management 정보 로드 실패:", error);
+     managementInfoList.value = [{ diseaseName: "데이터 불러오기 실패", medicationPeriod: "", medications: "", hospital: "", startDate: null, endDate: null }];
+    }
 };
 
 // -----------------  복약 체크 및 완료 처리 함수 -----------------
 const handleAllDrugCheck = (medications,ifid) => {
-  console.log("모든 약 복용 체크",medications,ifid);
-  prescriptionAllCheck(medications,ifid);
+    // console.log("모든 약 복용 체크",medications,ifid);
+    prescriptionAllCheck(medications,ifid);
 };
 
 
@@ -542,7 +544,7 @@ const completeMedications = async () => {
 
         const periodMap = { "아침": "morning", "점심": "lunch", "저녁": "dinner", "자기전": "sleep" };
         const timePeriod = periodMap[nextNotificationPeriod.value];
-console.log(timePeriod)
+// console.log(timePeriod)
         if (!timePeriod) {
             alert("현재 시간대를 인식할 수 없습니다.");
             return;
@@ -565,23 +567,48 @@ console.log(timePeriod)
 
 // -----------------  watchEffect: 현재 시간대 변경 감지 및 복약 정보 업데이트 -----------------
 watchEffect(() => {
-  if (nextNotificationPeriod.value) { // ✅ 값이 존재하는지 확인
-    console.log("✅ 현재 시간대:", nextNotificationPeriod.value);
-    fetchTodaysMedications(); // ✅ `nextNotificationPeriod.value`가 설정된 후 실행
-  }
+  if (nextNotificationPeriod.value) { // ✅ 값이 존재하는지 확인
+  // console.log("✅ 현재 시간대:", nextNotificationPeriod.value);
+  fetchTodaysMedications(); // ✅ `nextNotificationPeriod.value`가 설정된 후 실행
+  }
 });
 
-// -----------------  onMounted: 컴포넌트 마운트 후 실행되는 로직 -----------------
-//  컴포넌트가 마운트되면 데이터 및 이벤트 리스너 등록
-onMounted(async () => {
-  
-  await fetchData();
-  console.log(managementInfoList);
-  // 알림 설정 불러오기
-  await loadNotificationSettings(); // Composable 함수 호출
 
-  // 클릭 이벤트 리스너 등록
-  document.addEventListener("click", handleClickOutside);
+//----------------------약물 추가 후 자동 업데이트
+const handleRefresh = async() => {
+  // 새로고침 로직 구현 (예: API 호출, 데이터 갱신 등)
+  // console.log('HomeView 새로고침 이벤트 수신');
+  await fetchData();
+  // console.log(managementInfoList);
+  // 알림 설정 불러오기
+  await loadNotificationSettings(); // Composable 함수 호출
+};
+
+onMounted(() => {
+  eventBus.on('refresh-home', handleRefresh);
+});
+
+onUnmounted(() => {
+  eventBus.off('refresh-home', handleRefresh);
+});
+
+
+
+
+
+
+
+// -----------------  onMounted: 컴포넌트 마운트 후 실행되는 로직 -----------------
+//    컴포넌트가 마운트되면 데이터 및 이벤트 리스너 등록
+onMounted(async () => {
+
+  await fetchData();
+  // console.log(managementInfoList);
+  // 알림 설정 불러오기
+  await loadNotificationSettings(); // Composable 함수 호출
+
+  // 클릭 이벤트 리스너 등록
+  document.addEventListener("click", handleClickOutside);
 });
 </script>
 <style scoped>

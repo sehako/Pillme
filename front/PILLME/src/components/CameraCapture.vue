@@ -84,7 +84,7 @@ const refocusCamera = async () => {
   if (capabilities.focusMode) {
     try {
       await track.applyConstraints({ advanced: [{ focusMode: "continuous" }] });
-      console.log("📌 초점 재조정됨!");
+      // console.log("📌 초점 재조정됨!");
     } catch (error) {
       console.error("⚠ 초점 재조정 실패:", error);
     }

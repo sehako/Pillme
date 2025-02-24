@@ -109,7 +109,7 @@ let activeNotificationRect = null;
 const loadNotifications = async () => {
   notifications.value = await fetchNotifications();
   notifications.value.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-  console.log("📌 Fetched Notifications:", JSON.stringify(notifications.value, null, 2));
+  // console.log("📌 Fetched Notifications:", JSON.stringify(notifications.value, null, 2));
 };
 
 
@@ -139,7 +139,7 @@ const handleDeleteAll = async () => {
 
 // 알림 읽음(단일)
 const handleMarkAsRead = async (notificationId) => {
-  console.log(`📩 알림 읽음 처리 요청:`, notificationId);
+  // console.log(`📩 알림 읽음 처리 요청:`, notificationId);
 
   // notificationId를 숫자로 변환
   const parsedId = Number(notificationId);
@@ -161,7 +161,7 @@ const handleMarkAsRead = async (notificationId) => {
   
   if (success) {
     notification.confirm = true; // UI에서 읽음 처리 반영
-    console.log(`✅ 알림 ${parsedId} 읽음 처리 완료`);
+    // console.log(`✅ 알림 ${parsedId} 읽음 처리 완료`);
   } else {
     console.error("❌ 알림 읽음 처리 실패");
   }
@@ -177,7 +177,7 @@ const handleDelete = async (notificationId) => {
   const success = await deleteNotification([notificationId]); // ✅ API 호출 (단일 ID만 포함)
   
   if (success) {
-    console.log(`🚀 알림 삭제 성공: ${notificationId}`);
+    // console.log(`🚀 알림 삭제 성공: ${notificationId}`);
     notifications.value = notifications.value.filter(n => n.notificationId !== notificationId);
     isDialogOpen.value = false; // ✅ 다이얼로그 닫기 (삭제해야할 부분인지 확인)
   } else {
@@ -187,7 +187,7 @@ const handleDelete = async (notificationId) => {
 
 
 const handleReject = async ({ id }) => {
-  console.log("🚨 거절된 관리자 요청 senderId:", id);
+  // console.log("🚨 거절된 관리자 요청 senderId:", id);
 
   if (!id) {
     console.error("❌ 유효하지 않은 senderId");
@@ -206,7 +206,7 @@ const handleReject = async ({ id }) => {
 
   const success = await deleteNotification(notificationIds);
   if (success) {
-    console.log("🚀 관리자 요청 거절 후 알림 삭제 성공:", notificationIds);
+    // console.log("🚀 관리자 요청 거절 후 알림 삭제 성공:", notificationIds);
     notifications.value = notifications.value.filter(n => !notificationIds.includes(n.notificationId));
 
     // ✅ 토큰 유지 및 유저 정보 복구
@@ -222,7 +222,7 @@ const handleClose = async () => {
   isDeleteDialogOpen.value = false;
   }
 const handleAccept = async ({ id }) => {
-  console.log("✅ 승인된 관리자 요청 senderId:", id);
+  // console.log("✅ 승인된 관리자 요청 senderId:", id);
 
   if (!id) {
     console.error("❌ 유효하지 않은 senderId");
@@ -241,7 +241,7 @@ const handleAccept = async ({ id }) => {
 
   const success = await deleteNotification(notificationIds);
   if (success) {
-    console.log("🚀 관리자 요청 승인 후 알림 삭제 성공:", notificationIds);
+    // console.log("🚀 관리자 요청 승인 후 알림 삭제 성공:", notificationIds);
     notifications.value = notifications.value.filter(n => !notificationIds.includes(n.notificationId));
 
     // ✅ 토큰 유지 및 유저 정보 복구
@@ -266,7 +266,7 @@ const restoreUserSession = async () => {
         if (newAccessTokenData?.result?.accessToken) {
           userInfo = decodeToken(newAccessTokenData.result.accessToken);
           useUserStore().setUser(userInfo);
-          console.log("🔄 [DEBUG] 새 액세스 토큰으로 유저 정보 업데이트 성공:", userInfo);
+          // console.log("🔄 [DEBUG] 새 액세스 토큰으로 유저 정보 업데이트 성공:", userInfo);
         } else {
           console.error("❌ [DEBUG] 새 액세스 토큰 발급 실패, 로그아웃 필요");
         }
@@ -275,7 +275,7 @@ const restoreUserSession = async () => {
       }
     } else {
       useUserStore().setUser(userInfo);
-      console.log("🔄 [DEBUG] 기존 액세스 토큰으로 유저 정보 업데이트 성공:", userInfo);
+      // console.log("🔄 [DEBUG] 기존 액세스 토큰으로 유저 정보 업데이트 성공:", userInfo);
     }
   }, 500);
 };
@@ -284,7 +284,7 @@ const restoreUserSession = async () => {
 
 // 관리자 요청 다이얼로그 열기
 const openDialog = async (notification, index, event) => {
-  console.log("📌 Clicked Notification:", notification);
+  // console.log("📌 Clicked Notification:", notification);
 
   if (!['DEPENDENCY_REQUEST', 'MEDICINE_REQUEST', 'DEPENDENCY_DELETE_REQUEST'].includes(notification.code)) return;
 
@@ -326,7 +326,7 @@ const updateDialogPosition = () => {
 
 // ✅ 가족 관계 삭제 요청 수락
 const handleDeleteAccept = async ({ id, dependencyId, notificationId }) => {
-  console.log("✅ 가족 삭제 요청 수락:", id);
+  // console.log("✅ 가족 삭제 요청 수락:", id);
 
   // 알림 삭제
   const notificationIds = notifications.value
@@ -345,7 +345,7 @@ const handleDeleteAccept = async ({ id, dependencyId, notificationId }) => {
 
 // ✅ 가족 관계 삭제 요청 거절
 const handleDeleteReject = async ({ id, dependencyId, notificationId }) => {
-  console.log("❌ 가족 삭제 요청 거절:", id);
+  // console.log("❌ 가족 삭제 요청 거절:", id);
 
   // 알림 삭제
   const notificationIds = notifications.value

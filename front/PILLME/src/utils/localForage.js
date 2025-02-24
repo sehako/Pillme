@@ -10,7 +10,7 @@ localforage.config({
 export const saveAccessToken = async (accessToken) => {
     try {
         await localforage.setItem("accessToken", accessToken);
-        console.log("✅ Access Token 저장 완료");
+        // console.log("✅ Access Token 저장 완료");
     } catch (error) {
         console.error("❌ Access Token 저장 중 오류 발생:", error);
     }
@@ -30,7 +30,7 @@ export const getAccessToken = async () => {
 export const deleteAccessToken = async () => {
     try {
         await localforage.removeItem("accessToken");
-        console.log("✅ Access Token 삭제 완료");
+        // console.log("✅ Access Token 삭제 완료");
     } catch (error) {
         console.error("❌ Access Token 삭제 중 오류 발생:", error);
     }

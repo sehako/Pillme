@@ -22,7 +22,7 @@
           <li v-for="(item, index) in menuItems" 
               :key="index" 
               @click="selectedMenu = item"
-              class="py-3 rounded cursor-pointer text-[clamp(16px,2.5vw,24px)] whitespace-nowrap"
+              class="py-3 rounded cursor-pointer whitespace-nowrap"
               :class="{ 'font-bold text-[#3D5A3F]': selectedMenu === item }">
             {{ item }}
           </li>

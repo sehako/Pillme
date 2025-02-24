@@ -63,12 +63,12 @@ export const leaveChatRoom = async (chatRoomId) => {
     const data = response.data;
 
     if (data.isSuccess) {
-      console.log("✅ 채팅방에서 나갔습니다.");
+      // console.log("채팅방에서 나갔습니다.");
     } else {
-      console.error("❌ 채팅방 나가기 실패");
+      // console.error("채팅방 나가기 실패");
     }
   } catch (error) {
-    console.error("❌ 채팅방 나가기 중 오류 발생:", error);
+    console.error("채팅방 나가기 중 오류 발생:", error);
   }
 };
 
@@ -78,11 +78,11 @@ export const readChatRoom = async (chatRoomId) => {
     const data = response.data;
 
     if (data.isSuccess) {
-      console.log("✅ 채팅 내역을 읽었습니다.");
+      // console.log("채팅 내역을 읽었습니다.");
     } else {
-      console.error("❌ 채팅 내역 읽기 실패");
+      // console.error("채팅 내역 읽기 실패");
     }
   } catch (error) {
-    console.error("❌ 채팅방 내역 읽기 중 오류 발생:", error);
+    console.error("채팅방 내역 읽기 중 오류 발생:", error);
   }
 };

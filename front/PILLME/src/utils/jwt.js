@@ -8,10 +8,9 @@ export const decodeToken = (token) => {
     }
 
     const decoded = jwtDecode(token);
-    console.log("🔑 디코딩된 JWT 정보:", decoded);
     return decoded;
   } catch (error) {
-    console.error("❌ JWT 디코딩 실패:", error);
+    console.error("JWT 디코딩 실패:", error);
     return null;
   }
 };
@@ -28,8 +27,7 @@ export const isTokenExpired = (token) => {
     const expirationTime = decoded.exp * 1000;
     const currentTime = Date.now();
     
-    console.log("⏰ 토큰 만료 시간:", new Date(expirationTime));
-    console.log("⏰ 현재 시간:", new Date(currentTime));
+
     
     return currentTime >= expirationTime;
   } catch (error) {

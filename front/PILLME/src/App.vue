@@ -103,9 +103,11 @@ import logo from './assets/Logo_font.svg';
 
 
 // import { useCssVar } from "@vueuse/core";
-
+import eventBus from './eventBus';
 // const fontSize = useCssVar("--global-font-size", document.documentElement);
+import { useRoute } from 'vue-router';
 
+const route = useRoute();
 // 기본 글씨 크기 설정
 // fontSize.value = fontSize.value || "16px";
 
@@ -132,7 +134,7 @@ const { notifications, removeNotification, handleAccept, handleReject, initializ
 // visibility 변경 감지 핸들러
 const handleVisibilityChange = async () => {
   if (document.visibilityState === 'visible') {
-    console.log('앱이 포그라운드로 전환됨');
+    // console.log('앱이 포그라운드로 전환됨');
     if (isLoggedIn.value) {
       try {
         await authStore.checkAndRefreshToken();
@@ -188,6 +190,21 @@ watch(
   },
   { immediate: true } // 즉시 실행 옵션 추가
 );
+
+watch(
+  () => ocrStore.showMedicationDialog,
+  (newVal, oldVal) => {
+    // MedicationScheduleDialog가 닫혔을 때 (true -> false)
+    if (oldVal === true && newVal === false) {
+      // 현재 라우트가 HomeView라면 (라우트 이름은 라우터 설정에 따라 달라질 수 있습니다)
+      if (route.name === 'Home') {
+        // HomeView에 새로고침 이벤트 전달
+        eventBus.emit('refresh-home');
+      }
+    }
+  }
+);
+
 onUnmounted(() => {
   cleanUpAuth();
   cleanUpRealVH();

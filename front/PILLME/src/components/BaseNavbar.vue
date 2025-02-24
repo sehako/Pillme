@@ -77,7 +77,7 @@ const handleFileChange = (event) => {
   const reader = new FileReader();
   reader.onload = (e) => {
     const base64Image = e.target.result; // ✅ Base64 데이터
-    console.log("📸 업로드된 이미지 Base64:", base64Image);
+    // console.log("📸 업로드된 이미지 Base64:", base64Image);
 
     // ✅ URL 인코딩 적용하여 전송
     router.push({

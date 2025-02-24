@@ -12,13 +12,13 @@ export const getAdminStats = async () => {
 
 export const getMembers = async (page = 0, size = 10) => {
   try {
-    console.log('API 요청 파라미터:', { page, size })
+    // console.log('API 요청 파라미터:', { page, size })
     const response = await apiClient.get('/api/v1/admin/members', {
       params: { page, size },
     })
-    console.log('API 응답 전체:', response)
-    console.log('API 응답 데이터 구조:', response.data)
-    console.log('result 데이터:', response.data.result)
+    // console.log('API 응답 전체:', response)
+    // console.log('API 응답 데이터 구조:', response.data)
+    // console.log('result 데이터:', response.data.result)
     return response.data.result
   } catch (error) {
     console.error('API 호출 실패:', error)
@@ -50,17 +50,17 @@ export const updateMember = async (id, memberData) => {
 
 export const updateMemberStatus = async (id, isDeleted) => {
   try {
-    console.log('상태 변경 API 요청:', {
-      id,
-      isDeleted,
-      url: `/api/v1/admin/members/${id}/status`,
-    })
+    // console.log('상태 변경 API 요청:', {
+    //   id,
+    //   isDeleted,
+    //   url: `/api/v1/admin/members/${id}/status`,
+    // })
 
     const response = await apiClient.patch(`/api/v1/admin/members/${id}/status`, null, {
       params: { isDeleted },
     })
 
-    console.log('상태 변경 API 응답:', response.data)
+    // console.log('상태 변경 API 응답:', response.data)
     return response.data.result
   } catch (error) {
     console.error('API 호출 실패:', error)

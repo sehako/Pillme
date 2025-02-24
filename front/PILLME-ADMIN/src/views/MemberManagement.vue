@@ -242,7 +242,7 @@ export default {
     async fetchMembers() {
       try {
         const result = await getMembers(this.pagination.page, this.pagination.size)
-        console.log('원본 회원 데이터:', result)
+        // console.log('원본 회원 데이터:', result)
 
         // 회원 데이터 매핑
         const mappedContent = result.content.map((user) => ({
@@ -261,7 +261,7 @@ export default {
           status: user.deleted ? '탈퇴' : '활성',
         }))
 
-        console.log('매핑된 회원 데이터:', mappedContent)
+        // console.log('매핑된 회원 데이터:', mappedContent)
 
         this.users = mappedContent
         this.pagination.totalElements = result.totalElements
@@ -274,7 +274,7 @@ export default {
     async fetchStats() {
       try {
         const result = await getAdminStats()
-        console.log('통계 데이터:', result)
+        // console.log('통계 데이터:', result)
         this.stats = result
       } catch (error) {
         console.error('통계 조회 실패:', error)
@@ -286,18 +286,18 @@ export default {
         return this.fetchMembers()
       }
       try {
-        console.log('검색 요청 파라미터:', {
-          keyword: this.searchTerm,
-          page: this.pagination.page,
-          size: this.pagination.size,
-        })
+        // console.log('검색 요청 파라미터:', {
+        //   keyword: this.searchTerm,
+        //   page: this.pagination.page,
+        //   size: this.pagination.size,
+        // })
 
         const result = await searchMembers(
           this.searchTerm,
           this.pagination.page,
           this.pagination.size,
         )
-        console.log('검색 결과 원본:', result)
+        // console.log('검색 결과 원본:', result)
 
         const mappedContent = result.content.map((user) => ({
           id: user.id,
@@ -312,7 +312,7 @@ export default {
           status: user.deleted ? '탈퇴' : '활성',
         }))
 
-        console.log('검색 결과 매핑 후:', mappedContent)
+        // console.log('검색 결과 매핑 후:', mappedContent)
 
         this.users = mappedContent
         this.pagination.totalElements = result.totalElements
@@ -331,23 +331,23 @@ export default {
         const user = this.users.find((u) => u.id === userId)
         const newStatus = user.status === '활성' // true면 탈퇴, false면 활성
 
-        console.log('상태 변경 시도:', {
-          userId,
-          현재_회원_정보: user,
-          현재상태: user.status,
-          변경될상태: newStatus ? '탈퇴' : '활성',
-          요청할_deleted값: newStatus,
-        })
+        // console.log('상태 변경 시도:', {
+        //   userId,
+        //   현재_회원_정보: user,
+        //   현재상태: user.status,
+        //   변경될상태: newStatus ? '탈퇴' : '활성',
+        //   요청할_deleted값: newStatus,
+        // })
 
         await updateMemberStatus(userId, newStatus)
-        console.log('상태 변경 API 호출 완료')
+        // console.log('상태 변경 API 호출 완료')
 
         // 상태 변경 후 목록 새로고침
         await this.fetchMembers()
 
         // 성공 여부 확인을 위해 변경된 유저 정보 로깅
         const updatedUser = this.users.find((u) => u.id === userId)
-        console.log('상태 변경 후 회원 정보:', updatedUser)
+        // console.log('상태 변경 후 회원 정보:', updatedUser)
       } catch (error) {
         console.error('회원 상태 변경 실패:', error)
         console.error('에러 상세:', {
@@ -358,7 +358,7 @@ export default {
     },
 
     openEditDialog(user) {
-      console.log('수정할 유저 정보:', user)
+      // console.log('수정할 유저 정보:', user)
       const editingUser = { ...user }
       this.editingUser = editingUser
       this.showEditDialog = true
@@ -376,10 +376,10 @@ export default {
         // birthday 형식 변환 (yyyy-mm-dd -> yyyymmdd)
         const formattedBirthday = this.editingUser.birthday?.replace(/-/g, '') || null
 
-        console.log('수정 요청할 데이터:', {
-          ...this.editingUser,
-          birthday: formattedBirthday,
-        })
+        // console.log('수정 요청할 데이터:', {
+        //   ...this.editingUser,
+        //   birthday: formattedBirthday,
+        // })
 
         await updateMember(this.editingUser.id, {
           name: this.editingUser.name,

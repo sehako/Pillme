@@ -94,7 +94,7 @@ const loadMembers = async () => {
       })),
     ];
 
-    console.log("✅ 불러온 가족 목록:", members.value);
+    // console.log("✅ 불러온 가족 목록:", members.value);
   } catch (error) {
     console.error("❌ 가족 목록을 불러오는 중 오류 발생:", error);
   }
@@ -108,7 +108,7 @@ const filteredMembers = computed(() => {
 
 // ✅ 관계 삭제 요청 (dependencyId 사용)
 const confirmDelete = async (dependencyId) => {
-  console.log(`🛠 삭제 요청: dependencyId = ${dependencyId}`);
+  // console.log(`🛠 삭제 요청: dependencyId = ${dependencyId}`);
 
   if (!dependencyId) {
     console.error("❌ dependencyId가 없습니다!", dependencyId);
@@ -127,7 +127,7 @@ const confirmDelete = async (dependencyId) => {
   // ✅ 삭제 요청 실행
   const success = await requestDependencyDelete(dependencyId);
   if (success) {
-    console.log("✅ 삭제 요청이 성공적으로 전송되었습니다.");
+    // console.log("✅ 삭제 요청이 성공적으로 전송되었습니다.");
   } else {
     console.error(`❌ dependencyId=${dependencyId} 삭제 요청 실패`);
     members.value[memberIndex].isRequestPending = false; // ❌ 실패 시 요청 중 상태 해제

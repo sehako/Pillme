@@ -5,7 +5,7 @@ import apiClient from './index';
 export const createNotificationSetting = async (settings) => {
   try {
     const response = await apiClient.post('/api/v1/notification/setting', settings);
-    console.log('알림 설정 생성 성공:', response.data);
+    // console.log('알림 설정 생성 성공:', response.data);
     return response.data;
   } catch (error) {
     console.error('알림 설정 생성 실패:', error);
@@ -17,7 +17,7 @@ export const createNotificationSetting = async (settings) => {
 export const updateNotificationSetting = async (settings) => {
   try {
     const response = await apiClient.put('/api/v1/notification/setting', settings);
-    console.log('알림 설정 수정 성공:', response.data);
+    // console.log('알림 설정 수정 성공:', response.data);
     return response.data;
   } catch (error) {
     console.error('알림 설정 수정 실패:', error);
@@ -29,7 +29,7 @@ export const updateNotificationSetting = async (settings) => {
 export const deleteNotificationSetting = async () => {
   try {
     const response = await apiClient.delete('/api/v1/notification/setting');
-    console.log('알림 설정 삭제 성공:', response.data);
+    // console.log('알림 설정 삭제 성공:', response.data);
     return response.data;
   } catch (error) {
     console.error('알림 설정 삭제 실패:', error);
@@ -42,7 +42,7 @@ export const fetchNotificationSettings = async () => {
   try {
     const response = await apiClient.get('/api/v1/notification/setting'); // ✅ GET 요청
 
-    // ✅ 배열을 "HH:MM" 형식으로 변환하는 함수 (null 값은 그대로 유지)
+    // 배열을 "HH:MM" 형식으로 변환하는 함수 (null 값은 그대로 유지)
     const formatTime = (value) => {
       if (Array.isArray(value) && value.length === 2) {
         // 시간이 1자리면 앞에 0 붙이기 (01:03 형식 유지)
@@ -55,7 +55,7 @@ export const fetchNotificationSettings = async () => {
 
     const result = response.data.result;
 
-    // ✅ 변환된 데이터 반환 (null은 그대로 유지)
+    // 변환된 데이터 반환 (null은 그대로 유지)
     return {
       morning: formatTime(result.morning),
       lunch: formatTime(result.lunch),
@@ -64,7 +64,7 @@ export const fetchNotificationSettings = async () => {
     };
 
   } catch (error) {
-    console.error('❌ 알림 설정 불러오기 실패:', error);
+    console.error('알림 설정 불러오기 실패:', error);
     throw error;
   }
 };

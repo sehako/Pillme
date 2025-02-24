@@ -234,14 +234,14 @@ export const useOcrStore = defineStore('ocr', {
           })),
         };
 
-        console.log('📤 [DEBUG] API 요청 데이터:', JSON.stringify(requestData, null, 2));
+        // console.log('📤 [DEBUG] API 요청 데이터:', JSON.stringify(requestData, null, 2));
 
         // ✅ API 요청 실행
         const response = await apiClient.post('/api/v1/management', requestData);
 
         // ✅ 응답이 있는지 확인
         if (response && response.data) {
-          console.log('✅ OCR 데이터 저장 성공:', response.data);
+          // console.log('✅ OCR 데이터 저장 성공:', response.data);
         } else {
           console.warn('⚠️ 응답 데이터가 없음. response:', response);
         }

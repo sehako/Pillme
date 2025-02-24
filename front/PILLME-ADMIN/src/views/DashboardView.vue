@@ -205,7 +205,7 @@ const fetchMemberStats = async () => {
   try {
     isLoading.value = true
     const result = await getAdminStats()
-    console.log('통계 데이터:', result) // {total: 3, deleted: 2, active: 1}
+    // console.log('통계 데이터:', result) // {total: 3, deleted: 2, active: 1}
     memberStats.value = result
   } catch (error) {
     console.error('에러 발생:', error)

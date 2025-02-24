@@ -51,7 +51,7 @@ const handleReject = async () => {
 
   const success = await rejectAdminRequest(props.id);
   if (success) {
-    console.log("🚀 알림 거절 성공:", props.id);
+    // console.log("🚀 알림 거절 성공:", props.id);
     emit("reject", { id: props.id });
   } else {
     console.error("❌ 알림 거절 실패");
@@ -68,7 +68,7 @@ const handleAccept = async () => {
 
   const success = await acceptAdminRequest(props.id);
   if (success) {
-    console.log("✅ 알림 승인 성공:", props.id);
+    // console.log("✅ 알림 승인 성공:", props.id);
     emit("accept", { id: props.id });
   } else {
     console.error("❌ 알림 승인 실패");

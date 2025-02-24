@@ -148,7 +148,7 @@ const handleSmsVerification = async () => {
     const success = await requestSmsVerification(phoneNumber.value);
     if (success) {
       // response.data.isSuccess 대신 success로 확인
-      console.log('📨 SMS 인증번호 발송 성공');
+      // console.log('📨 SMS 인증번호 발송 성공');
       errorMessage.value = '인증번호가 발송되었습니다.';
       isSmsSent.value = true;
     }
